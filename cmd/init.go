@@ -17,7 +17,7 @@ func NewInit() (cli.Command, error) {
 
 func (i initCmd) Help() string {
 	return `
-	Initialize Git Metric to start recording time
+	Initialize Git Time Metric to start recording time
 
 	The init command is required to be called from
 	the root of the git project.
@@ -35,6 +35,6 @@ func (i initCmd) Run(args []string) int {
 
 func (i initCmd) Synopsis() string {
 	return `
-	Initialize Git Metric to start recording time
+	Initialize Git Time Metric to start recording time
 	`
 }

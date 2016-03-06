@@ -3,6 +3,9 @@ package cmd
 import (
 	"fmt"
 
+	"edgeg.io/gtm/cfg"
+	"edgeg.io/gtm/event"
+
 	"github.com/mitchellh/cli"
 )
 
@@ -28,16 +31,13 @@ func (r RecordCmd) Run(args []string) int {
 		fmt.Println("Unable to record, file not provided")
 		return 1
 	}
-	//eventLog, err := newEventLog()
-	//if err == ErrGitMetricNotInitialized {
-	//	return 0
-	//}
 
-	////TODO: add an option to turn off silencing ErrFileDoesNotExist errors
-	//if err := eventLog.record(args[0]); err != nil && err != ErrFileDoesNotExist {
-	//	fmt.Println(err)
-	//	return 1
-	//}
+	//TODO: add an option to turn off silencing ErrFileNotFound errors
+	if err := event.Save(args[0]); err != nil &&
+		!(err == cfg.ErrNotInitialized || err == cfg.ErrFileNotFound) {
+		fmt.Println(err)
+		return 1
+	}
 
 	return 0
 }
