@@ -14,33 +14,32 @@ import (
 	"github.com/satori/go.uuid"
 )
 
-func Save(file string) error {
+func Save(file string) (string, error) {
+
 	if !cfg.FileExist(file) {
-		return cfg.ErrFileNotFound
+		return "", cfg.ErrFileNotFound
 	}
 
 	filePath, err := cfg.FilePath(file)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	rootPath, gtmPath, err := cfg.Paths(filePath)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	relFilePath, err := cfg.RelativePath(file, rootPath)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	if err := writeFile(relFilePath, gtmPath); err != nil {
-		return err
+		return "", err
 	}
 
-	Sweep(epoch.MinutePast(), gtmPath)
-
-	return nil
+	return gtmPath, nil
 }
 
 type event struct {
