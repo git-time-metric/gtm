@@ -15,6 +15,7 @@ func main() {
 	c.Commands = map[string]cli.CommandFactory{
 		"init":   cmd.NewInit,
 		"record": cmd.NewRecord,
+		"commit": cmd.NewCommit,
 	}
 
 	exitStatus, err := c.Run()

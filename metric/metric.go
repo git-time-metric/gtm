@@ -1,10 +1,12 @@
 package metric
 
 import (
-	"encoding/json"
+	"crypto/sha1"
 	"fmt"
 	"io/ioutil"
 	"path/filepath"
+	"strconv"
+	"strings"
 
 	"edgeg.io/gtm/cfg"
 	"edgeg.io/gtm/epoch"
@@ -12,17 +14,7 @@ import (
 	"github.com/dickeyxxx/golock"
 )
 
-type Metrics struct {
-	Files map[string]int `json:"files"`
-}
-
-func (m *Metrics) AddTime(f string, t int) {
-	m.Files[f] += t
-}
-
-func ProcessEvents() error {
-	epochMarker := epoch.MinutePast()
-
+func Process() error {
 	_, gtmPath, err := cfg.Paths()
 	if err != nil {
 		return err
@@ -34,68 +26,94 @@ func ProcessEvents() error {
 	}
 	defer golock.Unlock(lockFile)
 
-	eventMap, err := event.Sweep(epochMarker, gtmPath)
+	eventMap, err := event.Sweep(gtmPath)
 	if err != nil {
 		return err
 	}
 
-	metrics, err := read(gtmPath)
+	metricMap, err := load(gtmPath)
 	if err != nil {
 		return err
 	}
 
 	for epoch := range eventMap {
-		fileMap := make(map[string]int)
-		total := 0
-		for file := range eventMap[epoch] {
-			total += eventMap[epoch][file]
-			fileMap[file] += eventMap[epoch][file]
-		}
-		allocateTime(metrics, fileMap, total)
+		allocateTime(metricMap, eventMap[epoch])
 	}
 
-	if err := save(gtmPath, metrics); err != nil {
-		return err
-	}
+	fmt.Printf("%+v\n", eventMap)
+	fmt.Printf("%+v\n", metricMap)
 
 	return nil
 }
 
-func allocateTime(metrics *Metrics, fileMap map[string]int, total int) {
-	var timeAllocated int
-	var lastFile string
+func fileID(filePath string) string {
+	return fmt.Sprintf("%x", sha1.Sum([]byte(filePath)))
+}
+
+func allocateTime(metricMap map[string]int, fileMap map[string]int) {
+	total := 0
+	for file := range fileMap {
+		total += fileMap[file]
+	}
+
+	lastFile := ""
+	timeAllocated := 0
 	for file := range fileMap {
 		dur := int(float64(fileMap[file]) / float64(total) * float64(epoch.WindowSize))
-		metrics.AddTime(file, dur)
+		metricMap[fileID(file)] += dur
 		timeAllocated += dur
 		lastFile = file
 	}
 	//let's make sure all of the EpochWindowSize seconds is allocated
 	//we put the remaining on the last list of events
 	if lastFile != "" && timeAllocated < epoch.WindowSize {
-		metrics.AddTime(lastFile, epoch.WindowSize-timeAllocated)
+		metricMap[fileID(lastFile)] += epoch.WindowSize - timeAllocated
 	}
 }
 
-func read(gtmPath string) (*Metrics, error) {
-	ms := Metrics{}
-	fp := filepath.Join(gtmPath, "metrics.json")
-	if b, err := ioutil.ReadFile(string(fp)); err == nil {
-		if err := json.Unmarshal(b, &ms); err != nil {
-			return &ms, fmt.Errorf("Reading metrics file failed with error %s", err)
-		}
+func load(gtmPath string) (map[string]int, error) {
+	files, err := ioutil.ReadDir(gtmPath)
+	if err != nil {
+		return nil, err
 	}
-	return &ms, nil
+
+	metrics := map[string]int{}
+	for _, file := range files {
+
+		if !strings.HasSuffix(file.Name(), ".metric") {
+			continue
+		}
+
+		metricFilePath := filepath.Join(gtmPath, file.Name())
+
+		t, err := read(metricFilePath)
+		if err != nil {
+			continue
+		}
+		metrics[file.Name()] = t
+	}
+
+	return metrics, nil
 }
 
-func save(gtmPath string, metrics *Metrics) error {
-	if b, err := json.Marshal(metrics); err != nil {
-		return fmt.Errorf("Save metrics to file failed with error %s", err)
-	} else {
-		fp := filepath.Join(gtmPath, "metrics.json")
-		if err := ioutil.WriteFile(fp, b, 0644); err != nil {
-			return fmt.Errorf("Saving metrics to file failed with error %s", err)
-		}
+func read(filePath string) (int, error) {
+	b, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		return 0, err
 	}
+
+	return strconv.Atoi(string(b))
+}
+
+func write(gtmPath, fileID string, t int) error {
+	if err := ioutil.WriteFile(
+		filepath.Join(
+			gtmPath,
+			fmt.Sprintf("%s.metric", fileID)),
+		[]byte(strconv.Itoa(t)),
+		0644); err != nil {
+		return err
+	}
+
 	return nil
 }

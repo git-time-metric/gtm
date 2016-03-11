@@ -3,7 +3,6 @@ package event
 import (
 	"fmt"
 	"io/ioutil"
-	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -19,15 +18,11 @@ func Save(file string) error {
 		return err
 	}
 
-	if err := writeFile(relFilePath, gtmPath); err != nil {
+	if err := write(relFilePath, gtmPath); err != nil {
 		return err
 	}
 
 	return nil
-}
-
-type event struct {
-	File string `json:"file"`
 }
 
 func findPaths(file string) (string, string, error) {
@@ -53,7 +48,7 @@ func findPaths(file string) (string, string, error) {
 	return relFilePath, gtmPath, nil
 }
 
-func writeFile(relFilePath, gtmPath string) error {
+func write(relFilePath, gtmPath string) error {
 	if err := ioutil.WriteFile(
 		filepath.Join(
 			gtmPath,
@@ -66,7 +61,7 @@ func writeFile(relFilePath, gtmPath string) error {
 	return nil
 }
 
-func readFile(filePath string) (string, string, error) {
+func read(filePath string) (string, string, error) {
 	b, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		return "", "", err
@@ -79,7 +74,7 @@ func readFile(filePath string) (string, string, error) {
 	return parts[0], parts[1], nil
 }
 
-func Sweep(epochMarker int64, gtmPath string) (map[int64]map[string]int, error) {
+func Sweep(gtmPath string) (map[int64]map[string]int, error) {
 	files, err := ioutil.ReadDir(gtmPath)
 	if err != nil {
 		return nil, err
@@ -96,17 +91,17 @@ func Sweep(epochMarker int64, gtmPath string) (map[int64]map[string]int, error) 
 		eventFilePath := filepath.Join(gtmPath, file.Name())
 		removeFiles = append(removeFiles, eventFilePath)
 
-		s := strings.SplitN(file.Name(), "-", 3)
-		if len(s) < 3 {
+		s := strings.SplitN(file.Name(), "-", 2)
+		if len(s) < 2 {
 			continue
 		}
 
-		fileEpoch, err := strconv.ParseInt(s[1], 10, 64)
+		fileEpoch, err := strconv.ParseInt(s[0], 10, 64)
 		if err != nil {
 			continue
 		}
 
-		_, recordedFilePath, err := readFile(eventFilePath)
+		_, recordedFilePath, err := read(eventFilePath)
 		if err != nil {
 			continue
 		}
@@ -117,15 +112,6 @@ func Sweep(epochMarker int64, gtmPath string) (map[int64]map[string]int, error) 
 		events[fileEpoch][recordedFilePath] += 1
 	}
 
-	remove(removeFiles)
+	cfg.RemoveFiles(removeFiles)
 	return events, nil
-}
-
-func remove(files []string) error {
-	for _, file := range files {
-		if err := os.Remove(file); err != nil {
-			return err
-		}
-	}
-	return nil
 }

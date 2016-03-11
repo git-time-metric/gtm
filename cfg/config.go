@@ -116,3 +116,12 @@ func FileExist(f string) bool {
 	}
 	return true
 }
+
+func RemoveFiles(files []string) error {
+	for _, file := range files {
+		if err := os.Remove(file); err != nil {
+			return err
+		}
+	}
+	return nil
+}
