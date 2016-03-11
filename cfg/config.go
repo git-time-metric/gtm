@@ -38,11 +38,16 @@ func Initialize() error {
 	return nil
 }
 
-func Paths(path string) (string, string, error) {
-	rootPath, err := GitRootPath(path)
+func Paths(path ...string) (string, string, error) {
+	p := ""
+	if len(path) > 0 {
+		p = path[0]
+	}
+	rootPath, err := GitRootPath(p)
 	if err != nil {
 		return "", "", ErrNotInitialized
 	}
+
 	gtmPath := filepath.Join(rootPath, ".gtm")
 	if _, err := os.Stat(gtmPath); os.IsNotExist(err) {
 		return "", "", ErrNotInitialized

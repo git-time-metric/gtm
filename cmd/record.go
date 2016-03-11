@@ -5,7 +5,6 @@ import (
 
 	"edgeg.io/gtm/cfg"
 	"edgeg.io/gtm/event"
-	"edgeg.io/gtm/metric"
 
 	"github.com/mitchellh/cli"
 )
@@ -34,13 +33,7 @@ func (r RecordCmd) Run(args []string) int {
 	}
 
 	//TODO: add an option to turn off silencing ErrFileNotFound errors
-	gtmPath, err := event.Save(args[0])
-	if err != nil && !(err == cfg.ErrNotInitialized || err == cfg.ErrFileNotFound) {
-		fmt.Println(err)
-		return 1
-	}
-
-	if err := metric.ProcessEvents(gtmPath); err != nil {
+	if err := event.Save(args[0]); err != nil && !(err == cfg.ErrNotInitialized || err == cfg.ErrFileNotFound) {
 		fmt.Println(err)
 		return 1
 	}

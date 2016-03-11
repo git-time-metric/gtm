@@ -1,7 +1,6 @@
 package event
 
 import (
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -14,52 +13,70 @@ import (
 	"github.com/satori/go.uuid"
 )
 
-func Save(file string) (string, error) {
-
-	if !cfg.FileExist(file) {
-		return "", cfg.ErrFileNotFound
-	}
-
-	filePath, err := cfg.FilePath(file)
+func Save(file string) error {
+	relFilePath, gtmPath, err := findPaths(file)
 	if err != nil {
-		return "", err
-	}
-
-	rootPath, gtmPath, err := cfg.Paths(filePath)
-	if err != nil {
-		return "", err
-	}
-
-	relFilePath, err := cfg.RelativePath(file, rootPath)
-	if err != nil {
-		return "", err
+		return err
 	}
 
 	if err := writeFile(relFilePath, gtmPath); err != nil {
-		return "", err
+		return err
 	}
 
-	return gtmPath, nil
+	return nil
 }
 
 type event struct {
 	File string `json:"file"`
 }
 
-func writeFile(relFilePath, gtmPath string) error {
-	j, err := json.Marshal(event{relFilePath})
+func findPaths(file string) (string, string, error) {
+	if !cfg.FileExist(file) {
+		return "", "", cfg.ErrFileNotFound
+	}
+
+	filePath, err := cfg.FilePath(file)
 	if err != nil {
+		return "", "", err
+	}
+
+	rootPath, gtmPath, err := cfg.Paths(filePath)
+	if err != nil {
+		return "", "", err
+	}
+
+	relFilePath, err := cfg.RelativePath(file, rootPath)
+	if err != nil {
+		return "", "", err
+	}
+
+	return relFilePath, gtmPath, nil
+}
+
+func writeFile(relFilePath, gtmPath string) error {
+	if err := ioutil.WriteFile(
+		filepath.Join(
+			gtmPath,
+			fmt.Sprintf("%d-%s.event", epoch.MinuteNow(), uuid.NewV4().String()[:8])),
+		[]byte(fmt.Sprintf("%s,%s", gtmPath, relFilePath)),
+		0644); err != nil {
 		return err
 	}
 
-	eventFile := filepath.Join(
-		gtmPath,
-		fmt.Sprintf("event-%d-%s.json", epoch.MinuteNow(), uuid.NewV4().String()[:8]))
-
-	if err := ioutil.WriteFile(eventFile, j, 0644); err != nil {
-		return err
-	}
 	return nil
+}
+
+func readFile(filePath string) (string, string, error) {
+	b, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		return "", "", err
+	}
+	parts := strings.Split(string(b), ",")
+	if len(parts) < 2 {
+		return "", "", fmt.Errorf("Unable to read event %s, invalid contents %s", filePath, string(b))
+	}
+
+	return parts[0], parts[1], nil
 }
 
 func Sweep(epochMarker int64, gtmPath string) (map[int64]map[string]int, error) {
@@ -72,12 +89,12 @@ func Sweep(epochMarker int64, gtmPath string) (map[int64]map[string]int, error) 
 	removeFiles := []string{}
 	for _, file := range files {
 
-		if !strings.HasPrefix(file.Name(), "event-") || !strings.HasSuffix(file.Name(), ".json") {
+		if !strings.HasSuffix(file.Name(), ".event") {
 			continue
 		}
 
-		filePath := filepath.Join(gtmPath, file.Name())
-		removeFiles = append(removeFiles, filePath)
+		eventFilePath := filepath.Join(gtmPath, file.Name())
+		removeFiles = append(removeFiles, eventFilePath)
 
 		s := strings.SplitN(file.Name(), "-", 3)
 		if len(s) < 3 {
@@ -87,27 +104,17 @@ func Sweep(epochMarker int64, gtmPath string) (map[int64]map[string]int, error) 
 		fileEpoch, err := strconv.ParseInt(s[1], 10, 64)
 		if err != nil {
 			continue
-		} else if fileEpoch > epochMarker {
-			//not ready yet for processing
-			//pop it off the removeFile list
-			removeFiles = removeFiles[:len(removeFiles)]
-			continue
 		}
 
-		b, err := ioutil.ReadFile(string(filePath))
+		_, recordedFilePath, err := readFile(eventFilePath)
 		if err != nil {
-			continue
-		}
-
-		var e event
-		if err := json.Unmarshal(b, &e); err != nil {
 			continue
 		}
 
 		if _, ok := events[fileEpoch]; !ok {
 			events[fileEpoch] = make(map[string]int, 0)
 		}
-		events[fileEpoch][e.File] += 1
+		events[fileEpoch][recordedFilePath] += 1
 	}
 
 	remove(removeFiles)

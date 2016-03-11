@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"path/filepath"
 
+	"edgeg.io/gtm/cfg"
 	"edgeg.io/gtm/epoch"
 	"edgeg.io/gtm/event"
 	"github.com/dickeyxxx/golock"
@@ -19,8 +20,13 @@ func (m *Metrics) AddTime(f string, t int) {
 	m.Files[f] += t
 }
 
-func ProcessEvents(gtmPath string) error {
+func ProcessEvents() error {
 	epochMarker := epoch.MinutePast()
+
+	_, gtmPath, err := cfg.Paths()
+	if err != nil {
+		return err
+	}
 
 	lockFile := filepath.Join(gtmPath, "gtm.lock")
 	if err := golock.Lock(lockFile); err != nil {
@@ -42,8 +48,8 @@ func ProcessEvents(gtmPath string) error {
 		fileMap := make(map[string]int)
 		total := 0
 		for file := range eventMap[epoch] {
-			total += 1
-			fileMap[file] += 1
+			total += eventMap[epoch][file]
+			fileMap[file] += eventMap[epoch][file]
 		}
 		allocateTime(metrics, fileMap, total)
 	}
