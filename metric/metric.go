@@ -4,6 +4,8 @@ import (
 	"crypto/sha1"
 	"fmt"
 	"io/ioutil"
+	"log"
+	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -14,7 +16,7 @@ import (
 	"github.com/dickeyxxx/golock"
 )
 
-func Process() error {
+func Process(dryRun bool) error {
 	_, gtmPath, err := cfg.Paths()
 	if err != nil {
 		return err
@@ -26,58 +28,105 @@ func Process() error {
 	}
 	defer golock.Unlock(lockFile)
 
-	eventMap, err := event.Sweep(gtmPath)
+	epochEventMap, err := event.Sweep(gtmPath)
 	if err != nil {
 		return err
 	}
 
-	metricMap, err := load(gtmPath)
+	metricMap, err := loadMetrics(gtmPath)
 	if err != nil {
 		return err
 	}
 
-	for epoch := range eventMap {
-		allocateTime(metricMap, eventMap[epoch])
+	for epoch := range epochEventMap {
+		allocateTime(metricMap, epochEventMap[epoch])
 	}
 
-	fmt.Printf("%+v\n", eventMap)
-	fmt.Printf("%+v\n", metricMap)
+	m, err := cfg.GitCommitMsg()
+	if err != nil {
+		return err
+	}
+	_, _, commitFiles := cfg.GitParseMessage(m)
+
+	commitMap := map[string]metricFile{}
+	if !dryRun {
+		//for only files in the last commit
+		for _, f := range commitFiles {
+			fileID := getFileID(f)
+			if _, ok := metricMap[fileID]; !ok {
+				continue
+			}
+			commitMap[fileID] = metricMap[fileID]
+		}
+	}
+
+	log.Printf("epochEventMap -> %+v", epochEventMap)
+	log.Printf("metricMap -> %+v", metricMap)
+	log.Printf("commitMap -> %+v", commitMap)
+	log.Printf("dryRun -> %+v", dryRun)
+
+	writeNote(gtmPath, metricMap, commitMap, dryRun)
+	saveMetrics(gtmPath, metricMap, commitMap, dryRun)
 
 	return nil
 }
 
-func fileID(filePath string) string {
+func getFileID(filePath string) string {
 	return fmt.Sprintf("%x", sha1.Sum([]byte(filePath)))
 }
 
-func allocateTime(metricMap map[string]int, fileMap map[string]int) {
+func allocateTime(metricMap map[string]metricFile, eventMap map[string]int) {
 	total := 0
-	for file := range fileMap {
-		total += fileMap[file]
+	for file := range eventMap {
+		total += eventMap[file]
 	}
 
 	lastFile := ""
 	timeAllocated := 0
-	for file := range fileMap {
-		dur := int(float64(fileMap[file]) / float64(total) * float64(epoch.WindowSize))
-		metricMap[fileID(file)] += dur
-		timeAllocated += dur
+	for file := range eventMap {
+		t := int(float64(eventMap[file]) / float64(total) * float64(epoch.WindowSize))
+		fileID := getFileID(file)
+		mf, ok := metricMap[fileID]
+		if !ok {
+			mf = metricFile{GitFile: file, Time: 0, Updated: true}
+		}
+		mf.AddTime(t)
+
+		//NOTE - Go has some gotchas when it comes to structs contained within maps
+		//A copy is returned and not the reference to the struct
+		//https://groups.google.com/forum/#!topic/golang-nuts/4_pabWnsMp0
+		//assigning the new & updated metricFile instance to the map
+		metricMap[fileID] = mf
+
+		timeAllocated += t
 		lastFile = file
 	}
-	//let's make sure all of the EpochWindowSize seconds is allocated
+	//let's make sure all of the EpochWindowSize seconds are allocated
 	//we put the remaining on the last list of events
 	if lastFile != "" && timeAllocated < epoch.WindowSize {
-		metricMap[fileID(lastFile)] += epoch.WindowSize - timeAllocated
+		mf := metricMap[getFileID(lastFile)]
+		mf.AddTime(epoch.WindowSize - timeAllocated)
 	}
 }
 
-func load(gtmPath string) (map[string]int, error) {
+type metricFile struct {
+	Updated bool
+	GitFile string
+	Time    int
+}
+
+func (m *metricFile) AddTime(t int) {
+	m.Updated = true
+	m.Time += t
+}
+
+func loadMetrics(gtmPath string) (map[string]metricFile, error) {
 	files, err := ioutil.ReadDir(gtmPath)
 	if err != nil {
 		return nil, err
 	}
 
-	metrics := map[string]int{}
+	metrics := map[string]metricFile{}
 	for _, file := range files {
 
 		if !strings.HasSuffix(file.Name(), ".metric") {
@@ -86,34 +135,79 @@ func load(gtmPath string) (map[string]int, error) {
 
 		metricFilePath := filepath.Join(gtmPath, file.Name())
 
-		t, err := read(metricFilePath)
+		metricFile, err := readMetricFile(metricFilePath)
 		if err != nil {
 			continue
 		}
-		metrics[file.Name()] = t
+		metrics[strings.Replace(file.Name(), ".metric", "", 1)] = metricFile
 	}
 
 	return metrics, nil
 }
 
-func read(filePath string) (int, error) {
-	b, err := ioutil.ReadFile(filePath)
-	if err != nil {
-		return 0, err
+func saveMetrics(gtmPath string, metricMap map[string]metricFile, commitMap map[string]metricFile, dryRun bool) error {
+	for fileID, mf := range metricMap {
+		_, inCommit := commitMap[fileID]
+		if (mf.Updated && dryRun) || (mf.Updated && !inCommit) {
+			writeMetricFile(gtmPath, mf)
+		}
+		if !dryRun && inCommit {
+			removeMetricFile(gtmPath, fileID)
+		}
 	}
-
-	return strconv.Atoi(string(b))
+	return nil
 }
 
-func write(gtmPath, fileID string, t int) error {
+func readMetricFile(filePath string) (metricFile, error) {
+	b, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		return metricFile{}, err
+	}
+
+	parts := strings.Split(string(b), ",")
+
+	t, err := strconv.Atoi(string(parts[1]))
+	if err != nil {
+		return metricFile{}, err
+	}
+
+	return metricFile{GitFile: parts[0], Time: t, Updated: false}, nil
+}
+
+func writeMetricFile(gtmPath string, mf metricFile) error {
 	if err := ioutil.WriteFile(
-		filepath.Join(
-			gtmPath,
-			fmt.Sprintf("%s.metric", fileID)),
-		[]byte(strconv.Itoa(t)),
-		0644); err != nil {
+		filepath.Join(gtmPath, fmt.Sprintf("%s.metric", getFileID(mf.GitFile))),
+		[]byte(strings.Join([]string{mf.GitFile, strconv.Itoa(mf.Time)}, ",")), 0644); err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func removeMetricFile(gtmPath, fileID string) error {
+	if err := os.Remove(
+		filepath.Join(
+			gtmPath, fmt.Sprintf("%s.metric", fileID))); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func writeNote(gtmPath string, metricMap map[string]metricFile, commitMap map[string]metricFile, dryRun bool) {
+	if dryRun {
+		commitMap = metricMap
+	}
+	var total int
+	var note string
+	for _, mf := range commitMap {
+		total += mf.Time
+		note += fmt.Sprintf("%s:%d\n", mf.GitFile, mf.Time)
+	}
+	note = fmt.Sprintf("total:%d\n", total) + note
+	if dryRun {
+		fmt.Print(note)
+	} else {
+		//TODO: save note
+	}
 }

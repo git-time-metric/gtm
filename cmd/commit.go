@@ -1,6 +1,11 @@
 package cmd
 
 import (
+	"flag"
+	"io/ioutil"
+	"log"
+	"os"
+
 	"edgeg.io/gtm/metric"
 	"github.com/mitchellh/cli"
 )
@@ -21,7 +26,22 @@ func (r GitCommit) Help() string {
 }
 
 func (r GitCommit) Run(args []string) int {
-	metric.Process()
+	commitFlags := flag.NewFlagSet("commit", flag.ExitOnError)
+	dryRun := commitFlags.Bool(
+		"dry-run",
+		true,
+		"Do not create a note for the last commit and clear time metrics")
+	debug := commitFlags.Bool(
+		"debug",
+		false,
+		"Print debug statements to the console")
+	commitFlags.Parse(os.Args[2:])
+
+	if !*debug {
+		log.SetOutput(ioutil.Discard)
+	}
+
+	metric.Process(*dryRun)
 	return 0
 }
 

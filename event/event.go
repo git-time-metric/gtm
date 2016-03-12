@@ -26,7 +26,7 @@ func Save(file string) error {
 }
 
 func findPaths(file string) (string, string, error) {
-	if !cfg.FileExist(file) {
+	if !cfg.FileExists(file) {
 		return "", "", cfg.ErrFileNotFound
 	}
 
@@ -40,7 +40,7 @@ func findPaths(file string) (string, string, error) {
 		return "", "", err
 	}
 
-	relFilePath, err := cfg.RelativePath(file, rootPath)
+	relFilePath, err := filepath.Rel(rootPath, file)
 	if err != nil {
 		return "", "", err
 	}

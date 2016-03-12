@@ -15,6 +15,7 @@ var (
 )
 
 func Initialize() error {
+	//TODO initialize post git commit hook
 	var fp string
 
 	wd, err := os.Getwd()
@@ -67,13 +68,6 @@ func FilePath(f string) (string, error) {
 	return p, nil
 }
 
-func RelativePath(filePath, dirPath string) (string, error) {
-	if info, err := os.Stat(dirPath); err != nil || !info.IsDir() {
-		return "", fmt.Errorf("Unable to return a relativePath, path is not a valid directory %s", dirPath)
-	}
-	return strings.Replace(filePath, dirPath, "", 1), nil
-}
-
 func GitRootPath(path ...string) (string, error) {
 	cmd := exec.Command("git", "rev-parse", "--show-toplevel")
 	if len(path) > 0 {
@@ -110,7 +104,37 @@ func GitEmail(path ...string) (string, error) {
 	}
 }
 
-func FileExist(f string) bool {
+func GitCommitMsg(path ...string) (string, error) {
+	cmd := exec.Command("git", "log", "-1", "--oneline", "--raw")
+	if len(path) > 0 {
+		cmd.Dir = path[0]
+	}
+	if b, err := cmd.Output(); err != nil {
+		return "", nil
+	} else {
+		return string(b), err
+	}
+}
+
+func GitParseMessage(m string) (uuid, msg string, files []string) {
+	l := strings.Split(m, "\n")
+	files = make([]string, 0)
+	for i, v := range l {
+		if i == 0 {
+			s := strings.SplitN(v, " ", 2)
+			uuid = s[0]
+			msg = s[1]
+		} else {
+			if strings.TrimSpace(v) != "" {
+				s := strings.Split(v, "\t")
+				files = append(files, s[1])
+			}
+		}
+	}
+	return
+}
+
+func FileExists(f string) bool {
 	if _, err := os.Stat(f); os.IsNotExist(err) {
 		return false
 	}
