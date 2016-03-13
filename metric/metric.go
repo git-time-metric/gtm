@@ -251,7 +251,13 @@ func removeMetricFile(gtmPath, fileID string) error {
 
 func writeNote(gtmPath string, metricMap map[string]metricFile, commitMap map[string]metricFile, dryRun bool) error {
 	if dryRun {
-		commitMap = metricMap
+		commitMap = map[string]metricFile{}
+		for fileID, mf := range metricMap {
+			//include modified and git tracked files in commit map
+			if mf.GitTracked() && mf.GitModified() {
+				commitMap[fileID] = mf
+			}
+		}
 	}
 	var total int
 	var note string
