@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -249,6 +250,27 @@ func removeMetricFile(gtmPath, fileID string) error {
 	return nil
 }
 
+type metricFilePair struct {
+	Key   string
+	Value metricFile
+}
+
+type metricFileList []metricFilePair
+
+func newMetricFileList(m map[string]metricFile) metricFileList {
+	mfs := make(metricFileList, len(m))
+	i := 0
+	for k, v := range m {
+		mfs[i] = metricFilePair{k, v}
+		i++
+	}
+	return mfs
+}
+
+func (p metricFileList) Len() int           { return len(p) }
+func (p metricFileList) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
+func (p metricFileList) Less(i, j int) bool { return p[i].Value.Time < p[j].Value.Time }
+
 func writeNote(gtmPath string, metricMap map[string]metricFile, commitMap map[string]metricFile, dryRun bool) error {
 	if dryRun {
 		commitMap = map[string]metricFile{}
@@ -259,19 +281,30 @@ func writeNote(gtmPath string, metricMap map[string]metricFile, commitMap map[st
 			}
 		}
 	}
-	var total int
-	var note string
-	for _, mf := range commitMap {
-		total += mf.Time
-		note += fmt.Sprintf("%s:%d [m]\n", mf.GitFile, mf.Time)
+
+	var (
+		total int
+		note  string
+	)
+
+	commitList := newMetricFileList(commitMap)
+	sort.Sort(commitList)
+	for _, mf := range commitList {
+		total += mf.Value.Time
+		note += fmt.Sprintf("%s: %d [m]\n", mf.Value.GitFile, mf.Value.Time)
 	}
-	for fileID, mf := range metricMap {
+
+	metricList := newMetricFileList(metricMap)
+	sort.Sort(metricList)
+	for _, mf := range metricList {
 		// include git tracked and not modified files not in commit
-		if _, ok := commitMap[fileID]; !ok && mf.GitTracked() && !mf.GitModified() {
-			note += fmt.Sprintf("%s:%d [r]\n", mf.GitFile, mf.Time)
+		if _, ok := commitMap[mf.Key]; !ok && mf.Value.GitTracked() && !mf.Value.GitModified() {
+			total += mf.Value.Time
+			note += fmt.Sprintf("%s: %d [r]\n", mf.Value.GitFile, mf.Value.Time)
 		}
 	}
-	note = fmt.Sprintf("total:%d\n", total) + note
+	note = fmt.Sprintf("total: %d\n", total) + note
+
 	if dryRun {
 		fmt.Print(note)
 	} else {
@@ -280,5 +313,6 @@ func writeNote(gtmPath string, metricMap map[string]metricFile, commitMap map[st
 			return err
 		}
 	}
+
 	return nil
 }
