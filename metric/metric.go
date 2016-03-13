@@ -94,9 +94,9 @@ func allocateTime(metricMap map[string]metricFile, eventMap map[string]int) {
 		mf.AddTime(t)
 
 		//NOTE - Go has some gotchas when it comes to structs contained within maps
-		//A copy is returned and not the reference to the struct
-		//https://groups.google.com/forum/#!topic/golang-nuts/4_pabWnsMp0
-		//assigning the new & updated metricFile instance to the map
+		// a copy is returned and not the reference to the struct
+		// https://groups.google.com/forum/#!topic/golang-nuts/4_pabWnsMp0
+		// assigning the new & updated metricFile instance to the map
 		metricMap[fileID] = mf
 
 		timeAllocated += t
