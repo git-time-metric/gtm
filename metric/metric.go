@@ -40,7 +40,10 @@ func Process(dryRun bool) error {
 	}
 
 	for epoch := range epochEventMap {
-		allocateTime(metricMap, epochEventMap[epoch])
+		err := allocateTime(metricMap, epochEventMap[epoch])
+		if err != nil {
+			return err
+		}
 	}
 
 	m, err := scm.GitCommitMsg()
@@ -61,13 +64,13 @@ func Process(dryRun bool) error {
 		}
 	}
 
+	writeNote(gtmPath, metricMap, commitMap, dryRun)
+	saveMetrics(gtmPath, metricMap, commitMap, dryRun)
+
 	log.Printf("epochEventMap -> %+v", epochEventMap)
 	log.Printf("metricMap -> %+v", metricMap)
 	log.Printf("commitMap -> %+v", commitMap)
 	log.Printf("dryRun -> %+v", dryRun)
-
-	writeNote(gtmPath, metricMap, commitMap, dryRun)
-	saveMetrics(gtmPath, metricMap, commitMap, dryRun)
 
 	return nil
 }
@@ -76,7 +79,7 @@ func getFileID(filePath string) string {
 	return fmt.Sprintf("%x", sha1.Sum([]byte(filePath)))
 }
 
-func allocateTime(metricMap map[string]metricFile, eventMap map[string]int) {
+func allocateTime(metricMap map[string]metricFile, eventMap map[string]int) error {
 	total := 0
 	for file := range eventMap {
 		total += eventMap[file]
@@ -87,9 +90,18 @@ func allocateTime(metricMap map[string]metricFile, eventMap map[string]int) {
 	for file := range eventMap {
 		t := int(float64(eventMap[file]) / float64(total) * float64(epoch.WindowSize))
 		fileID := getFileID(file)
-		mf, ok := metricMap[fileID]
+
+		var (
+			mf  metricFile
+			ok  bool
+			err error
+		)
+		mf, ok = metricMap[fileID]
 		if !ok {
-			mf = metricFile{GitFile: file, Time: 0, Updated: true}
+			mf, err = newMetricFile(file, 0, true)
+			if err != nil {
+				return err
+			}
 		}
 		mf.AddTime(t)
 
@@ -102,16 +114,17 @@ func allocateTime(metricMap map[string]metricFile, eventMap map[string]int) {
 		timeAllocated += t
 		lastFile = file
 	}
-	//let's make sure all of the EpochWindowSize seconds are allocated
-	//we put the remaining on the last list of events
+	// let's make sure all of the EpochWindowSize seconds are allocated
+	// we put the remaining on the last list of events
 	if lastFile != "" && timeAllocated < epoch.WindowSize {
 		mf := metricMap[getFileID(lastFile)]
 		mf.AddTime(epoch.WindowSize - timeAllocated)
 	}
+	return nil
 }
 
 type metricFile struct {
-	Updated bool
+	Updated bool // Updated signifies if we need to save metric file
 	GitFile string
 	Time    int
 }
@@ -119,6 +132,32 @@ type metricFile struct {
 func (m *metricFile) AddTime(t int) {
 	m.Updated = true
 	m.Time += t
+}
+
+func (m *metricFile) GitTracked() bool {
+	tracked, err := scm.GitTracked(m.GitFile)
+	if err != nil {
+		// for ease of use, let's squash errors
+		log.Printf("%s", err)
+		return false
+	}
+
+	return tracked
+}
+
+func (m *metricFile) GitModified() bool {
+	modified, err := scm.GitModified(m.GitFile)
+	if err != nil {
+		// for ease of use, let's squash errors
+		log.Printf("%s", err)
+		return false
+	}
+
+	return modified
+}
+
+func newMetricFile(f string, t int, updated bool) (metricFile, error) {
+	return metricFile{GitFile: f, Time: t, Updated: updated}, nil
 }
 
 func loadMetrics(gtmPath string) (map[string]metricFile, error) {
@@ -153,7 +192,9 @@ func saveMetrics(gtmPath string, metricMap map[string]metricFile, commitMap map[
 			if mf.Updated && !inCommit {
 				writeMetricFile(gtmPath, mf)
 			}
-			if inCommit {
+			// remove files in commit or
+			// remove git tracked and not modified files not in commit
+			if inCommit || (!inCommit && mf.GitTracked() && !mf.GitModified()) {
 				removeMetricFile(gtmPath, fileID)
 			}
 		}
@@ -162,7 +203,7 @@ func saveMetrics(gtmPath string, metricMap map[string]metricFile, commitMap map[
 }
 
 func readMetricFile(filePath string) (metricFile, error) {
-	log.Printf("readMetricFile -> %+v\n", filePath)
+	log.Printf("readMetricFile -> %+v", filePath)
 	b, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		return metricFile{}, err
@@ -178,11 +219,16 @@ func readMetricFile(filePath string) (metricFile, error) {
 		return metricFile{}, fmt.Errorf("Unable to parse metric file %s, invalid time -> %s", err)
 	}
 
-	return metricFile{GitFile: parts[0], Time: t, Updated: false}, nil
+	mf, err := newMetricFile(parts[0], t, false)
+	if err != nil {
+		return metricFile{}, err
+	}
+
+	return mf, nil
 }
 
 func writeMetricFile(gtmPath string, mf metricFile) error {
-	log.Printf("writeMetricFile -> %+v\n", mf)
+	log.Printf("writeMetricFile -> %+v", mf)
 	if err := ioutil.WriteFile(
 		filepath.Join(gtmPath, fmt.Sprintf("%s.metric", getFileID(mf.GitFile))),
 		[]byte(fmt.Sprintf("%s,%d", mf.GitFile, mf.Time)), 0644); err != nil {
@@ -193,7 +239,7 @@ func writeMetricFile(gtmPath string, mf metricFile) error {
 }
 
 func removeMetricFile(gtmPath, fileID string) error {
-	log.Printf("removeMetricFile -> %+v\n", fileID)
+	log.Printf("removeMetricFile -> %+v", fileID)
 	if err := os.Remove(
 		filepath.Join(
 			gtmPath, fmt.Sprintf("%s.metric", fileID))); err != nil {
@@ -211,7 +257,13 @@ func writeNote(gtmPath string, metricMap map[string]metricFile, commitMap map[st
 	var note string
 	for _, mf := range commitMap {
 		total += mf.Time
-		note += fmt.Sprintf("%s:%d\n", mf.GitFile, mf.Time)
+		note += fmt.Sprintf("%s:%d [m]\n", mf.GitFile, mf.Time)
+	}
+	for fileID, mf := range metricMap {
+		// include git tracked and not modified files not in commit
+		if _, ok := commitMap[fileID]; !ok && mf.GitTracked() && !mf.GitModified() {
+			note += fmt.Sprintf("%s:%d [r]\n", mf.GitFile, mf.Time)
+		}
 	}
 	note = fmt.Sprintf("total:%d\n", total) + note
 	if dryRun {

@@ -82,3 +82,27 @@ func GitAddNote(n string, path ...string) error {
 	}
 	return nil
 }
+
+func GitTracked(f string, path ...string) (bool, error) {
+	cmd := exec.Command("git", "ls-files", f)
+	if len(path) > 0 {
+		cmd.Dir = path[0]
+	}
+	if out, err := cmd.Output(); err != nil {
+		return false, fmt.Errorf("Unable to determine git tracked status for %s, %s", f, err)
+	} else {
+		return strings.TrimSpace(string(out)) != "", nil
+	}
+}
+
+func GitModified(f string, path ...string) (bool, error) {
+	cmd := exec.Command("git", "ls-files", "-m", f)
+	if len(path) > 0 {
+		cmd.Dir = path[0]
+	}
+	if out, err := cmd.Output(); err != nil {
+		return false, fmt.Errorf("Unable to determine git modified status for %s, %s", f, err)
+	} else {
+		return strings.TrimSpace(string(out)) != "", nil
+	}
+}
