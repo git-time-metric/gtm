@@ -10,14 +10,15 @@ import (
 	"strconv"
 	"strings"
 
-	"edgeg.io/gtm/cfg"
+	"edgeg.io/gtm/env"
 	"edgeg.io/gtm/epoch"
 	"edgeg.io/gtm/event"
+	"edgeg.io/gtm/scm"
 	"github.com/dickeyxxx/golock"
 )
 
 func Process(dryRun bool) error {
-	_, gtmPath, err := cfg.Paths()
+	_, gtmPath, err := env.Paths()
 	if err != nil {
 		return err
 	}
@@ -42,11 +43,11 @@ func Process(dryRun bool) error {
 		allocateTime(metricMap, epochEventMap[epoch])
 	}
 
-	m, err := cfg.GitCommitMsg()
+	m, err := scm.GitCommitMsg()
 	if err != nil {
 		return err
 	}
-	_, _, commitFiles := cfg.GitParseMessage(m)
+	_, _, commitFiles := scm.GitParseMessage(m)
 
 	commitMap := map[string]metricFile{}
 	if !dryRun {
@@ -159,25 +160,30 @@ func saveMetrics(gtmPath string, metricMap map[string]metricFile, commitMap map[
 }
 
 func readMetricFile(filePath string) (metricFile, error) {
+	log.Printf("readMetricFile -> %+v\n", filePath)
 	b, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		return metricFile{}, err
 	}
 
 	parts := strings.Split(string(b), ",")
+	if len(parts) < 2 {
+		return metricFile{}, fmt.Errorf("Unable to parse metric file %s, invalid contents", filePath)
+	}
 
 	t, err := strconv.Atoi(string(parts[1]))
 	if err != nil {
-		return metricFile{}, err
+		return metricFile{}, fmt.Errorf("Unable to parse metric file %s, invalid time -> %s", err)
 	}
 
 	return metricFile{GitFile: parts[0], Time: t, Updated: false}, nil
 }
 
 func writeMetricFile(gtmPath string, mf metricFile) error {
+	log.Printf("writeMetricFile -> %+v\n", mf)
 	if err := ioutil.WriteFile(
 		filepath.Join(gtmPath, fmt.Sprintf("%s.metric", getFileID(mf.GitFile))),
-		[]byte(strings.Join([]string{mf.GitFile, strconv.Itoa(mf.Time)}, ",")), 0644); err != nil {
+		[]byte(fmt.Sprintf("%s,%d", mf.GitFile, mf.Time)), 0644); err != nil {
 		return err
 	}
 
@@ -185,6 +191,7 @@ func writeMetricFile(gtmPath string, mf metricFile) error {
 }
 
 func removeMetricFile(gtmPath, fileID string) error {
+	log.Printf("removeMetricFile -> %+v\n", fileID)
 	if err := os.Remove(
 		filepath.Join(
 			gtmPath, fmt.Sprintf("%s.metric", fileID))); err != nil {
@@ -194,7 +201,7 @@ func removeMetricFile(gtmPath, fileID string) error {
 	return nil
 }
 
-func writeNote(gtmPath string, metricMap map[string]metricFile, commitMap map[string]metricFile, dryRun bool) {
+func writeNote(gtmPath string, metricMap map[string]metricFile, commitMap map[string]metricFile, dryRun bool) error {
 	if dryRun {
 		commitMap = metricMap
 	}
@@ -208,6 +215,10 @@ func writeNote(gtmPath string, metricMap map[string]metricFile, commitMap map[st
 	if dryRun {
 		fmt.Print(note)
 	} else {
-		//TODO: save note
+		err := scm.GitAddNote(note)
+		if err != nil {
+			return err
+		}
 	}
+	return nil
 }

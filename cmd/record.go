@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 
-	"edgeg.io/gtm/cfg"
+	"edgeg.io/gtm/env"
 	"edgeg.io/gtm/event"
 
 	"github.com/mitchellh/cli"
@@ -33,7 +33,7 @@ func (r RecordCmd) Run(args []string) int {
 	}
 
 	//TODO: add an option to turn off silencing ErrFileNotFound errors
-	if err := event.Save(args[0]); err != nil && !(err == cfg.ErrNotInitialized || err == cfg.ErrFileNotFound) {
+	if err := event.Save(args[0]); err != nil && !(err == env.ErrNotInitialized || err == env.ErrFileNotFound) {
 		fmt.Println(err)
 		return 1
 	}

@@ -3,11 +3,12 @@ package event
 import (
 	"fmt"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
 
-	"edgeg.io/gtm/cfg"
+	"edgeg.io/gtm/env"
 	"edgeg.io/gtm/epoch"
 	"github.com/satori/go.uuid"
 )
@@ -18,7 +19,7 @@ func Save(file string) error {
 		return err
 	}
 
-	if err := write(relFilePath, gtmPath); err != nil {
+	if err := writeEventFile(relFilePath, gtmPath); err != nil {
 		return err
 	}
 
@@ -26,16 +27,16 @@ func Save(file string) error {
 }
 
 func findPaths(file string) (string, string, error) {
-	if !cfg.FileExists(file) {
-		return "", "", cfg.ErrFileNotFound
+	if !env.FileExists(file) {
+		return "", "", env.ErrFileNotFound
 	}
 
-	filePath, err := cfg.FilePath(file)
+	filePath, err := env.FilePath(file)
 	if err != nil {
 		return "", "", err
 	}
 
-	rootPath, gtmPath, err := cfg.Paths(filePath)
+	rootPath, gtmPath, err := env.Paths(filePath)
 	if err != nil {
 		return "", "", err
 	}
@@ -48,7 +49,7 @@ func findPaths(file string) (string, string, error) {
 	return relFilePath, gtmPath, nil
 }
 
-func write(relFilePath, gtmPath string) error {
+func writeEventFile(relFilePath, gtmPath string) error {
 	if err := ioutil.WriteFile(
 		filepath.Join(
 			gtmPath,
@@ -61,7 +62,7 @@ func write(relFilePath, gtmPath string) error {
 	return nil
 }
 
-func read(filePath string) (string, string, error) {
+func readEventFile(filePath string) (string, string, error) {
 	b, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		return "", "", err
@@ -81,7 +82,7 @@ func Sweep(gtmPath string) (map[int64]map[string]int, error) {
 	}
 
 	events := make(map[int64]map[string]int, 0)
-	removeFiles := []string{}
+	filesToRemove := []string{}
 	for _, file := range files {
 
 		if !strings.HasSuffix(file.Name(), ".event") {
@@ -89,7 +90,7 @@ func Sweep(gtmPath string) (map[int64]map[string]int, error) {
 		}
 
 		eventFilePath := filepath.Join(gtmPath, file.Name())
-		removeFiles = append(removeFiles, eventFilePath)
+		filesToRemove = append(filesToRemove, eventFilePath)
 
 		s := strings.SplitN(file.Name(), "-", 2)
 		if len(s) < 2 {
@@ -101,7 +102,7 @@ func Sweep(gtmPath string) (map[int64]map[string]int, error) {
 			continue
 		}
 
-		_, recordedFilePath, err := read(eventFilePath)
+		_, recordedFilePath, err := readEventFile(eventFilePath)
 		if err != nil {
 			continue
 		}
@@ -112,6 +113,15 @@ func Sweep(gtmPath string) (map[int64]map[string]int, error) {
 		events[fileEpoch][recordedFilePath] += 1
 	}
 
-	cfg.RemoveFiles(removeFiles)
+	removeFiles(filesToRemove)
 	return events, nil
+}
+
+func removeFiles(files []string) error {
+	for _, file := range files {
+		if err := os.Remove(file); err != nil {
+			return err
+		}
+	}
+	return nil
 }

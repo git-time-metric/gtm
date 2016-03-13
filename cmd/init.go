@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 
-	"edgeg.io/gtm/cfg"
+	"edgeg.io/gtm/env"
 
 	"github.com/mitchellh/cli"
 )
@@ -25,7 +25,7 @@ func (i initCmd) Help() string {
 }
 
 func (i initCmd) Run(args []string) int {
-	err := cfg.Initialize()
+	err := env.Initialize()
 	if err != nil {
 		fmt.Println(err)
 		return 1

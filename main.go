@@ -20,6 +20,7 @@ func main() {
 
 	exitStatus, err := c.Run()
 	if err != nil {
+		//TODO log errors to a file
 		fmt.Println(err)
 	}
 
