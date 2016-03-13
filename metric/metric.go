@@ -29,7 +29,7 @@ func Process(dryRun bool) error {
 	}
 	defer golock.Unlock(lockFile)
 
-	epochEventMap, err := event.Sweep(gtmPath)
+	epochEventMap, err := event.Sweep(gtmPath, dryRun)
 	if err != nil {
 		return err
 	}
@@ -147,13 +147,15 @@ func loadMetrics(gtmPath string) (map[string]metricFile, error) {
 }
 
 func saveMetrics(gtmPath string, metricMap map[string]metricFile, commitMap map[string]metricFile, dryRun bool) error {
-	for fileID, mf := range metricMap {
-		_, inCommit := commitMap[fileID]
-		if (mf.Updated && dryRun) || (mf.Updated && !inCommit) {
-			writeMetricFile(gtmPath, mf)
-		}
-		if !dryRun && inCommit {
-			removeMetricFile(gtmPath, fileID)
+	if !dryRun {
+		for fileID, mf := range metricMap {
+			_, inCommit := commitMap[fileID]
+			if mf.Updated && !inCommit {
+				writeMetricFile(gtmPath, mf)
+			}
+			if inCommit {
+				removeMetricFile(gtmPath, fileID)
+			}
 		}
 	}
 	return nil
