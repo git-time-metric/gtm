@@ -288,7 +288,7 @@ func writeNote(gtmPath string, metricMap map[string]metricFile, commitMap map[st
 	)
 
 	commitList := newMetricFileList(commitMap)
-	sort.Sort(commitList)
+	sort.Sort(sort.Reverse(commitList))
 	for _, mf := range commitList {
 		total += mf.Value.Time
 		note += fmt.Sprintf("%s: %d [m]\n", mf.Value.GitFile, mf.Value.Time)
