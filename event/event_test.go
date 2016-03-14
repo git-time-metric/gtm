@@ -37,8 +37,9 @@ func TestSave(t *testing.T) {
 	defer os.Remove(rootPath)
 
 	// Freeze the system time
-	env.SetNow(time.Now())
-	defer env.ClearNow()
+	saveNow := env.Now
+	env.Now = func() time.Time { return time.Unix(100, 0) }
+	defer func() { env.Now = saveNow }()
 
 	// Replace env.Paths with a mock
 	savePaths := env.Paths

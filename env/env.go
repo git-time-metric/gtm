@@ -15,10 +15,7 @@ var (
 	ErrFileNotFound   = errors.New("File does not exist")
 )
 
-var (
-	overrideNow bool = false
-	timeNow     time.Time
-)
+var Now = func() time.Time { return time.Now() }
 
 func Initialize() error {
 	//TODO initialize post git commit hook
@@ -84,20 +81,4 @@ func FileExists(f string) bool {
 		return false
 	}
 	return true
-}
-
-func SetNow(t time.Time) {
-	overrideNow = true
-	timeNow = t
-}
-
-func ClearNow() {
-	overrideNow = false
-}
-
-func Now() time.Time {
-	if overrideNow {
-		return timeNow
-	}
-	return time.Now()
 }
