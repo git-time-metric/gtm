@@ -14,47 +14,47 @@ import (
 )
 
 func Save(file string) error {
-	relFilePath, gtmPath, err := findPaths(file)
+	rootPath, relFilePath, gtmPath, err := findPaths(file)
 	if err != nil {
 		return err
 	}
 
-	if err := writeEventFile(relFilePath, gtmPath); err != nil {
+	if err := writeEventFile(rootPath, relFilePath, gtmPath); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func findPaths(file string) (string, string, error) {
+func findPaths(file string) (string, string, string, error) {
 	if !env.FileExists(file) {
-		return "", "", env.ErrFileNotFound
+		return "", "", "", env.ErrFileNotFound
 	}
 
 	filePath, err := env.FilePath(file)
 	if err != nil {
-		return "", "", err
+		return "", "", "", err
 	}
 
 	rootPath, gtmPath, err := env.Paths(filePath)
 	if err != nil {
-		return "", "", err
+		return "", "", "", err
 	}
 
 	relFilePath, err := filepath.Rel(rootPath, file)
 	if err != nil {
-		return "", "", err
+		return "", "", "", err
 	}
 
-	return relFilePath, gtmPath, nil
+	return rootPath, relFilePath, gtmPath, nil
 }
 
-func writeEventFile(relFilePath, gtmPath string) error {
+func writeEventFile(rootPath, relFilePath, gtmPath string) error {
 	if err := ioutil.WriteFile(
 		filepath.Join(
 			gtmPath,
 			fmt.Sprintf("%d-%s.event", epoch.MinuteNow(), uuid.NewV4().String()[:8])),
-		[]byte(fmt.Sprintf("%s,%s", gtmPath, relFilePath)),
+		[]byte(fmt.Sprintf("%s,%s", rootPath, relFilePath)),
 		0644); err != nil {
 		return err
 	}

@@ -45,7 +45,12 @@ func Initialize() error {
 	return nil
 }
 
-func Paths(path ...string) (string, string, error) {
+// The Paths function returns the git repository root path and the gtm path within the root.
+// If the path is not blank, it's used as the current working directory when retrieving the root path.
+//
+// Note - the function is declared as a variable to allow for mocking during testing.
+//
+var Paths = func(path ...string) (string, string, error) {
 	p := ""
 	if len(path) > 0 {
 		p = path[0]
@@ -75,7 +80,7 @@ func FilePath(f string) (string, error) {
 }
 
 func FileExists(f string) bool {
-	if _, err := os.Stat(f); os.IsNotExist(err) {
+	if fileInfo, err := os.Stat(f); os.IsNotExist(err) || fileInfo.IsDir() {
 		return false
 	}
 	return true
