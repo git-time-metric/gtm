@@ -295,7 +295,7 @@ func writeNote(gtmPath string, metricMap map[string]metricFile, commitMap map[st
 	}
 
 	metricList := newMetricFileList(metricMap)
-	sort.Sort(metricList)
+	sort.Sort(sort.Reverse(metricList))
 	for _, mf := range metricList {
 		// include git tracked and not modified files not in commit
 		if _, ok := commitMap[mf.Key]; !ok && mf.Value.GitTracked() && !mf.Value.GitModified() {
