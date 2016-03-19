@@ -94,7 +94,7 @@ func Sweep(gtmPath string, dryRun bool) (map[int64]map[string]int, error) {
 		filesToRemove = append(filesToRemove, eventFilePath)
 
 		s := strings.SplitN(file.Name(), "-", 2)
-		if len(s) < 2 {
+		if len(s) != 2 {
 			continue
 		}
 
