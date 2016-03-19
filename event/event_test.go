@@ -3,12 +3,12 @@ package event
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"os/exec"
 	"path"
 	"path/filepath"
 	"reflect"
+	"runtime"
 	"strings"
 	"testing"
 	"time"
@@ -26,7 +26,7 @@ func TestSave(t *testing.T) {
 	}
 	defer func() {
 		if err := os.RemoveAll(rootPath); err != nil {
-			log.Printf("Error removing %s dir, %s", rootPath, err)
+			fmt.Printf("Error removing %s dir, %s", rootPath, err)
 		}
 	}()
 	gtmPath := path.Join(rootPath, ".gtm")
@@ -101,6 +101,12 @@ func TestSave(t *testing.T) {
 }
 
 func TestSweep(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		// TODO: fix this, exec.Command("cp", "-r", fixturePath, rootPath) is not compatible with Windows
+		fmt.Println("Skipping TestSweep, not compatible with Windows")
+		return
+	}
+
 	expected := map[int64]map[string]int{
 		int64(1458409500): map[string]int{"event/event.go": 1},
 		int64(1458409560): map[string]int{"event/event.go": 2, "event/event_test.go": 2},
@@ -119,7 +125,7 @@ func TestSweep(t *testing.T) {
 	}
 	defer func() {
 		if err := os.RemoveAll(rootPath); err != nil {
-			log.Printf("Error removing %s dir, %s", rootPath, err)
+			fmt.Printf("Error removing %s dir, %s", rootPath, err)
 		}
 	}()
 	wd, err := os.Getwd()
@@ -127,7 +133,6 @@ func TestSweep(t *testing.T) {
 		t.Fatalf("Sweep(), error getting current working directory, %s", err)
 	}
 	fixturePath := path.Join(wd, "test-fixtures")
-	// NOTE: cp command does not work on Windows
 	cmd := exec.Command("cp", "-r", fixturePath, rootPath)
 	_, err = cmd.Output()
 	if err != nil {
