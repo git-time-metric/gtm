@@ -3,6 +3,7 @@ package event
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"path"
 	"path/filepath"
@@ -33,8 +34,11 @@ func TestSave(t *testing.T) {
 	if err := ioutil.WriteFile(sourceFile, []byte{}, 0600); err != nil {
 		t.Fatalf("Unable to create tempory file %s, %s", sourceFile, err)
 	}
-	defer os.Remove(sourceFile)
-	defer os.Remove(rootPath)
+	defer func() {
+		if err := os.RemoveAll(rootPath); err != nil {
+			log.Printf("Error removing %s dir, %s", rootPath, err)
+		}
+	}()
 
 	// Freeze the system time
 	saveNow := env.Now
