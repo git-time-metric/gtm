@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"os/exec"
 	"path"
 	"path/filepath"
 	"reflect"
@@ -23,6 +24,11 @@ func TestSave(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Unable to create tempory directory %s, %s", rootPath, err)
 	}
+	defer func() {
+		if err := os.RemoveAll(rootPath); err != nil {
+			log.Printf("Error removing %s dir, %s", rootPath, err)
+		}
+	}()
 	gtmPath := path.Join(rootPath, ".gtm")
 	if err := os.MkdirAll(gtmPath, 0700); err != nil {
 		t.Fatalf("Unable to create tempory directory %s, %s", gtmPath, err)
@@ -35,11 +41,6 @@ func TestSave(t *testing.T) {
 	if err := ioutil.WriteFile(sourceFile, []byte{}, 0600); err != nil {
 		t.Fatalf("Unable to create tempory file %s, %s", sourceFile, err)
 	}
-	defer func() {
-		if err := os.RemoveAll(rootPath); err != nil {
-			log.Printf("Error removing %s dir, %s", rootPath, err)
-		}
-	}()
 
 	// Freeze the system time
 	saveNow := env.Now
@@ -110,16 +111,52 @@ func TestSweep(t *testing.T) {
 		int64(1458409080): map[string]int{"event/event_test.go": 1, "event/event.go": 1},
 		int64(1458409140): map[string]int{"event/event.go": 1},
 	}
+
+	// Setup directories and copy fixtures
+	rootPath, err := ioutil.TempDir("", "gtm")
+	if err != nil {
+		t.Fatalf("Unable to create tempory directory %s, %s", rootPath, err)
+	}
+	defer func() {
+		if err := os.RemoveAll(rootPath); err != nil {
+			log.Printf("Error removing %s dir, %s", rootPath, err)
+		}
+	}()
 	wd, err := os.Getwd()
 	if err != nil {
 		t.Fatalf("Sweep(), error getting current working directory, %s", err)
 	}
-	p := path.Join(wd, "test-fixtures")
-	actual, err := Sweep(p, true)
+	fixturePath := path.Join(wd, "test-fixtures")
+	// NOTE: cp command does not work on Windows
+	cmd := exec.Command("cp", "-r", fixturePath, rootPath)
+	_, err = cmd.Output()
 	if err != nil {
-		t.Fatalf("Sweep(%s, true), want error nil, got %s", p, err)
+		t.Fatalf("Unable to copy %s directory to %s", fixturePath, rootPath)
+	}
+
+	// sweep files with dry-run set to true
+	gtmPath := path.Join(rootPath, "test-fixtures")
+	actual, err := Sweep(gtmPath, true)
+	if err != nil {
+		t.Fatalf("Sweep(%s, true), want error nil, got %s", gtmPath, err)
 	}
 	if !reflect.DeepEqual(expected, actual) {
-		t.Errorf("Sweep(%s, true), want %+v, got %+v", p, expected, actual)
+		t.Errorf("Sweep(%s, true), want %+v, got %+v", gtmPath, expected, actual)
+	}
+
+	// sweep files with dry-run set to false
+	actual, err = Sweep(gtmPath, false)
+	if err != nil {
+		t.Fatalf("Sweep(%s, true), want error nil, got %s", gtmPath, err)
+	}
+	if !reflect.DeepEqual(expected, actual) {
+		t.Errorf("Sweep(%s, true), want %+v, got %+v", gtmPath, expected, actual)
+	}
+	files, err := ioutil.ReadDir(gtmPath)
+	if err != nil {
+		t.Fatalf("Sweep(%s, true), want error nil, got %s", gtmPath, err)
+	}
+	if len(files) != 0 {
+		t.Fatalf("Sweep(%s, true), want file count 0, got %d", gtmPath, len(files))
 	}
 }
