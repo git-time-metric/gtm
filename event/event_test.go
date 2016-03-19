@@ -7,6 +7,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"testing"
 	"time"
@@ -95,5 +96,30 @@ func TestSave(t *testing.T) {
 	}
 	if fmt.Sprintf("%s,%s", rootPath, relPath) != strings.TrimSpace(string(eventContent)) {
 		t.Errorf("Save(%s), want file contents %s, got %s", sourceFile, fmt.Sprintf("%s,%s", rootPath, relPath), string(eventContent))
+	}
+}
+
+func TestSweep(t *testing.T) {
+	expected := map[int64]map[string]int{
+		int64(1458409500): map[string]int{"event/event.go": 1},
+		int64(1458409560): map[string]int{"event/event.go": 2, "event/event_test.go": 2},
+		int64(1458408780): map[string]int{"event/event_test.go": 1, "event/event.go": 1},
+		int64(1458408840): map[string]int{"event/event_test.go": 1, "event/event.go": 1},
+		int64(1458408900): map[string]int{"event/event_test.go": 1},
+		int64(1458409020): map[string]int{"event/event_test.go": 1},
+		int64(1458409080): map[string]int{"event/event_test.go": 1, "event/event.go": 1},
+		int64(1458409140): map[string]int{"event/event.go": 1},
+	}
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Fatalf("Sweep(), error getting current working directory, %s", err)
+	}
+	p := path.Join(wd, "test-fixtures")
+	actual, err := Sweep(p, true)
+	if err != nil {
+		t.Fatalf("Sweep(%s, true), want error nil, got %s", p, err)
+	}
+	if !reflect.DeepEqual(expected, actual) {
+		t.Errorf("Sweep(%s, true), want %+v, got %+v", p, expected, actual)
 	}
 }
