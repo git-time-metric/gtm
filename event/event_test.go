@@ -161,7 +161,8 @@ func TestSweep(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Sweep(%s, true), want error nil, got %s", gtmPath, err)
 	}
-	if len(files) != 0 {
+	//NOTE: there is one txt file in the test fixtures that should not be removed
+	if len(files) != 1 {
 		t.Fatalf("Sweep(%s, true), want file count 0, got %d", gtmPath, len(files))
 	}
 }
