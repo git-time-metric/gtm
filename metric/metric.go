@@ -28,7 +28,11 @@ func Process(dryRun bool) error {
 	if err := golock.Lock(lockFile); err != nil {
 		return err
 	}
-	defer golock.Unlock(lockFile)
+	defer func() {
+		if err := golock.Unlock(lockFile); err != nil {
+			log.Printf("Error releasing lock file, %s", err)
+		}
+	}()
 
 	epochEventMap, err := event.Sweep(gtmPath, dryRun)
 	if err != nil {
@@ -65,8 +69,12 @@ func Process(dryRun bool) error {
 		}
 	}
 
-	writeNote(gtmPath, metricMap, commitMap, dryRun)
-	saveMetrics(gtmPath, metricMap, commitMap, dryRun)
+	if err := writeNote(gtmPath, metricMap, commitMap, dryRun); err != nil {
+		return err
+	}
+	if err := saveMetrics(gtmPath, metricMap, commitMap, dryRun); err != nil {
+		return err
+	}
 
 	log.Printf("epochEventMap -> %+v", epochEventMap)
 	log.Printf("metricMap -> %+v", metricMap)
@@ -191,12 +199,16 @@ func saveMetrics(gtmPath string, metricMap map[string]metricFile, commitMap map[
 		for fileID, mf := range metricMap {
 			_, inCommit := commitMap[fileID]
 			if mf.Updated && !inCommit {
-				writeMetricFile(gtmPath, mf)
+				if err := writeMetricFile(gtmPath, mf); err != nil {
+					return err
+				}
 			}
 			// remove files in commit or
 			// remove git tracked and not modified files not in commit
 			if inCommit || (!inCommit && mf.GitTracked() && !mf.GitModified()) {
-				removeMetricFile(gtmPath, fileID)
+				if err := removeMetricFile(gtmPath, fileID); err != nil {
+					return err
+				}
 			}
 		}
 	}
@@ -217,7 +229,7 @@ func readMetricFile(filePath string) (metricFile, error) {
 
 	t, err := strconv.Atoi(string(parts[1]))
 	if err != nil {
-		return metricFile{}, fmt.Errorf("Unable to parse metric file %s, invalid time -> %s", err)
+		return metricFile{}, fmt.Errorf("Unable to parse metric file %s, invalid time -> %s", filePath, err)
 	}
 
 	mf, err := newMetricFile(parts[0], t, false)

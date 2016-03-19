@@ -76,12 +76,13 @@ func readEventFile(filePath string) (string, string, error) {
 }
 
 func Sweep(gtmPath string, dryRun bool) (map[int64]map[string]int, error) {
+	events := make(map[int64]map[string]int, 0)
+
 	files, err := ioutil.ReadDir(gtmPath)
 	if err != nil {
-		return nil, err
+		return events, err
 	}
 
-	events := make(map[int64]map[string]int, 0)
 	filesToRemove := []string{}
 	for _, file := range files {
 
@@ -110,11 +111,13 @@ func Sweep(gtmPath string, dryRun bool) (map[int64]map[string]int, error) {
 		if _, ok := events[fileEpoch]; !ok {
 			events[fileEpoch] = make(map[string]int, 0)
 		}
-		events[fileEpoch][recordedFilePath] += 1
+		events[fileEpoch][recordedFilePath]++
 	}
 
 	if !dryRun {
-		removeFiles(filesToRemove)
+		if err := removeFiles(filesToRemove); err != nil {
+			return events, err
+		}
 	}
 
 	return events, nil
