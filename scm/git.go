@@ -11,11 +11,18 @@ func GitRootPath(path ...string) (string, error) {
 	if len(path) > 0 {
 		cmd.Dir = path[0]
 	}
-	if b, err := cmd.Output(); err != nil {
+
+	b, err := cmd.Output()
+	if err != nil {
 		return "", fmt.Errorf("Unable to parse repository path, %s", err)
-	} else {
-		return strings.TrimSpace(string(b)), nil
 	}
+
+	s := strings.TrimSpace(string(b))
+	if s == "" {
+		return "", fmt.Errorf("Unable to parse repository path, %s", err)
+	}
+
+	return s, nil
 }
 
 func GitBranch(path ...string) (string, error) {
