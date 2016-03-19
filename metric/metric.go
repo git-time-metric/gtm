@@ -112,7 +112,7 @@ func allocateTime(metricMap map[string]metricFile, eventMap map[string]int) erro
 				return err
 			}
 		}
-		mf.AddTime(t)
+		mf.addTime(t)
 
 		//NOTE - Go has some gotchas when it comes to structs contained within maps
 		// a copy is returned and not the reference to the struct
@@ -127,7 +127,7 @@ func allocateTime(metricMap map[string]metricFile, eventMap map[string]int) erro
 	// we put the remaining on the last list of events
 	if lastFile != "" && timeAllocated < epoch.WindowSize {
 		mf := metricMap[getFileID(lastFile)]
-		mf.AddTime(epoch.WindowSize - timeAllocated)
+		mf.addTime(epoch.WindowSize - timeAllocated)
 	}
 	return nil
 }
@@ -138,12 +138,12 @@ type metricFile struct {
 	Time    int
 }
 
-func (m *metricFile) AddTime(t int) {
+func (m *metricFile) addTime(t int) {
 	m.Updated = true
 	m.Time += t
 }
 
-func (m *metricFile) GitTracked() bool {
+func (m *metricFile) gitTracked() bool {
 	tracked, err := scm.GitTracked(m.GitFile)
 	if err != nil {
 		// for ease of use, let's squash errors
@@ -154,7 +154,7 @@ func (m *metricFile) GitTracked() bool {
 	return tracked
 }
 
-func (m *metricFile) GitModified() bool {
+func (m *metricFile) gitModified() bool {
 	modified, err := scm.GitModified(m.GitFile)
 	if err != nil {
 		// for ease of use, let's squash errors
@@ -205,7 +205,7 @@ func saveMetrics(gtmPath string, metricMap map[string]metricFile, commitMap map[
 			}
 			// remove files in commit or
 			// remove git tracked and not modified files not in commit
-			if inCommit || (!inCommit && mf.GitTracked() && !mf.GitModified()) {
+			if inCommit || (!inCommit && mf.gitTracked() && !mf.gitModified()) {
 				if err := removeMetricFile(gtmPath, fileID); err != nil {
 					return err
 				}
@@ -288,7 +288,7 @@ func writeNote(gtmPath string, metricMap map[string]metricFile, commitMap map[st
 		commitMap = map[string]metricFile{}
 		for fileID, mf := range metricMap {
 			//include modified and git tracked files in commit map
-			if mf.GitTracked() && mf.GitModified() {
+			if mf.gitTracked() && mf.gitModified() {
 				commitMap[fileID] = mf
 			}
 		}
@@ -310,7 +310,7 @@ func writeNote(gtmPath string, metricMap map[string]metricFile, commitMap map[st
 	sort.Sort(sort.Reverse(metricList))
 	for _, mf := range metricList {
 		// include git tracked and not modified files not in commit
-		if _, ok := commitMap[mf.Key]; !ok && mf.Value.GitTracked() && !mf.Value.GitModified() {
+		if _, ok := commitMap[mf.Key]; !ok && mf.Value.gitTracked() && !mf.Value.gitModified() {
 			total += mf.Value.Time
 			note += fmt.Sprintf("%s: %d [r]\n", mf.Value.GitFile, mf.Value.Time)
 		}
