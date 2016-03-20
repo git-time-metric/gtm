@@ -2,17 +2,18 @@ package epoch
 
 import "edgeg.io/gtm/env"
 
-const (
-	IdleTimeout = 120
-	WindowSize  = 60
-)
+const WindowSize = 60
+
+var IdleTimeout int64 = 120
+
+func Minute(t int64) int64 {
+	return (t / int64(WindowSize)) * WindowSize
+}
 
 func MinuteNow() int64 {
 	return (env.Now().Unix() / int64(WindowSize)) * WindowSize
 }
 
-func MinutePast() int64 {
-	// go back a minute plus 5 more seconds
-	// this prevents the potential of missing events recorded on the minute boudaries
-	return ((env.Now().Unix() - 65) / int64(WindowSize)) * WindowSize
+func Now() int64 {
+	return env.Now().Unix()
 }

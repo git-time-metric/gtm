@@ -10,7 +10,6 @@ import (
 
 	"edgeg.io/gtm/env"
 	"edgeg.io/gtm/epoch"
-	"github.com/satori/go.uuid"
 )
 
 func Save(file string) error {
@@ -53,7 +52,7 @@ func writeEventFile(rootPath, relFilePath, gtmPath string) error {
 	if err := ioutil.WriteFile(
 		filepath.Join(
 			gtmPath,
-			fmt.Sprintf("%d-%s.event", epoch.MinuteNow(), uuid.NewV4().String()[:8])),
+			fmt.Sprintf("%d.event", epoch.Now())),
 		[]byte(fmt.Sprintf("%s,%s", rootPath, relFilePath)),
 		0644); err != nil {
 		return err
@@ -84,16 +83,18 @@ func Sweep(gtmPath string, dryRun bool) (map[int64]map[string]int, error) {
 	}
 
 	filesToRemove := []string{}
-	for _, file := range files {
+	var prevEpoch int64
+	var prevFilePath string
+	for i := range files {
 
-		if !strings.HasSuffix(file.Name(), ".event") {
+		if !strings.HasSuffix(files[i].Name(), ".event") {
 			continue
 		}
 
-		eventFilePath := filepath.Join(gtmPath, file.Name())
+		eventFilePath := filepath.Join(gtmPath, files[i].Name())
 		filesToRemove = append(filesToRemove, eventFilePath)
 
-		s := strings.SplitN(file.Name(), "-", 2)
+		s := strings.SplitN(files[i].Name(), ".", 2)
 		if len(s) != 2 {
 			continue
 		}
@@ -102,8 +103,9 @@ func Sweep(gtmPath string, dryRun bool) (map[int64]map[string]int, error) {
 		if err != nil {
 			continue
 		}
+		fileEpoch = epoch.Minute(fileEpoch)
 
-		_, recordedFilePath, err := readEventFile(eventFilePath)
+		_, filePath, err := readEventFile(eventFilePath)
 		if err != nil {
 			continue
 		}
@@ -111,7 +113,30 @@ func Sweep(gtmPath string, dryRun bool) (map[int64]map[string]int, error) {
 		if _, ok := events[fileEpoch]; !ok {
 			events[fileEpoch] = make(map[string]int, 0)
 		}
-		events[fileEpoch][recordedFilePath]++
+		events[fileEpoch][filePath]++
+
+		// Add idle events
+		if prevEpoch != 0 && prevFilePath != "" {
+			for e := prevEpoch + epoch.WindowSize; e < fileEpoch && e <= prevEpoch+epoch.IdleTimeout; e += epoch.WindowSize {
+				if _, ok := events[e]; !ok {
+					events[e] = make(map[string]int, 0)
+				}
+				events[e][prevFilePath]++
+			}
+		}
+		prevEpoch = fileEpoch
+		prevFilePath = filePath
+	}
+
+	// Add idle events for last event
+	epochNow := epoch.MinuteNow()
+	if prevEpoch != 0 && prevFilePath != "" {
+		for e := prevEpoch + epoch.WindowSize; e < epochNow && e <= prevEpoch+epoch.IdleTimeout; e += epoch.WindowSize {
+			if _, ok := events[e]; !ok {
+				events[e] = make(map[string]int, 0)
+			}
+			events[e][prevFilePath]++
+		}
 	}
 
 	if !dryRun {

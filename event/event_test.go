@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"edgeg.io/gtm/env"
-	"edgeg.io/gtm/epoch"
 )
 
 func TestSave(t *testing.T) {
@@ -78,11 +77,6 @@ func TestSave(t *testing.T) {
 		t.Errorf("Save(%s), want file count 1, got %d", sourceFile, len(files))
 	}
 
-	// Does the event file have the right prefix?
-	if !strings.HasPrefix(files[0].Name(), fmt.Sprintf("%d-", epoch.MinuteNow())) {
-		t.Errorf("Save(%s), want file prefix %s, got %s", sourceFile, fmt.Sprintf("%d-", epoch.MinuteNow()), files[0].Name())
-	}
-
 	// Read the event file
 	b, err := ioutil.ReadFile(path.Join(gtmPath, files[0].Name()))
 	eventContent := string(b)
@@ -108,14 +102,11 @@ func TestSweep(t *testing.T) {
 	}
 
 	expected := map[int64]map[string]int{
-		int64(1458409500): map[string]int{"event/event.go": 1},
-		int64(1458409560): map[string]int{"event/event.go": 2, "event/event_test.go": 2},
-		int64(1458408780): map[string]int{"event/event_test.go": 1, "event/event.go": 1},
-		int64(1458408840): map[string]int{"event/event_test.go": 1, "event/event.go": 1},
-		int64(1458408900): map[string]int{"event/event_test.go": 1},
-		int64(1458409020): map[string]int{"event/event_test.go": 1},
-		int64(1458409080): map[string]int{"event/event_test.go": 1, "event/event.go": 1},
-		int64(1458409140): map[string]int{"event/event.go": 1},
+		int64(1458496800): map[string]int{"event/event.go": 2, "event/event_test.go": 1},
+		int64(1458496860): map[string]int{"event/event.go": 1},
+		int64(1458496920): map[string]int{"event/event.go": 1},
+		int64(1458496980): map[string]int{"event/event.go": 1},
+		int64(1458497040): map[string]int{"event/event.go": 1},
 	}
 
 	// Setup directories and copy fixtures
@@ -133,7 +124,7 @@ func TestSweep(t *testing.T) {
 		t.Fatalf("Sweep(), error getting current working directory, %s", err)
 	}
 	fixturePath := path.Join(wd, "test-fixtures")
-	cmd := exec.Command("cp", "-r", fixturePath, rootPath)
+	cmd := exec.Command("cp", "-rp", fixturePath, rootPath)
 	_, err = cmd.Output()
 	if err != nil {
 		t.Fatalf("Unable to copy %s directory to %s", fixturePath, rootPath)
@@ -161,8 +152,7 @@ func TestSweep(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Sweep(%s, true), want error nil, got %s", gtmPath, err)
 	}
-	//NOTE: there is one txt file in the test fixtures that should not be removed
-	if len(files) != 1 {
+	if len(files) != 0 {
 		t.Fatalf("Sweep(%s, true), want file count 0, got %d", gtmPath, len(files))
 	}
 }
