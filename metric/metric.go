@@ -15,7 +15,6 @@ import (
 	"edgeg.io/gtm/epoch"
 	"edgeg.io/gtm/event"
 	"edgeg.io/gtm/scm"
-	"github.com/dickeyxxx/golock"
 )
 
 func Process(dryRun bool) error {
@@ -23,16 +22,6 @@ func Process(dryRun bool) error {
 	if err != nil {
 		return err
 	}
-
-	lockFile := filepath.Join(gtmPath, "gtm.lock")
-	if err := golock.Lock(lockFile); err != nil {
-		return err
-	}
-	defer func() {
-		if err := golock.Unlock(lockFile); err != nil {
-			log.Printf("Error releasing lock file, %s", err)
-		}
-	}()
 
 	epochEventMap, err := event.Sweep(gtmPath, dryRun)
 	if err != nil {
