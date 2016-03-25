@@ -10,7 +10,6 @@ import (
 	"runtime"
 	"strings"
 	"testing"
-	"time"
 
 	"edgeg.io/gtm/env"
 )
@@ -177,11 +176,6 @@ func TestProcess(t *testing.T) {
 		}
 	}
 
-	// Freeze the system time
-	saveNow := env.Now
-	env.Now = func() time.Time { return time.Unix(100, 0) }
-	defer func() { env.Now = saveNow }()
-
 	// Chandge working directory and initialize git repo
 	os.Chdir(rootPath)
 	cmd = exec.Command("git", "init")
@@ -213,10 +207,10 @@ func TestProcess(t *testing.T) {
 		t.Fatalf("Unable to run git notes, %s", string(b))
 	}
 
-	want := []string{"total: 180", "event.go: 160", "event_test.go: 20"}
+	want := []string{"total: 300", "event.go: 280", "event_test.go: 20"}
 	for _, s := range want {
 		if !strings.Contains(string(b), s) {
-			t.Errorf("Process(false), want %s, got %s", s, string(b))
+			t.Errorf("Process(false), \nwant \n%s, \ngot \n%s", s, string(b))
 		}
 
 	}
