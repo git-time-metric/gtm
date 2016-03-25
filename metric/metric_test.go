@@ -1,8 +1,18 @@
 package metric
 
 import (
+	"fmt"
+	"io/ioutil"
+	"os"
+	"os/exec"
+	"path"
 	"reflect"
+	"runtime"
+	"strings"
 	"testing"
+	"time"
+
+	"edgeg.io/gtm/env"
 )
 
 var testdata string = `
@@ -84,5 +94,130 @@ func TestAllocateTime(t *testing.T) {
 		if !reflect.DeepEqual(tc.metric, tc.expected) {
 			t.Errorf("allocateTime(%+v, %+v)\n want %+v\n got  %+v\n", metricOrig, tc.event, tc.expected, tc.metric)
 		}
+	}
+}
+
+func TestFileID(t *testing.T) {
+	want := "6f53bc90ba625b5afaac80b422b44f1f609d6367"
+	got := getFileID("event/event.go")
+	if want != got {
+		t.Errorf("getFileID(%s), want %s, got %s", "event/event.go", want, got)
+
+	}
+}
+
+func TestProcess(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		// TODO: fix this, exec.Command("cp", path.Join(fixturePath, f.Name()), gtmPath) is not compatible with Windows
+		fmt.Println("Skipping TestSweep, not compatible with Windows")
+		return
+	}
+
+	var (
+		rootPath   string
+		gtmPath    string
+		sourcePath string
+		sourceFile string
+		err        error
+	)
+
+	// Setup directories and source files
+	rootPath, err = ioutil.TempDir("", "gtm")
+	if err != nil {
+		t.Fatalf("Unable to create tempory directory %s, %s", rootPath, err)
+	}
+	gtmPath = path.Join(rootPath, ".gtm")
+	if err = os.MkdirAll(gtmPath, 0700); err != nil {
+		t.Fatalf("Unable to create tempory directory %s, %s", gtmPath, err)
+	}
+	sourcePath = path.Join(rootPath, "event")
+	if err = os.MkdirAll(sourcePath, 0700); err != nil {
+		t.Fatalf("Unable to create tempory directory %s, %s", sourcePath, err)
+	}
+	sourceFile = path.Join(sourcePath, "event.go")
+	if err = ioutil.WriteFile(sourceFile, []byte{}, 0600); err != nil {
+		t.Fatalf("Unable to create tempory file %s, %s", sourceFile, err)
+	}
+	sourceFile = path.Join(sourcePath, "event_test.go")
+	if err = ioutil.WriteFile(sourceFile, []byte{}, 0600); err != nil {
+		t.Fatalf("Unable to create tempory file %s, %s", sourceFile, err)
+	}
+	defer func() {
+		if err = os.RemoveAll(rootPath); err != nil {
+			fmt.Printf("Error removing %s dir, %s", rootPath, err)
+		}
+	}()
+
+	// Replace env.Paths with a mock
+	savePaths := env.Paths
+	env.Paths = func(path ...string) (string, string, error) {
+		return rootPath, gtmPath, nil
+	}
+	defer func() { env.Paths = savePaths }()
+
+	var (
+		wd          string
+		fixturePath string
+		cmd         *exec.Cmd
+		files       []os.FileInfo
+	)
+
+	// Copy fixtures
+	wd, err = os.Getwd()
+	if err != nil {
+		t.Fatalf("Sweep(), error getting current working directory, %s", err)
+	}
+	fixturePath = path.Join(wd, "../event/test-fixtures")
+	files, err = ioutil.ReadDir(fixturePath)
+	for _, f := range files {
+		cmd = exec.Command("cp", path.Join(fixturePath, f.Name()), gtmPath)
+		_, err = cmd.Output()
+		if err != nil {
+			t.Fatalf("Unable to copy %s directory to %s", fixturePath, gtmPath)
+		}
+	}
+
+	// Freeze the system time
+	saveNow := env.Now
+	env.Now = func() time.Time { return time.Unix(100, 0) }
+	defer func() { env.Now = saveNow }()
+
+	// Chandge working directory and initialize git repo
+	os.Chdir(rootPath)
+	cmd = exec.Command("git", "init")
+	b, err := cmd.Output()
+	if err != nil {
+		t.Fatalf("Unable to initialize git repo, %s", string(b))
+	}
+
+	// Commit source files to git repo
+	cmd = exec.Command("git", "add", "event/")
+	b, err = cmd.Output()
+	if err != nil {
+		t.Fatalf("Unable to run git add, %s", string(b))
+	}
+	cmd = exec.Command("git", "commit", "-m", "Initial commit")
+	b, err = cmd.Output()
+	if err != nil {
+		t.Fatalf("Unable to run git commit, %s", string(b))
+	}
+
+	err = Process(false)
+	if err != nil {
+		t.Fatalf("Process(false), want error nil, got %s", err)
+	}
+
+	cmd = exec.Command("git", "notes", "--ref", "gtm", "show")
+	b, err = cmd.Output()
+	if err != nil {
+		t.Fatalf("Unable to run git notes, %s", string(b))
+	}
+
+	want := []string{"total: 180", "event.go: 160", "event_test.go: 20"}
+	for _, s := range want {
+		if !strings.Contains(string(b), s) {
+			t.Errorf("Process(false), want %s, got %s", s, string(b))
+		}
+
 	}
 }

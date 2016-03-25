@@ -101,6 +101,7 @@ func TestSweep(t *testing.T) {
 		return
 	}
 
+	// NOTE - last two are idle events, 1458496980 & 1458497040
 	expected := map[int64]map[string]int{
 		int64(1458496800): map[string]int{"event/event.go": 2, "event/event_test.go": 1},
 		int64(1458496860): map[string]int{"event/event.go": 1},
