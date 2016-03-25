@@ -77,6 +77,7 @@ func getFileID(filePath string) string {
 	return fmt.Sprintf("%x", sha1.Sum([]byte(filePath)))
 }
 
+// allocateTime calculates access time for each file within an epoch window
 func allocateTime(metricMap map[string]metricFile, eventMap map[string]int) error {
 	total := 0
 	for file := range eventMap {
@@ -113,7 +114,7 @@ func allocateTime(metricMap map[string]metricFile, eventMap map[string]int) erro
 		lastFile = file
 	}
 	// let's make sure all of the EpochWindowSize seconds are allocated
-	// we put the remaining on the last list of events
+	// we put the remaining on the last file
 	if lastFile != "" && timeAllocated < epoch.WindowSize {
 		mf := metricMap[getFileID(lastFile)]
 		mf.addTime(epoch.WindowSize - timeAllocated)
