@@ -242,12 +242,14 @@ func writeMetricFile(gtmPath string, mf metricFile) error {
 }
 
 func removeMetricFile(gtmPath, fileID string) error {
-	log.Printf("removeMetricFile -> %+v", fileID)
-	if err := os.Remove(
-		filepath.Join(
-			gtmPath, fmt.Sprintf("%s.metric", fileID))); err != nil {
+	p := filepath.Join(gtmPath, fmt.Sprintf("%s.metric", fileID))
+	if !env.FileExists(p) {
+		return nil
+	}
+	if err := os.Remove(p); err != nil {
 		return err
 	}
+	log.Printf("removeMetricFile -> %+v", fileID)
 
 	return nil
 }
