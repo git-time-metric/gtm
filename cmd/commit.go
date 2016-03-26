@@ -2,8 +2,6 @@ package cmd
 
 import (
 	"flag"
-	"io/ioutil"
-	"log"
 	"os"
 
 	"edgeg.io/gtm/metric"
@@ -37,11 +35,7 @@ func (r GitCommit) Run(args []string) int {
 		"Print debug statements to the console")
 	commitFlags.Parse(os.Args[2:])
 
-	if !*debug {
-		log.SetOutput(ioutil.Discard)
-	}
-
-	metric.Process(*dryRun)
+	metric.Process(*dryRun, *debug)
 	return 0
 }
 

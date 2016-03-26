@@ -17,7 +17,7 @@ import (
 	"edgeg.io/gtm/scm"
 )
 
-func Process(dryRun bool) error {
+func Process(dryRun, debug bool) error {
 	_, gtmPath, err := env.Paths()
 	if err != nil {
 		return err
@@ -65,10 +65,11 @@ func Process(dryRun bool) error {
 		return err
 	}
 
-	log.Printf("epochEventMap -> %+v", epochEventMap)
-	log.Printf("metricMap -> %+v", metricMap)
-	log.Printf("commitMap -> %+v", commitMap)
-	log.Printf("dryRun -> %+v", dryRun)
+	if debug {
+		fmt.Printf("\nEventMap:\n%+v\n", epochEventMap)
+		fmt.Printf("\nMetricMap:\n%+v\n", metricMap)
+		fmt.Printf("\nCommitMap:\n%+v\n", commitMap)
+	}
 
 	return nil
 }
@@ -206,7 +207,6 @@ func saveMetrics(gtmPath string, metricMap map[string]metricFile, commitMap map[
 }
 
 func readMetricFile(filePath string) (metricFile, error) {
-	log.Printf("readMetricFile -> %+v", filePath)
 	b, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		return metricFile{}, err
@@ -231,7 +231,6 @@ func readMetricFile(filePath string) (metricFile, error) {
 }
 
 func writeMetricFile(gtmPath string, mf metricFile) error {
-	log.Printf("writeMetricFile -> %+v", mf)
 	if err := ioutil.WriteFile(
 		filepath.Join(gtmPath, fmt.Sprintf("%s.metric", getFileID(mf.GitFile))),
 		[]byte(fmt.Sprintf("%s,%d", mf.GitFile, mf.Time)), 0644); err != nil {
@@ -249,7 +248,6 @@ func removeMetricFile(gtmPath, fileID string) error {
 	if err := os.Remove(p); err != nil {
 		return err
 	}
-	log.Printf("removeMetricFile -> %+v", fileID)
 
 	return nil
 }

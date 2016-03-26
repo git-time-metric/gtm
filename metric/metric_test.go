@@ -103,9 +103,9 @@ func TestProcess(t *testing.T) {
 		t.Fatalf("Unable to run git commit, %s", string(b))
 	}
 
-	err = Process(false)
+	err = Process(false, false)
 	if err != nil {
-		t.Fatalf("Process(false) - test full commit, want error nil, got %s", err)
+		t.Fatalf("Process(false, false) - test full commit, want error nil, got %s", err)
 	}
 
 	cmd = exec.Command("git", "notes", "--ref", "gtm", "show")
@@ -117,7 +117,7 @@ func TestProcess(t *testing.T) {
 	want := []string{"total: 300", "event.go: 280 [m]", "event_test.go: 20 [m]"}
 	for _, s := range want {
 		if !strings.Contains(string(b), s) {
-			t.Errorf("Process(false) - test full commit, \nwant \n%s, \ngot \n%s", s, string(b))
+			t.Errorf("Process(false, false) - test full commit, \nwant \n%s, \ngot \n%s", s, string(b))
 		}
 
 	}
@@ -149,9 +149,9 @@ func TestProcess(t *testing.T) {
 		t.Fatalf("Unable to run git commit, %s", string(b))
 	}
 
-	err = Process(false)
+	err = Process(false, false)
 	if err != nil {
-		t.Fatalf("Process(false), want error nil, got %s", err)
+		t.Fatalf("Process(false, false), want error nil, got %s", err)
 	}
 
 	cmd = exec.Command("git", "notes", "--ref", "gtm", "show")
@@ -163,13 +163,13 @@ func TestProcess(t *testing.T) {
 	want = []string{"total: 20", "event_test.go: 20 [m]"}
 	for _, s := range want {
 		if !strings.Contains(string(b), s) {
-			t.Errorf("Process(false) - test partial commit, \nwant \n%s, \ngot \n%s", s, string(b))
+			t.Errorf("Process(false, false) - test partial commit, \nwant \n%s, \ngot \n%s", s, string(b))
 		}
 
 	}
 	p := path.Join(gtmPath, "6f53bc90ba625b5afaac80b422b44f1f609d6367.metric")
 	if !env.FileExists(p) {
-		t.Errorf("Process(false) - test partial commit, want file %s exist, got file exists false", p)
+		t.Errorf("Process(false, false) - test partial commit, want file %s exist, got file exists false", p)
 	}
 
 	// Test Process by committing a tracked file that has been modified and one tracked file that is unmodified
@@ -211,9 +211,9 @@ func TestProcess(t *testing.T) {
 		t.Fatalf("Unable to run git commit, %s", string(b))
 	}
 
-	err = Process(false)
+	err = Process(false, false)
 	if err != nil {
-		t.Fatalf("Process(false) - test commit with readonly, want error nil, got %s", err)
+		t.Fatalf("Process(false, false) - test commit with readonly, want error nil, got %s", err)
 	}
 
 	cmd = exec.Command("git", "notes", "--ref", "gtm", "show")
@@ -225,7 +225,7 @@ func TestProcess(t *testing.T) {
 	want = []string{"total: 300", "event_test.go: 20 [r]", "event/event.go: 280 [m]"}
 	for _, s := range want {
 		if !strings.Contains(string(b), s) {
-			t.Errorf("Process(false) - test commit with readonly, \nwant \n%s, \ngot \n%s", s, string(b))
+			t.Errorf("Process(false, false) - test commit with readonly, \nwant \n%s, \ngot \n%s", s, string(b))
 		}
 
 	}
