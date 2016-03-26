@@ -16,15 +16,14 @@ var (
 )
 
 var (
-	NoteNameSpace string = "gtm-data"
-	GTMDirectory  string = ".gtm"
-	PosCommitHook string = "gtm commit --dry-run=false"
+	NoteNameSpace  string = "gtm-data"
+	GTMDirectory   string = ".gtm"
+	PostCommitHook string = "gtm commit --dry-run=false"
 )
 
 var Now = func() time.Time { return time.Now() }
 
 func Initialize() error {
-	//TODO initialize post git commit hook
 	var fp string
 
 	wd, err := os.Getwd()
@@ -43,6 +42,10 @@ func Initialize() error {
 		if err := os.MkdirAll(fp, 0700); err != nil {
 			return err
 		}
+	}
+
+	if err := scm.GitInitHook("post-commit", PostCommitHook); err != nil {
+		return err
 	}
 
 	return nil

@@ -2,7 +2,10 @@ package scm
 
 import (
 	"fmt"
+	"io/ioutil"
+	"os"
 	"os/exec"
+	"path"
 	"strings"
 )
 
@@ -112,4 +115,45 @@ func GitModified(f string, path ...string) (bool, error) {
 	} else {
 		return strings.TrimSpace(string(out)) != "", nil
 	}
+}
+
+func GitInitHook(hook, command string, wd ...string) error {
+	var (
+		p   string
+		err error
+	)
+
+	if len(wd) > 0 {
+		p = wd[0]
+	} else {
+		p, err = os.Getwd()
+		if err != nil {
+			return err
+		}
+	}
+	fp := path.Join(p, ".git", "hooks", hook)
+
+	var output string
+	if _, err := os.Stat(fp); !os.IsNotExist(err) {
+		b, err := ioutil.ReadFile(fp)
+		if err != nil {
+			return err
+		}
+		output = string(b) + "\n"
+
+		if strings.Contains(output, command) {
+			// if file already exists this will make sure it's executable
+			os.Chmod(fp, 0755)
+			return nil
+		}
+	}
+
+	if err = ioutil.WriteFile(
+		fp, []byte(fmt.Sprintf("%s%s", output, command)), 0755); err != nil {
+		return err
+	}
+	// if file already exists this will make sure it's executable
+	os.Chmod(fp, 0755)
+
+	return nil
 }
