@@ -79,8 +79,8 @@ func GitParseMessage(m string) (uuid, msg string, files []string) {
 	return
 }
 
-func GitAddNote(n string, path ...string) error {
-	cmd := exec.Command("git", "notes", "--ref=gtm", "add", "-f", "-m", n)
+func GitAddNote(n string, nameSpace string, path ...string) error {
+	cmd := exec.Command("git", "notes", fmt.Sprintf("--ref=%s", nameSpace), "add", "-f", "-m", n)
 	if len(path) > 0 {
 		cmd.Dir = path[0]
 	}

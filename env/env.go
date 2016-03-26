@@ -15,6 +15,11 @@ var (
 	ErrFileNotFound   = errors.New("File does not exist")
 )
 
+var (
+	NoteNameSpace string = "gtm-data"
+	GTMDirectory  string = ".gtm"
+)
+
 var Now = func() time.Time { return time.Now() }
 
 func Initialize() error {
@@ -32,7 +37,7 @@ func Initialize() error {
 			"Unable to intialize Git Time Metric, Git repository not found in %s", wd)
 	}
 
-	fp = filepath.Join(wd, ".gtm")
+	fp = filepath.Join(wd, GTMDirectory)
 	if _, err := os.Stat(fp); os.IsNotExist(err) {
 		if err := os.MkdirAll(fp, 0700); err != nil {
 			return err
@@ -57,7 +62,7 @@ var Paths = func(path ...string) (string, string, error) {
 		return "", "", ErrNotInitialized
 	}
 
-	gtmPath := filepath.Join(rootPath, ".gtm")
+	gtmPath := filepath.Join(rootPath, GTMDirectory)
 	if _, err := os.Stat(gtmPath); os.IsNotExist(err) {
 		return "", "", ErrNotInitialized
 	}

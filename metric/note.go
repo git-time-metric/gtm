@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"sort"
 
+	"edgeg.io/gtm/env"
 	"edgeg.io/gtm/scm"
 )
 
@@ -65,7 +66,7 @@ func writeNote(gtmPath string, metricMap map[string]metricFile, commitMap map[st
 	if dryRun {
 		fmt.Print(note)
 	} else {
-		err := scm.GitAddNote(note)
+		err := scm.GitAddNote(note, env.NoteNameSpace)
 		if err != nil {
 			return err
 		}

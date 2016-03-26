@@ -108,7 +108,7 @@ func TestProcess(t *testing.T) {
 		t.Fatalf("Process(false, false) - test full commit, want error nil, got %s", err)
 	}
 
-	cmd = exec.Command("git", "notes", "--ref", "gtm", "show")
+	cmd = exec.Command("git", "notes", "--ref", env.NoteNameSpace, "show")
 	b, err = cmd.Output()
 	if err != nil {
 		t.Fatalf("Unable to run git notes, %s", string(b))
@@ -154,7 +154,7 @@ func TestProcess(t *testing.T) {
 		t.Fatalf("Process(false, false), want error nil, got %s", err)
 	}
 
-	cmd = exec.Command("git", "notes", "--ref", "gtm", "show")
+	cmd = exec.Command("git", "notes", "--ref", env.NoteNameSpace, "show")
 	b, err = cmd.Output()
 	if err != nil {
 		t.Fatalf("Unable to run git notes, %s", string(b))
@@ -216,7 +216,7 @@ func TestProcess(t *testing.T) {
 		t.Fatalf("Process(false, false) - test commit with readonly, want error nil, got %s", err)
 	}
 
-	cmd = exec.Command("git", "notes", "--ref", "gtm", "show")
+	cmd = exec.Command("git", "notes", "--ref", env.NoteNameSpace, "show")
 	b, err = cmd.Output()
 	if err != nil {
 		t.Fatalf("Unable to run git notes, %s", string(b))
