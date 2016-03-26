@@ -55,7 +55,7 @@ func TestSave(t *testing.T) {
 	defer func() { env.Now = saveNow }()
 
 	// Call save on an uninitialized Git Metric project
-	if err = Save(sourceFile); err != env.ErrNotInitialized {
+	if err = Record(sourceFile); err != env.ErrNotInitialized {
 		t.Errorf("Save(%s), want error %s, got error %s", sourceFile, env.ErrNotInitialized, err)
 	}
 
@@ -67,12 +67,12 @@ func TestSave(t *testing.T) {
 	defer func() { env.Paths = savePaths }()
 
 	// Call Save with an invalid source file
-	if err = Save(path.Join(sourcePath, "doesnotexist.go")); err != env.ErrFileNotFound {
+	if err = Record(path.Join(sourcePath, "doesnotexist.go")); err != env.ErrFileNotFound {
 		t.Errorf("Save(%s), want error %s, got %s", sourceFile, env.ErrFileNotFound, err)
 	}
 
 	// Call Save with a valid source file
-	if err = Save(sourceFile); err != nil {
+	if err = Record(sourceFile); err != nil {
 		t.Errorf("Save(%s), want error nil, got %s", sourceFile, err)
 	}
 
@@ -160,7 +160,7 @@ func TestSweep(t *testing.T) {
 
 	// sweep files with dry-run set to true
 	gtmPath = path.Join(rootPath, "test-fixtures")
-	got, err = Sweep(gtmPath, true)
+	got, err = Process(gtmPath, true)
 	if err != nil {
 		t.Fatalf("Sweep(%s, true), want error nil, got %s", gtmPath, err)
 	}
@@ -169,7 +169,7 @@ func TestSweep(t *testing.T) {
 	}
 
 	// sweep files with dry-run set to false
-	got, err = Sweep(gtmPath, false)
+	got, err = Process(gtmPath, false)
 	if err != nil {
 		t.Fatalf("Sweep(%s, true), want error nil, got %s", gtmPath, err)
 	}

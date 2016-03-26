@@ -7,72 +7,13 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"sort"
 	"strconv"
 	"strings"
 
 	"edgeg.io/gtm/env"
 	"edgeg.io/gtm/epoch"
-	"edgeg.io/gtm/event"
 	"edgeg.io/gtm/scm"
 )
-
-func Process(dryRun, debug bool) error {
-	_, gtmPath, err := env.Paths()
-	if err != nil {
-		return err
-	}
-
-	epochEventMap, err := event.Sweep(gtmPath, dryRun)
-	if err != nil {
-		return err
-	}
-
-	metricMap, err := loadMetrics(gtmPath)
-	if err != nil {
-		return err
-	}
-
-	for epoch := range epochEventMap {
-		err := allocateTime(metricMap, epochEventMap[epoch])
-		if err != nil {
-			return err
-		}
-	}
-
-	m, err := scm.GitCommitMsg()
-	if err != nil {
-		return err
-	}
-	_, _, commitFiles := scm.GitParseMessage(m)
-
-	commitMap := map[string]metricFile{}
-	if !dryRun {
-		//for only files in the last commit
-		for _, f := range commitFiles {
-			fileID := getFileID(f)
-			if _, ok := metricMap[fileID]; !ok {
-				continue
-			}
-			commitMap[fileID] = metricMap[fileID]
-		}
-	}
-
-	if err := writeNote(gtmPath, metricMap, commitMap, dryRun); err != nil {
-		return err
-	}
-	if err := saveMetrics(gtmPath, metricMap, commitMap, dryRun); err != nil {
-		return err
-	}
-
-	if debug {
-		fmt.Printf("\nEventMap:\n%+v\n", epochEventMap)
-		fmt.Printf("\nMetricMap:\n%+v\n", metricMap)
-		fmt.Printf("\nCommitMap:\n%+v\n", commitMap)
-	}
-
-	return nil
-}
 
 func getFileID(filePath string) string {
 	return fmt.Sprintf("%x", sha1.Sum([]byte(filePath)))
@@ -247,73 +188,6 @@ func removeMetricFile(gtmPath, fileID string) error {
 	}
 	if err := os.Remove(p); err != nil {
 		return err
-	}
-
-	return nil
-}
-
-type metricFilePair struct {
-	Key   string
-	Value metricFile
-}
-
-type metricFileList []metricFilePair
-
-func newMetricFileList(m map[string]metricFile) metricFileList {
-	mfs := make(metricFileList, len(m))
-	i := 0
-	for k, v := range m {
-		mfs[i] = metricFilePair{k, v}
-		i++
-	}
-	return mfs
-}
-
-func (p metricFileList) Len() int           { return len(p) }
-func (p metricFileList) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
-func (p metricFileList) Less(i, j int) bool { return p[i].Value.Time < p[j].Value.Time }
-
-func writeNote(gtmPath string, metricMap map[string]metricFile, commitMap map[string]metricFile, dryRun bool) error {
-	if dryRun {
-		commitMap = map[string]metricFile{}
-		for fileID, mf := range metricMap {
-			//include modified and git tracked files in commit map
-			if mf.gitTracked() && mf.gitModified() {
-				commitMap[fileID] = mf
-			}
-		}
-	}
-
-	var (
-		total int
-		note  string
-	)
-
-	commitList := newMetricFileList(commitMap)
-	sort.Sort(sort.Reverse(commitList))
-	for _, mf := range commitList {
-		total += mf.Value.Time
-		note += fmt.Sprintf("%s: %d [m]\n", mf.Value.GitFile, mf.Value.Time)
-	}
-
-	metricList := newMetricFileList(metricMap)
-	sort.Sort(sort.Reverse(metricList))
-	for _, mf := range metricList {
-		// include git tracked and not modified files not in commit
-		if _, ok := commitMap[mf.Key]; !ok && mf.Value.gitTracked() && !mf.Value.gitModified() {
-			total += mf.Value.Time
-			note += fmt.Sprintf("%s: %d [r]\n", mf.Value.GitFile, mf.Value.Time)
-		}
-	}
-	note = fmt.Sprintf("total: %d\n", total) + note
-
-	if dryRun {
-		fmt.Print(note)
-	} else {
-		err := scm.GitAddNote(note)
-		if err != nil {
-			return err
-		}
 	}
 
 	return nil

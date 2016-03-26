@@ -33,7 +33,7 @@ func (r RecordCmd) Run(args []string) int {
 	}
 
 	//TODO: add an option to turn off silencing ErrFileNotFound errors
-	if err := event.Save(args[0]); err != nil && !(err == env.ErrNotInitialized || err == env.ErrFileNotFound) {
+	if err := event.Record(args[0]); err != nil && !(err == env.ErrNotInitialized || err == env.ErrFileNotFound) {
 		fmt.Println(err)
 		return 1
 	}
