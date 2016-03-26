@@ -3,6 +3,7 @@ package env
 import (
 	"errors"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"time"
@@ -73,14 +74,18 @@ var Paths = func(path ...string) (string, string, error) {
 	return rootPath, gtmPath, nil
 }
 
-func FilePath(f string) (string, error) {
-	p := filepath.Dir(f)
-	info, err := os.Stat(p)
+func LogToGTM(v ...interface{}) error {
+	_, gtmPath, err := Paths()
 	if err != nil {
-		return "", fmt.Errorf("Unable to extract file path from %s, %s", f, err)
+		return err
 	}
-	if !info.IsDir() {
-		return "", fmt.Errorf("Unable to extract file path from %s", f)
+	f, err := os.OpenFile(filepath.Join(gtmPath, "gtm.log"), os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		return fmt.Errorf("error opening log file: %v", err)
 	}
-	return p, nil
+	defer f.Close()
+	log.SetOutput(f)
+
+	log.Println(v)
+	return nil
 }

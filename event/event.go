@@ -16,7 +16,7 @@ func findPaths(file string) (string, string, string, error) {
 		return "", "", "", env.ErrFileNotFound
 	}
 
-	filePath, err := env.FilePath(file)
+	filePath, err := getFilePath(file)
 	if err != nil {
 		return "", "", "", err
 	}
@@ -67,4 +67,16 @@ func removeFiles(files []string) error {
 		}
 	}
 	return nil
+}
+
+func getFilePath(f string) (string, error) {
+	p := filepath.Dir(f)
+	info, err := os.Stat(p)
+	if err != nil {
+		return "", fmt.Errorf("Unable to extract file path from %s, %s", f, err)
+	}
+	if !info.IsDir() {
+		return "", fmt.Errorf("Unable to extract file path from %s", f)
+	}
+	return p, nil
 }

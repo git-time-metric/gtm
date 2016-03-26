@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"edgeg.io/gtm/cmd"
+	"edgeg.io/gtm/env"
 
 	"github.com/mitchellh/cli"
 )
@@ -20,8 +21,9 @@ func main() {
 
 	exitStatus, err := c.Run()
 	if err != nil {
-		//TODO log errors to a file
-		fmt.Println(err)
+		if err := env.LogToGTM(err); err != nil {
+			fmt.Println(err)
+		}
 	}
 
 	os.Exit(exitStatus)
