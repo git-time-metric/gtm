@@ -208,7 +208,7 @@ func TestProcess(t *testing.T) {
 
 	}
 	p := path.Join(gtmPath, "6f53bc90ba625b5afaac80b422b44f1f609d6367.metric")
-	if !env.FileExists(path.Join(gtmPath, p)) {
+	if !env.FileExists(p) {
 		t.Errorf("Process(false) - test partial commit, want file %s exist, got file exists false", p)
 	}
 }
