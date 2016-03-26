@@ -112,71 +112,18 @@ func TestProcess(t *testing.T) {
 		return
 	}
 
-	var (
-		rootPath   string
-		gtmPath    string
-		sourcePath string
-		sourceFile string
-		err        error
-	)
-
-	// Setup directories and source files
-	rootPath, err = ioutil.TempDir("", "gtm")
-	if err != nil {
-		t.Fatalf("Unable to create tempory directory %s, %s", rootPath, err)
-	}
-	gtmPath = path.Join(rootPath, ".gtm")
-	if err = os.MkdirAll(gtmPath, 0700); err != nil {
-		t.Fatalf("Unable to create tempory directory %s, %s", gtmPath, err)
-	}
-	sourcePath = path.Join(rootPath, "event")
-	if err = os.MkdirAll(sourcePath, 0700); err != nil {
-		t.Fatalf("Unable to create tempory directory %s, %s", sourcePath, err)
-	}
-	sourceFile = path.Join(sourcePath, "event.go")
-	if err = ioutil.WriteFile(sourceFile, []byte{}, 0600); err != nil {
-		t.Fatalf("Unable to create tempory file %s, %s", sourceFile, err)
-	}
-	sourceFile = path.Join(sourcePath, "event_test.go")
-	if err = ioutil.WriteFile(sourceFile, []byte{}, 0600); err != nil {
-		t.Fatalf("Unable to create tempory file %s, %s", sourceFile, err)
-	}
-	defer func() {
-		if err = os.RemoveAll(rootPath); err != nil {
-			fmt.Printf("Error removing %s dir, %s", rootPath, err)
-		}
-	}()
-
-	// Replace env.Paths with a mock
-	savePaths := env.Paths
-	env.Paths = func(path ...string) (string, string, error) {
-		return rootPath, gtmPath, nil
-	}
-	defer func() { env.Paths = savePaths }()
+	rootPath, _, f1 := processSetup(t)
+	defer f1()
 
 	var (
-		wd          string
-		fixturePath string
-		cmd         *exec.Cmd
-		files       []os.FileInfo
+		cmd *exec.Cmd
 	)
 
-	// Copy fixtures
-	wd, err = os.Getwd()
-	if err != nil {
-		t.Fatalf("Sweep(), error getting current working directory, %s", err)
-	}
-	fixturePath = path.Join(wd, "../event/test-fixtures")
-	files, err = ioutil.ReadDir(fixturePath)
-	for _, f := range files {
-		cmd = exec.Command("cp", path.Join(fixturePath, f.Name()), gtmPath)
-		_, err = cmd.Output()
-		if err != nil {
-			t.Fatalf("Unable to copy %s directory to %s", fixturePath, gtmPath)
-		}
-	}
+	// Test process with committing both git tracked files that have been modified
 
-	// Chandge working directory and initialize git repo
+	// chandge working directory and initialize git repo
+	savedCurDir, _ := os.Getwd()
+	defer func() { os.Chdir(savedCurDir) }()
 	os.Chdir(rootPath)
 	cmd = exec.Command("git", "init")
 	b, err := cmd.Output()
@@ -184,7 +131,7 @@ func TestProcess(t *testing.T) {
 		t.Fatalf("Unable to initialize git repo, %s", string(b))
 	}
 
-	// Commit source files to git repo
+	// commit source files to git repo
 	cmd = exec.Command("git", "add", "event/")
 	b, err = cmd.Output()
 	if err != nil {
@@ -210,8 +157,125 @@ func TestProcess(t *testing.T) {
 	want := []string{"total: 300", "event.go: 280", "event_test.go: 20"}
 	for _, s := range want {
 		if !strings.Contains(string(b), s) {
+			t.Errorf("Process(false) - test full commit, \nwant \n%s, \ngot \n%s", s, string(b))
+		}
+
+	}
+
+	// Test Process with committing only one of the two git tracked files that have been modified
+
+	// change back to saved current working directory and setup
+	os.Chdir(savedCurDir)
+	rootPath, gtmPath, f2 := processSetup(t)
+	defer f2()
+
+	// chandge working directory and initialize git repo
+	os.Chdir(rootPath)
+	cmd = exec.Command("git", "init")
+	b, err = cmd.Output()
+	if err != nil {
+		t.Fatalf("Unable to initialize git repo, %s", string(b))
+	}
+
+	// commit source files to git repo
+	cmd = exec.Command("git", "add", "event/event_test.go")
+	b, err = cmd.Output()
+	if err != nil {
+		t.Fatalf("Unable to run git add, %s", string(b))
+	}
+	cmd = exec.Command("git", "commit", "-m", "Initial commit")
+	b, err = cmd.Output()
+	if err != nil {
+		t.Fatalf("Unable to run git commit, %s", string(b))
+	}
+
+	err = Process(false)
+	if err != nil {
+		t.Fatalf("Process(false), want error nil, got %s", err)
+	}
+
+	cmd = exec.Command("git", "notes", "--ref", "gtm", "show")
+	b, err = cmd.Output()
+	if err != nil {
+		t.Fatalf("Unable to run git notes, %s", string(b))
+	}
+
+	want = []string{"total: 20", "event_test.go: 20"}
+	for _, s := range want {
+		if !strings.Contains(string(b), s) {
 			t.Errorf("Process(false), \nwant \n%s, \ngot \n%s", s, string(b))
 		}
 
+	}
+	p := path.Join(gtmPath, "6f53bc90ba625b5afaac80b422b44f1f609d6367.metric")
+	if !env.FileExists(path.Join(gtmPath, p)) {
+		t.Errorf("Process(false) - test partial commit, want file %s exist, got file exists false", p)
+	}
+}
+
+func processSetup(t *testing.T) (string, string, func()) {
+	var (
+		rootPath   string
+		gtmPath    string
+		sourcePath string
+		sourceFile string
+		err        error
+	)
+
+	// setup directories and source files
+	rootPath, err = ioutil.TempDir("", "gtm")
+	if err != nil {
+		t.Fatalf("Unable to create tempory directory %s, %s", rootPath, err)
+	}
+	gtmPath = path.Join(rootPath, ".gtm")
+	if err = os.MkdirAll(gtmPath, 0700); err != nil {
+		t.Fatalf("Unable to create tempory directory %s, %s", gtmPath, err)
+	}
+	sourcePath = path.Join(rootPath, "event")
+	if err = os.MkdirAll(sourcePath, 0700); err != nil {
+		t.Fatalf("Unable to create tempory directory %s, %s", sourcePath, err)
+	}
+	sourceFile = path.Join(sourcePath, "event.go")
+	if err = ioutil.WriteFile(sourceFile, []byte{}, 0600); err != nil {
+		t.Fatalf("Unable to create tempory file %s, %s", sourceFile, err)
+	}
+	sourceFile = path.Join(sourcePath, "event_test.go")
+	if err = ioutil.WriteFile(sourceFile, []byte{}, 0600); err != nil {
+		t.Fatalf("Unable to create tempory file %s, %s", sourceFile, err)
+	}
+
+	// replace env.Paths with a mock
+	savePaths := env.Paths
+	env.Paths = func(path ...string) (string, string, error) {
+		return rootPath, gtmPath, nil
+	}
+
+	var (
+		wd          string
+		fixturePath string
+		cmd         *exec.Cmd
+		files       []os.FileInfo
+	)
+
+	// copy fixtures
+	wd, err = os.Getwd()
+	if err != nil {
+		t.Fatalf("Sweep(), error getting current working directory, %s", err)
+	}
+	fixturePath = path.Join(wd, "../event/test-fixtures")
+	files, err = ioutil.ReadDir(fixturePath)
+	for _, f := range files {
+		cmd = exec.Command("cp", path.Join(fixturePath, f.Name()), gtmPath)
+		_, err = cmd.Output()
+		if err != nil {
+			t.Fatalf("Unable to copy %s directory to %s", fixturePath, gtmPath)
+		}
+	}
+
+	return rootPath, gtmPath, func() {
+		env.Paths = savePaths
+		if err = os.RemoveAll(rootPath); err != nil {
+			fmt.Printf("Error removing %s dir, %s", rootPath, err)
+		}
 	}
 }
