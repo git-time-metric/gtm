@@ -167,9 +167,9 @@ func TestProcess(t *testing.T) {
 		}
 
 	}
-	p := path.Join(gtmPath, "6f53bc90ba625b5afaac80b422b44f1f609d6367.metric")
-	if !env.FileExists(p) {
-		t.Errorf("Process(false, false) - test partial commit, want file %s exist, got file exists false", p)
+	fp := path.Join(gtmPath, "6f53bc90ba625b5afaac80b422b44f1f609d6367.metric")
+	if _, err := os.Stat(fp); os.IsNotExist(err) {
+		t.Errorf("Process(false, false) - test partial commit, want file %s exist, got file exists false", fp)
 	}
 
 	// Test Process by committing a tracked file that has been modified and one tracked file that is unmodified
@@ -245,7 +245,7 @@ func processSetup(t *testing.T) (string, string, func()) {
 	if err != nil {
 		t.Fatalf("Unable to create tempory directory %s, %s", rootPath, err)
 	}
-	gtmPath = path.Join(rootPath, ".gtm")
+	gtmPath = path.Join(rootPath, env.GTMDirectory)
 	if err = os.MkdirAll(gtmPath, 0700); err != nil {
 		t.Fatalf("Unable to create tempory directory %s, %s", gtmPath, err)
 	}

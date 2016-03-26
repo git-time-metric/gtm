@@ -10,7 +10,6 @@ import (
 	"strconv"
 	"strings"
 
-	"edgeg.io/gtm/env"
 	"edgeg.io/gtm/epoch"
 	"edgeg.io/gtm/scm"
 )
@@ -182,11 +181,11 @@ func writeMetricFile(gtmPath string, mf metricFile) error {
 }
 
 func removeMetricFile(gtmPath, fileID string) error {
-	p := filepath.Join(gtmPath, fmt.Sprintf("%s.metric", fileID))
-	if !env.FileExists(p) {
+	fp := filepath.Join(gtmPath, fmt.Sprintf("%s.metric", fileID))
+	if _, err := os.Stat(fp); os.IsNotExist(err) {
 		return nil
 	}
-	if err := os.Remove(p); err != nil {
+	if err := os.Remove(fp); err != nil {
 		return err
 	}
 

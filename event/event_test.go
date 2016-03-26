@@ -36,7 +36,7 @@ func TestSave(t *testing.T) {
 			fmt.Printf("Error removing %s dir, %s", rootPath, err)
 		}
 	}()
-	gtmPath = path.Join(rootPath, ".gtm")
+	gtmPath = path.Join(rootPath, env.GTMDirectory)
 	if err = os.MkdirAll(gtmPath, 0700); err != nil {
 		t.Fatalf("Unable to create tempory directory %s, %s", gtmPath, err)
 	}

@@ -18,6 +18,7 @@ var (
 var (
 	NoteNameSpace string = "gtm-data"
 	GTMDirectory  string = ".gtm"
+	PosCommitHook string = "gtm commit --dry-run=false"
 )
 
 var Now = func() time.Time { return time.Now() }
@@ -79,11 +80,4 @@ func FilePath(f string) (string, error) {
 		return "", fmt.Errorf("Unable to extract file path from %s", f)
 	}
 	return p, nil
-}
-
-func FileExists(f string) bool {
-	if fileInfo, err := os.Stat(f); os.IsNotExist(err) || fileInfo.IsDir() {
-		return false
-	}
-	return true
 }

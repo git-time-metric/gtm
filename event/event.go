@@ -12,7 +12,7 @@ import (
 )
 
 func findPaths(file string) (string, string, string, error) {
-	if !env.FileExists(file) {
+	if fileInfo, err := os.Stat(file); os.IsNotExist(err) || fileInfo.IsDir() {
 		return "", "", "", env.ErrFileNotFound
 	}
 
