@@ -103,7 +103,7 @@ func TestSave(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Save(%s), error creating relative path for rootPath %s and sourcePath %s, %s", sourceFile, rootPath, sourcePath, err)
 	}
-	if fmt.Sprintf("%s,%s", rootPath, relPath) != strings.TrimSpace(string(eventContent)) {
+	if fmt.Sprintf("%s", relPath) != strings.TrimSpace(string(eventContent)) {
 		t.Errorf("Save(%s), want file contents %s, got %s", sourceFile, fmt.Sprintf("%s,%s", rootPath, relPath), string(eventContent))
 	}
 }
@@ -165,7 +165,7 @@ func TestSweep(t *testing.T) {
 		t.Fatalf("Sweep(%s, true), want error nil, got %s", gtmPath, err)
 	}
 	if !reflect.DeepEqual(expected, got) {
-		t.Errorf("Sweep(%s, true), want %+v, got %+v", gtmPath, expected, got)
+		t.Errorf("Sweep(%s, true)\nwant:\n%+v\ngot:\n%+v\n", gtmPath, expected, got)
 	}
 
 	// sweep files with dry-run set to false
@@ -174,7 +174,7 @@ func TestSweep(t *testing.T) {
 		t.Fatalf("Sweep(%s, true), want error nil, got %s", gtmPath, err)
 	}
 	if !reflect.DeepEqual(expected, got) {
-		t.Errorf("Sweep(%s, true), want %+v, got %+v", gtmPath, expected, got)
+		t.Errorf("Sweep(%s, true)\nwant:\n%+v\ngot:\n%+v", gtmPath, expected, got)
 	}
 	files, err = ioutil.ReadDir(gtmPath)
 	if err != nil {

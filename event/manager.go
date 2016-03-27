@@ -10,12 +10,12 @@ import (
 )
 
 func Record(file string) error {
-	rootPath, relFilePath, gtmPath, err := findPaths(file)
+	_, relFilePath, gtmPath, err := findPaths(file)
 	if err != nil {
 		return err
 	}
 
-	if err := writeEventFile(rootPath, relFilePath, gtmPath); err != nil {
+	if err := writeEventFile(relFilePath, gtmPath); err != nil {
 		return err
 	}
 
@@ -53,7 +53,7 @@ func Process(gtmPath string, dryRun bool) (map[int64]map[string]int, error) {
 		}
 		fileEpoch = epoch.Minute(fileEpoch)
 
-		_, filePath, err := readEventFile(eventFilePath)
+		filePath, err := readEventFile(eventFilePath)
 		if err != nil {
 			continue
 		}

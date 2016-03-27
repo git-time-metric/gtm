@@ -34,12 +34,12 @@ func findPaths(file string) (string, string, string, error) {
 	return rootPath, relFilePath, gtmPath, nil
 }
 
-func writeEventFile(rootPath, relFilePath, gtmPath string) error {
+func writeEventFile(relFilePath, gtmPath string) error {
 	if err := ioutil.WriteFile(
 		filepath.Join(
 			gtmPath,
 			fmt.Sprintf("%d.event", epoch.Now())),
-		[]byte(fmt.Sprintf("%s,%s", rootPath, relFilePath)),
+		[]byte(fmt.Sprintf("%s", relFilePath)),
 		0644); err != nil {
 		return err
 	}
@@ -47,17 +47,12 @@ func writeEventFile(rootPath, relFilePath, gtmPath string) error {
 	return nil
 }
 
-func readEventFile(filePath string) (string, string, error) {
+func readEventFile(filePath string) (string, error) {
 	b, err := ioutil.ReadFile(filePath)
 	if err != nil {
-		return "", "", err
+		return "", err
 	}
-	parts := strings.Split(string(b), ",")
-	if len(parts) < 2 {
-		return "", "", fmt.Errorf("Unable to read event %s, invalid contents %s", filePath, string(b))
-	}
-
-	return parts[0], parts[1], nil
+	return strings.Replace(string(b), "\n", "", -1), nil
 }
 
 func removeFiles(files []string) error {
