@@ -18,11 +18,9 @@ func NewRecord() (cli.Command, error) {
 
 func (r RecordCmd) Help() string {
 	return `
-	Record a file event
+	gtm record <full-path to a file>
 
-	gmetric record [file]
-
-	The full path to the file is required when calling record.
+	Records a timestamped file event that denotes when a file has been accessed 
 	`
 }
 
@@ -34,7 +32,7 @@ func (r RecordCmd) Run(args []string) int {
 
 	//TODO: add an option to turn off silencing ErrFileNotFound errors
 	if err := event.Record(args[0]); err != nil && !(err == env.ErrNotInitialized || err == env.ErrFileNotFound) {
-		fmt.Println(err)
+		env.LogToGTM(err)
 		return 1
 	}
 

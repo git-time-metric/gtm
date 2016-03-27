@@ -17,9 +17,9 @@ func NewCommit() (cli.Command, error) {
 
 func (r GitCommit) Help() string {
 	return `
-	Save git commit time
+	gtm commit [--dry-run] [--debug]
 
-	gmetric commit
+	Log time for git tracked files and set the file's tracked time to zero.	
 	`
 }
 
@@ -28,7 +28,7 @@ func (r GitCommit) Run(args []string) int {
 	dryRun := commitFlags.Bool(
 		"dry-run",
 		true,
-		"Do not create a note for the last commit and clear time metrics")
+		"Do not log time but show time logged for all files")
 	debug := commitFlags.Bool(
 		"debug",
 		false,
@@ -41,6 +41,6 @@ func (r GitCommit) Run(args []string) int {
 
 func (r GitCommit) Synopsis() string {
 	return `
-	Save git commit time
+	Log time for git tracked files
 	`
 }

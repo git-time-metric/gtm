@@ -17,10 +17,10 @@ func NewInit() (cli.Command, error) {
 
 func (i initCmd) Help() string {
 	return `
-	Initialize Git Time Metric to start recording time
+	gtm init
 
-	The init command is required to be called from
-	the root of the git project.
+	Initialize time tracking for a project. 
+	Call from root directory of project.
 	`
 }
 
@@ -30,11 +30,12 @@ func (i initCmd) Run(args []string) int {
 		fmt.Println(err)
 		return 1
 	}
+	fmt.Println("Time tracking initialized")
 	return 0
 }
 
 func (i initCmd) Synopsis() string {
 	return `
-	Initialize Git Time Metric to start recording time
+	Initialize time tracking for a project 
 	`
 }
