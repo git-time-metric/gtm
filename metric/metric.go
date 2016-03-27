@@ -4,7 +4,6 @@ import (
 	"crypto/sha1"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -64,9 +63,10 @@ func allocateTime(metricMap map[string]metricFile, eventMap map[string]int) erro
 }
 
 type metricFile struct {
-	Updated bool // Updated signifies if we need to save metric file
-	GitFile string
-	Time    int
+	Updated    bool // Updated signifies if we need to save metric file
+	SourceFile string
+	Time       int
+	GitTracked bool
 }
 
 func (m *metricFile) addTime(t int) {
@@ -74,30 +74,19 @@ func (m *metricFile) addTime(t int) {
 	m.Time += t
 }
 
-func (m *metricFile) gitTracked() bool {
-	tracked, err := scm.GitTracked(m.GitFile)
-	if err != nil {
-		// for ease of use, let's squash errors
-		log.Printf("%s", err)
-		return false
-	}
+type metricFileByTime []metricFile
 
-	return tracked
-}
-
-func (m *metricFile) gitModified() bool {
-	modified, err := scm.GitModified(m.GitFile)
-	if err != nil {
-		// for ease of use, let's squash errors
-		log.Printf("%s", err)
-		return false
-	}
-
-	return modified
-}
+func (a metricFileByTime) Len() int           { return len(a) }
+func (a metricFileByTime) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a metricFileByTime) Less(i, j int) bool { return a[i].Time < a[j].Time }
 
 func newMetricFile(f string, t int, updated bool) (metricFile, error) {
-	return metricFile{GitFile: f, Time: t, Updated: updated}, nil
+	tracked, err := scm.GitTracked(f)
+	if err != nil {
+		return metricFile{}, err
+	}
+
+	return metricFile{SourceFile: f, Time: t, Updated: updated, GitTracked: tracked}, nil
 }
 
 func loadMetrics(gtmPath string) (map[string]metricFile, error) {
@@ -125,21 +114,24 @@ func loadMetrics(gtmPath string) (map[string]metricFile, error) {
 	return metrics, nil
 }
 
-func saveMetrics(gtmPath string, metricMap map[string]metricFile, commitMap map[string]metricFile, dryRun bool) error {
-	if !dryRun {
-		for fileID, mf := range metricMap {
-			_, inCommit := commitMap[fileID]
-			if mf.Updated && !inCommit {
-				if err := writeMetricFile(gtmPath, mf); err != nil {
-					return err
-				}
+func saveMetrics(gtmPath string, metricMap map[string]metricFile, commitMap map[string]metricFile) error {
+	for fileID, mf := range metricMap {
+		_, inCommitMap := commitMap[fileID]
+
+		if mf.Updated && !inCommitMap {
+			// source file has updated time and is not in the commit
+			if err := writeMetricFile(gtmPath, mf); err != nil {
+				return err
 			}
-			// remove files in commit or
-			// remove git tracked and not modified files not in commit
-			if inCommit || (!inCommit && mf.gitTracked() && !mf.gitModified()) {
-				if err := removeMetricFile(gtmPath, fileID); err != nil {
-					return err
-				}
+		}
+		modified, err := scm.GitModified(mf.SourceFile)
+		if err != nil {
+			return err
+		}
+		if inCommitMap || (!inCommitMap && mf.GitTracked && !modified) {
+			// source file is in commit or it's git tracked and not modified
+			if err := removeMetricFile(gtmPath, fileID); err != nil {
+				return err
 			}
 		}
 	}
@@ -172,8 +164,8 @@ func readMetricFile(filePath string) (metricFile, error) {
 
 func writeMetricFile(gtmPath string, mf metricFile) error {
 	if err := ioutil.WriteFile(
-		filepath.Join(gtmPath, fmt.Sprintf("%s.metric", getFileID(mf.GitFile))),
-		[]byte(fmt.Sprintf("%s,%d", mf.GitFile, mf.Time)), 0644); err != nil {
+		filepath.Join(gtmPath, fmt.Sprintf("%s.metric", getFileID(mf.SourceFile))),
+		[]byte(fmt.Sprintf("%s,%d", mf.SourceFile, mf.Time)), 0644); err != nil {
 		return err
 	}
 

@@ -7,8 +7,8 @@ import (
 	"os/exec"
 	"path"
 	"reflect"
+	"regexp"
 	"runtime"
-	"strings"
 	"testing"
 
 	"edgeg.io/gtm/env"
@@ -24,21 +24,21 @@ func TestAllocateTime(t *testing.T) {
 			map[string]metricFile{},
 			map[string]int{"event/event.go": 1},
 			map[string]metricFile{
-				"6f53bc90ba625b5afaac80b422b44f1f609d6367": metricFile{Updated: true, GitFile: "event/event.go", Time: 60}},
+				"6f53bc90ba625b5afaac80b422b44f1f609d6367": metricFile{Updated: true, SourceFile: "event/event.go", Time: 60}},
 		},
 		{
 			map[string]metricFile{},
 			map[string]int{"event/event.go": 4, "event/event_test.go": 2},
 			map[string]metricFile{
-				"6f53bc90ba625b5afaac80b422b44f1f609d6367": metricFile{Updated: true, GitFile: "event/event.go", Time: 40},
-				"e65b42b6bf1eda6349451b063d46134dd7ab9921": metricFile{Updated: true, GitFile: "event/event_test.go", Time: 20}},
+				"6f53bc90ba625b5afaac80b422b44f1f609d6367": metricFile{Updated: true, SourceFile: "event/event.go", Time: 40},
+				"e65b42b6bf1eda6349451b063d46134dd7ab9921": metricFile{Updated: true, SourceFile: "event/event_test.go", Time: 20}},
 		},
 		{
-			map[string]metricFile{"e65b42b6bf1eda6349451b063d46134dd7ab9921": metricFile{Updated: true, GitFile: "event/event_test.go", Time: 60}},
+			map[string]metricFile{"e65b42b6bf1eda6349451b063d46134dd7ab9921": metricFile{Updated: true, SourceFile: "event/event_test.go", Time: 60}},
 			map[string]int{"event/event.go": 4, "event/event_test.go": 2},
 			map[string]metricFile{
-				"6f53bc90ba625b5afaac80b422b44f1f609d6367": metricFile{Updated: true, GitFile: "event/event.go", Time: 40},
-				"e65b42b6bf1eda6349451b063d46134dd7ab9921": metricFile{Updated: true, GitFile: "event/event_test.go", Time: 80}},
+				"6f53bc90ba625b5afaac80b422b44f1f609d6367": metricFile{Updated: true, SourceFile: "event/event.go", Time: 40},
+				"e65b42b6bf1eda6349451b063d46134dd7ab9921": metricFile{Updated: true, SourceFile: "event/event_test.go", Time: 80}},
 		},
 	}
 
@@ -114,12 +114,15 @@ func TestProcess(t *testing.T) {
 		t.Fatalf("Unable to run git notes, %s", string(b))
 	}
 
-	want := []string{"total: 300", "event.go: 280 [m]", "event_test.go: 20 [m]"}
+	want := []string{`(?i)total.\s*300`, `(?i)event.go.\s*280\s*\[m\]`, `(?i)event_test.go.\s*20\s*\[m\]`}
 	for _, s := range want {
-		if !strings.Contains(string(b), s) {
+		matched, err := regexp.MatchString(s, string(b))
+		if err != nil {
+			t.Fatalf("Unable to run regexp.MatchString(%s, %s), %s", s, string(b), err)
+		}
+		if !matched {
 			t.Errorf("Process(false, false) - test full commit, \nwant \n%s, \ngot \n%s", s, string(b))
 		}
-
 	}
 
 	// Test Process by committing a tracked file that has been modified and one untracked file that is not added/commited
@@ -160,9 +163,13 @@ func TestProcess(t *testing.T) {
 		t.Fatalf("Unable to run git notes, %s", string(b))
 	}
 
-	want = []string{"total: 20", "event_test.go: 20 [m]"}
+	want = []string{`(?i)total.\s*20`, `(?i)event_test.go.\s*20\s\[m\]`}
 	for _, s := range want {
-		if !strings.Contains(string(b), s) {
+		matched, err := regexp.MatchString(s, string(b))
+		if err != nil {
+			t.Fatalf("Unable to run regexp.MatchString(%s, %s), %s", s, string(b), err)
+		}
+		if !matched {
 			t.Errorf("Process(false, false) - test partial commit, \nwant \n%s, \ngot \n%s", s, string(b))
 		}
 
@@ -222,9 +229,13 @@ func TestProcess(t *testing.T) {
 		t.Fatalf("Unable to run git notes, %s", string(b))
 	}
 
-	want = []string{"total: 300", "event_test.go: 20 [r]", "event/event.go: 280 [m]"}
+	want = []string{`(?i)total.\s*300`, `(?i)event_test.go.\s*20\s\[r\]`, `(?i)event/event.go.\s*280\s\[m\]`}
 	for _, s := range want {
-		if !strings.Contains(string(b), s) {
+		matched, err := regexp.MatchString(s, string(b))
+		if err != nil {
+			t.Fatalf("Unable to run regexp.MatchString(%s, %s), %s", s, string(b), err)
+		}
+		if !matched {
 			t.Errorf("Process(false, false) - test commit with readonly, \nwant \n%s, \ngot \n%s", s, string(b))
 		}
 

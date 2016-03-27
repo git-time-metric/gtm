@@ -14,16 +14,19 @@ func Process(dryRun, debug bool) error {
 		return err
 	}
 
-	epochEventMap, err := event.Process(gtmPath, dryRun)
-	if err != nil {
-		return err
-	}
-
+	// load any saved metrics
 	metricMap, err := loadMetrics(gtmPath)
 	if err != nil {
 		return err
 	}
 
+	// process event files
+	epochEventMap, err := event.Process(gtmPath, dryRun)
+	if err != nil {
+		return err
+	}
+
+	// allocate time for events
 	for epoch := range epochEventMap {
 		err := allocateTime(metricMap, epochEventMap[epoch])
 		if err != nil {
@@ -31,29 +34,27 @@ func Process(dryRun, debug bool) error {
 		}
 	}
 
-	m, err := scm.GitCommitMsg()
+	// build map of commit files
+	commitMap, err := buildCommitMap(metricMap, dryRun)
 	if err != nil {
 		return err
 	}
-	_, _, commitFiles := scm.GitParseMessage(m)
 
-	commitMap := map[string]metricFile{}
-	if !dryRun {
-		//for only files in the last commit
-		for _, f := range commitFiles {
-			fileID := getFileID(f)
-			if _, ok := metricMap[fileID]; !ok {
-				continue
-			}
-			commitMap[fileID] = metricMap[fileID]
+	// create time logged struct
+	logged, err := newTimeLogged(metricMap, commitMap)
+	if err != nil {
+		return err
+	}
+
+	if dryRun {
+		fmt.Println(noteForConsole(logged))
+	} else {
+		if err := saveNote(logged); err != nil {
+			return err
 		}
-	}
-
-	if err := writeNote(gtmPath, metricMap, commitMap, dryRun); err != nil {
-		return err
-	}
-	if err := saveMetrics(gtmPath, metricMap, commitMap, dryRun); err != nil {
-		return err
+		if err := saveMetrics(gtmPath, metricMap, commitMap); err != nil {
+			return err
+		}
 	}
 
 	if debug {
@@ -63,4 +64,39 @@ func Process(dryRun, debug bool) error {
 	}
 
 	return nil
+}
+
+func buildCommitMap(metricMap map[string]metricFile, dryRun bool) (map[string]metricFile, error) {
+	commitMap := map[string]metricFile{}
+
+	if !dryRun {
+		// for only files in the last commit
+		m, err := scm.GitCommitMsg()
+		if err != nil {
+			return commitMap, err
+		}
+		_, _, commitFiles := scm.GitParseMessage(m)
+		for _, f := range commitFiles {
+			fileID := getFileID(f)
+			if _, ok := metricMap[fileID]; !ok {
+				continue
+			}
+			commitMap[fileID] = metricMap[fileID]
+		}
+	} else {
+		// include git tracked files that have been modified
+		for fileID, mf := range metricMap {
+			if mf.GitTracked {
+				modified, err := scm.GitModified(mf.SourceFile)
+				if err != nil {
+					return commitMap, err
+				}
+				if modified {
+					commitMap[fileID] = mf
+				}
+			}
+		}
+	}
+
+	return commitMap, nil
 }
