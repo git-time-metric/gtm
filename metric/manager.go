@@ -27,8 +27,8 @@ func Process(dryRun, debug bool) error {
 	}
 
 	// allocate time for events
-	for epoch := range epochEventMap {
-		err := allocateTime(metricMap, epochEventMap[epoch])
+	for ep := range epochEventMap {
+		err := allocateTime(ep, metricMap, epochEventMap[ep])
 		if err != nil {
 			return err
 		}

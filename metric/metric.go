@@ -18,7 +18,7 @@ func getFileID(filePath string) string {
 }
 
 // allocateTime calculates access time for each file within an epoch window
-func allocateTime(metricMap map[string]metricFile, eventMap map[string]int) error {
+func allocateTime(ep int64, metricMap map[string]metricFile, eventMap map[string]int) error {
 	total := 0
 	for file := range eventMap {
 		total += eventMap[file]
@@ -37,12 +37,12 @@ func allocateTime(metricMap map[string]metricFile, eventMap map[string]int) erro
 		)
 		mf, ok = metricMap[fileID]
 		if !ok {
-			mf, err = newMetricFile(file, 0, true)
+			mf, err = newMetricFile(file, 0, true, map[int64]int{})
 			if err != nil {
 				return err
 			}
 		}
-		mf.addTime(t)
+		mf.addTime(ep, t)
 
 		//NOTE - Go has some gotchas when it comes to structs contained within maps
 		// a copy is returned and not the reference to the struct
@@ -57,7 +57,7 @@ func allocateTime(metricMap map[string]metricFile, eventMap map[string]int) erro
 	// we put the remaining on the last file
 	if lastFile != "" && timeAllocated < epoch.WindowSize {
 		mf := metricMap[getFileID(lastFile)]
-		mf.addTime(epoch.WindowSize - timeAllocated)
+		mf.addTime(ep, epoch.WindowSize-timeAllocated)
 	}
 	return nil
 }
@@ -67,11 +67,13 @@ type metricFile struct {
 	SourceFile string
 	Time       int
 	GitTracked bool
+	Timeline   map[int64]int
 }
 
-func (m *metricFile) addTime(t int) {
+func (m *metricFile) addTime(ep int64, t int) {
 	m.Updated = true
 	m.Time += t
+	m.Timeline[ep] += t
 }
 
 type metricFileByTime []metricFile
@@ -80,13 +82,13 @@ func (a metricFileByTime) Len() int           { return len(a) }
 func (a metricFileByTime) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a metricFileByTime) Less(i, j int) bool { return a[i].Time < a[j].Time }
 
-func newMetricFile(f string, t int, updated bool) (metricFile, error) {
+func newMetricFile(f string, t int, updated bool, timeline map[int64]int) (metricFile, error) {
 	tracked, err := scm.GitTracked(f)
 	if err != nil {
 		return metricFile{}, err
 	}
 
-	return metricFile{SourceFile: f, Time: t, Updated: updated, GitTracked: tracked}, nil
+	return metricFile{SourceFile: f, Time: t, Updated: updated, GitTracked: tracked, Timeline: timeline}, nil
 }
 
 func loadMetrics(gtmPath string) (map[string]metricFile, error) {
@@ -106,6 +108,7 @@ func loadMetrics(gtmPath string) (map[string]metricFile, error) {
 
 		metricFile, err := readMetricFile(metricFilePath)
 		if err != nil {
+			// TODO: delete bad metric files
 			continue
 		}
 		metrics[strings.Replace(file.Name(), ".metric", "", 1)] = metricFile
@@ -144,17 +147,39 @@ func readMetricFile(filePath string) (metricFile, error) {
 		return metricFile{}, err
 	}
 
+	var (
+		fileName       string
+		totalTimeSpent int
+	)
+
+	timeline := map[int64]int{}
 	parts := strings.Split(string(b), ",")
-	if len(parts) < 2 {
-		return metricFile{}, fmt.Errorf("Unable to parse metric file %s, invalid contents", filePath)
+
+	for i := 0; i < len(parts); i++ {
+		subparts := strings.Split(parts[i], ":")
+		if len(subparts) != 2 {
+			return metricFile{}, fmt.Errorf("Unable to parse metric file %s, invalid format", filePath)
+		}
+		if i == 0 {
+			fileName = subparts[0]
+			totalTimeSpent, err = strconv.Atoi(subparts[1])
+			if err != nil {
+				return metricFile{}, fmt.Errorf("Unable to parse metric file %s, invalid time, %s", filePath, err)
+			}
+			continue
+		}
+		ep, err := strconv.ParseInt(subparts[0], 10, 64)
+		if err != nil {
+			return metricFile{}, fmt.Errorf("Unable to parse metric file %s, invalid epoch, %s", filePath, err)
+		}
+		timeSpent, err := strconv.Atoi(subparts[1])
+		if err != nil {
+			return metricFile{}, fmt.Errorf("Unable to parse metric file %s, invalid time,  %s", filePath, err)
+		}
+		timeline[ep] += timeSpent
 	}
 
-	t, err := strconv.Atoi(string(parts[1]))
-	if err != nil {
-		return metricFile{}, fmt.Errorf("Unable to parse metric file %s, invalid time -> %s", filePath, err)
-	}
-
-	mf, err := newMetricFile(parts[0], t, false)
+	mf, err := newMetricFile(fileName, totalTimeSpent, false, timeline)
 	if err != nil {
 		return metricFile{}, err
 	}
@@ -163,9 +188,13 @@ func readMetricFile(filePath string) (metricFile, error) {
 }
 
 func writeMetricFile(gtmPath string, mf metricFile) error {
+	s := fmt.Sprintf("%s:%d", mf.SourceFile, mf.Time)
+	for e, t := range mf.Timeline {
+		s += fmt.Sprintf(",%d:%d", e, t)
+	}
 	if err := ioutil.WriteFile(
 		filepath.Join(gtmPath, fmt.Sprintf("%s.metric", getFileID(mf.SourceFile))),
-		[]byte(fmt.Sprintf("%s,%d", mf.SourceFile, mf.Time)), 0644); err != nil {
+		[]byte(s), 0644); err != nil {
 		return err
 	}
 

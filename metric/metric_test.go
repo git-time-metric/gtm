@@ -24,21 +24,21 @@ func TestAllocateTime(t *testing.T) {
 			map[string]metricFile{},
 			map[string]int{"event/event.go": 1},
 			map[string]metricFile{
-				"6f53bc90ba625b5afaac80b422b44f1f609d6367": metricFile{Updated: true, SourceFile: "event/event.go", Time: 60}},
+				"6f53bc90ba625b5afaac80b422b44f1f609d6367": metricFile{Updated: true, SourceFile: "event/event.go", Time: 60, Timeline: map[int64]int{int64(1): 60}}},
 		},
 		{
 			map[string]metricFile{},
 			map[string]int{"event/event.go": 4, "event/event_test.go": 2},
 			map[string]metricFile{
-				"6f53bc90ba625b5afaac80b422b44f1f609d6367": metricFile{Updated: true, SourceFile: "event/event.go", Time: 40},
-				"e65b42b6bf1eda6349451b063d46134dd7ab9921": metricFile{Updated: true, SourceFile: "event/event_test.go", Time: 20}},
+				"6f53bc90ba625b5afaac80b422b44f1f609d6367": metricFile{Updated: true, SourceFile: "event/event.go", Time: 40, Timeline: map[int64]int{int64(1): 40}},
+				"e65b42b6bf1eda6349451b063d46134dd7ab9921": metricFile{Updated: true, SourceFile: "event/event_test.go", Time: 20, Timeline: map[int64]int{int64(1): 20}}},
 		},
 		{
-			map[string]metricFile{"e65b42b6bf1eda6349451b063d46134dd7ab9921": metricFile{Updated: true, SourceFile: "event/event_test.go", Time: 60}},
+			map[string]metricFile{"e65b42b6bf1eda6349451b063d46134dd7ab9921": metricFile{Updated: true, SourceFile: "event/event_test.go", Time: 60, Timeline: map[int64]int{int64(1): 60}}},
 			map[string]int{"event/event.go": 4, "event/event_test.go": 2},
 			map[string]metricFile{
-				"6f53bc90ba625b5afaac80b422b44f1f609d6367": metricFile{Updated: true, SourceFile: "event/event.go", Time: 40},
-				"e65b42b6bf1eda6349451b063d46134dd7ab9921": metricFile{Updated: true, SourceFile: "event/event_test.go", Time: 80}},
+				"6f53bc90ba625b5afaac80b422b44f1f609d6367": metricFile{Updated: true, SourceFile: "event/event.go", Time: 40, Timeline: map[int64]int{int64(1): 40}},
+				"e65b42b6bf1eda6349451b063d46134dd7ab9921": metricFile{Updated: true, SourceFile: "event/event_test.go", Time: 80, Timeline: map[int64]int{int64(1): 80}}},
 		},
 	}
 
@@ -49,7 +49,10 @@ func TestAllocateTime(t *testing.T) {
 			metricOrig[k] = v
 
 		}
-		allocateTime(tc.metric, tc.event)
+		if err := allocateTime(1, tc.metric, tc.event); err != nil {
+			t.Errorf("allocateTime(%+v, %+v) want error nil got %s", metricOrig, tc.event, err)
+		}
+
 		if !reflect.DeepEqual(tc.metric, tc.expected) {
 			t.Errorf("allocateTime(%+v, %+v)\n want %+v\n got  %+v\n", metricOrig, tc.event, tc.expected, tc.metric)
 		}
