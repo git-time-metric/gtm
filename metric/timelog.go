@@ -14,7 +14,7 @@ type timeLogged struct {
 func (t timeLogged) Total() int {
 	total := 0
 	for _, mf := range t.Files {
-		total += mf.Time
+		total += mf.TimeSpent
 	}
 	return total
 }
