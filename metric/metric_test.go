@@ -16,35 +16,35 @@ import (
 
 func TestAllocateTime(t *testing.T) {
 	cases := []struct {
-		metric   map[string]metricFile
+		metric   map[string]FileMetric
 		event    map[string]int
-		expected map[string]metricFile
+		expected map[string]FileMetric
 	}{
 		{
-			map[string]metricFile{},
+			map[string]FileMetric{},
 			map[string]int{"event/event.go": 1},
-			map[string]metricFile{
-				"6f53bc90ba625b5afaac80b422b44f1f609d6367": metricFile{Updated: true, SourceFile: "event/event.go", TimeSpent: 60, Timeline: map[int64]int{int64(1): 60}}},
+			map[string]FileMetric{
+				"6f53bc90ba625b5afaac80b422b44f1f609d6367": FileMetric{Updated: true, SourceFile: "event/event.go", TimeSpent: 60, Timeline: map[int64]int{int64(1): 60}}},
 		},
 		{
-			map[string]metricFile{},
+			map[string]FileMetric{},
 			map[string]int{"event/event.go": 4, "event/event_test.go": 2},
-			map[string]metricFile{
-				"6f53bc90ba625b5afaac80b422b44f1f609d6367": metricFile{Updated: true, SourceFile: "event/event.go", TimeSpent: 40, Timeline: map[int64]int{int64(1): 40}},
-				"e65b42b6bf1eda6349451b063d46134dd7ab9921": metricFile{Updated: true, SourceFile: "event/event_test.go", TimeSpent: 20, Timeline: map[int64]int{int64(1): 20}}},
+			map[string]FileMetric{
+				"6f53bc90ba625b5afaac80b422b44f1f609d6367": FileMetric{Updated: true, SourceFile: "event/event.go", TimeSpent: 40, Timeline: map[int64]int{int64(1): 40}},
+				"e65b42b6bf1eda6349451b063d46134dd7ab9921": FileMetric{Updated: true, SourceFile: "event/event_test.go", TimeSpent: 20, Timeline: map[int64]int{int64(1): 20}}},
 		},
 		{
-			map[string]metricFile{"e65b42b6bf1eda6349451b063d46134dd7ab9921": metricFile{Updated: true, SourceFile: "event/event_test.go", TimeSpent: 60, Timeline: map[int64]int{int64(1): 60}}},
+			map[string]FileMetric{"e65b42b6bf1eda6349451b063d46134dd7ab9921": FileMetric{Updated: true, SourceFile: "event/event_test.go", TimeSpent: 60, Timeline: map[int64]int{int64(1): 60}}},
 			map[string]int{"event/event.go": 4, "event/event_test.go": 2},
-			map[string]metricFile{
-				"6f53bc90ba625b5afaac80b422b44f1f609d6367": metricFile{Updated: true, SourceFile: "event/event.go", TimeSpent: 40, Timeline: map[int64]int{int64(1): 40}},
-				"e65b42b6bf1eda6349451b063d46134dd7ab9921": metricFile{Updated: true, SourceFile: "event/event_test.go", TimeSpent: 80, Timeline: map[int64]int{int64(1): 80}}},
+			map[string]FileMetric{
+				"6f53bc90ba625b5afaac80b422b44f1f609d6367": FileMetric{Updated: true, SourceFile: "event/event.go", TimeSpent: 40, Timeline: map[int64]int{int64(1): 40}},
+				"e65b42b6bf1eda6349451b063d46134dd7ab9921": FileMetric{Updated: true, SourceFile: "event/event_test.go", TimeSpent: 80, Timeline: map[int64]int{int64(1): 80}}},
 		},
 	}
 
 	for _, tc := range cases {
 		// copy metric map because it's updated in place during testing
-		metricOrig := map[string]metricFile{}
+		metricOrig := map[string]FileMetric{}
 		for k, v := range tc.metric {
 			metricOrig[k] = v
 
@@ -54,7 +54,7 @@ func TestAllocateTime(t *testing.T) {
 		}
 
 		if !reflect.DeepEqual(tc.metric, tc.expected) {
-			t.Errorf("allocateTime(%+v, %+v)\n want %+v\n got  %+v\n", metricOrig, tc.event, tc.expected, tc.metric)
+			t.Errorf("allocateTime(%+v, %+v)\nwant:\n%+v\ngot:\n%+v\n", metricOrig, tc.event, tc.expected, tc.metric)
 		}
 	}
 }
@@ -117,14 +117,14 @@ func TestProcess(t *testing.T) {
 		t.Fatalf("Unable to run git notes, %s", string(b))
 	}
 
-	want := []string{`(?i)total.\s*300`, `(?i)event.go.\s*280\s*\[m\]`, `(?i)event_test.go.\s*20\s*\[m\]`}
+	want := []string{`total:300.*`, `event.go:280.*,m`, `event_test.go:20.*,m`}
 	for _, s := range want {
 		matched, err := regexp.MatchString(s, string(b))
 		if err != nil {
 			t.Fatalf("Unable to run regexp.MatchString(%s, %s), %s", s, string(b), err)
 		}
 		if !matched {
-			t.Errorf("Process(false, false) - test full commit, \nwant \n%s, \ngot \n%s", s, string(b))
+			t.Errorf("Process(false, false) - test full commit, \nwant:\n%s,\ngot:\n%s", s, string(b))
 		}
 	}
 
@@ -166,14 +166,14 @@ func TestProcess(t *testing.T) {
 		t.Fatalf("Unable to run git notes, %s", string(b))
 	}
 
-	want = []string{`(?i)total.\s*20`, `(?i)event_test.go.\s*20\s\[m\]`}
+	want = []string{`total:20`, `event_test.go:20.*,m`}
 	for _, s := range want {
 		matched, err := regexp.MatchString(s, string(b))
 		if err != nil {
 			t.Fatalf("Unable to run regexp.MatchString(%s, %s), %s", s, string(b), err)
 		}
 		if !matched {
-			t.Errorf("Process(false, false) - test partial commit, \nwant \n%s, \ngot \n%s", s, string(b))
+			t.Errorf("Process(false, false) - test partial commit, \nwant:\n%s,\ngot:\n%s", s, string(b))
 		}
 
 	}
@@ -232,14 +232,14 @@ func TestProcess(t *testing.T) {
 		t.Fatalf("Unable to run git notes, %s", string(b))
 	}
 
-	want = []string{`(?i)total.\s*300`, `(?i)event_test.go.\s*20\s\[r\]`, `(?i)event/event.go.\s*280\s\[m\]`}
+	want = []string{`total:300`, `event_test.go:20.*,r`, `event/event.go:280.*,m`}
 	for _, s := range want {
 		matched, err := regexp.MatchString(s, string(b))
 		if err != nil {
 			t.Fatalf("Unable to run regexp.MatchString(%s, %s), %s", s, string(b), err)
 		}
 		if !matched {
-			t.Errorf("Process(false, false) - test commit with readonly, \nwant \n%s, \ngot \n%s", s, string(b))
+			t.Errorf("Process(false, false) - test commit with readonly, \nwant:\n%s,\ngot:\n%s", s, string(b))
 		}
 
 	}

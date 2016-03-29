@@ -41,7 +41,7 @@ func Process(dryRun, debug bool) error {
 	}
 
 	// create time logged struct
-	logged, err := newTimeLogged(metricMap, commitMap)
+	logged, err := NewTimeLog(metricMap, commitMap)
 	if err != nil {
 		return err
 	}
@@ -66,8 +66,8 @@ func Process(dryRun, debug bool) error {
 	return nil
 }
 
-func buildCommitMap(metricMap map[string]metricFile, dryRun bool) (map[string]metricFile, error) {
-	commitMap := map[string]metricFile{}
+func buildCommitMap(metricMap map[string]FileMetric, dryRun bool) (map[string]FileMetric, error) {
+	commitMap := map[string]FileMetric{}
 
 	if !dryRun {
 		// for only files in the last commit

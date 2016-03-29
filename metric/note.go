@@ -7,9 +7,8 @@ import (
 	"edgeg.io/gtm/scm"
 )
 
-func saveNote(tl timeLogged) error {
-	// TODO: implement marshal and unmarshal note data
-	err := scm.GitAddNote(noteForConsole(tl), env.NoteNameSpace)
+func saveNote(tl TimeLog) error {
+	err := scm.GitAddNote(marshalTimeLog(tl), env.NoteNameSpace)
 	if err != nil {
 		return err
 	}
@@ -17,10 +16,10 @@ func saveNote(tl timeLogged) error {
 	return nil
 }
 
-func noteForConsole(tl timeLogged) string {
-	s := fmt.Sprintf("Total: %d\n", tl.Total())
-	for _, mf := range tl.Files {
-		s += fmt.Sprintf("%s: %d [%s]\n", mf.SourceFile, mf.TimeSpent, tl.FileStatus(mf.SourceFile))
+func noteForConsole(tl TimeLog) string {
+	s := fmt.Sprintf("total: %d\n", tl.Total())
+	for _, fl := range tl.Files {
+		s += fmt.Sprintf("%s: %d [%s]\n", fl.FileMetric.SourceFile, fl.FileMetric.TimeSpent, fl.status)
 	}
 	return s
 }
