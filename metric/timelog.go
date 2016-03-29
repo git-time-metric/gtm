@@ -11,7 +11,7 @@ import (
 
 type FileLog struct {
 	FileMetric
-	status string
+	Status string
 }
 
 type TimeLog struct {
@@ -22,7 +22,7 @@ type TimeLog struct {
 func marshalTimeLog(tl TimeLog) string {
 	s := fmt.Sprintf("[ver:%s,total:%d]\n", "1", tl.Total())
 	for _, fl := range tl.Files {
-		s += fmt.Sprintf("%s,%s\n", marshalMetricFile(fl.FileMetric), fl.status)
+		s += fmt.Sprintf("%s,%s\n", marshalMetricFile(fl.FileMetric), fl.Status)
 	}
 	return s
 }
@@ -50,8 +50,8 @@ func unMarshalTimeLog(s string) (TimeLog, error) {
 
 func (t TimeLog) Total() int {
 	total := 0
-	for _, mf := range t.Files {
-		total += mf.TimeSpent
+	for _, fm := range t.Files {
+		total += fm.TimeSpent
 	}
 	return total
 }
@@ -66,22 +66,22 @@ func (a FileLogByTime) Less(i, j int) bool {
 
 func NewTimeLog(metricMap map[string]FileMetric, commitMap map[string]FileMetric) (TimeLog, error) {
 	fls := []FileLog{}
-	for _, mf := range commitMap {
-		mf.Downsample()
-		fls = append(fls, FileLog{FileMetric: mf, status: "m"})
+	for _, fm := range commitMap {
+		fm.Downsample()
+		fls = append(fls, FileLog{FileMetric: fm, Status: "m"})
 	}
 
-	for fileID, mf := range metricMap {
+	for fileID, fm := range metricMap {
 		if _, ok := commitMap[fileID]; !ok {
 			// looking at only files not in commit
-			modified, err := scm.GitModified(mf.SourceFile)
+			modified, err := scm.GitModified(fm.SourceFile)
 			if err != nil {
 				return TimeLog{}, err
 			}
-			if mf.GitTracked && !modified {
+			if fm.GitTracked && !modified {
 				// source file is tracked by git and is not modified
-				mf.Downsample()
-				fls = append(fls, FileLog{FileMetric: mf, status: "r"})
+				fm.Downsample()
+				fls = append(fls, FileLog{FileMetric: fm, Status: "r"})
 			}
 		}
 	}

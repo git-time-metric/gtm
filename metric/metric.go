@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -31,24 +32,24 @@ func allocateTime(ep int64, metricMap map[string]FileMetric, eventMap map[string
 		fileID := getFileID(file)
 
 		var (
-			mf  FileMetric
+			fm  FileMetric
 			ok  bool
 			err error
 		)
-		mf, ok = metricMap[fileID]
+		fm, ok = metricMap[fileID]
 		if !ok {
-			mf, err = newMetricFile(file, 0, true, map[int64]int{})
+			fm, err = newMetricFile(file, 0, true, map[int64]int{})
 			if err != nil {
 				return err
 			}
 		}
-		mf.AddTimeSpent(ep, t)
+		fm.AddTimeSpent(ep, t)
 
 		//NOTE - Go has some gotchas when it comes to structs contained within maps
 		// a copy is returned and not the reference to the struct
 		// https://groups.google.com/forum/#!topic/golang-nuts/4_pabWnsMp0
 		// assigning the new & updated metricFile instance to the map
-		metricMap[fileID] = mf
+		metricMap[fileID] = fm
 
 		timeAllocated += t
 		lastFile = file
@@ -56,8 +57,8 @@ func allocateTime(ep int64, metricMap map[string]FileMetric, eventMap map[string
 	// let's make sure all of the EpochWindowSize seconds are allocated
 	// we put the remaining on the last file
 	if lastFile != "" && timeAllocated < epoch.WindowSize {
-		mf := metricMap[getFileID(lastFile)]
-		mf.AddTimeSpent(ep, epoch.WindowSize-timeAllocated)
+		fm := metricMap[getFileID(lastFile)]
+		fm.AddTimeSpent(ep, epoch.WindowSize-timeAllocated)
 	}
 	return nil
 }
@@ -85,6 +86,21 @@ func (f *FileMetric) Downsample() {
 	f.Timeline = byHour
 }
 
+type ByEpoch []int64
+
+func (e ByEpoch) Len() int           { return len(e) }
+func (e ByEpoch) Swap(i, j int)      { e[i], e[j] = e[j], e[i] }
+func (e ByEpoch) Less(i, j int) bool { return e[i] < e[j] }
+
+func (f *FileMetric) SortEpochs() []int64 {
+	keys := []int64{}
+	for k := range f.Timeline {
+		keys = append(keys, k)
+	}
+	sort.Sort(ByEpoch(keys))
+	return keys
+}
+
 type FileMetricByTime []FileMetric
 
 func (a FileMetricByTime) Len() int           { return len(a) }
@@ -100,10 +116,10 @@ func newMetricFile(f string, t int, updated bool, timeline map[int64]int) (FileM
 	return FileMetric{SourceFile: f, TimeSpent: t, Updated: updated, GitTracked: tracked, Timeline: timeline}, nil
 }
 
-func marshalMetricFile(mf FileMetric) []byte {
-	s := fmt.Sprintf("%s:%d", mf.SourceFile, mf.TimeSpent)
-	for e, t := range mf.Timeline {
-		s += fmt.Sprintf(",%d:%d", e, t)
+func marshalMetricFile(fm FileMetric) []byte {
+	s := fmt.Sprintf("%s:%d", fm.SourceFile, fm.TimeSpent)
+	for _, e := range fm.SortEpochs() {
+		s += fmt.Sprintf(",%d:%d", e, fm.Timeline[e])
 	}
 	return []byte(s)
 }
@@ -142,12 +158,12 @@ func unMarshalMetricFile(b []byte, filePath string) (FileMetric, error) {
 		timeline[ep] += timeSpent
 	}
 
-	mf, err := newMetricFile(fileName, totalTimeSpent, false, timeline)
+	fm, err := newMetricFile(fileName, totalTimeSpent, false, timeline)
 	if err != nil {
 		return FileMetric{}, err
 	}
 
-	return mf, nil
+	return fm, nil
 }
 
 func loadMetrics(gtmPath string) (map[string]FileMetric, error) {
@@ -177,20 +193,20 @@ func loadMetrics(gtmPath string) (map[string]FileMetric, error) {
 }
 
 func saveMetrics(gtmPath string, metricMap map[string]FileMetric, commitMap map[string]FileMetric) error {
-	for fileID, mf := range metricMap {
+	for fileID, fm := range metricMap {
 		_, inCommitMap := commitMap[fileID]
 
-		if mf.Updated && !inCommitMap {
+		if fm.Updated && !inCommitMap {
 			// source file has updated time and is not in the commit
-			if err := writeMetricFile(gtmPath, mf); err != nil {
+			if err := writeMetricFile(gtmPath, fm); err != nil {
 				return err
 			}
 		}
-		modified, err := scm.GitModified(mf.SourceFile)
+		modified, err := scm.GitModified(fm.SourceFile)
 		if err != nil {
 			return err
 		}
-		if inCommitMap || (!inCommitMap && mf.GitTracked && !modified) {
+		if inCommitMap || (!inCommitMap && fm.GitTracked && !modified) {
 			// source file is in commit or it's git tracked and not modified
 			if err := removeMetricFile(gtmPath, fileID); err != nil {
 				return err
@@ -209,10 +225,10 @@ func readMetricFile(filePath string) (FileMetric, error) {
 	return unMarshalMetricFile(b, filePath)
 }
 
-func writeMetricFile(gtmPath string, mf FileMetric) error {
+func writeMetricFile(gtmPath string, fm FileMetric) error {
 	if err := ioutil.WriteFile(
-		filepath.Join(gtmPath, fmt.Sprintf("%s.metric", getFileID(mf.SourceFile))),
-		marshalMetricFile(mf), 0644); err != nil {
+		filepath.Join(gtmPath, fmt.Sprintf("%s.metric", getFileID(fm.SourceFile))),
+		marshalMetricFile(fm), 0644); err != nil {
 		return err
 	}
 

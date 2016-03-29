@@ -85,14 +85,14 @@ func buildCommitMap(metricMap map[string]FileMetric, dryRun bool) (map[string]Fi
 		}
 	} else {
 		// include git tracked files that have been modified
-		for fileID, mf := range metricMap {
-			if mf.GitTracked {
-				modified, err := scm.GitModified(mf.SourceFile)
+		for fileID, fm := range metricMap {
+			if fm.GitTracked {
+				modified, err := scm.GitModified(fm.SourceFile)
 				if err != nil {
 					return commitMap, err
 				}
 				if modified {
-					commitMap[fileID] = mf
+					commitMap[fileID] = fm
 				}
 			}
 		}
