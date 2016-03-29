@@ -71,10 +71,18 @@ type FileMetric struct {
 	Timeline   map[int64]int
 }
 
-func (m *FileMetric) AddTimeSpent(ep int64, t int) {
-	m.Updated = true
-	m.TimeSpent += t
-	m.Timeline[ep] += t
+func (f *FileMetric) AddTimeSpent(ep int64, t int) {
+	f.Updated = true
+	f.TimeSpent += t
+	f.Timeline[ep] += t
+}
+
+func (f *FileMetric) Downsample() {
+	byHour := map[int64]int{}
+	for ep, t := range f.Timeline {
+		byHour[ep/3600*3600] += t
+	}
+	f.Timeline = byHour
 }
 
 type FileMetricByTime []FileMetric

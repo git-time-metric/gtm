@@ -67,6 +67,7 @@ func (a FileLogByTime) Less(i, j int) bool {
 func NewTimeLog(metricMap map[string]FileMetric, commitMap map[string]FileMetric) (TimeLog, error) {
 	fls := []FileLog{}
 	for _, mf := range commitMap {
+		mf.Downsample()
 		fls = append(fls, FileLog{FileMetric: mf, status: "m"})
 	}
 
@@ -79,6 +80,7 @@ func NewTimeLog(metricMap map[string]FileMetric, commitMap map[string]FileMetric
 			}
 			if mf.GitTracked && !modified {
 				// source file is tracked by git and is not modified
+				mf.Downsample()
 				fls = append(fls, FileLog{FileMetric: mf, status: "r"})
 			}
 		}
