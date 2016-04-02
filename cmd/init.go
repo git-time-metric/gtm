@@ -19,8 +19,9 @@ func (i initCmd) Help() string {
 	return `
 	gtm init
 
-	Initialize Git Time Metric for a project. 
-	Call from root directory of project.
+	Initialize Git Time Metric for a project 
+
+	Note - run from the root directory of project
 	`
 }
 
