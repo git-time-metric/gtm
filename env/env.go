@@ -1,11 +1,13 @@
 package env
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"log"
 	"os"
 	"path/filepath"
+	"text/template"
 	"time"
 
 	"edgeg.io/gtm/scm"
@@ -17,39 +19,81 @@ var (
 )
 
 var (
-	NoteNameSpace  string = "gtm-data"
-	GTMDirectory   string = ".gtm"
-	PostCommitHook string = "gtm commit --dry-run=false"
+	NoteNameSpace   string = "gtm-data"
+	GTMDirectory    string = ".gtm"
+	PostCommitHook  string = "gtm commit --dry-run=false"
+	NotesRewriteRef string = "ref/notes/gtm-data"
+	GitIgnore       string = ".gtm/"
 )
+
+const InitMsgTpl string = `
+Git Time Metric initialized
+
+gtm path:
+{{.GTMPath}}
+
+post commmit hook:
+{{.PostCommitHook}}
+
+git configuration:
+notes.rewriteref={{.NotesRewriteRef}}
+
+gitignore:
+{{.GitIgnore}}
+
+[Git Time Metric sponsored by edgeg.io]
+`
 
 var Now = func() time.Time { return time.Now() }
 
-func Initialize() error {
+func Initialize() (string, error) {
 	var fp string
 
 	wd, err := os.Getwd()
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	fp = filepath.Join(wd, ".git")
 	if _, err := os.Stat(fp); os.IsNotExist(err) {
-		return fmt.Errorf(
+		return "", fmt.Errorf(
 			"Unable to intialize Git Time Metric, Git repository not found in %s", wd)
 	}
 
 	fp = filepath.Join(wd, GTMDirectory)
 	if _, err := os.Stat(fp); os.IsNotExist(err) {
 		if err := os.MkdirAll(fp, 0700); err != nil {
-			return err
+			return "", err
 		}
 	}
 
 	if err := scm.GitInitHook("post-commit", PostCommitHook); err != nil {
-		return err
+		return "", err
 	}
 
-	return nil
+	if err := scm.GitSetRewriteRef(NotesRewriteRef); err != nil {
+		return "", err
+	}
+
+	if err := scm.GitIgnore(GitIgnore); err != nil {
+		return "", err
+	}
+
+	b := new(bytes.Buffer)
+	t := template.Must(template.New("msg").Parse(InitMsgTpl))
+	err = t.Execute(b,
+		struct {
+			GTMPath         string
+			PostCommitHook  string
+			NotesRewriteRef string
+			GitIgnore       string
+		}{
+			fp,
+			PostCommitHook,
+			NotesRewriteRef,
+			GitIgnore})
+
+	return b.String(), nil
 }
 
 // The Paths function returns the git repository root path and the gtm path within the root.

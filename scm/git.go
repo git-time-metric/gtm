@@ -17,7 +17,7 @@ func GitRootPath(path ...string) (string, error) {
 
 	b, err := cmd.Output()
 	if err != nil {
-		return "", fmt.Errorf("Unable to parse repository path, %s", err)
+		return "", fmt.Errorf("Unable to parse repository path, %s %s", string(b), err)
 	}
 
 	s := strings.TrimSpace(string(b))
@@ -33,11 +33,15 @@ func GitBranch(path ...string) (string, error) {
 	if len(path) > 0 {
 		cmd.Dir = path[0]
 	}
-	if b, err := cmd.Output(); err != nil {
-		return "", fmt.Errorf("Unable to parse branch name, %s", err)
-	} else {
-		return strings.TrimSpace(string(b)), nil
+	var (
+		b   []byte
+		err error
+	)
+	if b, err = cmd.Output(); err != nil {
+		return "", fmt.Errorf("Unable to parse branch name, %s %s", string(b), err)
 	}
+	return strings.TrimSpace(string(b)), nil
+
 }
 
 func GitEmail(path ...string) (string, error) {
@@ -45,11 +49,14 @@ func GitEmail(path ...string) (string, error) {
 	if len(path) > 0 {
 		cmd.Dir = path[0]
 	}
-	if b, err := cmd.Output(); err != nil {
-		return "", fmt.Errorf("Unable to get user email, %s", err)
-	} else {
-		return strings.TrimSpace(string(b)), nil
+	var (
+		b   []byte
+		err error
+	)
+	if b, err = cmd.Output(); err != nil {
+		return "", fmt.Errorf("Unable to get user email, %s %s", string(b), err)
 	}
+	return strings.TrimSpace(string(b)), nil
 }
 
 func GitCommitMsg(path ...string) (string, error) {
@@ -57,11 +64,16 @@ func GitCommitMsg(path ...string) (string, error) {
 	if len(path) > 0 {
 		cmd.Dir = path[0]
 	}
-	if b, err := cmd.Output(); err != nil {
+	var (
+		b   []byte
+		err error
+	)
+	if b, err = cmd.Output(); err != nil {
+		// if there are no git commits yet it will fail
+		// ignoring this error
 		return "", nil
-	} else {
-		return string(b), err
 	}
+	return string(b), err
 }
 
 func GitParseMessage(m string) (uuid, msg string, files []string) {
@@ -87,8 +99,32 @@ func GitAddNote(n string, nameSpace string, path ...string) error {
 	if len(path) > 0 {
 		cmd.Dir = path[0]
 	}
-	if _, err := cmd.Output(); err != nil {
-		return fmt.Errorf("Unable to add git note %s", err)
+	if b, err := cmd.Output(); err != nil {
+		return fmt.Errorf("Unable to add git note, %s %s", string(b), err)
+	}
+	return nil
+}
+
+func GitSetRewriteRef(ref string, path ...string) error {
+	cmd := exec.Command("git", "config", "-l")
+	if len(path) > 0 {
+		cmd.Dir = path[0]
+	}
+	var (
+		b   []byte
+		err error
+	)
+	if b, err = cmd.Output(); err != nil {
+		return fmt.Errorf("Unable to run git config -l notes.rewriteref, %s %s", string(b), err)
+	}
+	if !strings.Contains(string(b), ref+"\n") {
+		cmd := exec.Command("git", "config", "--add", "notes.rewriteref", ref)
+		if len(path) > 0 {
+			cmd.Dir = path[0]
+		}
+		if b, err := cmd.Output(); err != nil {
+			return fmt.Errorf("Unable to run git config --add notes.rewriteref %s, %s %s", ref, string(b), err)
+		}
 	}
 	return nil
 }
@@ -98,11 +134,14 @@ func GitTracked(f string, path ...string) (bool, error) {
 	if len(path) > 0 {
 		cmd.Dir = path[0]
 	}
-	if out, err := cmd.Output(); err != nil {
-		return false, fmt.Errorf("Unable to determine git tracked status for %s, %s", f, err)
-	} else {
-		return strings.TrimSpace(string(out)) != "", nil
+	var (
+		b   []byte
+		err error
+	)
+	if b, err = cmd.Output(); err != nil {
+		return false, fmt.Errorf("Unable to determine git tracked status for %s, %s %s", f, string(b), err)
 	}
+	return strings.TrimSpace(string(b)) != "", nil
 }
 
 func GitModified(f string, path ...string) (bool, error) {
@@ -110,11 +149,14 @@ func GitModified(f string, path ...string) (bool, error) {
 	if len(path) > 0 {
 		cmd.Dir = path[0]
 	}
-	if out, err := cmd.Output(); err != nil {
-		return false, fmt.Errorf("Unable to determine git modified status for %s, %s", f, err)
-	} else {
-		return strings.TrimSpace(string(out)) != "", nil
+	var (
+		b   []byte
+		err error
+	)
+	if b, err = cmd.Output(); err != nil {
+		return false, fmt.Errorf("Unable to determine git modified status for %s, %s %s", f, string(b), err)
 	}
+	return strings.TrimSpace(string(b)) != "", nil
 }
 
 func GitInitHook(hook, command string, wd ...string) error {
@@ -139,21 +181,61 @@ func GitInitHook(hook, command string, wd ...string) error {
 		if err != nil {
 			return err
 		}
-		output = string(b) + "\n"
+		output = string(b)
 
-		if strings.Contains(output, command) {
+		if strings.Contains(output, command+"\n") {
 			// if file already exists this will make sure it's executable
-			os.Chmod(fp, 0755)
+			if err := os.Chmod(fp, 0755); err != nil {
+				return err
+			}
 			return nil
 		}
 	}
 
 	if err = ioutil.WriteFile(
-		fp, []byte(fmt.Sprintf("%s%s", output, command)), 0755); err != nil {
+		fp, []byte(fmt.Sprintf("%s\n%s\n", output, command)), 0755); err != nil {
 		return err
 	}
 	// if file already exists this will make sure it's executable
-	os.Chmod(fp, 0755)
+	if err := os.Chmod(fp, 0755); err != nil {
+		return err
+	}
 
+	return nil
+}
+
+func GitIgnore(ignore string, wd ...string) error {
+	var (
+		p   string
+		err error
+	)
+
+	if len(wd) > 0 {
+		p = wd[0]
+	} else {
+		p, err = os.Getwd()
+		if err != nil {
+			return err
+		}
+	}
+	fp := path.Join(p, ".gitignore")
+
+	var output string
+	if _, err := os.Stat(fp); !os.IsNotExist(err) {
+		b, err := ioutil.ReadFile(fp)
+		if err != nil {
+			return err
+		}
+		output = string(b)
+
+		if strings.Contains(output, ignore+"\n") {
+			return nil
+		}
+	}
+
+	if err = ioutil.WriteFile(
+		fp, []byte(fmt.Sprintf("%s\n%s\n", output, ignore)), 0644); err != nil {
+		return err
+	}
 	return nil
 }

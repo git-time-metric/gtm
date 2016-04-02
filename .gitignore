@@ -53,6 +53,4 @@ _testmain.go
 *.test
 *.prof
 
-
-gtm
-.gtm
+.gtm/

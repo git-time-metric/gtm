@@ -25,12 +25,12 @@ func (i initCmd) Help() string {
 }
 
 func (i initCmd) Run(args []string) int {
-	err := env.Initialize()
+	m, err := env.Initialize()
 	if err != nil {
 		fmt.Println(err)
 		return 1
 	}
-	fmt.Println("Time tracking initialized")
+	fmt.Println(m)
 	return 0
 }
 

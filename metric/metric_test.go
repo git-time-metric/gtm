@@ -86,8 +86,14 @@ func TestProcess(t *testing.T) {
 
 	// chandge working directory and initialize git repo
 	savedCurDir, _ := os.Getwd()
-	defer func() { os.Chdir(savedCurDir) }()
-	os.Chdir(rootPath)
+	defer func() {
+		if err := os.Chdir(savedCurDir); err != nil {
+			fmt.Println("Unable to change working directory, %s", err)
+		}
+	}()
+	if err := os.Chdir(rootPath); err != nil {
+		t.Fatalf("Unable to change working directory, %s", err)
+	}
 	cmd = exec.Command("git", "init")
 	b, err := cmd.Output()
 	if err != nil {
@@ -131,12 +137,16 @@ func TestProcess(t *testing.T) {
 	// Test Process by committing a tracked file that has been modified and one untracked file that is not added/commited
 
 	// change back to saved current working directory and setup
-	os.Chdir(savedCurDir)
+	if err := os.Chdir(savedCurDir); err != nil {
+		t.Fatalf("Unable to change working directory, %s", err)
+	}
 	rootPath, gtmPath, f2 := processSetup(t)
 	defer f2()
 
 	// chandge working directory and initialize git repo
-	os.Chdir(rootPath)
+	if err := os.Chdir(rootPath); err != nil {
+		t.Fatalf("Unable to change working directory, %s", err)
+	}
 	cmd = exec.Command("git", "init")
 	b, err = cmd.Output()
 	if err != nil {
@@ -185,12 +195,16 @@ func TestProcess(t *testing.T) {
 	// Test Process by committing a tracked file that has been modified and one tracked file that is unmodified
 
 	// change back to saved current working directory and setup
-	os.Chdir(savedCurDir)
+	if err := os.Chdir(savedCurDir); err != nil {
+		t.Fatalf("Unable to change working directory, %s", err)
+	}
 	rootPath, gtmPath, f3 := processSetup(t)
 	defer f3()
 
 	// chandge working directory and initialize git repo
-	os.Chdir(rootPath)
+	if err := os.Chdir(rootPath); err != nil {
+		t.Fatalf("Unable to change working directory, %s", err)
+	}
 	cmd = exec.Command("git", "init")
 	b, err = cmd.Output()
 	if err != nil {
