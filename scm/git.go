@@ -28,10 +28,10 @@ func GitRootPath(path ...string) (string, error) {
 	return s, nil
 }
 
-func GitBranch(path ...string) (string, error) {
+func GitBranch(wd ...string) (string, error) {
 	cmd := exec.Command("git", "rev-parse", "--abbrev-ref", "HEAD")
-	if len(path) > 0 {
-		cmd.Dir = path[0]
+	if len(wd) > 0 {
+		cmd.Dir = wd[0]
 	}
 	var (
 		b   []byte
@@ -44,10 +44,10 @@ func GitBranch(path ...string) (string, error) {
 
 }
 
-func GitEmail(path ...string) (string, error) {
+func GitEmail(wd ...string) (string, error) {
 	cmd := exec.Command("git", "config", "--get", "user.email")
-	if len(path) > 0 {
-		cmd.Dir = path[0]
+	if len(wd) > 0 {
+		cmd.Dir = wd[0]
 	}
 	var (
 		b   []byte
@@ -59,10 +59,10 @@ func GitEmail(path ...string) (string, error) {
 	return strings.TrimSpace(string(b)), nil
 }
 
-func GitCommitMsg(path ...string) (string, error) {
+func GitCommitMsg(wd ...string) (string, error) {
 	cmd := exec.Command("git", "log", "-1", "--oneline", "--raw")
-	if len(path) > 0 {
-		cmd.Dir = path[0]
+	if len(wd) > 0 {
+		cmd.Dir = wd[0]
 	}
 	var (
 		b   []byte
@@ -94,10 +94,10 @@ func GitParseMessage(m string) (uuid, msg string, files []string) {
 	return
 }
 
-func GitAddNote(n string, nameSpace string, path ...string) error {
+func GitAddNote(n string, nameSpace string, wd ...string) error {
 	cmd := exec.Command("git", "notes", fmt.Sprintf("--ref=%s", nameSpace), "add", "-f", "-m", n)
-	if len(path) > 0 {
-		cmd.Dir = path[0]
+	if len(wd) > 0 {
+		cmd.Dir = wd[0]
 	}
 	if b, err := cmd.Output(); err != nil {
 		return fmt.Errorf("Unable to add git note, %s %s", string(b), err)
@@ -105,10 +105,10 @@ func GitAddNote(n string, nameSpace string, path ...string) error {
 	return nil
 }
 
-func GitSetRewriteRef(ref string, path ...string) error {
+func GitSetRewriteRef(ref string, wd ...string) error {
 	cmd := exec.Command("git", "config", "-l")
-	if len(path) > 0 {
-		cmd.Dir = path[0]
+	if len(wd) > 0 {
+		cmd.Dir = wd[0]
 	}
 	var (
 		b   []byte
@@ -119,8 +119,8 @@ func GitSetRewriteRef(ref string, path ...string) error {
 	}
 	if !strings.Contains(string(b), ref+"\n") {
 		cmd := exec.Command("git", "config", "--add", "notes.rewriteref", ref)
-		if len(path) > 0 {
-			cmd.Dir = path[0]
+		if len(wd) > 0 {
+			cmd.Dir = wd[0]
 		}
 		if b, err := cmd.Output(); err != nil {
 			return fmt.Errorf("Unable to run git config --add notes.rewriteref %s, %s %s", ref, string(b), err)
@@ -129,10 +129,10 @@ func GitSetRewriteRef(ref string, path ...string) error {
 	return nil
 }
 
-func GitTracked(f string, path ...string) (bool, error) {
+func GitTracked(f string, wd ...string) (bool, error) {
 	cmd := exec.Command("git", "ls-files", f)
-	if len(path) > 0 {
-		cmd.Dir = path[0]
+	if len(wd) > 0 {
+		cmd.Dir = wd[0]
 	}
 	var (
 		b   []byte
@@ -144,10 +144,10 @@ func GitTracked(f string, path ...string) (bool, error) {
 	return strings.TrimSpace(string(b)) != "", nil
 }
 
-func GitModified(f string, path ...string) (bool, error) {
+func GitModified(f string, wd ...string) (bool, error) {
 	cmd := exec.Command("git", "ls-files", "-m", f)
-	if len(path) > 0 {
-		cmd.Dir = path[0]
+	if len(wd) > 0 {
+		cmd.Dir = wd[0]
 	}
 	var (
 		b   []byte
