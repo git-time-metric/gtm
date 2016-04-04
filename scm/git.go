@@ -105,6 +105,32 @@ func GitAddNote(n string, nameSpace string, wd ...string) error {
 	return nil
 }
 
+func GitConfig(settings map[string]string, wd ...string) error {
+	for k, v := range settings {
+		cmd := exec.Command("git", "config", "-l")
+		if len(wd) > 0 {
+			cmd.Dir = wd[0]
+		}
+		var (
+			b   []byte
+			err error
+		)
+		if b, err = cmd.Output(); err != nil {
+			return fmt.Errorf("Unable to run git config -l, %s %s", string(b), err)
+		}
+		if !strings.Contains(string(b), fmt.Sprintf("%s=%s", k, v)) {
+			cmd := exec.Command("git", "config", "--add", k, v)
+			if len(wd) > 0 {
+				cmd.Dir = wd[0]
+			}
+			if b, err := cmd.Output(); err != nil {
+				return fmt.Errorf("Unable to run git config --add %s %s, %s %s", k, v, string(b), err)
+			}
+		}
+	}
+	return nil
+}
+
 func GitSetRewriteRef(ref string, wd ...string) error {
 	cmd := exec.Command("git", "config", "-l")
 	if len(wd) > 0 {
@@ -159,46 +185,48 @@ func GitModified(f string, wd ...string) (bool, error) {
 	return strings.TrimSpace(string(b)) != "", nil
 }
 
-func GitInitHook(hook, command string, wd ...string) error {
-	var (
-		p   string
-		err error
-	)
+func GitInitHooks(hooks map[string]string, wd ...string) error {
+	for hook, command := range hooks {
+		var (
+			p   string
+			err error
+		)
 
-	if len(wd) > 0 {
-		p = wd[0]
-	} else {
-		p, err = os.Getwd()
-		if err != nil {
-			return err
-		}
-	}
-	fp := path.Join(p, ".git", "hooks", hook)
-
-	var output string
-	if _, err := os.Stat(fp); !os.IsNotExist(err) {
-		b, err := ioutil.ReadFile(fp)
-		if err != nil {
-			return err
-		}
-		output = string(b)
-
-		if strings.Contains(output, command+"\n") {
-			// if file already exists this will make sure it's executable
-			if err := os.Chmod(fp, 0755); err != nil {
+		if len(wd) > 0 {
+			p = wd[0]
+		} else {
+			p, err = os.Getwd()
+			if err != nil {
 				return err
 			}
-			return nil
 		}
-	}
+		fp := path.Join(p, ".git", "hooks", hook)
 
-	if err = ioutil.WriteFile(
-		fp, []byte(fmt.Sprintf("%s\n%s\n", output, command)), 0755); err != nil {
-		return err
-	}
-	// if file already exists this will make sure it's executable
-	if err := os.Chmod(fp, 0755); err != nil {
-		return err
+		var output string
+		if _, err := os.Stat(fp); !os.IsNotExist(err) {
+			b, err := ioutil.ReadFile(fp)
+			if err != nil {
+				return err
+			}
+			output = string(b)
+
+			if strings.Contains(output, command+"\n") {
+				// if file already exists this will make sure it's executable
+				if err := os.Chmod(fp, 0755); err != nil {
+					return err
+				}
+				return nil
+			}
+		}
+
+		if err = ioutil.WriteFile(
+			fp, []byte(fmt.Sprintf("%s\n%s\n", output, command)), 0755); err != nil {
+			return err
+		}
+		// if file already exists this will make sure it's executable
+		if err := os.Chmod(fp, 0755); err != nil {
+			return err
+		}
 	}
 
 	return nil

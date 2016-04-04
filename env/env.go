@@ -19,29 +19,27 @@ var (
 )
 
 var (
-	NoteNameSpace   string = "gtm-data"
-	GTMDirectory    string = ".gtm"
-	PostCommitHook  string = "gtm commit --dry-run=false"
-	NotesRewriteRef string = "ref/notes/gtm-data"
-	GitIgnore       string = ".gtm/"
+	NoteNameSpace string = "gtm-data"
+	GTMDirectory  string = ".gtm"
+	GitHooks             = map[string]string{
+		"pre-push":    "git push --no-verify origin refs/notes/gtm-data",
+		"post-commit": "gtm commit --dry-run=false"}
+	GitConfig = map[string]string{
+		"remote.origin.fetch": "+refs/notes/gtm-data:refs/notes/gtm-data",
+		"notes.rewriteref":    "refs/notes/gtm-data"}
+	GitIgnore string = ".gtm/"
 )
 
 const InitMsgTpl string = `
-Git Time Metric initialized
-
-gtm path:
-{{.GTMPath}}
-
-post commmit hook:
-{{.PostCommitHook}}
-
-git configuration:
-notes.rewriteref={{.NotesRewriteRef}}
-
-gitignore:
-{{.GitIgnore}}
-
-[Git Time Metric sponsored by edgeg.io]
+Git Time Metric has been initialized
+------------------------------------
+{{ range $hook, $command := .GitHooks -}}
+{{$hook}}: "{{$command}}"
+{{end -}}
+{{ range $key, $val := .GitConfig -}}
+{{$key}}: "{{$val}}"
+{{end -}}
+gitignore: "{{.GitIgnore}}"
 `
 
 var Now = func() time.Time { return time.Now() }
@@ -67,11 +65,11 @@ func Initialize() (string, error) {
 		}
 	}
 
-	if err := scm.GitInitHook("post-commit", PostCommitHook); err != nil {
+	if err := scm.GitInitHooks(GitHooks); err != nil {
 		return "", err
 	}
 
-	if err := scm.GitSetRewriteRef(NotesRewriteRef); err != nil {
+	if err := scm.GitConfig(GitConfig); err != nil {
 		return "", err
 	}
 
@@ -83,14 +81,14 @@ func Initialize() (string, error) {
 	t := template.Must(template.New("msg").Parse(InitMsgTpl))
 	err = t.Execute(b,
 		struct {
-			GTMPath         string
-			PostCommitHook  string
-			NotesRewriteRef string
-			GitIgnore       string
+			GTMPath   string
+			GitHooks  map[string]string
+			GitConfig map[string]string
+			GitIgnore string
 		}{
 			fp,
-			PostCommitHook,
-			NotesRewriteRef,
+			GitHooks,
+			GitConfig,
 			GitIgnore})
 
 	return b.String(), nil

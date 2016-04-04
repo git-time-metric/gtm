@@ -41,19 +41,21 @@ func TestInit(t *testing.T) {
 	if err != nil {
 		t.Errorf("Initialize(), want error nil got error %s", err)
 	}
-	if !strings.Contains(s, "Git Time Metric initialized") {
-		t.Errorf("Initialize(), want Git Metric initialized, got %s", s)
+	if !strings.Contains(s, "Git Time Metric has been initialized") {
+		t.Errorf("Initialize(), want Git Time Metric has been initialized, got %s", s)
 	}
 
-	fp := path.Join(d, ".git", "hooks", "post-commit")
-	if _, err := os.Stat(fp); os.IsNotExist(err) {
-		t.Errorf("Initialize(), want file post-commit, got %s", err)
-	}
-	if b, err = ioutil.ReadFile(fp); err != nil {
-		t.Fatalf("Initialize(), want error nil, got %s", err)
-	}
-	if !strings.Contains(string(b), PostCommitHook+"\n") {
-		t.Errorf("Initialize(), want %s got %s", PostCommitHook, string(b))
+	for hook, command := range GitHooks {
+		fp := path.Join(d, ".git", "hooks", hook)
+		if _, err := os.Stat(fp); os.IsNotExist(err) {
+			t.Errorf("Initialize(), want file post-commit, got %s", err)
+		}
+		if b, err = ioutil.ReadFile(fp); err != nil {
+			t.Fatalf("Initialize(), want error nil, got %s", err)
+		}
+		if !strings.Contains(string(b), command+"\n") {
+			t.Errorf("Initialize(), want %s got %s", command, string(b))
+		}
 	}
 
 	cmd = exec.Command("git", "config", "-l")
@@ -61,11 +63,14 @@ func TestInit(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Unable to initialize git repo, %s", string(b))
 	}
-	if !strings.Contains(string(b), NotesRewriteRef) {
-		t.Errorf("Initialize(), want %s got %s", NotesRewriteRef, string(b))
+	for k, v := range GitConfig {
+		want := fmt.Sprintf("%s=%s", k, v)
+		if !strings.Contains(string(b), want) {
+			t.Errorf("Initialize(), want %s got %s", want, string(b))
+		}
 	}
 
-	fp = path.Join(d, ".gitignore")
+	fp := path.Join(d, ".gitignore")
 	if _, err := os.Stat(fp); os.IsNotExist(err) {
 		t.Errorf("Initialize(), want file .gitignore, got %s", err)
 	}
