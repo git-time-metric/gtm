@@ -25,7 +25,7 @@ var (
 		"post-commit": "gtm commit --dry-run=false"}
 	GitConfig = map[string]string{
 		"alias.pushgtm":    "push origin refs/notes/gtm-data",
-		"alias.fetchgtm":   "fetch orgin refs/notes/gtm-data:refs/notes/gtm-data",
+		"alias.fetchgtm":   "fetch origin refs/notes/gtm-data:refs/notes/gtm-data",
 		"notes.rewriteref": "refs/notes/gtm-data"}
 	GitIgnore = ".gtm/"
 )
