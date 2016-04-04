@@ -19,15 +19,15 @@ var (
 )
 
 var (
-	NoteNameSpace string = "gtm-data"
-	GTMDirectory  string = ".gtm"
-	GitHooks             = map[string]string{
+	NoteNameSpace = "gtm-data"
+	GTMDirectory  = ".gtm"
+	GitHooks      = map[string]string{
 		"pre-push":    "git push --no-verify origin refs/notes/gtm-data",
 		"post-commit": "gtm commit --dry-run=false"}
 	GitConfig = map[string]string{
 		"remote.origin.fetch": "+refs/notes/gtm-data:refs/notes/gtm-data",
 		"notes.rewriteref":    "refs/notes/gtm-data"}
-	GitIgnore string = ".gtm/"
+	GitIgnore = ".gtm/"
 )
 
 const InitMsgTpl string = `
@@ -125,7 +125,7 @@ func LogToGTM(v ...interface{}) error {
 	if err != nil {
 		return fmt.Errorf("error opening log file: %v", err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 	log.SetOutput(f)
 
 	log.Println(v)

@@ -131,30 +131,6 @@ func GitConfig(settings map[string]string, wd ...string) error {
 	return nil
 }
 
-func GitSetRewriteRef(ref string, wd ...string) error {
-	cmd := exec.Command("git", "config", "-l")
-	if len(wd) > 0 {
-		cmd.Dir = wd[0]
-	}
-	var (
-		b   []byte
-		err error
-	)
-	if b, err = cmd.Output(); err != nil {
-		return fmt.Errorf("Unable to run git config -l notes.rewriteref, %s %s", string(b), err)
-	}
-	if !strings.Contains(string(b), ref+"\n") {
-		cmd := exec.Command("git", "config", "--add", "notes.rewriteref", ref)
-		if len(wd) > 0 {
-			cmd.Dir = wd[0]
-		}
-		if b, err := cmd.Output(); err != nil {
-			return fmt.Errorf("Unable to run git config --add notes.rewriteref %s, %s %s", ref, string(b), err)
-		}
-	}
-	return nil
-}
-
 func GitTracked(f string, wd ...string) (bool, error) {
 	cmd := exec.Command("git", "ls-files", f)
 	if len(wd) > 0 {
