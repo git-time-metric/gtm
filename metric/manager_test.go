@@ -33,7 +33,7 @@ func TestProcess(t *testing.T) {
 	savedCurDir, _ := os.Getwd()
 	defer func() {
 		if err := os.Chdir(savedCurDir); err != nil {
-			fmt.Println("Unable to change working directory, %s", err)
+			fmt.Printf("Unable to change working directory, %s", err)
 		}
 	}()
 	if err := os.Chdir(rootPath); err != nil {

@@ -38,7 +38,7 @@ func allocateTime(ep int64, metricMap map[string]FileMetric, eventMap map[string
 		)
 		fm, ok = metricMap[fileID]
 		if !ok {
-			fm, err = newMetricFile(file, 0, true, map[int64]int{})
+			fm, err = newFileMetric(file, 0, true, map[int64]int{})
 			if err != nil {
 				return err
 			}
@@ -107,7 +107,7 @@ func (a FileMetricByTime) Len() int           { return len(a) }
 func (a FileMetricByTime) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a FileMetricByTime) Less(i, j int) bool { return a[i].TimeSpent < a[j].TimeSpent }
 
-func newMetricFile(f string, t int, updated bool, timeline map[int64]int) (FileMetric, error) {
+func newFileMetric(f string, t int, updated bool, timeline map[int64]int) (FileMetric, error) {
 	tracked, err := scm.GitTracked(f)
 	if err != nil {
 		return FileMetric{}, err
@@ -116,7 +116,7 @@ func newMetricFile(f string, t int, updated bool, timeline map[int64]int) (FileM
 	return FileMetric{SourceFile: f, TimeSpent: t, Updated: updated, GitTracked: tracked, Timeline: timeline}, nil
 }
 
-func marshalMetricFile(fm FileMetric) []byte {
+func marshalFileMetric(fm FileMetric) []byte {
 	s := fmt.Sprintf("%s:%d", fm.SourceFile, fm.TimeSpent)
 	for _, e := range fm.SortEpochs() {
 		s += fmt.Sprintf(",%d:%d", e, fm.Timeline[e])
@@ -124,7 +124,7 @@ func marshalMetricFile(fm FileMetric) []byte {
 	return []byte(s)
 }
 
-func unMarshalMetricFile(b []byte, filePath string) (FileMetric, error) {
+func unMarshalFileMetric(b []byte, filePath string) (FileMetric, error) {
 	var (
 		fileName       string
 		totalTimeSpent int
@@ -158,7 +158,7 @@ func unMarshalMetricFile(b []byte, filePath string) (FileMetric, error) {
 		timeline[ep] += timeSpent
 	}
 
-	fm, err := newMetricFile(fileName, totalTimeSpent, false, timeline)
+	fm, err := newFileMetric(fileName, totalTimeSpent, false, timeline)
 	if err != nil {
 		return FileMetric{}, err
 	}
@@ -222,13 +222,13 @@ func readMetricFile(filePath string) (FileMetric, error) {
 		return FileMetric{}, err
 	}
 
-	return unMarshalMetricFile(b, filePath)
+	return unMarshalFileMetric(b, filePath)
 }
 
 func writeMetricFile(gtmPath string, fm FileMetric) error {
 	if err := ioutil.WriteFile(
 		filepath.Join(gtmPath, fmt.Sprintf("%s.metric", getFileID(fm.SourceFile))),
-		marshalMetricFile(fm), 0644); err != nil {
+		marshalFileMetric(fm), 0644); err != nil {
 		return err
 	}
 

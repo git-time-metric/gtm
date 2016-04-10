@@ -19,7 +19,7 @@ func saveNote(tl TimeLog) error {
 func noteForConsole(tl TimeLog) string {
 	s := fmt.Sprintf("total: %d\n", tl.Total())
 	for _, fl := range tl.Files {
-		s += fmt.Sprintf("%s: %d [%s]\n", fl.FileMetric.SourceFile, fl.FileMetric.TimeSpent, fl.Status)
+		s += fmt.Sprintf("%s: %d [%s]\n", fl.SourceFile, fl.TimeSpent, fl.Status)
 	}
 	return s
 }
