@@ -83,7 +83,7 @@ func unMarshalTimeLog(s string) (TimeLog, error) {
 				fieldVals := strings.Split(fieldGroups[groupIdx], ":")
 				switch {
 				case groupIdx == 0 && len(fieldVals) == 2:
-					// file name and total
+					// file name and total, filename:total
 					filePath = fieldVals[0]
 					t, err := strconv.Atoi(fieldVals[1])
 					if err != nil {
@@ -91,8 +91,10 @@ func unMarshalTimeLog(s string) (TimeLog, error) {
 					}
 					fileTotal = t
 				case groupIdx == len(fieldGroups)-1 && len(fieldVals) == 1:
+					// file status of m or r
 					fileStatus = fieldVals[0]
 				case len(fieldVals) == 2:
+					// epoch timeline, epoch:total
 					e, err := strconv.ParseInt(fieldVals[0], 10, 64)
 					if err != nil {
 						return TimeLog{}, fmt.Errorf("Unable to unmarshal time logged, format invalid, %s", err)
@@ -104,6 +106,7 @@ func unMarshalTimeLog(s string) (TimeLog, error) {
 					fileTimeline[e] = t
 				default:
 					// error
+					return TimeLog{}, fmt.Errorf("Unable to unmarshal time logged, format invalid")
 				}
 			}
 			fl, err := NewFileLog(filePath, fileTotal, fileTimeline, fileStatus)
