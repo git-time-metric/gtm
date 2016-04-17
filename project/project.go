@@ -1,4 +1,4 @@
-package env
+package project
 
 import (
 	"bytes"
@@ -90,6 +90,10 @@ func Initialize() (string, error) {
 			GitHooks,
 			GitConfig,
 			GitIgnore})
+
+	if err != nil {
+		return "", err
+	}
 
 	return b.String(), nil
 }

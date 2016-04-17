@@ -1,7 +1,8 @@
-package cmd
+package command
 
 import (
 	"flag"
+	"fmt"
 	"os"
 
 	"edgeg.io/gtm/metric"
@@ -35,7 +36,12 @@ func (r GitCommit) Run(args []string) int {
 		"Print debug statements to the console")
 	commitFlags.Parse(os.Args[2:])
 
-	metric.Process(*dryRun, *debug)
+	m, err := metric.Process(*dryRun, *debug)
+	if err != nil {
+		fmt.Println(err)
+		return 1
+	}
+	fmt.Println(m)
 	return 0
 }
 

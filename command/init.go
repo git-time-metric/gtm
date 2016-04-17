@@ -1,9 +1,9 @@
-package cmd
+package command
 
 import (
 	"fmt"
 
-	"edgeg.io/gtm/env"
+	"edgeg.io/gtm/project"
 
 	"github.com/mitchellh/cli"
 )
@@ -26,7 +26,7 @@ func (i initCmd) Help() string {
 }
 
 func (i initCmd) Run(args []string) int {
-	m, err := env.Initialize()
+	m, err := project.Initialize()
 	if err != nil {
 		fmt.Println(err)
 		return 1

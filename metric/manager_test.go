@@ -10,7 +10,7 @@ import (
 	"runtime"
 	"testing"
 
-	"edgeg.io/gtm/env"
+	"edgeg.io/gtm/project"
 )
 
 func TestProcess(t *testing.T) {
@@ -57,12 +57,12 @@ func TestProcess(t *testing.T) {
 		t.Fatalf("Unable to run git commit, %s", string(b))
 	}
 
-	err = Process(false, false)
+	_, err = Process(false, false)
 	if err != nil {
 		t.Fatalf("Process(false, false) - test full commit, want error nil, got %s", err)
 	}
 
-	cmd = exec.Command("git", "notes", "--ref", env.NoteNameSpace, "show")
+	cmd = exec.Command("git", "notes", "--ref", project.NoteNameSpace, "show")
 	b, err = cmd.Output()
 	if err != nil {
 		t.Fatalf("Unable to run git notes, %s", string(b))
@@ -110,12 +110,12 @@ func TestProcess(t *testing.T) {
 		t.Fatalf("Unable to run git commit, %s", string(b))
 	}
 
-	err = Process(false, false)
+	_, err = Process(false, false)
 	if err != nil {
 		t.Fatalf("Process(false, false), want error nil, got %s", err)
 	}
 
-	cmd = exec.Command("git", "notes", "--ref", env.NoteNameSpace, "show")
+	cmd = exec.Command("git", "notes", "--ref", project.NoteNameSpace, "show")
 	b, err = cmd.Output()
 	if err != nil {
 		t.Fatalf("Unable to run git notes, %s", string(b))
@@ -180,12 +180,12 @@ func TestProcess(t *testing.T) {
 		t.Fatalf("Unable to run git commit, %s", string(b))
 	}
 
-	err = Process(false, false)
+	_, err = Process(false, false)
 	if err != nil {
 		t.Fatalf("Process(false, false) - test commit with readonly, want error nil, got %s", err)
 	}
 
-	cmd = exec.Command("git", "notes", "--ref", env.NoteNameSpace, "show")
+	cmd = exec.Command("git", "notes", "--ref", project.NoteNameSpace, "show")
 	b, err = cmd.Output()
 	if err != nil {
 		t.Fatalf("Unable to run git notes, %s", string(b))
@@ -218,7 +218,7 @@ func processSetup(t *testing.T) (string, string, func()) {
 	if err != nil {
 		t.Fatalf("Unable to create tempory directory %s, %s", rootPath, err)
 	}
-	gtmPath = path.Join(rootPath, env.GTMDirectory)
+	gtmPath = path.Join(rootPath, project.GTMDirectory)
 	if err = os.MkdirAll(gtmPath, 0700); err != nil {
 		t.Fatalf("Unable to create tempory directory %s, %s", gtmPath, err)
 	}
@@ -235,9 +235,9 @@ func processSetup(t *testing.T) (string, string, func()) {
 		t.Fatalf("Unable to create tempory file %s, %s", sourceFile, err)
 	}
 
-	// replace env.Paths with a mock
-	savePaths := env.Paths
-	env.Paths = func(path ...string) (string, string, error) {
+	// replace project.Paths with a mock
+	savePaths := project.Paths
+	project.Paths = func(path ...string) (string, string, error) {
 		return rootPath, gtmPath, nil
 	}
 
@@ -264,7 +264,7 @@ func processSetup(t *testing.T) (string, string, func()) {
 	}
 
 	return rootPath, gtmPath, func() {
-		env.Paths = savePaths
+		project.Paths = savePaths
 		if err = os.RemoveAll(rootPath); err != nil {
 			fmt.Printf("Error removing %s dir, %s", rootPath, err)
 		}

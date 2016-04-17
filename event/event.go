@@ -7,13 +7,13 @@ import (
 	"path/filepath"
 	"strings"
 
-	"edgeg.io/gtm/env"
 	"edgeg.io/gtm/epoch"
+	"edgeg.io/gtm/project"
 )
 
 func findPaths(file string) (string, string, string, error) {
 	if fileInfo, err := os.Stat(file); os.IsNotExist(err) || fileInfo.IsDir() {
-		return "", "", "", env.ErrFileNotFound
+		return "", "", "", project.ErrFileNotFound
 	}
 
 	filePath, err := getFilePath(file)
@@ -21,7 +21,7 @@ func findPaths(file string) (string, string, string, error) {
 		return "", "", "", err
 	}
 
-	rootPath, gtmPath, err := env.Paths(filePath)
+	rootPath, gtmPath, err := project.Paths(filePath)
 	if err != nil {
 		return "", "", "", err
 	}

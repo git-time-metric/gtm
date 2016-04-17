@@ -59,7 +59,7 @@ func GitEmail(wd ...string) (string, error) {
 	return strings.TrimSpace(string(b)), nil
 }
 
-func GitCommitMsg(wd ...string) (string, error) {
+func GitLastLog(wd ...string) (string, error) {
 	cmd := exec.Command("git", "log", "-1", "--oneline", "--raw")
 	if len(wd) > 0 {
 		cmd.Dir = wd[0]
@@ -103,6 +103,33 @@ func GitAddNote(n string, nameSpace string, wd ...string) error {
 		return fmt.Errorf("Unable to add git note, %s %s", string(b), err)
 	}
 	return nil
+}
+
+func GitGetNote(commitID string, nameSpace string, wd ...string) (string, error) {
+	cmd := exec.Command("git", "notes", fmt.Sprintf("--ref=%s", nameSpace), "show", commitID)
+	if len(wd) > 0 {
+		cmd.Dir = wd[0]
+	}
+	b, err := cmd.Output()
+	if err != nil {
+		return "", fmt.Errorf("Unable to get git note, %s %s", string(b), err)
+	}
+	return string(b), nil
+}
+
+func GitLogMessage(commitID string, wd ...string) (string, error) {
+	cmd := exec.Command("git", "log", "-1", "--pretty=oneline", "--abbrev-commit", commitID)
+	if len(wd) > 0 {
+		cmd.Dir = wd[0]
+	}
+	var (
+		b   []byte
+		err error
+	)
+	if b, err = cmd.Output(); err != nil {
+		return "", fmt.Errorf("Unable to git log message, %s %s", string(b), err)
+	}
+	return string(b), err
 }
 
 func GitConfig(settings map[string]string, wd ...string) error {

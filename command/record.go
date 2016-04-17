@@ -1,10 +1,10 @@
-package cmd
+package command
 
 import (
 	"fmt"
 
-	"edgeg.io/gtm/env"
 	"edgeg.io/gtm/event"
+	"edgeg.io/gtm/project"
 
 	"github.com/mitchellh/cli"
 )
@@ -31,8 +31,8 @@ func (r RecordCmd) Run(args []string) int {
 	}
 
 	//TODO: add an option to turn off silencing ErrFileNotFound errors
-	if err := event.Record(args[0]); err != nil && !(err == env.ErrNotInitialized || err == env.ErrFileNotFound) {
-		env.LogToGTM(err)
+	if err := event.Record(args[0]); err != nil && !(err == project.ErrNotInitialized || err == project.ErrFileNotFound) {
+		project.LogToGTM(err)
 		return 1
 	}
 

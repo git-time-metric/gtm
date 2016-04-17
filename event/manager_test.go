@@ -13,7 +13,7 @@ import (
 	"testing"
 	"time"
 
-	"edgeg.io/gtm/env"
+	"edgeg.io/gtm/project"
 )
 
 func TestSave(t *testing.T) {
@@ -36,7 +36,7 @@ func TestSave(t *testing.T) {
 			fmt.Printf("Error removing %s dir, %s", rootPath, err)
 		}
 	}()
-	gtmPath = path.Join(rootPath, env.GTMDirectory)
+	gtmPath = path.Join(rootPath, project.GTMDirectory)
 	if err = os.MkdirAll(gtmPath, 0700); err != nil {
 		t.Fatalf("Unable to create tempory directory %s, %s", gtmPath, err)
 	}
@@ -50,25 +50,25 @@ func TestSave(t *testing.T) {
 	}
 
 	// Freeze the system time
-	saveNow := env.Now
-	env.Now = func() time.Time { return time.Unix(100, 0) }
-	defer func() { env.Now = saveNow }()
+	saveNow := project.Now
+	project.Now = func() time.Time { return time.Unix(100, 0) }
+	defer func() { project.Now = saveNow }()
 
 	// Call save on an uninitialized Git Metric project
-	if err = Record(sourceFile); err != env.ErrNotInitialized {
-		t.Errorf("Save(%s), want error %s, got error %s", sourceFile, env.ErrNotInitialized, err)
+	if err = Record(sourceFile); err != project.ErrNotInitialized {
+		t.Errorf("Save(%s), want error %s, got error %s", sourceFile, project.ErrNotInitialized, err)
 	}
 
-	// Replace env.Paths with a mock
-	savePaths := env.Paths
-	env.Paths = func(path ...string) (string, string, error) {
+	// Replace project.Paths with a mock
+	savePaths := project.Paths
+	project.Paths = func(path ...string) (string, string, error) {
 		return rootPath, gtmPath, nil
 	}
-	defer func() { env.Paths = savePaths }()
+	defer func() { project.Paths = savePaths }()
 
 	// Call Save with an invalid source file
-	if err = Record(path.Join(sourcePath, "doesnotexist.go")); err != env.ErrFileNotFound {
-		t.Errorf("Save(%s), want error %s, got %s", sourceFile, env.ErrFileNotFound, err)
+	if err = Record(path.Join(sourcePath, "doesnotexist.go")); err != project.ErrFileNotFound {
+		t.Errorf("Save(%s), want error %s, got %s", sourceFile, project.ErrFileNotFound, err)
 	}
 
 	// Call Save with a valid source file

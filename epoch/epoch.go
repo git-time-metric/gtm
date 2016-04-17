@@ -1,6 +1,6 @@
 package epoch
 
-import "edgeg.io/gtm/env"
+import "edgeg.io/gtm/project"
 
 const WindowSize = 60
 
@@ -11,9 +11,9 @@ func Minute(t int64) int64 {
 }
 
 func MinuteNow() int64 {
-	return (env.Now().Unix() / int64(WindowSize)) * WindowSize
+	return (project.Now().Unix() / int64(WindowSize)) * WindowSize
 }
 
 func Now() int64 {
-	return env.Now().Unix()
+	return project.Now().Unix()
 }
