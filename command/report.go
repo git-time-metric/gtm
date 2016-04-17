@@ -11,26 +11,26 @@ import (
 	"github.com/mitchellh/cli"
 )
 
-type LogCmd struct {
+type ReportCmd struct {
 }
 
-func NewLog() (cli.Command, error) {
-	return LogCmd{}, nil
+func NewReport() (cli.Command, error) {
+	return ReportCmd{}, nil
 }
 
-func (r LogCmd) Help() string {
+func (r ReportCmd) Help() string {
 	return `
 	Show commit time logs
 
 	Show log for specific sha1 commits: 
-	gtm log sha1 ...
+	gtm report sha1 ...
 
 	Show log by piping output from git log:
-	git log -1 --pretty=%H|gtm report
+	git report -1 --pretty=%H|gtm report
 	`
 }
 
-func (r LogCmd) Run(args []string) int {
+func (r ReportCmd) Run(args []string) int {
 	var commits []string
 	stat, _ := os.Stdin.Stat()
 	if (stat.Mode() & os.ModeCharDevice) == 0 {
@@ -60,7 +60,7 @@ func (r LogCmd) Run(args []string) int {
 	return 0
 }
 
-func (r LogCmd) Synopsis() string {
+func (r ReportCmd) Synopsis() string {
 	return `
 	Show commit time logs
 	`
