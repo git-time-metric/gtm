@@ -20,15 +20,16 @@ const (
 {{ range $i, $f := .Log.Files -}}
 {{   left2PadLen $f.SourceFile " " $ln }}: {{ formatDuration $f.TimeSpent | printf "%15s" }} [{{ $f.Status }}]
 {{ end -}}
-{{ left2PadLen "Total" " " $ln }}: {{ formatDuration .Log.Total | printf "%15s" }}
-{{ end -}}
+{{    if $ln -}}
+{{       left2PadLen "Total" " " $ln }}: {{ formatDuration .Log.Total | printf "%15s" }}
+{{    end -}}
+{{ end }}
 `
 	MessageFilesTpl string = `
-{{ range $_, $log := . -}}
-{{-  $log.Message -}}
+{{ range $_, $log := . }}
+{{   $log.Message }}
 {{-  template "Files" $log -}} 
 {{ end -}}
-
 `
 	MessageTpl string = `
 {{ range $_, $log := . -}}
