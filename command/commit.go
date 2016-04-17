@@ -18,9 +18,9 @@ func NewCommit() (cli.Command, error) {
 
 func (r GitCommit) Help() string {
 	return `
-	gtm commit [--dry-run] [--debug]
-
 	Log time for git tracked files and set the file's tracked time to zero.
+
+	gtm commit [--dry-run] [--debug]
 	`
 }
 

@@ -16,21 +16,22 @@ type MessageLog struct {
 }
 
 func retrieveLogs(commits []string) (Logs, error) {
+	//TODO: refactor to be faster and improve error messages
 	logs := Logs{}
 	for _, c := range commits {
 		n, err := scm.GitGetNote(c, project.NoteNameSpace)
 		if err != nil {
-			logs = append(logs, MessageLog{Message: fmt.Sprintf("%s %s", c[:7], err), Log: commit.Log{}})
+			logs = append(logs, MessageLog{Message: fmt.Sprintf("%s %s", c, err), Log: commit.Log{}})
 			continue
 		}
 		log, err := commit.UnMarshalLog(n)
 		if err != nil {
-			logs = append(logs, MessageLog{Message: fmt.Sprintf("%s %s", c[:7], err), Log: commit.Log{}})
+			logs = append(logs, MessageLog{Message: fmt.Sprintf("%s %s", c, err), Log: commit.Log{}})
 			continue
 		}
 		m, err := scm.GitLogMessage(c)
 		if err != nil {
-			logs = append(logs, MessageLog{Message: fmt.Sprintf("%s %s", c[:7], err), Log: commit.Log{}})
+			logs = append(logs, MessageLog{Message: fmt.Sprintf("%s %s", c, err), Log: commit.Log{}})
 			continue
 		}
 		logs = append(logs, MessageLog{Message: m, Log: log})

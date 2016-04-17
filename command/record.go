@@ -18,9 +18,9 @@ func NewRecord() (cli.Command, error) {
 
 func (r RecordCmd) Help() string {
 	return `
-	gtm record <full-path to a file>
-
 	Records a timestamped file event that denotes when a file has been accessed 
+
+	gtm record <full-path to a file>
 	`
 }
 
