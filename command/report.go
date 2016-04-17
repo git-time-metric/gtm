@@ -32,9 +32,12 @@ func (r ReportCmd) Run(args []string) int {
 		for scanner.Scan() {
 			commits = append(commits, scanner.Text())
 		}
-		// fmt.Println("data is being piped to stdin")
 	} else {
-		fmt.Println("stdin is from a terminal")
+		if len(args) == 0 {
+			fmt.Println("Unable to report, commit identifiers not provided")
+			return 1
+		}
+		commits = args
 	}
 	out, err := report.MessageFiles(commits)
 	if err != nil {
