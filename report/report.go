@@ -16,17 +16,17 @@ const (
 	FilesTpl string = `
 {{ define "Files" -}}
 {{ range $i, $f := .Log.Files -}}
-{{   FormatDuration $f.TimeSpent | printf "%14s" }}  [{{ $f.Status }}] {{$f.SourceFile}} 
+{{   FormatDuration $f.TimeSpent | printf "%14s" }}  [{{ $f.Status }}] {{$f.SourceFile}}
 {{ end -}}
 {{    if len .Log.Files -}}
-{{       FormatDuration .Log.Total | printf "%14s" }} 
+{{       FormatDuration .Log.Total | printf "%14s" }}
 {{    end -}}
 {{ end }}
 `
 	MessageFilesTpl string = `
 {{ range $_, $log := . }}
 {{   $log.Message }}
-{{   template "Files" $log }} 
+{{   template "Files" $log }}
 {{ end -}}
 `
 )
