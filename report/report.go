@@ -9,31 +9,24 @@ import (
 )
 
 var funcMap = template.FuncMap{
-	"left2PadLen":    util.LeftPad2Len,
-	"formatDuration": util.FormatDuration,
+	"FormatDuration": util.FormatDuration,
 }
 
 const (
 	FilesTpl string = `
 {{ define "Files" -}}
-{{ $ln := .Log.MaxSourceFileLen }}
 {{ range $i, $f := .Log.Files -}}
-{{   left2PadLen $f.SourceFile " " $ln }}: {{ formatDuration $f.TimeSpent | printf "%15s" }} [{{ $f.Status }}]
+{{   FormatDuration $f.TimeSpent | printf "%14s" }}  [{{ $f.Status }}] {{$f.SourceFile}} 
 {{ end -}}
-{{    if $ln -}}
-{{       left2PadLen "Total" " " $ln }}: {{ formatDuration .Log.Total | printf "%15s" }}
+{{    if len .Log.Files -}}
+{{       FormatDuration .Log.Total | printf "%14s" }} 
 {{    end -}}
 {{ end }}
 `
 	MessageFilesTpl string = `
 {{ range $_, $log := . }}
 {{   $log.Message }}
-{{-  template "Files" $log -}} 
-{{ end -}}
-`
-	MessageTpl string = `
-{{ range $_, $log := . -}}
-{{-  $log.Message -}}
+{{   template "Files" $log }} 
 {{ end -}}
 `
 )
