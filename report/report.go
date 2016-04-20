@@ -15,11 +15,11 @@ var funcMap = template.FuncMap{
 const (
 	commitFilesTpl string = `
 {{ define "Files" -}}
-{{ range $i, $f := .Log.Files -}}
+{{ range $i, $f := .Note.Files -}}
 {{   FormatDuration $f.TimeSpent | printf "%14s" }}  [{{ $f.Status }}] {{$f.SourceFile}}
 {{ end -}}
-{{    if len .Log.Files -}}
-{{       FormatDuration .Log.Total | printf "%14s" }}
+{{    if len .Note.Files -}}
+{{       FormatDuration .Note.Total | printf "%14s" }}
 {{    end -}}
 {{ end }}
 `
@@ -36,7 +36,7 @@ func NoteFiles(n note.CommitNote) (string, error) {
 	t := template.Must(template.New("Commit Details").Funcs(funcMap).Parse(commitFilesTpl))
 	t = template.Must(t.Parse("{{ template \"Files\" . }}"))
 
-	err := t.Execute(b, commitNoteDetail{log: n})
+	err := t.Execute(b, commitNoteDetail{Note: n})
 	if err != nil {
 		return "", err
 	}

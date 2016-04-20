@@ -11,8 +11,8 @@ import (
 type commitNoteDetails []commitNoteDetail
 
 type commitNoteDetail struct {
-	message string
-	log     note.CommitNote
+	Message string
+	Note    note.CommitNote
 }
 
 func retrieveNotes(commits []string) (commitNoteDetails, error) {
@@ -21,20 +21,20 @@ func retrieveNotes(commits []string) (commitNoteDetails, error) {
 	for _, c := range commits {
 		n, err := scm.GitNote(c, project.NoteNameSpace)
 		if err != nil {
-			logs = append(logs, commitNoteDetail{message: fmt.Sprintf("%s %s", c, err), log: note.CommitNote{}})
+			logs = append(logs, commitNoteDetail{Message: fmt.Sprintf("%s %s", c, err), Note: note.CommitNote{}})
 			continue
 		}
 		log, err := note.UnMarshal(n)
 		if err != nil {
-			logs = append(logs, commitNoteDetail{message: fmt.Sprintf("%s %s", c, err), log: note.CommitNote{}})
+			logs = append(logs, commitNoteDetail{Message: fmt.Sprintf("%s %s", c, err), Note: note.CommitNote{}})
 			continue
 		}
 		m, err := scm.GitLog(c)
 		if err != nil {
-			logs = append(logs, commitNoteDetail{message: fmt.Sprintf("%s %s", c, err), log: note.CommitNote{}})
+			logs = append(logs, commitNoteDetail{Message: fmt.Sprintf("%s %s", c, err), Note: note.CommitNote{}})
 			continue
 		}
-		logs = append(logs, commitNoteDetail{message: m, log: log})
+		logs = append(logs, commitNoteDetail{Message: m, Note: log})
 	}
 	return logs, nil
 }
