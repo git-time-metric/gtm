@@ -1,4 +1,4 @@
-package commit
+package note
 
 import (
 	"fmt"
@@ -10,22 +10,22 @@ import (
 	"edgeg.io/gtm/util"
 )
 
-type Log struct {
-	Files []File
+type CommitNote struct {
+	Files []FileDetail
 }
 
-func (l Log) Total() int {
+func (n CommitNote) Total() int {
 	total := 0
-	for _, fm := range l.Files {
+	for _, fm := range n.Files {
 		total += fm.TimeSpent
 	}
 	return total
 }
 
-func MarshalLog(tl Log) string {
+func Marshal(n CommitNote) string {
 	//TODO use a text template here instead
-	s := fmt.Sprintf("[ver:%s,total:%d]\n", "1", tl.Total())
-	for _, fl := range tl.Files {
+	s := fmt.Sprintf("[ver:%s,total:%d]\n", "1", n.Total())
+	for _, fl := range n.Files {
 		s += fmt.Sprintf("%s:%d,", fl.SourceFile, fl.TimeSpent)
 		for _, e := range fl.SortEpochs() {
 			s += fmt.Sprintf("%d:%d,", e, fl.Timeline[e])
@@ -35,10 +35,10 @@ func MarshalLog(tl Log) string {
 	return s
 }
 
-func UnMarshalLog(s string) (Log, error) {
+func UnMarshal(s string) (CommitNote, error) {
 	var (
 		version  string
-		fileLogs = []File{}
+		fileLogs = []FileDetail{}
 	)
 
 	reHeader := regexp.MustCompile(`\[ver:\d+,total:\d+]`)
@@ -53,12 +53,12 @@ func UnMarshalLog(s string) (Log, error) {
 			if matches := reHeaderVals.FindAllString(lines[lineIdx], 2); matches != nil && len(matches) == 2 {
 				version = matches[0]
 			} else {
-				return Log{}, fmt.Errorf("Unable to unmarshal time logged, header format invalid, %s", lines[lineIdx])
+				return CommitNote{}, fmt.Errorf("Unable to unmarshal time logged, header format invalid, %s", lines[lineIdx])
 			}
 		case version == "1":
 			fieldGroups := strings.Split(lines[lineIdx], ",")
 			if len(fieldGroups) < 3 {
-				return Log{}, fmt.Errorf("Unable to unmarshal time logged, format invalid, %s", lines[lineIdx])
+				return CommitNote{}, fmt.Errorf("Unable to unmarshal time logged, format invalid, %s", lines[lineIdx])
 			}
 
 			var (
@@ -76,7 +76,7 @@ func UnMarshalLog(s string) (Log, error) {
 					filePath = fieldVals[0]
 					t, err := strconv.Atoi(fieldVals[1])
 					if err != nil {
-						return Log{}, fmt.Errorf("Unable to unmarshal time logged, format invalid, %s", err)
+						return CommitNote{}, fmt.Errorf("Unable to unmarshal time logged, format invalid, %s", err)
 					}
 					fileTotal = t
 				case groupIdx == len(fieldGroups)-1 && len(fieldVals) == 1:
@@ -86,39 +86,39 @@ func UnMarshalLog(s string) (Log, error) {
 					// epoch timeline, epoch:total
 					e, err := strconv.ParseInt(fieldVals[0], 10, 64)
 					if err != nil {
-						return Log{}, fmt.Errorf("Unable to unmarshal time logged, format invalid, %s", err)
+						return CommitNote{}, fmt.Errorf("Unable to unmarshal time logged, format invalid, %s", err)
 					}
 					t, err := strconv.Atoi(fieldVals[1])
 					if err != nil {
-						return Log{}, fmt.Errorf("Unable to unmarshal time logged, format invalid, %s", err)
+						return CommitNote{}, fmt.Errorf("Unable to unmarshal time logged, format invalid, %s", err)
 					}
 					fileTimeline[e] = t
 				default:
 					// error
-					return Log{}, fmt.Errorf("Unable to unmarshal time logged, format invalid")
+					return CommitNote{}, fmt.Errorf("Unable to unmarshal time logged, format invalid")
 				}
 			}
 			fl, err := NewFile(filePath, fileTotal, fileTimeline, fileStatus)
 			if err != nil {
-				return Log{}, fmt.Errorf("Unable to unmarshal time logged, format invalid, %s", err)
+				return CommitNote{}, fmt.Errorf("Unable to unmarshal time logged, format invalid, %s", err)
 			}
 			fileLogs = append(fileLogs, fl)
 
 		default:
-			return Log{}, fmt.Errorf("Unable to unmarshal time logged, unknown version %s", version)
+			return CommitNote{}, fmt.Errorf("Unable to unmarshal time logged, unknown version %s", version)
 		}
 	}
-	return Log{Files: fileLogs}, nil
+	return CommitNote{Files: fileLogs}, nil
 }
 
-type File struct {
+type FileDetail struct {
 	SourceFile string
 	TimeSpent  int
 	Timeline   map[int64]int
 	Status     string
 }
 
-func (f *File) SortEpochs() []int64 {
+func (f *FileDetail) SortEpochs() []int64 {
 	keys := []int64{}
 	for k := range f.Timeline {
 		keys = append(keys, k)
@@ -127,11 +127,11 @@ func (f *File) SortEpochs() []int64 {
 	return keys
 }
 
-func NewFile(filePath string, total int, timeline map[int64]int, status string) (File, error) {
-	return File{SourceFile: filePath, TimeSpent: total, Timeline: timeline, Status: status}, nil
+func NewFile(filePath string, total int, timeline map[int64]int, status string) (FileDetail, error) {
+	return FileDetail{SourceFile: filePath, TimeSpent: total, Timeline: timeline, Status: status}, nil
 }
 
-type FileByTime []File
+type FileByTime []FileDetail
 
 func (a FileByTime) Len() int           { return len(a) }
 func (a FileByTime) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }

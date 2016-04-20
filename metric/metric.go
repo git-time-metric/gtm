@@ -10,8 +10,8 @@ import (
 	"strconv"
 	"strings"
 
-	"edgeg.io/gtm/commit"
 	"edgeg.io/gtm/epoch"
+	"edgeg.io/gtm/note"
 	"edgeg.io/gtm/scm"
 	"edgeg.io/gtm/util"
 )
@@ -243,11 +243,11 @@ func removeMetricFile(gtmPath, fileID string) error {
 	return nil
 }
 
-func buildCommitLog(metricMap map[string]FileMetric, commitMap map[string]FileMetric) (commit.Log, error) {
-	fls := []commit.File{}
+func buildCommitNote(metricMap map[string]FileMetric, commitMap map[string]FileMetric) (note.CommitNote, error) {
+	fls := []note.FileDetail{}
 	for _, fm := range commitMap {
 		fm.Downsample()
-		fls = append(fls, commit.File{SourceFile: fm.SourceFile, TimeSpent: fm.TimeSpent, Timeline: fm.Timeline, Status: "m"})
+		fls = append(fls, note.FileDetail{SourceFile: fm.SourceFile, TimeSpent: fm.TimeSpent, Timeline: fm.Timeline, Status: "m"})
 	}
 
 	for fileID, fm := range metricMap {
@@ -255,15 +255,15 @@ func buildCommitLog(metricMap map[string]FileMetric, commitMap map[string]FileMe
 			// looking at only files not in commit
 			modified, err := scm.GitModified(fm.SourceFile)
 			if err != nil {
-				return commit.Log{}, err
+				return note.CommitNote{}, err
 			}
 			if fm.GitTracked && !modified {
 				// source file is tracked by git and is not modified
 				fm.Downsample()
-				fls = append(fls, commit.File{SourceFile: fm.SourceFile, TimeSpent: fm.TimeSpent, Timeline: fm.Timeline, Status: "r"})
+				fls = append(fls, note.FileDetail{SourceFile: fm.SourceFile, TimeSpent: fm.TimeSpent, Timeline: fm.Timeline, Status: "r"})
 			}
 		}
 	}
-	sort.Sort(sort.Reverse(commit.FileByTime(fls)))
-	return commit.Log{Files: fls}, nil
+	sort.Sort(sort.Reverse(note.FileByTime(fls)))
+	return note.CommitNote{Files: fls}, nil
 }

@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"text/template"
 
-	"edgeg.io/gtm/commit"
+	"edgeg.io/gtm/note"
 	"edgeg.io/gtm/util"
 )
 
@@ -31,20 +31,20 @@ const (
 `
 )
 
-func CommitFiles(l commit.Log) (string, error) {
+func NoteFiles(n note.CommitNote) (string, error) {
 	b := new(bytes.Buffer)
 	t := template.Must(template.New("Commit Details").Funcs(funcMap).Parse(commitFilesTpl))
 	t = template.Must(t.Parse("{{ template \"Files\" . }}"))
 
-	err := t.Execute(b, messageLog{Log: l})
+	err := t.Execute(b, commitNoteDetail{log: n})
 	if err != nil {
 		return "", err
 	}
 	return b.String(), nil
 }
 
-func CommitDetails(commits []string) (string, error) {
-	logs, err := retrieveLogs(commits)
+func NoteDetails(commits []string) (string, error) {
+	logs, err := retrieveNotes(commits)
 	if err != nil {
 		return "", err
 	}

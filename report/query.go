@@ -3,38 +3,38 @@ package report
 import (
 	"fmt"
 
-	"edgeg.io/gtm/commit"
+	"edgeg.io/gtm/note"
 	"edgeg.io/gtm/project"
 	"edgeg.io/gtm/scm"
 )
 
-type messageLogs []messageLog
+type commitNoteDetails []commitNoteDetail
 
-type messageLog struct {
-	Message string
-	Log     commit.Log
+type commitNoteDetail struct {
+	message string
+	log     note.CommitNote
 }
 
-func retrieveLogs(commits []string) (messageLogs, error) {
+func retrieveNotes(commits []string) (commitNoteDetails, error) {
 	//TODO: refactor to be faster and improve error messages
-	logs := messageLogs{}
+	logs := commitNoteDetails{}
 	for _, c := range commits {
 		n, err := scm.GitNote(c, project.NoteNameSpace)
 		if err != nil {
-			logs = append(logs, messageLog{Message: fmt.Sprintf("%s %s", c, err), Log: commit.Log{}})
+			logs = append(logs, commitNoteDetail{message: fmt.Sprintf("%s %s", c, err), log: note.CommitNote{}})
 			continue
 		}
-		log, err := commit.UnMarshalLog(n)
+		log, err := note.UnMarshal(n)
 		if err != nil {
-			logs = append(logs, messageLog{Message: fmt.Sprintf("%s %s", c, err), Log: commit.Log{}})
+			logs = append(logs, commitNoteDetail{message: fmt.Sprintf("%s %s", c, err), log: note.CommitNote{}})
 			continue
 		}
 		m, err := scm.GitLog(c)
 		if err != nil {
-			logs = append(logs, messageLog{Message: fmt.Sprintf("%s %s", c, err), Log: commit.Log{}})
+			logs = append(logs, commitNoteDetail{message: fmt.Sprintf("%s %s", c, err), log: note.CommitNote{}})
 			continue
 		}
-		logs = append(logs, messageLog{Message: m, Log: log})
+		logs = append(logs, commitNoteDetail{message: m, log: log})
 	}
 	return logs, nil
 }

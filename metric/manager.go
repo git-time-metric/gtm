@@ -3,8 +3,8 @@ package metric
 import (
 	"fmt"
 
-	"edgeg.io/gtm/commit"
 	"edgeg.io/gtm/event"
+	"edgeg.io/gtm/note"
 	"edgeg.io/gtm/project"
 	"edgeg.io/gtm/report"
 	"edgeg.io/gtm/scm"
@@ -43,19 +43,19 @@ func Process(dryRun, debug bool) (string, error) {
 	}
 
 	// create time logged struct
-	logged, err := buildCommitLog(metricMap, commitMap)
+	logged, err := buildCommitNote(metricMap, commitMap)
 	if err != nil {
 		return "", err
 	}
 
 	msg := ""
 	if dryRun {
-		msg, err = report.CommitFiles(logged)
+		msg, err = report.NoteFiles(logged)
 		if err != nil {
 			return "", err
 		}
 	} else {
-		if err := scm.GitAddNote(commit.MarshalLog(logged), project.NoteNameSpace); err != nil {
+		if err := scm.GitAddNote(note.Marshal(logged), project.NoteNameSpace); err != nil {
 			return "", err
 		}
 		if err := saveMetrics(gtmPath, metricMap, commitMap); err != nil {
