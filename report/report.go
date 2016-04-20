@@ -13,7 +13,7 @@ var funcMap = template.FuncMap{
 }
 
 const (
-	FilesTpl string = `
+	commitFilesTpl string = `
 {{ define "Files" -}}
 {{ range $i, $f := .Log.Files -}}
 {{   FormatDuration $f.TimeSpent | printf "%14s" }}  [{{ $f.Status }}] {{$f.SourceFile}}
@@ -23,7 +23,7 @@ const (
 {{    end -}}
 {{ end }}
 `
-	MessageFilesTpl string = `
+	commitDetailsTpl string = `
 {{ range $_, $log := . }}
 {{   $log.Message }}
 {{   template "Files" $log }}
@@ -31,25 +31,27 @@ const (
 `
 )
 
-func Files(l commit.Log) (string, error) {
+func CommitFiles(l commit.Log) (string, error) {
 	b := new(bytes.Buffer)
-	t := template.Must(template.New("Files").Funcs(funcMap).Parse(FilesTpl))
-	err := t.Execute(b, struct{ Log *commit.Log }{&l})
+	t := template.Must(template.New("Commit Details").Funcs(funcMap).Parse(commitFilesTpl))
+	t = template.Must(t.Parse("{{ template \"Files\" . }}"))
+
+	err := t.Execute(b, messageLog{Log: l})
 	if err != nil {
 		return "", err
 	}
 	return b.String(), nil
 }
 
-func MessageFiles(commits []string) (string, error) {
+func CommitDetails(commits []string) (string, error) {
 	logs, err := retrieveLogs(commits)
 	if err != nil {
 		return "", err
 	}
 	b := new(bytes.Buffer)
-	t := template.Must(template.New("Message Files").Funcs(funcMap).Parse(FilesTpl))
-	t = template.Must(t.Parse(MessageFilesTpl))
-	err = t.Execute(b, &logs)
+	t := template.Must(template.New("Commit Details").Funcs(funcMap).Parse(commitFilesTpl))
+	t = template.Must(t.Parse(commitDetailsTpl))
+	err = t.Execute(b, logs)
 	if err != nil {
 		return "", err
 	}

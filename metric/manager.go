@@ -50,7 +50,7 @@ func Process(dryRun, debug bool) (string, error) {
 
 	msg := ""
 	if dryRun {
-		msg, err = report.Files(logged)
+		msg, err = report.CommitFiles(logged)
 		if err != nil {
 			return "", err
 		}

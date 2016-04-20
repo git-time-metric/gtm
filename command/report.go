@@ -51,7 +51,7 @@ func (r ReportCmd) Run(args []string) int {
 			commits = append(commits, a)
 		}
 	}
-	out, err := report.MessageFiles(commits)
+	out, err := report.CommitDetails(commits)
 	if err != nil {
 		fmt.Println(err)
 		return 1

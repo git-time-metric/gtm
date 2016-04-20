@@ -65,7 +65,7 @@ func Initialize() (string, error) {
 		}
 	}
 
-	if err := scm.GitInitHooks(GitHooks); err != nil {
+	if err := scm.GitSetHooks(GitHooks); err != nil {
 		return "", err
 	}
 

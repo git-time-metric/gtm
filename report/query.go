@@ -8,33 +8,33 @@ import (
 	"edgeg.io/gtm/scm"
 )
 
-type Logs []MessageLog
+type messageLogs []messageLog
 
-type MessageLog struct {
+type messageLog struct {
 	Message string
 	Log     commit.Log
 }
 
-func retrieveLogs(commits []string) (Logs, error) {
+func retrieveLogs(commits []string) (messageLogs, error) {
 	//TODO: refactor to be faster and improve error messages
-	logs := Logs{}
+	logs := messageLogs{}
 	for _, c := range commits {
-		n, err := scm.GitGetNote(c, project.NoteNameSpace)
+		n, err := scm.GitNote(c, project.NoteNameSpace)
 		if err != nil {
-			logs = append(logs, MessageLog{Message: fmt.Sprintf("%s %s", c, err), Log: commit.Log{}})
+			logs = append(logs, messageLog{Message: fmt.Sprintf("%s %s", c, err), Log: commit.Log{}})
 			continue
 		}
 		log, err := commit.UnMarshalLog(n)
 		if err != nil {
-			logs = append(logs, MessageLog{Message: fmt.Sprintf("%s %s", c, err), Log: commit.Log{}})
+			logs = append(logs, messageLog{Message: fmt.Sprintf("%s %s", c, err), Log: commit.Log{}})
 			continue
 		}
-		m, err := scm.GitLogMessage(c)
+		m, err := scm.GitLog(c)
 		if err != nil {
-			logs = append(logs, MessageLog{Message: fmt.Sprintf("%s %s", c, err), Log: commit.Log{}})
+			logs = append(logs, messageLog{Message: fmt.Sprintf("%s %s", c, err), Log: commit.Log{}})
 			continue
 		}
-		logs = append(logs, MessageLog{Message: m, Log: log})
+		logs = append(logs, messageLog{Message: m, Log: log})
 	}
 	return logs, nil
 }

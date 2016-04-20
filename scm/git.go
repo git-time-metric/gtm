@@ -105,7 +105,7 @@ func GitAddNote(n string, nameSpace string, wd ...string) error {
 	return nil
 }
 
-func GitGetNote(commitID string, nameSpace string, wd ...string) (string, error) {
+func GitNote(commitID string, nameSpace string, wd ...string) (string, error) {
 	cmd := exec.Command("git", "notes", fmt.Sprintf("--ref=%s", nameSpace), "show", commitID)
 	if len(wd) > 0 {
 		cmd.Dir = wd[0]
@@ -117,7 +117,7 @@ func GitGetNote(commitID string, nameSpace string, wd ...string) (string, error)
 	return string(b), nil
 }
 
-func GitLogMessage(commitID string, wd ...string) (string, error) {
+func GitLog(commitID string, wd ...string) (string, error) {
 	cmd := exec.Command("git", "log", "-1", "--pretty=oneline", "--abbrev-commit", commitID)
 	if len(wd) > 0 {
 		cmd.Dir = wd[0]
@@ -188,7 +188,7 @@ func GitModified(f string, wd ...string) (bool, error) {
 	return strings.TrimSpace(string(b)) != "", nil
 }
 
-func GitInitHooks(hooks map[string]string, wd ...string) error {
+func GitSetHooks(hooks map[string]string, wd ...string) error {
 	for hook, command := range hooks {
 		var (
 			p   string

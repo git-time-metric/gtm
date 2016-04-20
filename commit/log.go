@@ -14,17 +14,7 @@ type Log struct {
 	Files []File
 }
 
-func (l *Log) MaxSourceFileLen() int {
-	ln := 0
-	for i := range l.Files {
-		if len(l.Files[i].SourceFile) > ln {
-			ln = len(l.Files[i].SourceFile)
-		}
-	}
-	return ln
-}
-
-func (l *Log) Total() int {
+func (l Log) Total() int {
 	total := 0
 	for _, fm := range l.Files {
 		total += fm.TimeSpent
