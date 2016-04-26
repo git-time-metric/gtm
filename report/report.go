@@ -2,7 +2,10 @@ package report
 
 import (
 	"bytes"
+	"os"
 	"text/template"
+
+	"golang.org/x/crypto/ssh/terminal"
 
 	"edgeg.io/gtm/note"
 	"edgeg.io/gtm/util"
@@ -16,18 +19,19 @@ const (
 	commitFilesTpl string = `
 {{ define "Files" }}
 {{ range $i, $f := .Note.Files -}}
-{{   FormatDuration $f.TimeSpent | printf "%14s" }}  [{{ $f.Status }}] {{$f.SourceFile}}
+	{{- FormatDuration $f.TimeSpent | printf "%14s" }}  [{{ $f.Status }}] {{$f.SourceFile}}
 {{ end -}}
-{{    if len .Note.Files -}}
-{{       FormatDuration .Note.Total | printf "%14s" }}
-{{    end -}}
-{{ end }}
+{{if len .Note.Files -}}
+	{{- FormatDuration .Note.Total | printf "%14s" }}
+{{ end -}}
+{{ end -}}
 `
 	commitDetailsTpl string = `
-{{ range $_, $log := . }}
-{{   $log.Hash}} {{ $log.Subject -}}
-{{   $log.Date }} {{ $log.Author }}
-{{   template "Files" $log }}
+{{ $headerFormat := .HeaderFormat -}}
+{{ range $_, $note := .Notes -}}
+	{{- printf $headerFormat $note.Hash }} {{ printf $headerFormat $note.Subject }}
+    {{- $note.Date }} {{ $note.Author }}
+	{{ template "Files" $note }}
 {{ end -}}
 `
 )
@@ -45,14 +49,25 @@ func NoteFiles(n note.CommitNote) (string, error) {
 }
 
 func NoteDetails(commits []string) (string, error) {
-	logs, err := retrieveNotes(commits)
+	notes, err := retrieveNotes(commits)
 	if err != nil {
 		return "", err
 	}
 	b := new(bytes.Buffer)
 	t := template.Must(template.New("Commit Details").Funcs(funcMap).Parse(commitFilesTpl))
 	t = template.Must(t.Parse(commitDetailsTpl))
-	err = t.Execute(b, logs)
+	headerFormat := "%s"
+	if terminal.IsTerminal(int(os.Stdout.Fd())) {
+		headerFormat = "\x1b[1m%s\x1b[0m"
+	}
+	err = t.Execute(
+		b,
+		struct {
+			Notes        commitNoteDetails
+			HeaderFormat string
+		}{
+			notes,
+			headerFormat})
 	if err != nil {
 		return "", err
 	}

@@ -20,24 +20,24 @@ type commitNoteDetail struct {
 
 func retrieveNotes(commits []string) (commitNoteDetails, error) {
 	//TODO: refactor to be faster and improve error messages
-	logs := commitNoteDetails{}
+	notes := commitNoteDetails{}
 	for _, c := range commits {
 		n, err := scm.GitNote(c, project.NoteNameSpace)
 		if err != nil {
-			logs = append(logs, commitNoteDetail{Subject: fmt.Sprintf("%s %s", c, err), Note: note.CommitNote{}})
+			notes = append(notes, commitNoteDetail{Subject: fmt.Sprintf("%s %s", c, err), Note: note.CommitNote{}})
 			continue
 		}
 		log, err := note.UnMarshal(n)
 		if err != nil {
-			logs = append(logs, commitNoteDetail{Subject: fmt.Sprintf("%s %s", c, err), Note: note.CommitNote{}})
+			notes = append(notes, commitNoteDetail{Subject: fmt.Sprintf("%s %s", c, err), Note: note.CommitNote{}})
 			continue
 		}
 		fields, err := scm.GitLog(c)
 		if err != nil {
-			logs = append(logs, commitNoteDetail{Subject: fmt.Sprintf("%s %s", c, err), Note: note.CommitNote{}})
+			notes = append(notes, commitNoteDetail{Subject: fmt.Sprintf("%s %s", c, err), Note: note.CommitNote{}})
 			continue
 		}
-		logs = append(logs, commitNoteDetail{Author: fields[0], Date: fields[1], Hash: fields[2], Subject: fields[3], Note: log})
+		notes = append(notes, commitNoteDetail{Author: fields[0], Date: fields[1], Hash: fields[2], Subject: fields[3], Note: log})
 	}
-	return logs, nil
+	return notes, nil
 }

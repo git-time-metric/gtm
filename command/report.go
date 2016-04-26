@@ -7,7 +7,6 @@ import (
 	"regexp"
 
 	"edgeg.io/gtm/report"
-
 	"github.com/mitchellh/cli"
 )
 
@@ -56,7 +55,7 @@ func (r ReportCmd) Run(args []string) int {
 		fmt.Println(err)
 		return 1
 	}
-	fmt.Println(out)
+	fmt.Printf(out)
 	return 0
 }
 
