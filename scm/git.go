@@ -117,8 +117,8 @@ func GitNote(commitID string, nameSpace string, wd ...string) (string, error) {
 	return string(b), nil
 }
 
-func GitLog(commitID string, wd ...string) (string, error) {
-	cmd := exec.Command("git", "log", "-1", "--pretty=oneline", "--abbrev-commit", commitID)
+func GitLog(commitID string, wd ...string) ([]string, error) {
+	cmd := exec.Command("git", "log", "-1", "--pretty", "--format=%an,%ad,%h,%s", commitID)
 	if len(wd) > 0 {
 		cmd.Dir = wd[0]
 	}
@@ -127,9 +127,13 @@ func GitLog(commitID string, wd ...string) (string, error) {
 		err error
 	)
 	if b, err = cmd.Output(); err != nil {
-		return "", fmt.Errorf("Unable to git log message, %s %s", string(b), err)
+		return []string{}, fmt.Errorf("Unable to execute git log, %s %s", string(b), err)
 	}
-	return string(b), err
+	parts := strings.SplitN(string(b), ",", 4)
+	if len(parts) < 4 {
+		return []string{}, fmt.Errorf("Unable to parse log output, %s %s", string(b), err)
+	}
+	return parts, err
 }
 
 func GitConfig(settings map[string]string, wd ...string) error {

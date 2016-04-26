@@ -14,7 +14,7 @@ var funcMap = template.FuncMap{
 
 const (
 	commitFilesTpl string = `
-{{ define "Files" -}}
+{{ define "Files" }}
 {{ range $i, $f := .Note.Files -}}
 {{   FormatDuration $f.TimeSpent | printf "%14s" }}  [{{ $f.Status }}] {{$f.SourceFile}}
 {{ end -}}
@@ -25,7 +25,8 @@ const (
 `
 	commitDetailsTpl string = `
 {{ range $_, $log := . }}
-{{   $log.Message }}
+{{   $log.Hash}} {{ $log.Subject -}}
+{{   $log.Date }} {{ $log.Author }}
 {{   template "Files" $log }}
 {{ end -}}
 `
