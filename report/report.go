@@ -73,3 +73,11 @@ func NoteDetails(commits []string) (string, error) {
 	}
 	return b.String(), nil
 }
+
+func NoteTotal(commits []string) (string, error) {
+	notes, err := retrieveNotes(commits)
+	if err != nil {
+		return "", err
+	}
+	return util.FormatDuration(notes.Total()), nil
+}

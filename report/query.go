@@ -10,6 +10,14 @@ import (
 
 type commitNoteDetails []commitNoteDetail
 
+func (notes commitNoteDetails) Total() int {
+	t := 0
+	for i := range notes {
+		t += notes[i].Note.Total()
+	}
+	return t
+}
+
 type commitNoteDetail struct {
 	Author  string
 	Date    string

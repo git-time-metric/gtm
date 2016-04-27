@@ -2,6 +2,7 @@ package command
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"os"
 	"regexp"
@@ -21,7 +22,7 @@ func (r ReportCmd) Help() string {
 	return `
 	Show commit time logs
 
-	Show log for specific sha1 commits: 
+	Show log for specific sha1 commits:
 	gtm report sha1 ...
 
 	Show log by piping output from git log:
@@ -30,7 +31,17 @@ func (r ReportCmd) Help() string {
 }
 
 func (r ReportCmd) Run(args []string) int {
-	var commits []string
+	reportFlags := flag.NewFlagSet("report", flag.ExitOnError)
+	format := reportFlags.String(
+		"format",
+		"all",
+		"Specify report format [all|total]")
+	reportFlags.Parse(os.Args[2:])
+
+	var (
+		commits []string
+	)
+
 	stat, _ := os.Stdin.Stat()
 	if (stat.Mode() & os.ModeCharDevice) == 0 {
 		scanner := bufio.NewScanner(os.Stdin)
@@ -50,12 +61,28 @@ func (r ReportCmd) Run(args []string) int {
 			commits = append(commits, a)
 		}
 	}
-	out, err := report.NoteDetails(commits)
+
+	var (
+		out string
+		err error
+	)
+
+	switch *format {
+	case "total":
+		out, err = report.NoteTotal(commits)
+	case "all":
+		out, err = report.NoteDetails(commits)
+	default:
+		fmt.Printf("report --format=%s not valid\n", *format)
+		return 1
+	}
+
 	if err != nil {
 		fmt.Println(err)
 		return 1
 	}
 	fmt.Printf(out)
+
 	return 0
 }
 
