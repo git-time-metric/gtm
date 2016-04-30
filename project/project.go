@@ -129,7 +129,7 @@ var Paths = func(path ...string) (string, string, error) {
 	return rootPath, gtmPath, nil
 }
 
-func LogToGTM(v ...interface{}) error {
+func Log(v ...interface{}) error {
 	_, gtmPath, err := Paths()
 	if err != nil {
 		return err

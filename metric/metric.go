@@ -12,6 +12,7 @@ import (
 
 	"edgeg.io/gtm/epoch"
 	"edgeg.io/gtm/note"
+	"edgeg.io/gtm/project"
 	"edgeg.io/gtm/scm"
 	"edgeg.io/gtm/util"
 )
@@ -162,7 +163,7 @@ func unMarshalFileMetric(b []byte, filePath string) (FileMetric, error) {
 	return fm, nil
 }
 
-func loadMetrics(gtmPath string) (map[string]FileMetric, error) {
+func loadMetrics(rootPath, gtmPath string) (map[string]FileMetric, error) {
 	files, err := ioutil.ReadDir(gtmPath)
 	if err != nil {
 		return nil, err
@@ -179,9 +180,20 @@ func loadMetrics(gtmPath string) (map[string]FileMetric, error) {
 
 		metricFile, err := readMetricFile(metricFilePath)
 		if err != nil {
-			// TODO: purge bad metric files and log error
+			project.Log(fmt.Sprintf("Removing corrupt metric file %s, %s", metricFilePath, err))
+			if err := os.Remove(metricFilePath); err != nil {
+				project.Log(fmt.Sprintf("Unable to delete corrupt metric file %s, %s", metricFilePath, err))
+			}
 			continue
 		}
+
+		// check for missing source file and delete metric file if it does not exist
+		if fileInfo, err := os.Stat(filepath.Join(rootPath, metricFile.SourceFile)); os.IsNotExist(err) || fileInfo.IsDir() {
+			if err := os.Remove(metricFilePath); err != nil {
+				project.Log(fmt.Sprintf("\nError removing metric file %s, %s", metricFilePath, err))
+			}
+		}
+
 		metrics[strings.Replace(file.Name(), ".metric", "", 1)] = metricFile
 	}
 
@@ -253,7 +265,7 @@ func buildCommitNote(metricMap map[string]FileMetric, commitMap map[string]FileM
 	for fileID, fm := range metricMap {
 		if _, ok := commitMap[fileID]; !ok {
 			// looking at only files not in commit
-			modified, err := scm.GitModified(fm.SourceFile, gstate == Staging)
+			modified, err := scm.GitModified(fm.SourceFile, false)
 			if err != nil {
 				return note.CommitNote{}, err
 			}

@@ -116,10 +116,11 @@ func TestProcess(t *testing.T) {
 	}
 
 	var (
-		rootPath    string
-		wd          string
-		fixturePath string
-		err         error
+		rootPath       string
+		wd             string
+		eventFixtures  string
+		sourceFixtures string
+		err            error
 	)
 
 	// NOTE - last two are idle events, 1458496980 & 1458497040
@@ -145,11 +146,17 @@ func TestProcess(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Sweep(), error getting current working directory, %s", err)
 	}
-	fixturePath = path.Join(wd, "test-fixtures")
-	cmd := exec.Command("cp", "-rp", fixturePath, rootPath)
+	eventFixtures = path.Join(wd, "test-fixtures", "gtm")
+	cmd := exec.Command("cp", "-rp", eventFixtures, rootPath)
 	_, err = cmd.Output()
 	if err != nil {
-		t.Fatalf("Unable to copy %s directory to %s", fixturePath, rootPath)
+		t.Fatalf("Unable to copy %s directory to %s", eventFixtures, rootPath)
+	}
+	sourceFixtures = path.Join(wd, "test-fixtures", "event")
+	cmd = exec.Command("cp", "-rp", sourceFixtures, rootPath)
+	_, err = cmd.Output()
+	if err != nil {
+		t.Fatalf("Unable to copy %s directory to %s", sourceFixtures, rootPath)
 	}
 
 	var (
@@ -159,8 +166,8 @@ func TestProcess(t *testing.T) {
 	)
 
 	// sweep files with dry-run set to true
-	gtmPath = path.Join(rootPath, "test-fixtures")
-	got, err = Process(gtmPath, true)
+	gtmPath = path.Join(rootPath, "gtm")
+	got, err = Process(rootPath, gtmPath, true)
 	if err != nil {
 		t.Fatalf("Sweep(%s, true), want error nil, got %s", gtmPath, err)
 	}
@@ -169,7 +176,7 @@ func TestProcess(t *testing.T) {
 	}
 
 	// sweep files with dry-run set to false
-	got, err = Process(gtmPath, false)
+	got, err = Process(rootPath, gtmPath, false)
 	if err != nil {
 		t.Fatalf("Sweep(%s, true), want error nil, got %s", gtmPath, err)
 	}

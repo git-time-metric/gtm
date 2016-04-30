@@ -38,3 +38,12 @@ func LeftPad2Len(s string, padStr string, overallLen int) string {
 	var retStr = strings.Repeat(padStr, padCountInt) + s
 	return retStr[(len(retStr) - overallLen):]
 }
+
+func StringInSlice(list []string, a string) bool {
+	for _, b := range list {
+		if b == a {
+			return true
+		}
+	}
+	return false
+}

@@ -32,7 +32,7 @@ func (r RecordCmd) Run(args []string) int {
 
 	//TODO: add an option to turn off silencing ErrFileNotFound errors
 	if err := event.Record(args[0]); err != nil && !(err == project.ErrNotInitialized || err == project.ErrFileNotFound) {
-		project.LogToGTM(err)
+		project.Log(err)
 		return 1
 	}
 

@@ -49,18 +49,12 @@ func (r GitCommit) Run(args []string) int {
 		confirm = strings.TrimSpace(strings.ToLower(response)) == "y"
 	}
 
-	var (
-		err error
-		msg string
-	)
 	if confirm {
-		msg, err = metric.Process(metric.Committed, *debug)
-		if err != nil {
+		if _, err := metric.Process(metric.Committed, *debug); err != nil {
 			fmt.Println(err)
 			return 1
 		}
 	}
-	fmt.Print(msg)
 	return 0
 }
 

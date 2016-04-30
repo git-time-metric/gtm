@@ -253,7 +253,7 @@ func processSetup(t *testing.T) (string, string, func()) {
 	if err != nil {
 		t.Fatalf("Sweep(), error getting current working directory, %s", err)
 	}
-	fixturePath = path.Join(wd, "../event/test-fixtures")
+	fixturePath = path.Join(wd, "../event/test-fixtures/gtm")
 	files, err = ioutil.ReadDir(fixturePath)
 	for _, f := range files {
 		cmd = exec.Command("cp", path.Join(fixturePath, f.Name()), gtmPath)

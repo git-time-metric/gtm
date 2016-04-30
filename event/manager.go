@@ -1,12 +1,15 @@
 package event
 
 import (
+	"fmt"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
 
 	"edgeg.io/gtm/epoch"
+	"edgeg.io/gtm/project"
 )
 
 func Record(file string) error {
@@ -22,7 +25,7 @@ func Record(file string) error {
 	return nil
 }
 
-func Process(gtmPath string, dryRun bool) (map[int64]map[string]int, error) {
+func Process(rootPath, gtmPath string, dryRun bool) (map[int64]map[string]int, error) {
 	events := make(map[int64]map[string]int, 0)
 
 	files, err := ioutil.ReadDir(gtmPath)
@@ -53,15 +56,29 @@ func Process(gtmPath string, dryRun bool) (map[int64]map[string]int, error) {
 		}
 		fileEpoch = epoch.Minute(fileEpoch)
 
-		filePath, err := readEventFile(eventFilePath)
+		sourcePath, err := readEventFile(eventFilePath)
 		if err != nil {
+			project.Log(fmt.Sprintf("\nRemoving corrupt event file %s, %s\n", eventFilePath, err))
+			if err := os.Remove(eventFilePath); err != nil {
+				project.Log(fmt.Sprintf("\nError removing event file %s, %s\n", eventFilePath, err))
+			}
+			continue
+		}
+
+		// check if the source file contained in the event still exists
+		// if doesn't exist, delete event file
+		if fileInfo, err := os.Stat(filepath.Join(rootPath, sourcePath)); os.IsNotExist(err) || fileInfo.IsDir() {
+			if err := os.Remove(eventFilePath); err != nil {
+				project.Log(fmt.Sprintf("\nError removing event file %s, %s\n", eventFilePath, err))
+			}
+			filesToRemove = filesToRemove[:len(filesToRemove)-1]
 			continue
 		}
 
 		if _, ok := events[fileEpoch]; !ok {
 			events[fileEpoch] = make(map[string]int, 0)
 		}
-		events[fileEpoch][filePath]++
+		events[fileEpoch][sourcePath]++
 
 		// Add idle events
 		if prevEpoch != 0 && prevFilePath != "" {
@@ -73,7 +90,7 @@ func Process(gtmPath string, dryRun bool) (map[int64]map[string]int, error) {
 			}
 		}
 		prevEpoch = fileEpoch
-		prevFilePath = filePath
+		prevFilePath = sourcePath
 	}
 
 	// Add idle events for last event
