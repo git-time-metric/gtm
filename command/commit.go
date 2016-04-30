@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 
 	"edgeg.io/gtm/metric"
 	"github.com/mitchellh/cli"
@@ -26,22 +27,40 @@ func (r GitCommit) Help() string {
 
 func (r GitCommit) Run(args []string) int {
 	commitFlags := flag.NewFlagSet("commit", flag.ExitOnError)
-	dryRun := commitFlags.Bool(
-		"dry-run",
-		true,
-		"Do not log time but show time logged for all files")
+	yes := commitFlags.Bool(
+		"yes",
+		false,
+		"Automatically confirm yes for commit command")
 	debug := commitFlags.Bool(
 		"debug",
 		false,
 		"Print debug statements to the console")
 	commitFlags.Parse(os.Args[2:])
 
-	m, err := metric.Process(*dryRun, *debug)
-	if err != nil {
-		fmt.Println(err)
-		return 1
+	confirm := *yes
+	if !confirm {
+		var response string
+		fmt.Printf("\nSave time for last commit (y/n)? ")
+		_, err := fmt.Scanln(&response)
+		if err != nil {
+			fmt.Println(err)
+			return 1
+		}
+		confirm = strings.TrimSpace(strings.ToLower(response)) == "y"
 	}
-	fmt.Println(m)
+
+	var (
+		err error
+		msg string
+	)
+	if confirm {
+		msg, err = metric.Process(metric.Committed, *debug)
+		if err != nil {
+			fmt.Println(err)
+			return 1
+		}
+	}
+	fmt.Print(msg)
 	return 0
 }
 

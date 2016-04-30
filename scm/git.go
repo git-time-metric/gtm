@@ -177,8 +177,13 @@ func GitTracked(f string, wd ...string) (bool, error) {
 	return strings.TrimSpace(string(b)) != "", nil
 }
 
-func GitModified(f string, wd ...string) (bool, error) {
-	cmd := exec.Command("git", "ls-files", "-m", f)
+func GitModified(f string, staging bool, wd ...string) (bool, error) {
+	var cmd *exec.Cmd
+	if staging {
+		cmd = exec.Command("git", "diff", "--name-only", "--cached", f)
+	} else {
+		cmd = exec.Command("git", "diff", "--name-only", f)
+	}
 	if len(wd) > 0 {
 		cmd.Dir = wd[0]
 	}

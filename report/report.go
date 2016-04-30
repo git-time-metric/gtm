@@ -21,7 +21,7 @@ const (
 {{ range $i, $f := .Note.Files -}}
 	{{- FormatDuration $f.TimeSpent | printf "%14s" }}  [{{ $f.Status }}] {{$f.SourceFile}}
 {{ end -}}
-{{if len .Note.Files -}}
+{{ if len .Note.Files -}}
 	{{- FormatDuration .Note.Total | printf "%14s" }}
 {{ end -}}
 {{ end -}}
@@ -39,7 +39,7 @@ const (
 func NoteFiles(n note.CommitNote) (string, error) {
 	b := new(bytes.Buffer)
 	t := template.Must(template.New("Commit Details").Funcs(funcMap).Parse(commitFilesTpl))
-	t = template.Must(t.Parse("{{ template \"Files\" . }}"))
+	t = template.Must(t.Parse(`{{ template "Files" . }}`))
 
 	err := t.Execute(b, commitNoteDetail{Note: n})
 	if err != nil {

@@ -10,6 +10,8 @@ import (
 	"text/template"
 	"time"
 
+	"golang.org/x/crypto/ssh/terminal"
+
 	"edgeg.io/gtm/scm"
 )
 
@@ -22,7 +24,7 @@ var (
 	NoteNameSpace = "gtm-data"
 	GTMDirectory  = ".gtm"
 	GitHooks      = map[string]string{
-		"post-commit": "gtm commit --dry-run=false"}
+		"post-commit": "gtm commit --yes"}
 	GitConfig = map[string]string{
 		"alias.pushgtm":    "push origin refs/notes/gtm-data",
 		"alias.fetchgtm":   "fetch origin refs/notes/gtm-data:refs/notes/gtm-data",
@@ -31,15 +33,15 @@ var (
 )
 
 const InitMsgTpl string = `
-Git Time Metric has been initialized
-------------------------------------
+{{print "Git Time Metric initialized for " (.ProjectPath) | printf (.HeaderFormat) }}
+
 {{ range $hook, $command := .GitHooks -}}
-{{$hook}}: "{{$command}}"
-{{end -}}
+	{{- $hook | printf "%16s" }}: {{ $command }}
+{{ end -}}
 {{ range $key, $val := .GitConfig -}}
-{{$key}}: "{{$val}}"
+	{{- $key | printf "%16s" }}: {{ $val }}
 {{end -}}
-gitignore: "{{.GitIgnore}}"
+{{ print ".gitignore:" | printf "%17s" }} {{ .GitIgnore }}
 `
 
 var Now = func() time.Time { return time.Now() }
@@ -77,16 +79,23 @@ func Initialize() (string, error) {
 		return "", err
 	}
 
+	headerFormat := "%s"
+	if terminal.IsTerminal(int(os.Stdout.Fd())) {
+		headerFormat = "\x1b[1m%s\x1b[0m"
+	}
+
 	b := new(bytes.Buffer)
 	t := template.Must(template.New("msg").Parse(InitMsgTpl))
 	err = t.Execute(b,
 		struct {
-			GTMPath   string
-			GitHooks  map[string]string
-			GitConfig map[string]string
-			GitIgnore string
+			HeaderFormat string
+			ProjectPath  string
+			GitHooks     map[string]string
+			GitConfig    map[string]string
+			GitIgnore    string
 		}{
-			fp,
+			headerFormat,
+			wd,
 			GitHooks,
 			GitConfig,
 			GitIgnore})

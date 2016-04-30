@@ -188,7 +188,7 @@ func loadMetrics(gtmPath string) (map[string]FileMetric, error) {
 	return metrics, nil
 }
 
-func saveMetrics(gtmPath string, metricMap map[string]FileMetric, commitMap map[string]FileMetric) error {
+func saveAndPurgeMetrics(gtmPath string, metricMap map[string]FileMetric, commitMap map[string]FileMetric) error {
 	for fileID, fm := range metricMap {
 		_, inCommitMap := commitMap[fileID]
 
@@ -198,7 +198,7 @@ func saveMetrics(gtmPath string, metricMap map[string]FileMetric, commitMap map[
 				return err
 			}
 		}
-		modified, err := scm.GitModified(fm.SourceFile)
+		modified, err := scm.GitModified(fm.SourceFile, false)
 		if err != nil {
 			return err
 		}
@@ -243,7 +243,7 @@ func removeMetricFile(gtmPath, fileID string) error {
 	return nil
 }
 
-func buildCommitNote(metricMap map[string]FileMetric, commitMap map[string]FileMetric) (note.CommitNote, error) {
+func buildCommitNote(metricMap map[string]FileMetric, commitMap map[string]FileMetric, gstate GitState) (note.CommitNote, error) {
 	fls := []note.FileDetail{}
 	for _, fm := range commitMap {
 		fm.Downsample()
@@ -253,7 +253,7 @@ func buildCommitNote(metricMap map[string]FileMetric, commitMap map[string]FileM
 	for fileID, fm := range metricMap {
 		if _, ok := commitMap[fileID]; !ok {
 			// looking at only files not in commit
-			modified, err := scm.GitModified(fm.SourceFile)
+			modified, err := scm.GitModified(fm.SourceFile, gstate == Staging)
 			if err != nil {
 				return note.CommitNote{}, err
 			}

@@ -41,7 +41,7 @@ func TestInit(t *testing.T) {
 	if err != nil {
 		t.Errorf("Initialize(), want error nil got error %s", err)
 	}
-	if !strings.Contains(s, "Git Time Metric has been initialized") {
+	if !strings.Contains(s, "Git Time Metric initialized") {
 		t.Errorf("Initialize(), want Git Time Metric has been initialized, got %s", s)
 	}
 

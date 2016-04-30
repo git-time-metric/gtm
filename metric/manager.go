@@ -10,7 +10,16 @@ import (
 	"edgeg.io/gtm/scm"
 )
 
-func Process(dryRun, debug bool) (string, error) {
+type GitState int
+
+const (
+	Working GitState = iota
+	Staging
+	Committed
+)
+
+func Process(gstate GitState, debug bool) (string, error) {
+
 	_, gtmPath, err := project.Paths()
 	if err != nil {
 		return "", err
@@ -23,7 +32,7 @@ func Process(dryRun, debug bool) (string, error) {
 	}
 
 	// process event files
-	epochEventMap, err := event.Process(gtmPath, dryRun)
+	epochEventMap, err := event.Process(gtmPath, gstate == Working || gstate == Staging)
 	if err != nil {
 		return "", err
 	}
@@ -37,28 +46,29 @@ func Process(dryRun, debug bool) (string, error) {
 	}
 
 	// build map of commit files
-	commitMap, err := buildCommitMap(metricMap, dryRun)
+	commitMap, err := buildCommitMap(metricMap, gstate)
 	if err != nil {
 		return "", err
 	}
 
 	// create time logged struct
-	logged, err := buildCommitNote(metricMap, commitMap)
+	logged, err := buildCommitNote(metricMap, commitMap, gstate)
 	if err != nil {
 		return "", err
 	}
 
 	msg := ""
-	if dryRun {
+	if gstate == Working || gstate == Staging {
 		msg, err = report.NoteFiles(logged)
 		if err != nil {
 			return "", err
 		}
-	} else {
+	}
+	if gstate == Committed {
 		if err := scm.GitAddNote(note.Marshal(logged), project.NoteNameSpace); err != nil {
 			return "", err
 		}
-		if err := saveMetrics(gtmPath, metricMap, commitMap); err != nil {
+		if err := saveAndPurgeMetrics(gtmPath, metricMap, commitMap); err != nil {
 			return "", err
 		}
 	}
@@ -72,11 +82,10 @@ func Process(dryRun, debug bool) (string, error) {
 	return msg, nil
 }
 
-func buildCommitMap(metricMap map[string]FileMetric, dryRun bool) (map[string]FileMetric, error) {
+func buildCommitMap(metricMap map[string]FileMetric, gstate GitState) (map[string]FileMetric, error) {
 	commitMap := map[string]FileMetric{}
 
-	if !dryRun {
-		// for only files in the last commit
+	if gstate == Committed {
 		m, err := scm.GitLastLog()
 		if err != nil {
 			return commitMap, err
@@ -93,7 +102,7 @@ func buildCommitMap(metricMap map[string]FileMetric, dryRun bool) (map[string]Fi
 		// include git tracked files that have been modified
 		for fileID, fm := range metricMap {
 			if fm.GitTracked {
-				modified, err := scm.GitModified(fm.SourceFile)
+				modified, err := scm.GitModified(fm.SourceFile, gstate == Staging)
 				if err != nil {
 					return commitMap, err
 				}
