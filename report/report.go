@@ -53,10 +53,7 @@ func NoteFilesTotal(n note.CommitNote) string {
 }
 
 func NoteDetails(commits []string) (string, error) {
-	notes, err := retrieveNotes(commits)
-	if err != nil {
-		return "", err
-	}
+	notes := retrieveNotes(commits)
 	b := new(bytes.Buffer)
 	t := template.Must(template.New("Commit Details").Funcs(funcMap).Parse(commitFilesTpl))
 	t = template.Must(t.Parse(commitDetailsTpl))
@@ -64,7 +61,7 @@ func NoteDetails(commits []string) (string, error) {
 	if terminal.IsTerminal(int(os.Stdout.Fd())) {
 		headerFormat = "\x1b[1m%s\x1b[0m"
 	}
-	err = t.Execute(
+	err := t.Execute(
 		b,
 		struct {
 			Notes        commitNoteDetails
@@ -79,9 +76,6 @@ func NoteDetails(commits []string) (string, error) {
 }
 
 func NoteDetailsTotal(commits []string) (string, error) {
-	notes, err := retrieveNotes(commits)
-	if err != nil {
-		return "", err
-	}
+	notes := retrieveNotes(commits)
 	return util.FormatDuration(notes.Total()), nil
 }

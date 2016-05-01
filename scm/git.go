@@ -112,7 +112,7 @@ func GitNote(commitID string, nameSpace string, wd ...string) (string, error) {
 	}
 	b, err := cmd.Output()
 	if err != nil {
-		return "", fmt.Errorf("Unable to get git note, %s %s", string(b), err)
+		return "", fmt.Errorf("Git note not found %s", string(b))
 	}
 	return string(b), nil
 }
