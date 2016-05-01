@@ -1,0 +1,5 @@
+[ver:1,total:1680]
+report/query.go:976,1462064400:856,1462068000:120,m
+scm/git.go:354,1462064400:354,m
+report/report.go:310,1462064400:310,m
+metric/manager.go:40,1462064400:40,r
