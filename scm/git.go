@@ -197,6 +197,22 @@ func GitModified(f string, staging bool, wd ...string) (bool, error) {
 	return strings.TrimSpace(string(b)) != "", nil
 }
 
+func GitHasStaged(wd ...string) (bool, error) {
+	var cmd *exec.Cmd
+	cmd = exec.Command("git", "diff", "--name-only", "--cached")
+	if len(wd) > 0 {
+		cmd.Dir = wd[0]
+	}
+	var (
+		b   []byte
+		err error
+	)
+	if b, err = cmd.Output(); err != nil {
+		return false, fmt.Errorf("Unable to determine git staged status, %s %s", string(b), err)
+	}
+	return strings.TrimSpace(string(b)) != "", nil
+}
+
 func GitSetHooks(hooks map[string]string, wd ...string) error {
 	for hook, command := range hooks {
 		var (

@@ -256,26 +256,49 @@ func removeMetricFile(gtmPath, fileID string) error {
 }
 
 func buildCommitNote(metricMap map[string]FileMetric, commitMap map[string]FileMetric, gstate GitState) (note.CommitNote, error) {
-	fls := []note.FileDetail{}
-	for _, fm := range commitMap {
-		fm.Downsample()
-		fls = append(fls, note.FileDetail{SourceFile: fm.SourceFile, TimeSpent: fm.TimeSpent, Timeline: fm.Timeline, Status: "m"})
+	flsModified := []note.FileDetail{}
+
+	if (gstate == Staging) && len(commitMap) == 0 {
+		// When reporting on staging and no modified files, then don't report anything
+		return note.CommitNote{}, nil
 	}
 
+	for _, fm := range commitMap {
+		fm.Downsample()
+		flsModified = append(flsModified, note.FileDetail{SourceFile: fm.SourceFile, TimeSpent: fm.TimeSpent, Timeline: fm.Timeline, Status: "m"})
+	}
+
+	var (
+		staged bool
+		err    error
+	)
+	staged, err = scm.GitHasStaged()
+	if err != nil {
+		return note.CommitNote{}, err
+	}
+
+	flsReadonly := []note.FileDetail{}
 	for fileID, fm := range metricMap {
+		// if staged file and looking at working, skip readonly
+		// all the readonly files are allocated to staging
+		if staged && gstate == Working {
+			break
+		}
 		if _, ok := commitMap[fileID]; !ok {
-			// looking at only files not in commit
+			// looking at only files not in commit map
 			modified, err := scm.GitModified(fm.SourceFile, false)
 			if err != nil {
 				return note.CommitNote{}, err
 			}
+
 			if fm.GitTracked && !modified {
 				// source file is tracked by git and is not modified
 				fm.Downsample()
-				fls = append(fls, note.FileDetail{SourceFile: fm.SourceFile, TimeSpent: fm.TimeSpent, Timeline: fm.Timeline, Status: "r"})
+				flsReadonly = append(flsReadonly, note.FileDetail{SourceFile: fm.SourceFile, TimeSpent: fm.TimeSpent, Timeline: fm.Timeline, Status: "r"})
 			}
 		}
 	}
+	fls := append(flsModified, flsReadonly...)
 	sort.Sort(sort.Reverse(note.FileByTime(fls)))
 	return note.CommitNote{Files: fls}, nil
 }
