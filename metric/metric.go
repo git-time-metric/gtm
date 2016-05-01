@@ -255,10 +255,10 @@ func removeMetricFile(gtmPath, fileID string) error {
 	return nil
 }
 
-func buildCommitMap(metricMap map[string]FileMetric, gstate GitState) (map[string]FileMetric, error) {
+func buildCommitMap(metricMap map[string]FileMetric, gstate scm.GitState) (map[string]FileMetric, error) {
 	commitMap := map[string]FileMetric{}
 
-	if gstate == Committed {
+	if gstate == scm.Committed {
 		m, err := scm.GitLastLog()
 		if err != nil {
 			return commitMap, err
@@ -275,7 +275,7 @@ func buildCommitMap(metricMap map[string]FileMetric, gstate GitState) (map[strin
 		// include git tracked files that have been modified
 		for fileID, fm := range metricMap {
 			if fm.GitTracked {
-				modified, err := scm.GitModified(fm.SourceFile, gstate == Staging)
+				modified, err := scm.GitModified(fm.SourceFile, gstate == scm.Staging)
 				if err != nil {
 					return commitMap, err
 				}
@@ -289,10 +289,10 @@ func buildCommitMap(metricMap map[string]FileMetric, gstate GitState) (map[strin
 	return commitMap, nil
 }
 
-func buildCommitNote(metricMap map[string]FileMetric, commitMap map[string]FileMetric, gstate GitState) (note.CommitNote, error) {
+func buildCommitNote(metricMap map[string]FileMetric, commitMap map[string]FileMetric, gstate scm.GitState) (note.CommitNote, error) {
 	flsModified := []note.FileDetail{}
 
-	if (gstate == Staging) && len(commitMap) == 0 {
+	if (gstate == scm.Staging) && len(commitMap) == 0 {
 		// when reporting on staging and no modified files, then don't report anything
 		return note.CommitNote{}, nil
 	}
@@ -316,7 +316,7 @@ func buildCommitNote(metricMap map[string]FileMetric, commitMap map[string]FileM
 	for fileID, fm := range metricMap {
 		// if staged files and looking at working, skip readonly
 		// all the readonly files are allocated to staging
-		if staged && gstate == Working {
+		if staged && gstate == scm.Working {
 			break
 		}
 

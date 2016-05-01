@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"edgeg.io/gtm/metric"
+	"edgeg.io/gtm/scm"
 	"github.com/mitchellh/cli"
 )
 
@@ -50,7 +51,7 @@ func (r GitCommit) Run(args []string) int {
 	}
 
 	if confirm {
-		if _, err := metric.Process(metric.Committed, *debug); err != nil {
+		if _, err := metric.Process(scm.Committed, *debug); err != nil {
 			fmt.Println(err)
 			return 1
 		}

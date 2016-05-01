@@ -10,6 +10,7 @@ import (
 
 	"edgeg.io/gtm/metric"
 	"edgeg.io/gtm/report"
+	"edgeg.io/gtm/scm"
 	"edgeg.io/gtm/util"
 	"github.com/mitchellh/cli"
 )
@@ -45,10 +46,10 @@ func (r ReportCmd) Run(args []string) int {
 		committed = "committed"
 	)
 
-	stateMap := map[string]metric.GitState{
-		working:   metric.Working,
-		staging:   metric.Staging,
-		committed: metric.Committed,
+	stateMap := map[string]scm.GitState{
+		working:   scm.Working,
+		staging:   scm.Staging,
+		committed: scm.Committed,
 	}
 
 	var (

@@ -9,15 +9,7 @@ import (
 	"edgeg.io/gtm/scm"
 )
 
-type GitState int
-
-const (
-	Working GitState = iota
-	Staging
-	Committed
-)
-
-func Process(gstate GitState, debug bool) (note.CommitNote, error) {
+func Process(gstate scm.GitState, debug bool) (note.CommitNote, error) {
 
 	rootPath, gtmPath, err := project.Paths()
 	if err != nil {
@@ -31,7 +23,7 @@ func Process(gstate GitState, debug bool) (note.CommitNote, error) {
 	}
 
 	// process event files
-	epochEventMap, err := event.Process(rootPath, gtmPath, gstate == Working || gstate == Staging)
+	epochEventMap, err := event.Process(rootPath, gtmPath, gstate == scm.Working || gstate == scm.Staging)
 	if err != nil {
 		return note.CommitNote{}, err
 	}
@@ -56,7 +48,7 @@ func Process(gstate GitState, debug bool) (note.CommitNote, error) {
 		return note.CommitNote{}, err
 	}
 
-	if gstate == Committed {
+	if gstate == scm.Committed {
 		if err := scm.GitAddNote(note.Marshal(logged), project.NoteNameSpace); err != nil {
 			return note.CommitNote{}, err
 		}

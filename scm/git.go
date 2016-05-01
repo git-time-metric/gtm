@@ -9,6 +9,14 @@ import (
 	"strings"
 )
 
+type GitState int
+
+const (
+	Working GitState = iota
+	Staging
+	Committed
+)
+
 func GitRootPath(path ...string) (string, error) {
 	cmd := exec.Command("git", "rev-parse", "--show-toplevel")
 	if len(path) > 0 {
