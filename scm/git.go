@@ -180,9 +180,9 @@ func GitTracked(f string, wd ...string) (bool, error) {
 func GitModified(f string, staging bool, wd ...string) (bool, error) {
 	var cmd *exec.Cmd
 	if staging {
-		cmd = exec.Command("git", "diff", "--name-only", "--cached", f)
+		cmd = exec.Command("git", "diff", "--name-only", "--cached", "--", f)
 	} else {
-		cmd = exec.Command("git", "diff", "--name-only", f)
+		cmd = exec.Command("git", "diff", "--name-only", "--", f)
 	}
 	if len(wd) > 0 {
 		cmd.Dir = wd[0]
