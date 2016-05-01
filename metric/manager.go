@@ -73,37 +73,3 @@ func Process(gstate GitState, debug bool) (note.CommitNote, error) {
 
 	return logged, nil
 }
-
-func buildCommitMap(metricMap map[string]FileMetric, gstate GitState) (map[string]FileMetric, error) {
-	commitMap := map[string]FileMetric{}
-
-	if gstate == Committed {
-		m, err := scm.GitLastLog()
-		if err != nil {
-			return commitMap, err
-		}
-		_, _, commitFiles := scm.GitParseMessage(m)
-		for _, f := range commitFiles {
-			fileID := getFileID(f)
-			if _, ok := metricMap[fileID]; !ok {
-				continue
-			}
-			commitMap[fileID] = metricMap[fileID]
-		}
-	} else {
-		// include git tracked files that have been modified
-		for fileID, fm := range metricMap {
-			if fm.GitTracked {
-				modified, err := scm.GitModified(fm.SourceFile, gstate == Staging)
-				if err != nil {
-					return commitMap, err
-				}
-				if modified {
-					commitMap[fileID] = fm
-				}
-			}
-		}
-	}
-
-	return commitMap, nil
-}

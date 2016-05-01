@@ -105,7 +105,7 @@ func (r ReportCmd) Run(args []string) int {
 		}
 
 		if *format == total {
-			out, err = report.NoteTotal(commits)
+			out, err = report.NoteDetailsTotal(commits)
 		} else {
 			out, err = report.NoteDetails(commits)
 		}
@@ -123,7 +123,7 @@ func (r ReportCmd) Run(args []string) int {
 			return 1
 		}
 		if *format == total {
-			out, err = report.NoteFiles(n)
+			out = report.NoteFilesTotal(n)
 		} else {
 			out, err = report.NoteFiles(n)
 		}

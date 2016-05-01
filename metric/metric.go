@@ -255,11 +255,45 @@ func removeMetricFile(gtmPath, fileID string) error {
 	return nil
 }
 
+func buildCommitMap(metricMap map[string]FileMetric, gstate GitState) (map[string]FileMetric, error) {
+	commitMap := map[string]FileMetric{}
+
+	if gstate == Committed {
+		m, err := scm.GitLastLog()
+		if err != nil {
+			return commitMap, err
+		}
+		_, _, commitFiles := scm.GitParseMessage(m)
+		for _, f := range commitFiles {
+			fileID := getFileID(f)
+			if _, ok := metricMap[fileID]; !ok {
+				continue
+			}
+			commitMap[fileID] = metricMap[fileID]
+		}
+	} else {
+		// include git tracked files that have been modified
+		for fileID, fm := range metricMap {
+			if fm.GitTracked {
+				modified, err := scm.GitModified(fm.SourceFile, gstate == Staging)
+				if err != nil {
+					return commitMap, err
+				}
+				if modified {
+					commitMap[fileID] = fm
+				}
+			}
+		}
+	}
+
+	return commitMap, nil
+}
+
 func buildCommitNote(metricMap map[string]FileMetric, commitMap map[string]FileMetric, gstate GitState) (note.CommitNote, error) {
 	flsModified := []note.FileDetail{}
 
 	if (gstate == Staging) && len(commitMap) == 0 {
-		// When reporting on staging and no modified files, then don't report anything
+		// when reporting on staging and no modified files, then don't report anything
 		return note.CommitNote{}, nil
 	}
 
@@ -272,6 +306,7 @@ func buildCommitNote(metricMap map[string]FileMetric, commitMap map[string]FileM
 		staged bool
 		err    error
 	)
+
 	staged, err = scm.GitHasStaged()
 	if err != nil {
 		return note.CommitNote{}, err
@@ -279,11 +314,12 @@ func buildCommitNote(metricMap map[string]FileMetric, commitMap map[string]FileM
 
 	flsReadonly := []note.FileDetail{}
 	for fileID, fm := range metricMap {
-		// if staged file and looking at working, skip readonly
+		// if staged files and looking at working, skip readonly
 		// all the readonly files are allocated to staging
 		if staged && gstate == Working {
 			break
 		}
+
 		if _, ok := commitMap[fileID]; !ok {
 			// looking at only files not in commit map
 			modified, err := scm.GitModified(fm.SourceFile, false)
@@ -300,5 +336,6 @@ func buildCommitNote(metricMap map[string]FileMetric, commitMap map[string]FileM
 	}
 	fls := append(flsModified, flsReadonly...)
 	sort.Sort(sort.Reverse(note.FileByTime(fls)))
+
 	return note.CommitNote{Files: fls}, nil
 }
