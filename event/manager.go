@@ -25,7 +25,7 @@ func Record(file string) error {
 	return nil
 }
 
-func Process(rootPath, gtmPath string, dryRun bool) (map[int64]map[string]int, error) {
+func Process(rootPath, gtmPath string, interim bool) (map[int64]map[string]int, error) {
 	events := make(map[int64]map[string]int, 0)
 
 	files, err := ioutil.ReadDir(gtmPath)
@@ -94,7 +94,7 @@ func Process(rootPath, gtmPath string, dryRun bool) (map[int64]map[string]int, e
 		}
 	}
 
-	if !dryRun {
+	if !interim {
 		if err := removeFiles(filesToRemove); err != nil {
 			return events, err
 		}

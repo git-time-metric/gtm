@@ -11,7 +11,6 @@ import (
 	"testing"
 
 	"edgeg.io/gtm/project"
-	"edgeg.io/gtm/scm"
 )
 
 func TestProcess(t *testing.T) {
@@ -58,7 +57,7 @@ func TestProcess(t *testing.T) {
 		t.Fatalf("Unable to run git commit, %s", string(b))
 	}
 
-	_, err = Process(scm.Committed, false)
+	_, err = Process(false, false)
 	if err != nil {
 		t.Fatalf("Process(false, false) - test full commit, want error nil, got %s", err)
 	}
@@ -111,7 +110,7 @@ func TestProcess(t *testing.T) {
 		t.Fatalf("Unable to run git commit, %s", string(b))
 	}
 
-	_, err = Process(scm.Committed, false)
+	_, err = Process(false, false)
 	if err != nil {
 		t.Fatalf("Process(false, false), want error nil, got %s", err)
 	}
@@ -181,7 +180,7 @@ func TestProcess(t *testing.T) {
 		t.Fatalf("Unable to run git commit, %s", string(b))
 	}
 
-	_, err = Process(scm.Committed, false)
+	_, err = Process(false, false)
 	if err != nil {
 		t.Fatalf("Process(false, false) - test commit with readonly, want error nil, got %s", err)
 	}

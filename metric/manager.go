@@ -9,7 +9,9 @@ import (
 	"edgeg.io/gtm/scm"
 )
 
-func Process(gstate scm.GitState, debug bool) (note.CommitNote, error) {
+// Process events for last git commit and save time spent as a git note
+// If interim is true, process events for the current working and staged files
+func Process(interim bool, debug bool) (note.CommitNote, error) {
 
 	rootPath, gtmPath, err := project.Paths()
 	if err != nil {
@@ -23,7 +25,7 @@ func Process(gstate scm.GitState, debug bool) (note.CommitNote, error) {
 	}
 
 	// process event files
-	epochEventMap, err := event.Process(rootPath, gtmPath, gstate == scm.Working || gstate == scm.Staging)
+	epochEventMap, err := event.Process(rootPath, gtmPath, interim)
 	if err != nil {
 		return note.CommitNote{}, err
 	}
@@ -37,19 +39,19 @@ func Process(gstate scm.GitState, debug bool) (note.CommitNote, error) {
 	}
 
 	// build map of commit files
-	commitMap, err := buildCommitMap(metricMap, gstate)
+	commitMap, err := buildCommitMap(metricMap)
 	if err != nil {
 		return note.CommitNote{}, err
 	}
 
-	// create time logged struct
-	logged, err := buildCommitNote(metricMap, commitMap, gstate)
+	// build commit note struct
+	commitNote, err := buildCommitNote(metricMap, commitMap)
 	if err != nil {
 		return note.CommitNote{}, err
 	}
 
-	if gstate == scm.Committed {
-		if err := scm.GitAddNote(note.Marshal(logged), project.NoteNameSpace); err != nil {
+	if !interim {
+		if err := scm.GitAddNote(note.Marshal(commitNote), project.NoteNameSpace); err != nil {
 			return note.CommitNote{}, err
 		}
 		if err := saveAndPurgeMetrics(gtmPath, metricMap, commitMap); err != nil {
@@ -63,5 +65,5 @@ func Process(gstate scm.GitState, debug bool) (note.CommitNote, error) {
 		fmt.Printf("\nCommitMap:\n%+v\n", commitMap)
 	}
 
-	return logged, nil
+	return commitNote, nil
 }

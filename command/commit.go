@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"edgeg.io/gtm/metric"
-	"edgeg.io/gtm/scm"
 	"github.com/mitchellh/cli"
 )
 
@@ -22,7 +21,7 @@ func (r GitCommit) Help() string {
 	return `
 	Log time for git tracked files and set the file's tracked time to zero.
 
-	gtm commit [--dry-run] [--debug]
+	gtm commit [--yes] [--debug]
 	`
 }
 
@@ -51,7 +50,7 @@ func (r GitCommit) Run(args []string) int {
 	}
 
 	if confirm {
-		if _, err := metric.Process(scm.Committed, *debug); err != nil {
+		if _, err := metric.Process(false, *debug); err != nil {
 			fmt.Println(err)
 			return 1
 		}
