@@ -65,16 +65,6 @@ func Process(rootPath, gtmPath string, dryRun bool) (map[int64]map[string]int, e
 			continue
 		}
 
-		// check if the source file contained in the event still exists
-		// if it doesn't exist, delete event file
-		if fileInfo, err := os.Stat(filepath.Join(rootPath, sourcePath)); os.IsNotExist(err) || fileInfo.IsDir() {
-			if err := os.Remove(eventFilePath); err != nil {
-				project.Log(fmt.Sprintf("\nError removing event file %s, %s\n", eventFilePath, err))
-			}
-			filesToRemove = filesToRemove[:len(filesToRemove)-1]
-			continue
-		}
-
 		if _, ok := events[fileEpoch]; !ok {
 			events[fileEpoch] = make(map[string]int, 0)
 		}

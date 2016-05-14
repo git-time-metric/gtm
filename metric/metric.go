@@ -67,8 +67,7 @@ func allocateTime(ep int64, metricMap map[string]FileMetric, eventMap map[string
 }
 
 type FileMetric struct {
-	// Updated signifies if we need to save the metric file
-	Updated    bool
+	Updated    bool // Updated signifies if we need to save the metric file
 	SourceFile string
 	TimeSpent  int
 	GitTracked bool
@@ -187,13 +186,6 @@ func loadMetrics(rootPath, gtmPath string) (map[string]FileMetric, error) {
 			continue
 		}
 
-		// check for missing source file and delete metric file if it does not exist
-		if fileInfo, err := os.Stat(filepath.Join(rootPath, metricFile.SourceFile)); os.IsNotExist(err) || fileInfo.IsDir() {
-			if err := os.Remove(metricFilePath); err != nil {
-				project.Log(fmt.Sprintf("\nError removing metric file %s, %s", metricFilePath, err))
-			}
-		}
-
 		metrics[strings.Replace(file.Name(), ".metric", "", 1)] = metricFile
 	}
 
@@ -292,45 +284,45 @@ func buildCommitMap(metricMap map[string]FileMetric, gstate scm.GitState) (map[s
 func buildCommitNote(metricMap map[string]FileMetric, commitMap map[string]FileMetric, gstate scm.GitState) (note.CommitNote, error) {
 	flsModified := []note.FileDetail{}
 
+	// Are we looking at staging and there are no files in the commit map?
 	if (gstate == scm.Staging) && len(commitMap) == 0 {
-		// when reporting on staging and no modified files, then don't report anything
 		return note.CommitNote{}, nil
 	}
 
 	for _, fm := range commitMap {
 		fm.Downsample()
-		flsModified = append(flsModified, note.FileDetail{SourceFile: fm.SourceFile, TimeSpent: fm.TimeSpent, Timeline: fm.Timeline, Status: "m"})
+		flsModified = append(
+			flsModified,
+			note.FileDetail{SourceFile: fm.SourceFile, TimeSpent: fm.TimeSpent, Timeline: fm.Timeline, Status: "m"})
 	}
 
-	var (
-		staged bool
-		err    error
-	)
-
-	staged, err = scm.GitHasStaged()
+	// Do we have any stagged files?
+	staged, err := scm.GitHasStaged()
 	if err != nil {
 		return note.CommitNote{}, err
 	}
 
 	flsReadonly := []note.FileDetail{}
-	for fileID, fm := range metricMap {
-		// if staged files and looking at working, skip readonly
-		// all the readonly files are allocated to staging
-		if staged && gstate == scm.Working {
-			break
-		}
+	// If we have staged files and we are looking at working, skip assigning readonly files
+	// All the readonly files will be allocated to staging
+	if !(staged && gstate == scm.Working) {
+		for fileID, fm := range metricMap {
+			// Look at files not in commit map
+			if _, ok := commitMap[fileID]; !ok {
 
-		if _, ok := commitMap[fileID]; !ok {
-			// looking at only files not in commit map
-			modified, err := scm.GitModified(fm.SourceFile, false)
-			if err != nil {
-				return note.CommitNote{}, err
-			}
+				// Is the file modified?
+				modified, err := scm.GitModified(fm.SourceFile, false)
+				if err != nil {
+					return note.CommitNote{}, err
+				}
 
-			if fm.GitTracked && !modified {
-				// source file is tracked by git and is not modified
-				fm.Downsample()
-				flsReadonly = append(flsReadonly, note.FileDetail{SourceFile: fm.SourceFile, TimeSpent: fm.TimeSpent, Timeline: fm.Timeline, Status: "r"})
+				// Is the file tracked by git and not modified?
+				if fm.GitTracked && !modified {
+					fm.Downsample()
+					flsReadonly = append(
+						flsReadonly,
+						note.FileDetail{SourceFile: fm.SourceFile, TimeSpent: fm.TimeSpent, Timeline: fm.Timeline, Status: "r"})
+				}
 			}
 		}
 	}
