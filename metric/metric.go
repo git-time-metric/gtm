@@ -293,6 +293,7 @@ func buildCommitNote(metricMap map[string]FileMetric, commitMap map[string]FileM
 
 	flsReadonly := []note.FileDetail{}
 	for _, fm := range readonlyMap {
+		// TODO: flag files as deleted
 		fm.Downsample()
 		flsReadonly = append(
 			flsReadonly,

@@ -76,6 +76,26 @@ func GitLastLog(wd ...string) (string, error) {
 	return string(b), err
 }
 
+func GitLogSHA1s(args []string, wd ...string) ([]string, error) {
+	args = append([]string{"log", "--pretty=%H"}, args...)
+	cmd := exec.Command("git", args...)
+	if len(wd) > 0 {
+		cmd.Dir = wd[0]
+	}
+	var (
+		b   []byte
+		err error
+	)
+	if b, err = cmd.Output(); err != nil {
+		return []string{}, fmt.Errorf("Unable to get SHA1s, %s %s", string(b), err)
+	}
+	parts := strings.Split(string(b), "\n")
+	if len(parts) > 0 {
+		parts = parts[:len(parts)-1]
+	}
+	return parts, err
+}
+
 func GitParseMessage(m string) (uuid, msg string, files []string) {
 	l := strings.Split(m, "\n")
 	files = make([]string, 0)

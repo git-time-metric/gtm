@@ -6,9 +6,10 @@ import (
 	"fmt"
 	"os"
 	"regexp"
-	"strings"
+	"strconv"
 
 	"edgeg.io/gtm/report"
+	"edgeg.io/gtm/scm"
 	"edgeg.io/gtm/util"
 	"github.com/mitchellh/cli"
 )
@@ -33,21 +34,18 @@ func (r ReportCmd) Help() string {
 }
 
 func (r ReportCmd) Run(args []string) int {
-	const (
-		all   = "all"
-		total = "total"
-	)
-
-	formats := []string{all, total}
-
 	reportFlags := flag.NewFlagSet("report", flag.ExitOnError)
 	format := reportFlags.String(
 		"format",
 		"all",
-		fmt.Sprintf("Specify report format [%s]", strings.Join(formats, "|")))
+		"Specify report format [all|total]")
+	limit := reportFlags.Int(
+		"n",
+		1,
+		fmt.Sprintf("Limit number of log enteries"))
 	reportFlags.Parse(os.Args[2:])
 
-	if !util.StringInSlice(formats, *format) {
+	if !util.StringInSlice([]string{"all", "total"}, *format) {
 		fmt.Printf("report --format=%s not valid\n", *format)
 		return 1
 	}
@@ -65,11 +63,14 @@ func (r ReportCmd) Run(args []string) int {
 			commits = append(commits, scanner.Text())
 		}
 	} else {
-		if len(args) == 0 {
-			fmt.Println("Unable to show time log, commit sha1 not provided")
-			return 1
+		if len(reportFlags.Args()) == 0 {
+			commits, err = scm.GitLogSHA1s([]string{"-n", strconv.Itoa(*limit)})
+			if err != nil {
+				fmt.Println(err)
+				return 1
+			}
 		}
-		for _, a := range args {
+		for _, a := range reportFlags.Args() {
 			if match, err := regexp.MatchString("[-|.|,|:|*]", a); err != nil || match {
 				fmt.Printf("\nNot a valid commit sha1 %s\n", a)
 				return 1
@@ -78,7 +79,7 @@ func (r ReportCmd) Run(args []string) int {
 		}
 	}
 
-	if *format == total {
+	if *format == "total" {
 		out, err = report.NoteDetailsTotal(commits)
 	} else {
 		out, err = report.NoteDetails(commits)
