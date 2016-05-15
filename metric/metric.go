@@ -192,22 +192,20 @@ func loadMetrics(rootPath, gtmPath string) (map[string]FileMetric, error) {
 	return metrics, nil
 }
 
-func saveAndPurgeMetrics(gtmPath string, metricMap map[string]FileMetric, commitMap map[string]FileMetric) error {
+func saveAndPurgeMetrics(gtmPath string, metricMap map[string]FileMetric, commitMap map[string]FileMetric, readonlyMap map[string]FileMetric) error {
 	for fileID, fm := range metricMap {
 		_, inCommitMap := commitMap[fileID]
+		_, inReadonlyMap := readonlyMap[fileID]
 
-		if fm.Updated && !inCommitMap {
-			// source file has updated time and is not in the commit
+		//Save metric files that are updated and not in commit or readonly maps
+		if fm.Updated && !inCommitMap && !inReadonlyMap {
 			if err := writeMetricFile(gtmPath, fm); err != nil {
 				return err
 			}
 		}
-		modified, err := scm.GitModified(fm.SourceFile, false)
-		if err != nil {
-			return err
-		}
-		if inCommitMap || (!inCommitMap && fm.GitTracked && !modified) {
-			// source file is in commit or it's git tracked and not modified
+
+		//Purge metric files that are in the commit and readonly maps
+		if inCommitMap || inReadonlyMap {
 			if err := removeMetricFile(gtmPath, fileID); err != nil {
 				return err
 			}
@@ -247,12 +245,13 @@ func removeMetricFile(gtmPath, fileID string) error {
 	return nil
 }
 
-func buildCommitMap(metricMap map[string]FileMetric) (map[string]FileMetric, error) {
+func buildCommitMaps(metricMap map[string]FileMetric) (map[string]FileMetric, map[string]FileMetric, error) {
 	commitMap := map[string]FileMetric{}
+	readonlyMap := map[string]FileMetric{}
 
 	m, err := scm.GitLastLog()
 	if err != nil {
-		return commitMap, err
+		return commitMap, readonlyMap, err
 	}
 
 	_, _, commitFiles := scm.GitParseMessage(m)
@@ -264,10 +263,25 @@ func buildCommitMap(metricMap map[string]FileMetric) (map[string]FileMetric, err
 		commitMap[fileID] = metricMap[fileID]
 	}
 
-	return commitMap, nil
+	for fileID, fm := range metricMap {
+		// Look at files not in commit map
+		if _, ok := commitMap[fileID]; !ok {
+
+			modified, err := scm.GitModified(fm.SourceFile, false)
+			if err != nil {
+				return commitMap, readonlyMap, err
+			}
+
+			if !modified {
+				readonlyMap[fileID] = fm
+			}
+		}
+	}
+
+	return commitMap, readonlyMap, nil
 }
 
-func buildCommitNote(metricMap map[string]FileMetric, commitMap map[string]FileMetric) (note.CommitNote, error) {
+func buildCommitNote(metricMap map[string]FileMetric, commitMap map[string]FileMetric, readonlyMap map[string]FileMetric) (note.CommitNote, error) {
 	flsModified := []note.FileDetail{}
 
 	for _, fm := range commitMap {
@@ -278,28 +292,11 @@ func buildCommitNote(metricMap map[string]FileMetric, commitMap map[string]FileM
 	}
 
 	flsReadonly := []note.FileDetail{}
-	for fileID, fm := range metricMap {
-
-		// Look at files not in commit map
-		if _, ok := commitMap[fileID]; !ok {
-
-			// Is the file modified?
-			modified, err := scm.GitModified(fm.SourceFile, false)
-			if err != nil {
-				return note.CommitNote{}, err
-			}
-
-			// TODO: don't check if gitracked and only if modified
-			// TODO: flag as deleted with "d"
-
-			// Is the file tracked by git and not modified?
-			if fm.GitTracked && !modified {
-				fm.Downsample()
-				flsReadonly = append(
-					flsReadonly,
-					note.FileDetail{SourceFile: fm.SourceFile, TimeSpent: fm.TimeSpent, Timeline: fm.Timeline, Status: "r"})
-			}
-		}
+	for _, fm := range readonlyMap {
+		fm.Downsample()
+		flsReadonly = append(
+			flsReadonly,
+			note.FileDetail{SourceFile: fm.SourceFile, TimeSpent: fm.TimeSpent, Timeline: fm.Timeline, Status: "r"})
 	}
 	fls := append(flsModified, flsReadonly...)
 	sort.Sort(sort.Reverse(note.FileByTime(fls)))
@@ -307,10 +304,15 @@ func buildCommitNote(metricMap map[string]FileMetric, commitMap map[string]FileM
 	return note.CommitNote{Files: fls}, nil
 }
 
-func buildInterimCommitMap() {
+func buildInterimCommitMaps(metricMap map[string]FileMetric) (map[string]FileMetric, map[string]FileMetric, error) {
+	commitMap := map[string]FileMetric{}
+	readonlyMap := map[string]FileMetric{}
+
 	// TODO
+	return commitMap, readonlyMap, nil
 }
 
-func buildInterimCommitNote() {
+func buildInterimCommitNote(metricMap map[string]FileMetric, commitMap map[string]FileMetric, readonlyMap map[string]FileMetric) (note.CommitNote, error) {
 	// TODO
+	return note.CommitNote{}, nil
 }

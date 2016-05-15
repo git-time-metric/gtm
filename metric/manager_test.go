@@ -57,7 +57,7 @@ func TestProcess(t *testing.T) {
 		t.Fatalf("Unable to run git commit, %s", string(b))
 	}
 
-	_, err = Process(false, false)
+	_, err = Process(false)
 	if err != nil {
 		t.Fatalf("Process(false, false) - test full commit, want error nil, got %s", err)
 	}
@@ -110,7 +110,7 @@ func TestProcess(t *testing.T) {
 		t.Fatalf("Unable to run git commit, %s", string(b))
 	}
 
-	_, err = Process(false, false)
+	_, err = Process(false)
 	if err != nil {
 		t.Fatalf("Process(false, false), want error nil, got %s", err)
 	}
@@ -121,7 +121,7 @@ func TestProcess(t *testing.T) {
 		t.Fatalf("Unable to run git notes, %s", string(b))
 	}
 
-	want = []string{`total:20`, `event_test.go:20.*,m`}
+	want = []string{`total:300`, `event_test.go:20.*,m`}
 	for _, s := range want {
 		matched, err := regexp.MatchString(s, string(b))
 		if err != nil {
@@ -133,8 +133,8 @@ func TestProcess(t *testing.T) {
 
 	}
 	fp := path.Join(gtmPath, "6f53bc90ba625b5afaac80b422b44f1f609d6367.metric")
-	if _, err := os.Stat(fp); os.IsNotExist(err) {
-		t.Errorf("Process(false, false) - test partial commit, want file %s exist, got file exists false", fp)
+	if _, err := os.Stat(fp); !os.IsNotExist(err) {
+		t.Errorf("Process(false, false) - test partial commit, want file %s does not exist, got file exists true", fp)
 	}
 
 	// Test Process by committing a tracked file that has been modified and one tracked file that is unmodified
@@ -180,7 +180,7 @@ func TestProcess(t *testing.T) {
 		t.Fatalf("Unable to run git commit, %s", string(b))
 	}
 
-	_, err = Process(false, false)
+	_, err = Process(false)
 	if err != nil {
 		t.Fatalf("Process(false, false) - test commit with readonly, want error nil, got %s", err)
 	}

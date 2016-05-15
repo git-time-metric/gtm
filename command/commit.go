@@ -31,10 +31,6 @@ func (r GitCommit) Run(args []string) int {
 		"yes",
 		false,
 		"Automatically confirm yes for commit command")
-	debug := commitFlags.Bool(
-		"debug",
-		false,
-		"Print debug statements to the console")
 	commitFlags.Parse(os.Args[2:])
 
 	confirm := *yes
@@ -50,7 +46,7 @@ func (r GitCommit) Run(args []string) int {
 	}
 
 	if confirm {
-		if _, err := metric.Process(false, *debug); err != nil {
+		if _, err := metric.Process(false); err != nil {
 			fmt.Println(err)
 			return 1
 		}

@@ -1,8 +1,6 @@
 package metric
 
 import (
-	"fmt"
-
 	"edgeg.io/gtm/event"
 	"edgeg.io/gtm/note"
 	"edgeg.io/gtm/project"
@@ -11,7 +9,7 @@ import (
 
 // Process events for last git commit and save time spent as a git note
 // If interim is true, process events for the current working and staged files
-func Process(interim bool, debug bool) (note.CommitNote, error) {
+func Process(interim bool) (note.CommitNote, error) {
 
 	rootPath, gtmPath, err := project.Paths()
 	if err != nil {
@@ -38,31 +36,45 @@ func Process(interim bool, debug bool) (note.CommitNote, error) {
 		}
 	}
 
-	// build map of commit files
-	commitMap, err := buildCommitMap(metricMap)
-	if err != nil {
-		return note.CommitNote{}, err
-	}
+	commitNote := note.CommitNote{}
 
-	// build commit note struct
-	commitNote, err := buildCommitNote(metricMap, commitMap)
-	if err != nil {
-		return note.CommitNote{}, err
-	}
+	if interim {
+		commitMap, readonlyMap, err := buildInterimCommitMaps(metricMap)
+		if err != nil {
+			return note.CommitNote{}, err
+		}
 
-	if !interim {
+		commitNote, err = buildInterimCommitNote(metricMap, commitMap, readonlyMap)
+		if err != nil {
+			return note.CommitNote{}, err
+		}
+
+		// fmt.Printf("\nEventMap:\n%+v\n", epochEventMap)
+		// fmt.Printf("\nMetricMap:\n%+v\n", metricMap)
+		// fmt.Printf("\nCommitMap:\n%+v\n", commitMap)
+		// fmt.Printf("\nReadonlyMap:\n%+v\n", readonlyMap)
+	} else {
+		commitMap, readonlyMap, err := buildCommitMaps(metricMap)
+		if err != nil {
+			return note.CommitNote{}, err
+		}
+
+		commitNote, err = buildCommitNote(metricMap, commitMap, readonlyMap)
+		if err != nil {
+			return note.CommitNote{}, err
+		}
+
 		if err := scm.GitAddNote(note.Marshal(commitNote), project.NoteNameSpace); err != nil {
 			return note.CommitNote{}, err
 		}
-		if err := saveAndPurgeMetrics(gtmPath, metricMap, commitMap); err != nil {
+		if err := saveAndPurgeMetrics(gtmPath, metricMap, commitMap, readonlyMap); err != nil {
 			return note.CommitNote{}, err
 		}
-	}
 
-	if debug {
-		fmt.Printf("\nEventMap:\n%+v\n", epochEventMap)
-		fmt.Printf("\nMetricMap:\n%+v\n", metricMap)
-		fmt.Printf("\nCommitMap:\n%+v\n", commitMap)
+		// fmt.Printf("\nEventMap:\n%+v\n", epochEventMap)
+		// fmt.Printf("\nMetricMap:\n%+v\n", metricMap)
+		// fmt.Printf("\nCommitMap:\n%+v\n", commitMap)
+		// fmt.Printf("\nReadonlyMap:\n%+v\n", readonlyMap)
 	}
 
 	return commitNote, nil
