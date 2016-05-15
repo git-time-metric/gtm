@@ -18,6 +18,7 @@ func main() {
 		"record": command.NewRecord,
 		"commit": command.NewCommit,
 		"report": command.NewReport,
+		"status": command.NewStatus,
 	}
 
 	exitStatus, err := c.Run()

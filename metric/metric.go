@@ -308,11 +308,40 @@ func buildInterimCommitMaps(metricMap map[string]FileMetric) (map[string]FileMet
 	commitMap := map[string]FileMetric{}
 	readonlyMap := map[string]FileMetric{}
 
-	// TODO
-	return commitMap, readonlyMap, nil
-}
+	hasStaged, err := scm.GitHasStaged()
+	if err != nil {
+		return commitMap, readonlyMap, err
+	}
 
-func buildInterimCommitNote(metricMap map[string]FileMetric, commitMap map[string]FileMetric, readonlyMap map[string]FileMetric) (note.CommitNote, error) {
-	// TODO
-	return note.CommitNote{}, nil
+	for fileID, fm := range metricMap {
+		if hasStaged {
+			modified, err := scm.GitModified(fm.SourceFile, true)
+			if err != nil {
+				return commitMap, readonlyMap, err
+			}
+			if modified {
+				commitMap[fileID] = fm
+			} else {
+				modifiedInWorking, err := scm.GitModified(fm.SourceFile, false)
+				if err != nil {
+					return commitMap, readonlyMap, err
+				}
+				if !modifiedInWorking {
+					readonlyMap[fileID] = fm
+				}
+			}
+		} else {
+			modified, err := scm.GitModified(fm.SourceFile, false)
+			if err != nil {
+				return commitMap, readonlyMap, err
+			}
+			if modified {
+				commitMap[fileID] = fm
+			} else {
+				readonlyMap[fileID] = fm
+			}
+		}
+	}
+
+	return commitMap, readonlyMap, nil
 }
