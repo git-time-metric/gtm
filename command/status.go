@@ -17,6 +17,7 @@ func NewStatus() (cli.Command, error) {
 
 func (r StatusCmd) Help() string {
 	return `
+	Show time spent for working or staged files
 	`
 }
 
@@ -38,5 +39,6 @@ func (r StatusCmd) Run(args []string) int {
 
 func (r StatusCmd) Synopsis() string {
 	return `
+	Show time spent for working or staged files
 	`
 }
