@@ -281,23 +281,30 @@ func buildCommitMaps(metricMap map[string]FileMetric) (map[string]FileMetric, ma
 	return commitMap, readonlyMap, nil
 }
 
-func buildCommitNote(metricMap map[string]FileMetric, commitMap map[string]FileMetric, readonlyMap map[string]FileMetric) (note.CommitNote, error) {
+func buildCommitNote(rootPath string, metricMap map[string]FileMetric, commitMap map[string]FileMetric, readonlyMap map[string]FileMetric) (note.CommitNote, error) {
 	flsModified := []note.FileDetail{}
 
 	for _, fm := range commitMap {
 		fm.Downsample()
+		status := "m"
+		if _, err := os.Stat(filepath.Join(rootPath, fm.SourceFile)); os.IsNotExist(err) {
+			status = "d"
+		}
 		flsModified = append(
 			flsModified,
-			note.FileDetail{SourceFile: fm.SourceFile, TimeSpent: fm.TimeSpent, Timeline: fm.Timeline, Status: "m"})
+			note.FileDetail{SourceFile: fm.SourceFile, TimeSpent: fm.TimeSpent, Timeline: fm.Timeline, Status: status})
 	}
 
 	flsReadonly := []note.FileDetail{}
 	for _, fm := range readonlyMap {
-		// TODO: flag files as deleted
 		fm.Downsample()
+		status := "r"
+		if _, err := os.Stat(filepath.Join(rootPath, fm.SourceFile)); os.IsNotExist(err) {
+			status = "d"
+		}
 		flsReadonly = append(
 			flsReadonly,
-			note.FileDetail{SourceFile: fm.SourceFile, TimeSpent: fm.TimeSpent, Timeline: fm.Timeline, Status: "r"})
+			note.FileDetail{SourceFile: fm.SourceFile, TimeSpent: fm.TimeSpent, Timeline: fm.Timeline, Status: status})
 	}
 	fls := append(flsModified, flsReadonly...)
 	sort.Sort(sort.Reverse(note.FileByTime(fls)))

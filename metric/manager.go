@@ -44,7 +44,7 @@ func Process(interim bool) (note.CommitNote, error) {
 			return note.CommitNote{}, err
 		}
 
-		commitNote, err = buildCommitNote(metricMap, commitMap, readonlyMap)
+		commitNote, err = buildCommitNote(rootPath, metricMap, commitMap, readonlyMap)
 		if err != nil {
 			return note.CommitNote{}, err
 		}
@@ -59,7 +59,7 @@ func Process(interim bool) (note.CommitNote, error) {
 			return note.CommitNote{}, err
 		}
 
-		commitNote, err = buildCommitNote(metricMap, commitMap, readonlyMap)
+		commitNote, err = buildCommitNote(rootPath, metricMap, commitMap, readonlyMap)
 		if err != nil {
 			return note.CommitNote{}, err
 		}
