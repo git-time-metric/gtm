@@ -79,6 +79,10 @@ func (r ReportCmd) Run(args []string) int {
 		}
 	}
 
+	if len(commits) == 0 {
+		return 0
+	}
+
 	if *format == "total" {
 		out, err = report.NoteDetailsTotal(commits)
 	} else {

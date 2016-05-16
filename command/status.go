@@ -1,7 +1,9 @@
 package command
 
 import (
+	"flag"
 	"fmt"
+	"os"
 
 	"edgeg.io/gtm/metric"
 	"edgeg.io/gtm/report"
@@ -22,15 +24,25 @@ func (r StatusCmd) Help() string {
 }
 
 func (r StatusCmd) Run(args []string) int {
+	statusFlags := flag.NewFlagSet("status", flag.ExitOnError)
+	totalOnly := statusFlags.Bool(
+		"total-only",
+		false,
+		"Only display total time")
+	statusFlags.Parse(os.Args[2:])
 	out := ""
 	if commitNote, err := metric.Process(true); err != nil {
 		fmt.Println(err)
 		return 1
 	} else {
-		out, err = report.NoteFiles(commitNote)
-		if err != nil {
-			fmt.Println(err)
-			return 1
+		if *totalOnly {
+			out = report.NoteFilesTotal(commitNote)
+		} else {
+			out, err = report.NoteFiles(commitNote)
+			if err != nil {
+				fmt.Println(err)
+				return 1
+			}
 		}
 	}
 	fmt.Printf(out)
