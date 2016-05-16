@@ -37,15 +37,15 @@ func (r ReportCmd) Run(args []string) int {
 	reportFlags := flag.NewFlagSet("report", flag.ExitOnError)
 	format := reportFlags.String(
 		"format",
-		"all",
-		"Specify report format [all|total]")
+		"details",
+		"Specify report format [details|totals|files|timeline]")
 	limit := reportFlags.Int(
 		"n",
 		1,
 		fmt.Sprintf("Limit number of log enteries"))
 	reportFlags.Parse(os.Args[2:])
 
-	if !util.StringInSlice([]string{"all", "total"}, *format) {
+	if !util.StringInSlice([]string{"details", "totals"}, *format) {
 		fmt.Printf("report --format=%s not valid\n", *format)
 		return 1
 	}
@@ -83,10 +83,14 @@ func (r ReportCmd) Run(args []string) int {
 		return 0
 	}
 
-	if *format == "total" {
-		out, err = report.NoteDetailsTotal(commits)
-	} else {
+	switch *format {
+	case "details":
 		out, err = report.NoteDetails(commits)
+	case "totals":
+		out, err = report.NoteDetailsTotal(commits)
+	case "files":
+	case "timeline":
+
 	}
 
 	if err != nil {
