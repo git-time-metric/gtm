@@ -45,7 +45,7 @@ func (r ReportCmd) Run(args []string) int {
 		fmt.Sprintf("Limit number of log enteries"))
 	reportFlags.Parse(os.Args[2:])
 
-	if !util.StringInSlice([]string{"details", "totals"}, *format) {
+	if !util.StringInSlice([]string{"details", "totals", "timeline"}, *format) {
 		fmt.Printf("report --format=%s not valid\n", *format)
 		return 1
 	}
@@ -90,7 +90,7 @@ func (r ReportCmd) Run(args []string) int {
 		out, err = report.NoteDetailsTotal(commits)
 	case "files":
 	case "timeline":
-
+		out, err = report.Timeline(commits)
 	}
 
 	if err != nil {

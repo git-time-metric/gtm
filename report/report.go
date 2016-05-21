@@ -13,6 +13,8 @@ import (
 
 var funcMap = template.FuncMap{
 	"FormatDuration": util.FormatDuration,
+	"RightPad2Len":   util.RightPad2Len,
+	"LeftPad2Len":    util.LeftPad2Len,
 }
 
 const (
@@ -43,6 +45,11 @@ const (
 	{{- printf $headerFormat $note.Hash }} {{ printf $headerFormat $note.Subject }}
 	{{- $note.Date }} {{ $note.Author }}  {{if len .Note.Files }}{{ FormatDuration .Note.Total }}{{ end }}
 	{{- print "\n" }}
+{{ end }}`
+	timelineTpl string = `
+           0123456789012345678901234
+{{ range $_, $entry := .Timeline }}
+	{{- $entry.Day }} {{ RightPad2Len $entry.Bars " " 24 }} {{ LeftPad2Len $entry.Total " " 12 }}
 {{ end }}`
 )
 
@@ -99,6 +106,23 @@ func NoteDetailsTotal(commits []string) (string, error) {
 		}{
 			notes,
 			headerFormat})
+	if err != nil {
+		return "", err
+	}
+	return b.String(), nil
+}
+
+func Timeline(commits []string) (string, error) {
+	notes := retrieveNotes(commits)
+	b := new(bytes.Buffer)
+	t := template.Must(template.New("Timeline").Funcs(funcMap).Parse(timelineTpl))
+	err := t.Execute(
+		b,
+		struct {
+			Timeline []TimelineEntry
+		}{
+			notes.Timeline(),
+		})
 	if err != nil {
 		return "", err
 	}

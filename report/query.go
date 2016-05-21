@@ -1,9 +1,14 @@
 package report
 
 import (
+	"sort"
+	"strings"
+	"time"
+
 	"edgeg.io/gtm/note"
 	"edgeg.io/gtm/project"
 	"edgeg.io/gtm/scm"
+	"edgeg.io/gtm/util"
 )
 
 type commitNoteDetails []commitNoteDetail
@@ -14,6 +19,55 @@ func (notes commitNoteDetails) Total() int {
 		t += notes[i].Note.Total()
 	}
 	return t
+}
+
+type TimelineEntry struct {
+	Day     string
+	Seconds int
+}
+
+func (t *TimelineEntry) Add(s int) {
+	t.Seconds += s
+}
+
+func (t *TimelineEntry) Bars() string {
+	if t.Seconds == 0 {
+		return ""
+	}
+	return strings.Repeat("*", 1+(t.Seconds/3601))
+}
+
+func (t *TimelineEntry) Total() string {
+	return util.FormatDuration(t.Seconds)
+}
+
+func (notes commitNoteDetails) Timeline() []TimelineEntry {
+	timelineMap := map[string]TimelineEntry{}
+	timeline := []TimelineEntry{}
+	for _, n := range notes {
+		for _, f := range n.Note.Files {
+			for epoch, secs := range f.Timeline {
+				t := time.Unix(epoch, 0)
+				day := t.Format("2006-01-02")
+				if entry, ok := timelineMap[day]; !ok {
+					timelineMap[day] = TimelineEntry{Day: t.Format("Mon Jan 02"), Seconds: secs}
+				} else {
+					entry.Add(secs)
+					timelineMap[day] = entry
+				}
+			}
+		}
+	}
+
+	keys := make([]string, 0, len(timelineMap))
+	for key := range timelineMap {
+		keys = append(keys, key)
+	}
+	sort.Sort(sort.StringSlice(keys))
+	for _, k := range keys {
+		timeline = append(timeline, timelineMap[k])
+	}
+	return timeline
 }
 
 type commitNoteDetail struct {
