@@ -49,7 +49,11 @@ const (
 	timelineTpl string = `
            0123456789012345678901234
 {{ range $_, $entry := .Timeline }}
-	{{- $entry.Day }} {{ RightPad2Len $entry.Bars " " 24 }} {{ LeftPad2Len $entry.Total " " 12 }}
+	{{- $entry.Day }} {{ RightPad2Len $entry.Bars " " 24 }} {{ LeftPad2Len $entry.Duration " " 13 }}
+{{ end }}
+{{- if len .Timeline }}
+{{- LeftPad2Len "------------" " " 49 }}
+{{ LeftPad2Len .Timeline.Duration " " 49 }}
 {{ end }}`
 )
 
@@ -119,7 +123,7 @@ func Timeline(commits []string) (string, error) {
 	err := t.Execute(
 		b,
 		struct {
-			Timeline []TimelineEntry
+			Timeline timeline
 		}{
 			notes.Timeline(),
 		})

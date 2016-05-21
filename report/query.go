@@ -21,6 +21,16 @@ func (notes commitNoteDetails) Total() int {
 	return t
 }
 
+type timeline []TimelineEntry
+
+func (t timeline) Duration() string {
+	total := 0
+	for _, entry := range t {
+		total += entry.Seconds
+	}
+	return util.FormatDuration(total)
+}
+
 type TimelineEntry struct {
 	Day     string
 	Seconds int
@@ -37,11 +47,11 @@ func (t *TimelineEntry) Bars() string {
 	return strings.Repeat("*", 1+(t.Seconds/3601))
 }
 
-func (t *TimelineEntry) Total() string {
+func (t *TimelineEntry) Duration() string {
 	return util.FormatDuration(t.Seconds)
 }
 
-func (notes commitNoteDetails) Timeline() []TimelineEntry {
+func (notes commitNoteDetails) Timeline() timeline {
 	timelineMap := map[string]TimelineEntry{}
 	timeline := []TimelineEntry{}
 	for _, n := range notes {
