@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"edgeg.io/gtm/metric"
+	"edgeg.io/gtm/note"
 	"edgeg.io/gtm/report"
 	"github.com/mitchellh/cli"
 )
@@ -29,21 +30,25 @@ func (r StatusCmd) Run(args []string) int {
 		"total-only",
 		false,
 		"Only display total time")
-	statusFlags.Parse(os.Args[2:])
-	out := ""
-	if commitNote, err := metric.Process(true); err != nil {
+	if err := statusFlags.Parse(os.Args[2:]); err != nil {
 		fmt.Println(err)
 		return 1
-	} else {
-		if *totalOnly {
-			out = report.NoteFilesTotal(commitNote)
-		} else {
-			out, err = report.NoteFiles(commitNote)
-			if err != nil {
-				fmt.Println(err)
-				return 1
-			}
-		}
+	}
+
+	var (
+		err        error
+		commitNote note.CommitNote
+		out        string
+	)
+
+	if commitNote, err = metric.Process(true); err != nil {
+		fmt.Println(err)
+		return 1
+	}
+	out, err = report.Status(commitNote, *totalOnly)
+	if err != nil {
+		fmt.Println(err)
+		return 1
 	}
 	fmt.Printf(out)
 	return 0

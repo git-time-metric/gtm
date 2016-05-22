@@ -18,7 +18,7 @@ var funcMap = template.FuncMap{
 }
 
 const (
-	commitDetailsTpl string = `
+	commitsTpl string = `
 {{ $headerFormat := .HeaderFormat }}
 {{- range $_, $note := .Notes }}
 	{{- printf $headerFormat $note.Hash }} {{ printf $headerFormat $note.Subject }}
@@ -32,7 +32,7 @@ const (
 		{{- printf "\n" }}
 	{{- end }}
 {{- end -}}`
-	commitFilesTpl string = `
+	statusTpl string = `
 {{ range $i, $f := .Note.Files }}
 	{{- FormatDuration $f.TimeSpent | printf "%14s" }}  [{{ $f.Status }}] {{$f.SourceFile}}
 {{ end }}
@@ -63,9 +63,12 @@ const (
 {{ end }}`
 )
 
-func NoteFiles(n note.CommitNote) (string, error) {
+func Status(n note.CommitNote, totalOnly bool) (string, error) {
+	if totalOnly {
+		return util.FormatDuration(n.Total()), nil
+	}
 	b := new(bytes.Buffer)
-	t := template.Must(template.New("Commit Details").Funcs(funcMap).Parse(commitFilesTpl))
+	t := template.Must(template.New("Status").Funcs(funcMap).Parse(statusTpl))
 
 	err := t.Execute(b, commitNoteDetail{Note: n})
 	if err != nil {
@@ -74,36 +77,15 @@ func NoteFiles(n note.CommitNote) (string, error) {
 	return b.String(), nil
 }
 
-func NoteFilesTotal(n note.CommitNote) string {
-	return util.FormatDuration(n.Total())
-}
-
-func NoteDetails(commits []string) (string, error) {
+func Commits(commits []string, totalOnly bool) (string, error) {
 	notes := retrieveNotes(commits)
 	b := new(bytes.Buffer)
-	t := template.Must(template.New("Commit Details").Funcs(funcMap).Parse(commitDetailsTpl))
-	headerFormat := "%s"
-	if terminal.IsTerminal(int(os.Stdout.Fd())) {
-		headerFormat = "\x1b[1m%s\x1b[0m"
+	var t *template.Template
+	if totalOnly {
+		t = template.Must(template.New("Commit Totals").Funcs(funcMap).Parse(commitTotalsTpl))
+	} else {
+		t = template.Must(template.New("Commits").Funcs(funcMap).Parse(commitsTpl))
 	}
-	err := t.Execute(
-		b,
-		struct {
-			Notes        commitNoteDetails
-			HeaderFormat string
-		}{
-			notes,
-			headerFormat})
-	if err != nil {
-		return "", err
-	}
-	return b.String(), nil
-}
-
-func NoteDetailsTotal(commits []string) (string, error) {
-	notes := retrieveNotes(commits)
-	b := new(bytes.Buffer)
-	t := template.Must(template.New("Commit Totals").Funcs(funcMap).Parse(commitTotalsTpl))
 	headerFormat := "%s"
 	if terminal.IsTerminal(int(os.Stdout.Fd())) {
 		headerFormat = "\x1b[1m%s\x1b[0m"
@@ -131,7 +113,7 @@ func Timeline(commits []string) (string, error) {
 		struct {
 			Timeline timelineEntries
 		}{
-			notes.Timeline(),
+			notes.timeline(),
 		})
 	if err != nil {
 		return "", err
@@ -148,10 +130,11 @@ func Files(commits []string) (string, error) {
 		struct {
 			Files fileEntries
 		}{
-			notes.Files(),
+			notes.files(),
 		})
 	if err != nil {
 		return "", err
 	}
 	return b.String(), nil
+
 }

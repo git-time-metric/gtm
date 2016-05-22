@@ -23,12 +23,12 @@ func NewReport() (cli.Command, error) {
 
 func (r ReportCmd) Help() string {
 	return `
-	Show commit time logs
+	Report on time logged
 
-	Show log for specific sha1 commits:
+	Show report for a specific sha1 commits:
 	gtm report sha1 ...
 
-	Show log by piping output from git log:
+	Show report by piping output from git log:
 	git report -1 --pretty=%H|gtm report
 	`
 }
@@ -37,15 +37,22 @@ func (r ReportCmd) Run(args []string) int {
 	reportFlags := flag.NewFlagSet("report", flag.ExitOnError)
 	format := reportFlags.String(
 		"format",
-		"details",
-		"Specify report format [details|totals|files|timeline]")
+		"commits",
+		"Specify report format [commits|totals|files|timeline]")
 	limit := reportFlags.Int(
 		"n",
 		1,
 		fmt.Sprintf("Limit number of log enteries"))
-	reportFlags.Parse(os.Args[2:])
+	totalOnly := reportFlags.Bool(
+		"total-only",
+		false,
+		"Only display total time")
+	if err := reportFlags.Parse(os.Args[2:]); err != nil {
+		fmt.Println(err)
+		return 1
+	}
 
-	if !util.StringInSlice([]string{"details", "totals", "timeline", "files"}, *format) {
+	if !util.StringInSlice([]string{"commits", "timeline", "files"}, *format) {
 		fmt.Printf("report --format=%s not valid\n", *format)
 		return 1
 	}
@@ -84,10 +91,8 @@ func (r ReportCmd) Run(args []string) int {
 	}
 
 	switch *format {
-	case "details":
-		out, err = report.NoteDetails(commits)
-	case "totals":
-		out, err = report.NoteDetailsTotal(commits)
+	case "commits":
+		out, err = report.Commits(commits, *totalOnly)
 	case "files":
 		out, err = report.Files(commits)
 	case "timeline":

@@ -31,7 +31,10 @@ func (r GitCommit) Run(args []string) int {
 		"yes",
 		false,
 		"Automatically confirm yes for commit command")
-	commitFlags.Parse(os.Args[2:])
+	if err := commitFlags.Parse(os.Args[2:]); err != nil {
+		fmt.Println(err)
+		return 1
+	}
 
 	confirm := *yes
 	if !confirm {
