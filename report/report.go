@@ -52,8 +52,14 @@ const (
 	{{- $entry.Day }} {{ RightPad2Len $entry.Bars " " 24 }} {{ LeftPad2Len $entry.Duration " " 13 }}
 {{ end }}
 {{- if len .Timeline }}
-{{- LeftPad2Len "------------" " " 49 }}
-{{ LeftPad2Len .Timeline.Duration " " 49 }}
+	{{- LeftPad2Len .Timeline.Duration " " 49 }}
+{{ end }}`
+	filesTpl string = `
+{{ range $i, $f := .Files }}
+	{{- $f.Duration | printf "%14s" }}  {{ $f.Filename }}
+{{ end }}
+{{- if len .Files }}
+	{{- .Files.Duration | printf "%14s" }}
 {{ end }}`
 )
 
@@ -123,9 +129,26 @@ func Timeline(commits []string) (string, error) {
 	err := t.Execute(
 		b,
 		struct {
-			Timeline timeline
+			Timeline timelineEntries
 		}{
 			notes.Timeline(),
+		})
+	if err != nil {
+		return "", err
+	}
+	return b.String(), nil
+}
+
+func Files(commits []string) (string, error) {
+	notes := retrieveNotes(commits)
+	b := new(bytes.Buffer)
+	t := template.Must(template.New("Files").Funcs(funcMap).Parse(filesTpl))
+	err := t.Execute(
+		b,
+		struct {
+			Files fileEntries
+		}{
+			notes.Files(),
 		})
 	if err != nil {
 		return "", err

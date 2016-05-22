@@ -21,9 +21,9 @@ func (notes commitNoteDetails) Total() int {
 	return t
 }
 
-type timeline []TimelineEntry
+type timelineEntries []timelineEntry
 
-func (t timeline) Duration() string {
+func (t timelineEntries) Duration() string {
 	total := 0
 	for _, entry := range t {
 		total += entry.Seconds
@@ -31,36 +31,36 @@ func (t timeline) Duration() string {
 	return util.FormatDuration(total)
 }
 
-type TimelineEntry struct {
+type timelineEntry struct {
 	Day     string
 	Seconds int
 }
 
-func (t *TimelineEntry) Add(s int) {
+func (t *timelineEntry) Add(s int) {
 	t.Seconds += s
 }
 
-func (t *TimelineEntry) Bars() string {
+func (t *timelineEntry) Bars() string {
 	if t.Seconds == 0 {
 		return ""
 	}
 	return strings.Repeat("*", 1+(t.Seconds/3601))
 }
 
-func (t *TimelineEntry) Duration() string {
+func (t *timelineEntry) Duration() string {
 	return util.FormatDuration(t.Seconds)
 }
 
-func (notes commitNoteDetails) Timeline() timeline {
-	timelineMap := map[string]TimelineEntry{}
-	timeline := []TimelineEntry{}
+func (notes commitNoteDetails) Timeline() timelineEntries {
+	timelineMap := map[string]timelineEntry{}
+	timeline := []timelineEntry{}
 	for _, n := range notes {
 		for _, f := range n.Note.Files {
 			for epoch, secs := range f.Timeline {
 				t := time.Unix(epoch, 0)
 				day := t.Format("2006-01-02")
 				if entry, ok := timelineMap[day]; !ok {
-					timelineMap[day] = TimelineEntry{Day: t.Format("Mon Jan 02"), Seconds: secs}
+					timelineMap[day] = timelineEntry{Day: t.Format("Mon Jan 02"), Seconds: secs}
 				} else {
 					entry.Add(secs)
 					timelineMap[day] = entry
@@ -78,6 +78,61 @@ func (notes commitNoteDetails) Timeline() timeline {
 		timeline = append(timeline, timelineMap[k])
 	}
 	return timeline
+}
+
+type fileEntries []fileEntry
+
+func (f fileEntries) Len() int           { return len(f) }
+func (f fileEntries) Swap(i, j int)      { f[i], f[j] = f[j], f[i] }
+func (f fileEntries) Less(i, j int) bool { return f[i].Seconds < f[j].Seconds }
+
+func (f fileEntries) Duration() string {
+	total := 0
+	for _, entry := range f {
+		total += entry.Seconds
+	}
+	return util.FormatDuration(total)
+}
+
+type fileEntry struct {
+	Filename string
+	Seconds  int
+}
+
+func (f *fileEntry) Add(s int) {
+	f.Seconds += s
+}
+
+func (f *fileEntry) Bars() string {
+	if f.Seconds == 0 {
+		return ""
+	}
+	return strings.Repeat("*", 1+(f.Seconds/3601))
+}
+
+func (f *fileEntry) Duration() string {
+	return util.FormatDuration(f.Seconds)
+}
+
+func (notes commitNoteDetails) Files() fileEntries {
+	filesMap := map[string]fileEntry{}
+	for _, n := range notes {
+		for _, f := range n.Note.Files {
+			if entry, ok := filesMap[f.SourceFile]; !ok {
+				filesMap[f.SourceFile] = fileEntry{Filename: f.SourceFile, Seconds: f.TimeSpent}
+			} else {
+				entry.Add(f.TimeSpent)
+				filesMap[f.SourceFile] = entry
+			}
+		}
+	}
+
+	files := make(fileEntries, 0, len(filesMap))
+	for _, entry := range filesMap {
+		files = append(files, entry)
+	}
+	sort.Sort(sort.Reverse(files))
+	return files
 }
 
 type commitNoteDetail struct {
