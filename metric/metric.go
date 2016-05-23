@@ -28,7 +28,7 @@ func allocateTime(ep int64, metricMap map[string]FileMetric, eventMap map[string
 		total += eventMap[file]
 	}
 
-	lastFile := ""
+	lastFileID := ""
 	timeAllocated := 0
 	for file := range eventMap {
 		t := int(float64(eventMap[file]) / float64(total) * float64(epoch.WindowSize))
@@ -55,13 +55,14 @@ func allocateTime(ep int64, metricMap map[string]FileMetric, eventMap map[string
 		metricMap[fileID] = fm
 
 		timeAllocated += t
-		lastFile = file
+		lastFileID = fileID
 	}
 	// let's make sure all of the EpochWindowSize seconds are allocated
 	// we put the remaining on the last file
-	if lastFile != "" && timeAllocated < epoch.WindowSize {
-		fm := metricMap[getFileID(lastFile)]
+	if lastFileID != "" && timeAllocated < epoch.WindowSize {
+		fm := metricMap[lastFileID]
 		fm.AddTimeSpent(ep, epoch.WindowSize-timeAllocated)
+		metricMap[lastFileID] = fm
 	}
 	return nil
 }
