@@ -37,8 +37,8 @@ func Marshal(n CommitNote) string {
 
 func UnMarshal(s string) (CommitNote, error) {
 	var (
-		version  string
-		fileLogs = []FileDetail{}
+		version string
+		files   = []FileDetail{}
 	)
 
 	reHeader := regexp.MustCompile(`\[ver:\d+,total:\d+]`)
@@ -98,18 +98,39 @@ func UnMarshal(s string) (CommitNote, error) {
 					return CommitNote{}, fmt.Errorf("Unable to unmarshal time logged, format invalid")
 				}
 			}
-			fl, err := NewFile(filePath, fileTotal, fileTimeline, fileStatus)
-			if err != nil {
-				return CommitNote{}, fmt.Errorf("Unable to unmarshal time logged, format invalid, %s", err)
+
+			// check for existing file path and merge if found
+			// for example, this can happen when rewriting commits with git commit --amend
+			found := false
+			for idx, _ := range files {
+				if files[idx].SourceFile == filePath {
+					for epoch, secs := range fileTimeline {
+						files[idx].TimeSpent += secs
+						files[idx].Timeline[epoch] += secs
+					}
+					// only change file status if modified or deleted
+					if fileStatus == "m" || fileStatus == "d" {
+						files[idx].Status = fileStatus
+					}
+					found = true
+					break
+				}
 			}
-			fileLogs = append(fileLogs, fl)
+
+			if !found {
+				files = append(files,
+					FileDetail{
+						SourceFile: filePath,
+						TimeSpent:  fileTotal,
+						Timeline:   fileTimeline,
+						Status:     fileStatus})
+			}
 
 		default:
 			return CommitNote{}, fmt.Errorf("Unable to unmarshal time logged, unknown version %s", version)
 		}
 	}
-	//TODO: sort files by time, can be out of order if unmarshalling multiple sets of files, i.e like from git commit --amend
-	return CommitNote{Files: fileLogs}, nil
+	return CommitNote{Files: files}, nil
 }
 
 type FileDetail struct {
