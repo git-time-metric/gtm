@@ -149,10 +149,6 @@ func (f *FileDetail) SortEpochs() []int64 {
 	return keys
 }
 
-func NewFile(filePath string, total int, timeline map[int64]int, status string) (FileDetail, error) {
-	return FileDetail{SourceFile: filePath, TimeSpent: total, Timeline: timeline, Status: status}, nil
-}
-
 type FileByTime []FileDetail
 
 func (a FileByTime) Len() int           { return len(a) }

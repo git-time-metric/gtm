@@ -102,6 +102,7 @@ func GitParseMessage(m string) (uuid, msg string, files []string) {
 	for i, v := range l {
 		if i == 0 {
 			s := strings.SplitN(v, " ", 2)
+			// TODO: check len to protect against index out of range
 			uuid = s[0]
 			msg = s[1]
 		} else {
