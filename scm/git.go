@@ -1,240 +1,329 @@
 package scm
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
-	"os/exec"
 	"path"
+	"path/filepath"
 	"strings"
+	"time"
+
+	"github.com/libgit2/git2go"
 )
 
-func GitRootPath(path ...string) (string, error) {
-	cmd := exec.Command("git", "rev-parse", "--show-toplevel")
+func RootPath(path ...string) (string, error) {
+	var (
+		wd  string
+		p   string
+		err error
+	)
 	if len(path) > 0 {
-		cmd.Dir = path[0]
-	}
-
-	b, err := cmd.Output()
-	if err != nil {
-		return "", fmt.Errorf("Unable to parse repository path, %s %s", string(b), err)
-	}
-
-	s := strings.TrimSpace(string(b))
-	if s == "" {
-		return "", fmt.Errorf("Unable to parse repository path, %s", err)
-	}
-
-	return s, nil
-}
-
-func GitBranch(wd ...string) (string, error) {
-	cmd := exec.Command("git", "rev-parse", "--abbrev-ref", "HEAD")
-	if len(wd) > 0 {
-		cmd.Dir = wd[0]
-	}
-	var (
-		b   []byte
-		err error
-	)
-	if b, err = cmd.Output(); err != nil {
-		return "", fmt.Errorf("Unable to parse branch name, %s %s", string(b), err)
-	}
-	return strings.TrimSpace(string(b)), nil
-
-}
-
-func GitEmail(wd ...string) (string, error) {
-	cmd := exec.Command("git", "config", "--get", "user.email")
-	if len(wd) > 0 {
-		cmd.Dir = wd[0]
-	}
-	var (
-		b   []byte
-		err error
-	)
-	if b, err = cmd.Output(); err != nil {
-		return "", fmt.Errorf("Unable to get user email, %s %s", string(b), err)
-	}
-	return strings.TrimSpace(string(b)), nil
-}
-
-func GitLastLog(wd ...string) (string, error) {
-	cmd := exec.Command("git", "log", "-1", "--oneline", "--raw")
-	if len(wd) > 0 {
-		cmd.Dir = wd[0]
-	}
-	var (
-		b   []byte
-		err error
-	)
-	if b, err = cmd.Output(); err != nil {
-		// if there are no git commits yet it will fail
-		// ignoring this error
-		return "", nil
-	}
-	return string(b), err
-}
-
-func GitLogSHA1s(args []string, wd ...string) ([]string, error) {
-	args = append([]string{"log", "--pretty=%H"}, args...)
-	cmd := exec.Command("git", args...)
-	if len(wd) > 0 {
-		cmd.Dir = wd[0]
-	}
-	var (
-		b   []byte
-		err error
-	)
-	if b, err = cmd.Output(); err != nil {
-		return []string{}, fmt.Errorf("Unable to get SHA1s, %s %s", string(b), err)
-	}
-	parts := strings.Split(string(b), "\n")
-	if len(parts) > 0 {
-		parts = parts[:len(parts)-1]
-	}
-	return parts, err
-}
-
-func GitParseMessage(m string) (uuid, msg string, files []string) {
-	l := strings.Split(m, "\n")
-	files = make([]string, 0)
-	for i, v := range l {
-		if i == 0 {
-			s := strings.SplitN(v, " ", 2)
-			// TODO: check len to protect against index out of range
-			uuid = s[0]
-			msg = s[1]
-		} else {
-			if strings.TrimSpace(v) != "" {
-				s := strings.Split(v, "\t")
-				files = append(files, s[1])
-			}
-		}
-	}
-	return
-}
-
-func GitAddNote(n string, nameSpace string, wd ...string) error {
-	cmd := exec.Command("git", "notes", fmt.Sprintf("--ref=%s", nameSpace), "add", "-f", "-m", n)
-	if len(wd) > 0 {
-		cmd.Dir = wd[0]
-	}
-	if b, err := cmd.Output(); err != nil {
-		return fmt.Errorf("Unable to add git note, %s %s", string(b), err)
-	}
-	return nil
-}
-
-func GitNote(commitID string, nameSpace string, wd ...string) (string, error) {
-	cmd := exec.Command("git", "notes", fmt.Sprintf("--ref=%s", nameSpace), "show", commitID)
-	if len(wd) > 0 {
-		cmd.Dir = wd[0]
-	}
-	b, err := cmd.Output()
-	if err != nil {
-		return "", fmt.Errorf("Git note not found %s", string(b))
-	}
-	return string(b), nil
-}
-
-func GitLog(commitID string, wd ...string) ([]string, error) {
-	cmd := exec.Command("git", "log", "-1", "--pretty", "--format=%an,%ad,%h,%s", commitID)
-	if len(wd) > 0 {
-		cmd.Dir = wd[0]
-	}
-	var (
-		b   []byte
-		err error
-	)
-	if b, err = cmd.Output(); err != nil {
-		return []string{}, fmt.Errorf("Unable to execute git log, %s %s", string(b), err)
-	}
-	parts := strings.SplitN(string(b), ",", 4)
-	if len(parts) < 4 {
-		return []string{}, fmt.Errorf("Unable to parse log output, %s %s", string(b), err)
-	}
-	return parts, err
-}
-
-func GitConfig(settings map[string]string, wd ...string) error {
-	for k, v := range settings {
-		cmd := exec.Command("git", "config", "-l")
-		if len(wd) > 0 {
-			cmd.Dir = wd[0]
-		}
-		var (
-			b   []byte
-			err error
-		)
-		if b, err = cmd.Output(); err != nil {
-			return fmt.Errorf("Unable to run git config -l, %s %s", string(b), err)
-		}
-		if !strings.Contains(string(b), fmt.Sprintf("%s=%s", k, v)) {
-			cmd := exec.Command("git", "config", "--add", k, v)
-			if len(wd) > 0 {
-				cmd.Dir = wd[0]
-			}
-			if b, err := cmd.Output(); err != nil {
-				return fmt.Errorf("Unable to run git config --add %s %s, %s %s", k, v, string(b), err)
-			}
-		}
-	}
-	return nil
-}
-
-func GitTracked(f string, wd ...string) (bool, error) {
-	cmd := exec.Command("git", "ls-files", f)
-	if len(wd) > 0 {
-		cmd.Dir = wd[0]
-	}
-	var (
-		b   []byte
-		err error
-	)
-	if b, err = cmd.Output(); err != nil {
-		return false, fmt.Errorf("Unable to determine git tracked status for %s, %s %s", f, string(b), err)
-	}
-	return strings.TrimSpace(string(b)) != "", nil
-}
-
-func GitModified(f string, staging bool, wd ...string) (bool, error) {
-	var cmd *exec.Cmd
-	if staging {
-		cmd = exec.Command("git", "diff", "--name-only", "--cached", "--", f)
+		wd = path[0]
 	} else {
-		cmd = exec.Command("git", "diff", "--name-only", "--", f)
+		wd, err = os.Getwd()
+		if err != nil {
+			return "", err
+		}
 	}
-	if len(wd) > 0 {
-		cmd.Dir = wd[0]
+	p, err = git.Discover(wd, false, []string{})
+	if err != nil {
+		return "", err
 	}
-	var (
-		b   []byte
-		err error
-	)
-	if b, err = cmd.Output(); err != nil {
-		return false, fmt.Errorf("Unable to determine git modified status for %s, %s %s", f, string(b), err)
+	p = strings.TrimSpace(strings.Replace(p, "/.git/", "", 1))
+	if p == "" {
+		return "", fmt.Errorf("Git repository not found in %s", wd)
 	}
-	return strings.TrimSpace(string(b)) != "", nil
+	return p, nil
 }
 
-func GitHasStaged(wd ...string) (bool, error) {
-	var cmd *exec.Cmd
-	cmd = exec.Command("git", "diff", "--name-only", "--cached")
-	if len(wd) > 0 {
-		cmd.Dir = wd[0]
-	}
+func CommitIDs(limit int, wd ...string) ([]string, error) {
 	var (
-		b   []byte
-		err error
+		repo *git.Repository
+		cnt  int
+		w    *git.RevWalk
+		err  error
 	)
-	if b, err = cmd.Output(); err != nil {
-		return false, fmt.Errorf("Unable to determine git staged status, %s %s", string(b), err)
+	commits := []string{}
+
+	if len(wd) > 0 {
+		repo, err = openRepository(wd[0])
+	} else {
+		repo, err = openRepository()
 	}
-	return strings.TrimSpace(string(b)) != "", nil
+
+	if err != nil {
+		return commits, err
+	}
+	defer repo.Free()
+
+	w, err = repo.Walk()
+	if err != nil {
+		return commits, err
+	}
+	defer w.Free()
+
+	err = w.PushHead()
+	if err != nil {
+		return commits, err
+	}
+
+	err = w.Iterate(
+		func(commit *git.Commit) bool {
+			if limit == cnt {
+				return false
+			}
+			commits = append(commits, commit.Object.Id().String())
+			cnt++
+			return true
+		})
+
+	if err != nil {
+		return commits, err
+	}
+
+	return commits, nil
 }
 
-func GitSetHooks(hooks map[string]string, wd ...string) error {
+type Commit struct {
+	ID      string
+	OID     *git.Oid
+	Summary string
+	Message string
+	Author  string
+	Email   string
+	When    time.Time
+	Files   []string
+}
+
+func HeadCommit(wd ...string) (Commit, error) {
+	var (
+		repo *git.Repository
+		err  error
+	)
+	commit := Commit{}
+
+	if len(wd) > 0 {
+		repo, err = openRepository(wd[0])
+	} else {
+		repo, err = openRepository()
+	}
+	if err != nil {
+		return commit, err
+	}
+	defer repo.Free()
+
+	headCommit, err := lookupHeadCommit(repo)
+	if err != nil {
+		if err == ErrHeadUnborn {
+			return commit, nil
+		}
+		return commit, err
+	}
+	defer headCommit.Free()
+
+	headTree, err := headCommit.Tree()
+	if err != nil {
+		return commit, err
+	}
+	defer headTree.Free()
+
+	files := []string{}
+	if headCommit.ParentCount() > 0 {
+		parentTree, err := headCommit.Parent(0).Tree()
+		if err != nil {
+			return commit, err
+		}
+		defer parentTree.Free()
+
+		options, err := git.DefaultDiffOptions()
+		if err != nil {
+			return commit, err
+		}
+
+		diff, err := headCommit.Owner().DiffTreeToTree(parentTree, headTree, &options)
+		if err != nil {
+			return commit, err
+		}
+		defer diff.Free()
+
+		err = diff.ForEach(
+			func(file git.DiffDelta, progress float64) (git.DiffForEachHunkCallback, error) {
+
+				files = append(files, file.NewFile.Path)
+
+				return func(hunk git.DiffHunk) (git.DiffForEachLineCallback, error) {
+					return func(line git.DiffLine) error {
+						return nil
+					}, nil
+				}, nil
+			}, git.DiffDetailFiles)
+
+		if err != nil {
+			return commit, err
+		}
+
+	} else {
+
+		path := ""
+		err := headTree.Walk(
+			func(s string, entry *git.TreeEntry) int {
+				switch entry.Filemode {
+				case git.FilemodeTree:
+					path = entry.Name
+				default:
+					files = append(files, filepath.Join(path, entry.Name))
+				}
+				return 0
+			})
+
+		if err != nil {
+			return commit, err
+		}
+	}
+
+	commit = Commit{
+		ID:      headCommit.Object.Id().String(),
+		OID:     headCommit.Object.Id(),
+		Summary: headCommit.Summary(),
+		Message: headCommit.Message(),
+		Author:  headCommit.Author().Name,
+		Email:   headCommit.Author().Email,
+		When:    headCommit.Author().When,
+		Files:   files}
+
+	return commit, nil
+}
+
+func CreateNote(noteTxt string, nameSpace string, wd ...string) error {
+	var (
+		repo *git.Repository
+	)
+	commit, err := HeadCommit()
+	if err != nil {
+		return err
+	}
+
+	if len(wd) > 0 {
+		repo, err = openRepository(wd[0])
+	} else {
+		repo, err = openRepository()
+	}
+	if err != nil {
+		return err
+	}
+	defer repo.Free()
+
+	sig := &git.Signature{
+		Name:  commit.Author,
+		Email: commit.Email,
+		When:  commit.When,
+	}
+
+	_, err = repo.Notes.Create("refs/notes/"+nameSpace, sig, sig, commit.OID, noteTxt, false)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+type CommitNote struct {
+	ID      string
+	OID     *git.Oid
+	Summary string
+	Message string
+	Author  string
+	Email   string
+	When    time.Time
+	Note    string
+}
+
+func ReadNote(commitID string, nameSpace string, wd ...string) (CommitNote, error) {
+	var (
+		err    error
+		repo   *git.Repository
+		commit *git.Commit
+		n      *git.Note
+	)
+
+	if len(wd) > 0 {
+		repo, err = openRepository(wd[0])
+	} else {
+		repo, err = openRepository()
+	}
+
+	if err != nil {
+		return CommitNote{}, err
+	}
+
+	defer func() {
+		if commit != nil {
+			commit.Free()
+		}
+		if n != nil {
+			n.Free()
+		}
+		repo.Free()
+	}()
+
+	id, err := git.NewOid(commitID)
+	if err != nil {
+		return CommitNote{}, err
+	}
+
+	commit, err = repo.LookupCommit(id)
+	if err != nil {
+		return CommitNote{}, err
+	}
+
+	var noteTxt string
+	n, err = repo.Notes.Read("refs/notes/"+nameSpace, id)
+	if err != nil {
+		noteTxt = ""
+	} else {
+		noteTxt = n.Message()
+	}
+
+	return CommitNote{
+		ID:      commit.Object.Id().String(),
+		OID:     commit.Object.Id(),
+		Summary: commit.Summary(),
+		Message: commit.Message(),
+		Author:  commit.Author().Name,
+		Email:   commit.Author().Email,
+		When:    commit.Author().When,
+		Note:    noteTxt,
+	}, nil
+}
+
+func Config(settings map[string]string, wd ...string) error {
+	var (
+		err  error
+		repo *git.Repository
+		cfg  *git.Config
+	)
+
+	if len(wd) > 0 {
+		repo, err = openRepository(wd[0])
+	} else {
+		repo, err = openRepository()
+	}
+
+	cfg, err = repo.Config()
+	defer cfg.Free()
+
+	for k, v := range settings {
+		err = cfg.SetString(k, v)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func SetHooks(hooks map[string]string, wd ...string) error {
 	for hook, command := range hooks {
 		var (
 			p   string
@@ -281,7 +370,7 @@ func GitSetHooks(hooks map[string]string, wd ...string) error {
 	return nil
 }
 
-func GitIgnore(ignore string, wd ...string) error {
+func Ignore(ignore string, wd ...string) error {
 	var (
 		p   string
 		err error
@@ -315,4 +404,165 @@ func GitIgnore(ignore string, wd ...string) error {
 		return err
 	}
 	return nil
+}
+
+func openRepository(wd ...string) (*git.Repository, error) {
+	var (
+		p   string
+		err error
+	)
+
+	if len(wd) > 0 {
+		p, err = RootPath(wd[0])
+	} else {
+		p, err = RootPath()
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	repo, err := git.OpenRepository(p)
+	return repo, err
+}
+
+var (
+	ErrHeadUnborn = errors.New("Head commit not found")
+)
+
+func lookupHeadCommit(repo *git.Repository) (*git.Commit, error) {
+
+	headUnborn, err := repo.IsHeadUnborn()
+	if err != nil {
+		return nil, err
+	}
+	if headUnborn {
+		return nil, ErrHeadUnborn
+	}
+
+	headRef, err := repo.Head()
+	if err != nil {
+		return nil, err
+	}
+	defer headRef.Free()
+
+	commit, err := repo.LookupCommit(headRef.Target())
+	if err != nil {
+		return nil, err
+	}
+
+	return commit, nil
+}
+
+type Status struct {
+	Files []FileStatus
+}
+
+func NewStatus(wd ...string) (Status, error) {
+	var (
+		repo *git.Repository
+		err  error
+	)
+	status := Status{}
+
+	if len(wd) > 0 {
+		repo, err = openRepository(wd[0])
+	} else {
+		repo, err = openRepository()
+	}
+	if err != nil {
+		return status, err
+	}
+	defer repo.Free()
+
+	opts := &git.StatusOptions{Show: git.StatusShowIndexAndWorkdir}
+	statusList, err := repo.StatusList(opts)
+	if err != nil {
+		return status, err
+	}
+	defer statusList.Free()
+
+	cnt, err := statusList.EntryCount()
+	if err != nil {
+		return status, err
+	}
+
+	for i := 0; i < cnt; i++ {
+		entry, err := statusList.ByIndex(i)
+		if err != nil {
+			return status, err
+		}
+		status.AddFile(entry)
+	}
+
+	return status, nil
+}
+
+func (s *Status) AddFile(e git.StatusEntry) {
+	var path string
+	if e.Status == git.StatusIndexNew ||
+		e.Status == git.StatusIndexModified ||
+		e.Status == git.StatusIndexDeleted ||
+		e.Status == git.StatusIndexRenamed ||
+		e.Status == git.StatusIndexTypeChange {
+		path = e.HeadToIndex.NewFile.Path
+	} else {
+		path = e.IndexToWorkdir.NewFile.Path
+	}
+	s.Files = append(s.Files, FileStatus{Path: path, Status: e.Status})
+}
+
+func (s *Status) HasStaged() bool {
+	for _, f := range s.Files {
+		if f.InStaging() {
+			return true
+		}
+	}
+	return false
+}
+
+func (s *Status) IsModified(path string, staging bool) bool {
+	for _, f := range s.Files {
+		if path == f.Path && f.InStaging() == staging {
+			return f.IsModified()
+		}
+	}
+	return false
+}
+
+func (s *Status) IsTracked(path string) bool {
+	for _, f := range s.Files {
+		if path == f.Path {
+			return f.IsTracked()
+		}
+	}
+	return false
+}
+
+type FileStatus struct {
+	Status git.Status
+	Path   string
+}
+
+func (f FileStatus) InStaging() bool {
+	return f.Status == git.StatusIndexNew ||
+		f.Status == git.StatusIndexModified ||
+		f.Status == git.StatusIndexDeleted ||
+		f.Status == git.StatusIndexRenamed ||
+		f.Status == git.StatusIndexTypeChange
+}
+
+func (f FileStatus) InWorking() bool {
+	return f.Status == git.StatusWtModified ||
+		f.Status == git.StatusWtDeleted ||
+		f.Status == git.StatusWtRenamed ||
+		f.Status == git.StatusWtTypeChange
+}
+
+func (f FileStatus) IsTracked() bool {
+	return f.Status != git.StatusIgnored &&
+		f.Status != git.StatusWtNew
+}
+
+func (f FileStatus) IsModified() bool {
+	return f.InStaging() || f.InWorking()
 }

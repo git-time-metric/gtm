@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"os"
 	"regexp"
-	"strconv"
 
 	"edgeg.io/gtm/report"
 	"edgeg.io/gtm/scm"
@@ -71,7 +70,7 @@ func (r ReportCmd) Run(args []string) int {
 		}
 	} else {
 		if len(reportFlags.Args()) == 0 {
-			commits, err = scm.GitLogSHA1s([]string{"-n", strconv.Itoa(*limit)})
+			commits, err = scm.CommitIDs(*limit)
 			if err != nil {
 				fmt.Println(err)
 				return 1

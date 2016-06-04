@@ -65,7 +65,7 @@ func TestProcess(t *testing.T) {
 	cmd = exec.Command("git", "notes", "--ref", project.NoteNameSpace, "show")
 	b, err = cmd.Output()
 	if err != nil {
-		t.Fatalf("Unable to run git notes, %s", string(b))
+		t.Fatalf("Unable to run git notes, %s, %s", string(b), err)
 	}
 
 	want := []string{`total:300.*`, `event.go:280.*,m`, `event_test.go:20.*,m`}
