@@ -1,0 +1,5 @@
+[ver:1,total:1200]
+scm/git.go:1046,1465473600:386,1465477200:660,m
+project/project.go:74,1465473600:74,m
+.git/COMMIT_EDITMSG:60,1465477200:60,r
+main.go:20,1465473600:20,r
