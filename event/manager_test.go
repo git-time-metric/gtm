@@ -8,7 +8,6 @@ import (
 	"path"
 	"path/filepath"
 	"reflect"
-	"runtime"
 	"strings"
 	"testing"
 	"time"
@@ -109,12 +108,6 @@ func TestSave(t *testing.T) {
 }
 
 func TestProcess(t *testing.T) {
-	if runtime.GOOS == "windows" {
-		// TODO: fix this, exec.Command("cp", "-r", fixturePath, rootPath) is not compatible with Windows
-		fmt.Println("Skipping TestSweep, not compatible with Windows")
-		return
-	}
-
 	var (
 		rootPath       string
 		wd             string

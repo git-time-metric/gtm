@@ -7,19 +7,12 @@ import (
 	"os/exec"
 	"path"
 	"regexp"
-	"runtime"
 	"testing"
 
 	"edgeg.io/gtm/project"
 )
 
 func TestProcess(t *testing.T) {
-	if runtime.GOOS == "windows" {
-		// TODO: fix this, exec.Command("cp", path.Join(fixturePath, f.Name()), gtmPath) is not compatible with Windows
-		fmt.Println("Skipping TestSweep, not compatible with Windows")
-		return
-	}
-
 	rootPath, _, f1 := processSetup(t)
 	defer f1()
 

@@ -199,11 +199,8 @@ func HeadCommit(wd ...string) (Commit, error) {
 func CreateNote(noteTxt string, nameSpace string, wd ...string) error {
 	var (
 		repo *git.Repository
+		err  error
 	)
-	commit, err := HeadCommit()
-	if err != nil {
-		return err
-	}
 
 	if len(wd) > 0 {
 		repo, err = openRepository(wd[0])
@@ -215,13 +212,18 @@ func CreateNote(noteTxt string, nameSpace string, wd ...string) error {
 	}
 	defer repo.Free()
 
-	sig := &git.Signature{
-		Name:  commit.Author,
-		Email: commit.Email,
-		When:  commit.When,
+	headCommit, err := lookupHeadCommit(repo)
+	if err != nil {
+		return err
 	}
 
-	_, err = repo.Notes.Create("refs/notes/"+nameSpace, sig, sig, commit.OID, noteTxt, false)
+	sig := &git.Signature{
+		Name:  headCommit.Author().Name,
+		Email: headCommit.Author().Email,
+		When:  headCommit.Author().When,
+	}
+
+	_, err = repo.Notes.Create("refs/notes/"+nameSpace, sig, sig, headCommit.Id(), noteTxt, false)
 	if err != nil {
 		return err
 	}
