@@ -1,0 +1,55 @@
+{
+	"version": 0,
+	"dependencies": [
+		{
+			"importpath": "github.com/armon/go-radix",
+			"repository": "https://github.com/armon/go-radix",
+			"vcs": "git",
+			"revision": "4239b77079c7b5d1243b7b4736304ce8ddb6f0f2",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/bgentry/speakeasy",
+			"repository": "https://github.com/bgentry/speakeasy",
+			"vcs": "git",
+			"revision": "e1439544d8ecd0f3e9373a636d447668096a8f81",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/mattn/go-isatty",
+			"repository": "https://github.com/mattn/go-isatty",
+			"vcs": "git",
+			"revision": "56b76bdf51f7708750eac80fa38b952bb9f32639",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/mitchellh/cli",
+			"repository": "https://github.com/mitchellh/cli",
+			"vcs": "git",
+			"revision": "168daae10d6ff81b8b1201b0a4c9607d7e9b82e3",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "golang.org/x/crypto/ssh/terminal",
+			"repository": "https://go.googlesource.com/crypto",
+			"vcs": "git",
+			"revision": "77f4136a99ffb5ecdbdd0226bd5cb146cf56bc0e",
+			"branch": "master",
+			"path": "/ssh/terminal",
+			"notests": true
+		},
+		{
+			"importpath": "golang.org/x/sys/unix",
+			"repository": "https://go.googlesource.com/sys",
+			"vcs": "git",
+			"revision": "b44883b474ffefa37335017174e397412b633a4f",
+			"branch": "master",
+			"path": "/unix",
+			"notests": true
+		}
+	]
+}

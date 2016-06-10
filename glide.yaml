@@ -1,3 +1,0 @@
-package: edgeg.io/gtm
-import:
-- package: github.com/mitchellh/cli
