@@ -7,19 +7,12 @@ import (
 	"os/exec"
 	"path"
 	"regexp"
-	"runtime"
 	"testing"
 
 	"edgeg.io/gtm/project"
 )
 
 func TestProcess(t *testing.T) {
-	if runtime.GOOS == "windows" {
-		// TODO: fix this, exec.Command("cp", path.Join(fixturePath, f.Name()), gtmPath) is not compatible with Windows
-		fmt.Println("Skipping TestSweep, not compatible with Windows")
-		return
-	}
-
 	rootPath, _, f1 := processSetup(t)
 	defer f1()
 
@@ -65,7 +58,7 @@ func TestProcess(t *testing.T) {
 	cmd = exec.Command("git", "notes", "--ref", project.NoteNameSpace, "show")
 	b, err = cmd.Output()
 	if err != nil {
-		t.Fatalf("Unable to run git notes, %s", string(b))
+		t.Fatalf("Unable to run git notes, %s, %s", string(b), err)
 	}
 
 	want := []string{`total:300.*`, `event.go:280.*,m`, `event_test.go:20.*,m`}

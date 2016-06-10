@@ -21,7 +21,7 @@ const (
 	commitsTpl string = `
 {{ $headerFormat := .HeaderFormat }}
 {{- range $_, $note := .Notes }}
-	{{- printf $headerFormat $note.Hash }} {{ printf $headerFormat $note.Subject }}
+	{{- printf $headerFormat $note.Hash }} {{ printf $headerFormat $note.Subject }}{{- printf "\n" }}
 	{{- $note.Date }} {{ $note.Author }} {{- printf "\n" }}
 	{{- range $i, $f := .Note.Files }}
 		{{- FormatDuration $f.TimeSpent | printf "\n%14s" }}  [{{ $f.Status }}] {{$f.SourceFile}}
@@ -42,7 +42,7 @@ const (
 	commitTotalsTpl string = `
 {{ $headerFormat := .HeaderFormat }}
 {{- range $_, $note := .Notes }}
-	{{- printf $headerFormat $note.Hash }} {{ printf $headerFormat $note.Subject }}
+	{{- printf $headerFormat $note.Hash }} {{ printf $headerFormat $note.Subject }}{{- printf "\n" }}
 	{{- $note.Date }} {{ $note.Author }}  {{if len .Note.Files }}{{ FormatDuration .Note.Total }}{{ end }}
 	{{- print "\n" }}
 {{ end }}`

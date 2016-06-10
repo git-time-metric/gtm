@@ -13,30 +13,37 @@ import (
 
 func retrieveNotes(commits []string) commitNoteDetails {
 	notes := commitNoteDetails{}
+
 	for _, c := range commits {
-		if len(c) > 7 {
-			c = c[:7]
-		}
-		gitFlds, err := scm.GitLog(c)
+
+		n, err := scm.ReadNote(c, project.NoteNameSpace)
 		if err != nil {
-			notes = append(notes, commitNoteDetail{Hash: c, Subject: "Invalid sha1\n", Note: note.CommitNote{}})
+			notes = append(notes, commitNoteDetail{})
 			continue
 		}
-		noteText, err := scm.GitNote(c, project.NoteNameSpace)
+
+		when := n.When.Format("Mon Jan 02 15:04:05 2006 MST")
+
+		var commitNote note.CommitNote
+		commitNote, err = note.UnMarshal(n.Note)
 		if err != nil {
-			notes = append(
-				notes,
-				commitNoteDetail{Author: gitFlds[0], Date: gitFlds[1], Hash: gitFlds[2], Subject: gitFlds[3], Note: note.CommitNote{}})
-			continue
+			project.Log("Error unmarshalling note \n\n%s \n\n%s", n.Note, err)
+			commitNote = note.CommitNote{}
 		}
-		commitNote, err := note.UnMarshal(noteText)
-		if err != nil {
-			notes = append(
-				notes,
-				commitNoteDetail{Author: gitFlds[0], Date: gitFlds[1], Hash: gitFlds[2], Subject: gitFlds[3], Note: note.CommitNote{}})
-			continue
+
+		id := n.ID
+		if len(id) > 7 {
+			id = id[:7]
 		}
-		notes = append(notes, commitNoteDetail{Author: gitFlds[0], Date: gitFlds[1], Hash: gitFlds[2], Subject: gitFlds[3], Note: commitNote})
+
+		notes = append(notes,
+			commitNoteDetail{
+				Author:  n.Author,
+				Date:    when,
+				Hash:    id,
+				Subject: n.Summary,
+				Note:    commitNote,
+			})
 	}
 	return notes
 }

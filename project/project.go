@@ -67,15 +67,15 @@ func Initialize() (string, error) {
 		}
 	}
 
-	if err := scm.GitSetHooks(GitHooks); err != nil {
+	if err := scm.SetHooks(GitHooks); err != nil {
 		return "", err
 	}
 
-	if err := scm.GitConfig(GitConfig); err != nil {
+	if err := scm.Config(GitConfig); err != nil {
 		return "", err
 	}
 
-	if err := scm.GitIgnore(GitIgnore); err != nil {
+	if err := scm.Ignore(GitIgnore); err != nil {
 		return "", err
 	}
 
@@ -113,11 +113,15 @@ func Initialize() (string, error) {
 // Note - the function is declared as a variable to allow for mocking during testing.
 //
 var Paths = func(path ...string) (string, string, error) {
-	p := ""
+	var (
+		rootPath string
+		err      error
+	)
 	if len(path) > 0 {
-		p = path[0]
+		rootPath, err = scm.RootPath(path[0])
+	} else {
+		rootPath, err = scm.RootPath()
 	}
-	rootPath, err := scm.GitRootPath(p)
 	if err != nil {
 		return "", "", ErrNotInitialized
 	}

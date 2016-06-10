@@ -71,7 +71,6 @@ type FileMetric struct {
 	Updated    bool // Updated signifies if we need to save the metric file
 	SourceFile string
 	TimeSpent  int
-	GitTracked bool
 	Timeline   map[int64]int
 }
 
@@ -105,12 +104,7 @@ func (a FileMetricByTime) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a FileMetricByTime) Less(i, j int) bool { return a[i].TimeSpent < a[j].TimeSpent }
 
 func newFileMetric(f string, t int, updated bool, timeline map[int64]int) (FileMetric, error) {
-	tracked, err := scm.GitTracked(f)
-	if err != nil {
-		return FileMetric{}, err
-	}
-
-	return FileMetric{SourceFile: f, TimeSpent: t, Updated: updated, GitTracked: tracked, Timeline: timeline}, nil
+	return FileMetric{SourceFile: f, TimeSpent: t, Updated: updated, Timeline: timeline}, nil
 }
 
 func marshalFileMetric(fm FileMetric) []byte {
@@ -250,13 +244,12 @@ func buildCommitMaps(metricMap map[string]FileMetric) (map[string]FileMetric, ma
 	commitMap := map[string]FileMetric{}
 	readonlyMap := map[string]FileMetric{}
 
-	m, err := scm.GitLastLog()
+	commit, err := scm.HeadCommit()
 	if err != nil {
 		return commitMap, readonlyMap, err
 	}
 
-	_, _, commitFiles := scm.GitParseMessage(m)
-	for _, f := range commitFiles {
+	for _, f := range commit.Files {
 		fileID := getFileID(f)
 		if _, ok := metricMap[fileID]; !ok {
 			continue
@@ -267,13 +260,12 @@ func buildCommitMaps(metricMap map[string]FileMetric) (map[string]FileMetric, ma
 	for fileID, fm := range metricMap {
 		// Look at files not in commit map
 		if _, ok := commitMap[fileID]; !ok {
-
-			modified, err := scm.GitModified(fm.SourceFile, false)
+			status, err := scm.NewStatus()
 			if err != nil {
 				return commitMap, readonlyMap, err
 			}
 
-			if !modified {
+			if !status.IsModified(fm.SourceFile, false) {
 				readonlyMap[fileID] = fm
 			}
 		}
@@ -317,34 +309,23 @@ func buildInterimCommitMaps(metricMap map[string]FileMetric) (map[string]FileMet
 	commitMap := map[string]FileMetric{}
 	readonlyMap := map[string]FileMetric{}
 
-	hasStaged, err := scm.GitHasStaged()
+	status, err := scm.NewStatus()
 	if err != nil {
 		return commitMap, readonlyMap, err
 	}
 
 	for fileID, fm := range metricMap {
-		if hasStaged {
-			modified, err := scm.GitModified(fm.SourceFile, true)
-			if err != nil {
-				return commitMap, readonlyMap, err
-			}
-			if modified {
+		if status.HasStaged() {
+			if status.IsModified(fm.SourceFile, true) {
 				commitMap[fileID] = fm
 			} else {
-				modifiedInWorking, err := scm.GitModified(fm.SourceFile, false)
-				if err != nil {
-					return commitMap, readonlyMap, err
-				}
-				if !modifiedInWorking {
+				// when in staging, include any files in working that are not modified
+				if !status.IsModified(fm.SourceFile, false) {
 					readonlyMap[fileID] = fm
 				}
 			}
 		} else {
-			modified, err := scm.GitModified(fm.SourceFile, false)
-			if err != nil {
-				return commitMap, readonlyMap, err
-			}
-			if modified {
+			if status.IsModified(fm.SourceFile, false) {
 				commitMap[fileID] = fm
 			} else {
 				readonlyMap[fileID] = fm

@@ -64,7 +64,7 @@ func Process(interim bool) (note.CommitNote, error) {
 			return note.CommitNote{}, err
 		}
 
-		if err := scm.GitAddNote(note.Marshal(commitNote), project.NoteNameSpace); err != nil {
+		if err := scm.CreateNote(note.Marshal(commitNote), project.NoteNameSpace); err != nil {
 			return note.CommitNote{}, err
 		}
 		if err := saveAndPurgeMetrics(gtmPath, metricMap, commitMap, readonlyMap); err != nil {
