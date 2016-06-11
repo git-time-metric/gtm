@@ -18,15 +18,6 @@
 			"notests": true
 		},
 		{
-			"importpath": "github.com/libgit2/git2go",
-			"repository": "https://github.com/libgit2/git2go",
-			"vcs": "git",
-			"revision": "9163ca7d5072114975bed794226dd90d37d856b4",
-			"branch": "next",
-			"notests": true,
-			"allfiles": true
-		},
-		{
 			"importpath": "github.com/mattn/go-isatty",
 			"repository": "https://github.com/mattn/go-isatty",
 			"vcs": "git",
@@ -55,7 +46,7 @@
 			"importpath": "golang.org/x/sys/unix",
 			"repository": "https://go.googlesource.com/sys",
 			"vcs": "git",
-			"revision": "b44883b474ffefa37335017174e397412b633a4f",
+			"revision": "7f918dd405547ecb864d14a8ecbbfe205b5f930f",
 			"branch": "master",
 			"path": "/unix",
 			"notests": true
