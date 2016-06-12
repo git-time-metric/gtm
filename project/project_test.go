@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
-	"path"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -46,7 +46,7 @@ func TestInit(t *testing.T) {
 	}
 
 	for hook, command := range GitHooks {
-		fp := path.Join(d, ".git", "hooks", hook)
+		fp := filepath.Join(d, ".git", "hooks", hook)
 		if _, err := os.Stat(fp); os.IsNotExist(err) {
 			t.Errorf("Initialize(), want file post-commit, got %s", err)
 		}
@@ -70,7 +70,7 @@ func TestInit(t *testing.T) {
 		}
 	}
 
-	fp := path.Join(d, ".gitignore")
+	fp := filepath.Join(d, ".gitignore")
 	if _, err := os.Stat(fp); os.IsNotExist(err) {
 		t.Errorf("Initialize(), want file .gitignore, got %s", err)
 	}

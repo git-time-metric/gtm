@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"path"
 	"path/filepath"
 	"strings"
 	"time"
@@ -31,11 +30,7 @@ func RootPath(path ...string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	p = strings.TrimSpace(strings.Replace(p, "/.git/", "", 1))
-	if p == "" {
-		return "", fmt.Errorf("Git repository not found in %s", wd)
-	}
-	return p, nil
+	return filepath.ToSlash(filepath.Dir(filepath.Dir(p))), nil
 }
 
 func CommitIDs(limit int, wd ...string) ([]string, error) {
@@ -151,7 +146,7 @@ func HeadCommit(wd ...string) (Commit, error) {
 		err = diff.ForEach(
 			func(file git.DiffDelta, progress float64) (git.DiffForEachHunkCallback, error) {
 
-				files = append(files, file.NewFile.Path)
+				files = append(files, filepath.ToSlash(file.NewFile.Path))
 
 				return func(hunk git.DiffHunk) (git.DiffForEachLineCallback, error) {
 					return func(line git.DiffLine) error {
@@ -171,7 +166,7 @@ func HeadCommit(wd ...string) (Commit, error) {
 			func(s string, entry *git.TreeEntry) int {
 				switch entry.Filemode {
 				case git.FilemodeTree:
-					path = entry.Name
+					path = filepath.ToSlash(entry.Name)
 				default:
 					files = append(files, filepath.Join(path, entry.Name))
 				}
@@ -340,7 +335,7 @@ func SetHooks(hooks map[string]string, wd ...string) error {
 				return err
 			}
 		}
-		fp := path.Join(p, ".git", "hooks", hook)
+		fp := filepath.Join(p, ".git", "hooks", hook)
 
 		var output string
 		if _, err := os.Stat(fp); !os.IsNotExist(err) {
@@ -386,7 +381,7 @@ func Ignore(ignore string, wd ...string) error {
 			return err
 		}
 	}
-	fp := path.Join(p, ".gitignore")
+	fp := filepath.Join(p, ".gitignore")
 
 	var output string
 	if _, err := os.Stat(fp); !os.IsNotExist(err) {
@@ -506,9 +501,9 @@ func (s *Status) AddFile(e git.StatusEntry) {
 		e.Status == git.StatusIndexDeleted ||
 		e.Status == git.StatusIndexRenamed ||
 		e.Status == git.StatusIndexTypeChange {
-		path = e.HeadToIndex.NewFile.Path
+		path = filepath.ToSlash(e.HeadToIndex.NewFile.Path)
 	} else {
-		path = e.IndexToWorkdir.NewFile.Path
+		path = filepath.ToSlash(e.IndexToWorkdir.NewFile.Path)
 	}
 	s.Files = append(s.Files, FileStatus{Path: path, Status: e.Status})
 }
@@ -523,6 +518,7 @@ func (s *Status) HasStaged() bool {
 }
 
 func (s *Status) IsModified(path string, staging bool) bool {
+	path = filepath.ToSlash(path)
 	for _, f := range s.Files {
 		if path == f.Path && f.InStaging() == staging {
 			return f.IsModified()
@@ -532,6 +528,7 @@ func (s *Status) IsModified(path string, staging bool) bool {
 }
 
 func (s *Status) IsTracked(path string) bool {
+	path = filepath.ToSlash(path)
 	for _, f := range s.Files {
 		if path == f.Path {
 			return f.IsTracked()

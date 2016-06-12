@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
-	"path"
 	"path/filepath"
 	"reflect"
 	"strings"
@@ -35,15 +34,15 @@ func TestSave(t *testing.T) {
 			fmt.Printf("Error removing %s dir, %s", rootPath, err)
 		}
 	}()
-	gtmPath = path.Join(rootPath, project.GTMDirectory)
+	gtmPath = filepath.Join(rootPath, project.GTMDirectory)
 	if err = os.MkdirAll(gtmPath, 0700); err != nil {
 		t.Fatalf("Unable to create tempory directory %s, %s", gtmPath, err)
 	}
-	sourcePath = path.Join(rootPath, "src")
+	sourcePath = filepath.Join(rootPath, "src")
 	if err = os.MkdirAll(sourcePath, 0700); err != nil {
 		t.Fatalf("Unable to create tempory directory %s, %s", sourcePath, err)
 	}
-	sourceFile = path.Join(sourcePath, "source.go")
+	sourceFile = filepath.Join(sourcePath, "source.go")
 	if err = ioutil.WriteFile(sourceFile, []byte{}, 0600); err != nil {
 		t.Fatalf("Unable to create tempory file %s, %s", sourceFile, err)
 	}
@@ -60,13 +59,13 @@ func TestSave(t *testing.T) {
 
 	// Replace project.Paths with a mock
 	savePaths := project.Paths
-	project.Paths = func(path ...string) (string, string, error) {
+	project.Paths = func(filepath ...string) (string, string, error) {
 		return rootPath, gtmPath, nil
 	}
 	defer func() { project.Paths = savePaths }()
 
 	// Call Save with an invalid source file
-	if err = Record(path.Join(sourcePath, "doesnotexist.go")); err != project.ErrFileNotFound {
+	if err = Record(filepath.Join(sourcePath, "doesnotexist.go")); err != project.ErrFileNotFound {
 		t.Errorf("Save(%s), want error %s, got %s", sourceFile, project.ErrFileNotFound, err)
 	}
 
@@ -91,7 +90,7 @@ func TestSave(t *testing.T) {
 	}
 
 	// Read the event file
-	b, err = ioutil.ReadFile(path.Join(gtmPath, files[0].Name()))
+	b, err = ioutil.ReadFile(filepath.Join(gtmPath, files[0].Name()))
 	eventContent := string(b)
 	if err != nil {
 		t.Fatalf("Save(%s), unable to read event file %s, %s", sourceFile, files[0].Name(), err)
@@ -139,13 +138,13 @@ func TestProcess(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Sweep(), error getting current working directory, %s", err)
 	}
-	eventFixtures = path.Join(wd, "test-fixtures", "gtm")
+	eventFixtures = filepath.Join(wd, "test-fixtures", "gtm")
 	cmd := exec.Command("cp", "-rp", eventFixtures, rootPath)
 	_, err = cmd.Output()
 	if err != nil {
 		t.Fatalf("Unable to copy %s directory to %s", eventFixtures, rootPath)
 	}
-	sourceFixtures = path.Join(wd, "test-fixtures", "event")
+	sourceFixtures = filepath.Join(wd, "test-fixtures", "event")
 	cmd = exec.Command("cp", "-rp", sourceFixtures, rootPath)
 	_, err = cmd.Output()
 	if err != nil {
@@ -159,7 +158,7 @@ func TestProcess(t *testing.T) {
 	)
 
 	// sweep files with dry-run set to true
-	gtmPath = path.Join(rootPath, "gtm")
+	gtmPath = filepath.Join(rootPath, "gtm")
 	got, err = Process(rootPath, gtmPath, true)
 	if err != nil {
 		t.Fatalf("Sweep(%s, true), want error nil, got %s", gtmPath, err)

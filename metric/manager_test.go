@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
-	"path"
+	"path/filepath"
 	"regexp"
 	"testing"
 
@@ -52,7 +52,7 @@ func TestProcess(t *testing.T) {
 
 	_, err = Process(false)
 	if err != nil {
-		t.Fatalf("Process(false, false) - test full commit, want error nil, got %s", err)
+		t.Fatalf("Process(false) - test full commit, want error nil, got %s", err)
 	}
 
 	cmd = exec.Command("git", "notes", "--ref", project.NoteNameSpace, "show")
@@ -68,7 +68,7 @@ func TestProcess(t *testing.T) {
 			t.Fatalf("Unable to run regexp.MatchString(%s, %s), %s", s, string(b), err)
 		}
 		if !matched {
-			t.Errorf("Process(false, false) - test full commit, \nwant:\n%s,\ngot:\n%s", s, string(b))
+			t.Errorf("Process(false) - test full commit, \nwant:\n%s,\ngot:\n%s", s, string(b))
 		}
 	}
 
@@ -105,7 +105,7 @@ func TestProcess(t *testing.T) {
 
 	_, err = Process(false)
 	if err != nil {
-		t.Fatalf("Process(false, false), want error nil, got %s", err)
+		t.Fatalf("Process(false), want error nil, got %s", err)
 	}
 
 	cmd = exec.Command("git", "notes", "--ref", project.NoteNameSpace, "show")
@@ -121,13 +121,13 @@ func TestProcess(t *testing.T) {
 			t.Fatalf("Unable to run regexp.MatchString(%s, %s), %s", s, string(b), err)
 		}
 		if !matched {
-			t.Errorf("Process(false, false) - test partial commit, \nwant:\n%s,\ngot:\n%s", s, string(b))
+			t.Errorf("Process(false) - test partial commit, \nwant:\n%s,\ngot:\n%s", s, string(b))
 		}
 
 	}
-	fp := path.Join(gtmPath, "6f53bc90ba625b5afaac80b422b44f1f609d6367.metric")
+	fp := filepath.Join(gtmPath, "6f53bc90ba625b5afaac80b422b44f1f609d6367.metric")
 	if _, err := os.Stat(fp); !os.IsNotExist(err) {
-		t.Errorf("Process(false, false) - test partial commit, want file %s does not exist, got file exists true", fp)
+		t.Errorf("Process(false) - test partial commit, want file %s does not exist, got file exists true", fp)
 	}
 
 	// Test Process by committing a tracked file that has been modified and one tracked file that is unmodified
@@ -175,7 +175,7 @@ func TestProcess(t *testing.T) {
 
 	_, err = Process(false)
 	if err != nil {
-		t.Fatalf("Process(false, false) - test commit with readonly, want error nil, got %s", err)
+		t.Fatalf("Process(false) - test commit with readonly, want error nil, got %s", err)
 	}
 
 	cmd = exec.Command("git", "notes", "--ref", project.NoteNameSpace, "show")
@@ -191,7 +191,7 @@ func TestProcess(t *testing.T) {
 			t.Fatalf("Unable to run regexp.MatchString(%s, %s), %s", s, string(b), err)
 		}
 		if !matched {
-			t.Errorf("Process(false, false) - test commit with readonly, \nwant:\n%s,\ngot:\n%s", s, string(b))
+			t.Errorf("Process(false) - test commit with readonly, \nwant:\n%s,\ngot:\n%s", s, string(b))
 		}
 
 	}
@@ -211,19 +211,19 @@ func processSetup(t *testing.T) (string, string, func()) {
 	if err != nil {
 		t.Fatalf("Unable to create tempory directory %s, %s", rootPath, err)
 	}
-	gtmPath = path.Join(rootPath, project.GTMDirectory)
+	gtmPath = filepath.Join(rootPath, project.GTMDirectory)
 	if err = os.MkdirAll(gtmPath, 0700); err != nil {
 		t.Fatalf("Unable to create tempory directory %s, %s", gtmPath, err)
 	}
-	sourcePath = path.Join(rootPath, "event")
+	sourcePath = filepath.Join(rootPath, "event")
 	if err = os.MkdirAll(sourcePath, 0700); err != nil {
 		t.Fatalf("Unable to create tempory directory %s, %s", sourcePath, err)
 	}
-	sourceFile = path.Join(sourcePath, "event.go")
+	sourceFile = filepath.Join(sourcePath, "event.go")
 	if err = ioutil.WriteFile(sourceFile, []byte{}, 0600); err != nil {
 		t.Fatalf("Unable to create tempory file %s, %s", sourceFile, err)
 	}
-	sourceFile = path.Join(sourcePath, "event_test.go")
+	sourceFile = filepath.Join(sourcePath, "event_test.go")
 	if err = ioutil.WriteFile(sourceFile, []byte{}, 0600); err != nil {
 		t.Fatalf("Unable to create tempory file %s, %s", sourceFile, err)
 	}
@@ -246,10 +246,10 @@ func processSetup(t *testing.T) (string, string, func()) {
 	if err != nil {
 		t.Fatalf("Sweep(), error getting current working directory, %s", err)
 	}
-	fixturePath = path.Join(wd, "../event/test-fixtures/gtm")
+	fixturePath = filepath.Join(wd, "../event/test-fixtures/gtm")
 	files, err = ioutil.ReadDir(fixturePath)
 	for _, f := range files {
-		cmd = exec.Command("cp", path.Join(fixturePath, f.Name()), gtmPath)
+		cmd = exec.Command("cp", filepath.Join(fixturePath, f.Name()), gtmPath)
 		_, err = cmd.Output()
 		if err != nil {
 			t.Fatalf("Unable to copy %s directory to %s", fixturePath, gtmPath)

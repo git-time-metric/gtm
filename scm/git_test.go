@@ -255,7 +255,7 @@ func seedTestRepo(t *testing.T, repo *git.Repository) (*git.Oid, *git.Oid) {
 }
 
 func pathInRepo(repo *git.Repository, name string) string {
-	return filepath.Join(filepath.Dir(filepath.Dir(repo.Path())), name)
+	return filepath.ToSlash(filepath.Join(filepath.Dir(filepath.Dir(repo.Path())), name))
 }
 
 func updateReadmeInStaging(t *testing.T, repo *git.Repository, content string) {
