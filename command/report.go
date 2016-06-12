@@ -10,6 +10,7 @@ import (
 	"edgeg.io/gtm/report"
 	"edgeg.io/gtm/scm"
 	"edgeg.io/gtm/util"
+	"github.com/mattn/go-isatty"
 	"github.com/mitchellh/cli"
 )
 
@@ -40,7 +41,7 @@ func (r ReportCmd) Run(args []string) int {
 		"Specify report format [commits|totals|files|timeline]")
 	limit := reportFlags.Int(
 		"n",
-		1,
+		0,
 		fmt.Sprintf("Limit number of log enteries"))
 	totalOnly := reportFlags.Bool(
 		"total-only",
@@ -62,26 +63,37 @@ func (r ReportCmd) Run(args []string) int {
 		err     error
 	)
 
-	stat, _ := os.Stdin.Stat()
-	if (stat.Mode() & os.ModeCharDevice) == 0 {
+	sha1Regex := regexp.MustCompile(`\A([0-9a-f]{6,40})\z`)
+
+	for _, a := range reportFlags.Args() {
+		if !sha1Regex.MatchString(a) {
+			fmt.Printf("\nNot a valid commit sha1 %s\n", a)
+			return 1
+		}
+		commits = append(commits, a)
+	}
+
+	// if running from within a MINGW console isatty does not work
+	// https://github.com/mintty/mintty/issues/482
+	if !isatty.IsTerminal(os.Stdin.Fd()) && len(commits) == 0 && *limit == 0 {
 		scanner := bufio.NewScanner(os.Stdin)
 		for scanner.Scan() {
+			if !sha1Regex.MatchString(scanner.Text()) {
+				fmt.Printf("\nNot a valid commit sha1 %s\n", scanner.Text())
+				return 1
+			}
 			commits = append(commits, scanner.Text())
 		}
 	} else {
-		if len(reportFlags.Args()) == 0 {
+		if len(commits) == 0 {
+			if *limit == 0 {
+				*limit = 1
+			}
 			commits, err = scm.CommitIDs(*limit)
 			if err != nil {
 				fmt.Println(err)
 				return 1
 			}
-		}
-		for _, a := range reportFlags.Args() {
-			if match, err := regexp.MatchString("[-|.|,|:|*]", a); err != nil || match {
-				fmt.Printf("\nNot a valid commit sha1 %s\n", a)
-				return 1
-			}
-			commits = append(commits, a)
 		}
 	}
 
