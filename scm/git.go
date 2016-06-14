@@ -109,7 +109,7 @@ func HeadCommit(wd ...string) (Commit, error) {
 	}
 	defer repo.Free()
 
-	headCommit, err := lookupHeadCommit(repo)
+	headCommit, err := LookupHeadCommit(repo)
 	if err != nil {
 		if err == ErrHeadUnborn {
 			return commit, nil
@@ -207,7 +207,7 @@ func CreateNote(noteTxt string, nameSpace string, wd ...string) error {
 	}
 	defer repo.Free()
 
-	headCommit, err := lookupHeadCommit(repo)
+	headCommit, err := LookupHeadCommit(repo)
 	if err != nil {
 		return err
 	}
@@ -426,7 +426,7 @@ var (
 	ErrHeadUnborn = errors.New("Head commit not found")
 )
 
-func lookupHeadCommit(repo *git.Repository) (*git.Commit, error) {
+func LookupHeadCommit(repo *git.Repository) (*git.Commit, error) {
 
 	headUnborn, err := repo.IsHeadUnborn()
 	if err != nil {

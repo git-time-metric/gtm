@@ -1,265 +1,129 @@
 package metric
 
 import (
-	"fmt"
-	"io/ioutil"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"regexp"
 	"testing"
 
-	"edgeg.io/gtm/project"
+	"edgeg.io/gtm/scm"
+	"edgeg.io/gtm/util"
 )
 
-func TestProcess(t *testing.T) {
-	rootPath, _, f1 := processSetup(t)
-	defer f1()
+func TestFullCommit(t *testing.T) {
+	repo := util.NewTestRepo(t, false)
+	defer repo.Remove()
 
-	var (
-		cmd *exec.Cmd
-	)
+	curDir, err := os.Getwd()
+	util.CheckFatal(t, err)
+	defer os.Chdir(curDir)
 
-	// Test process with committing both git tracked files that have been modified
+	os.Chdir(repo.PathIn(""))
 
-	// chandge working directory and initialize git repo
-	savedCurDir, _ := os.Getwd()
-	defer func() {
-		if err := os.Chdir(savedCurDir); err != nil {
-			fmt.Printf("Unable to change working directory, %s", err)
-		}
-	}()
-	if err := os.Chdir(rootPath); err != nil {
-		t.Fatalf("Unable to change working directory, %s", err)
-	}
-	cmd = exec.Command("git", "init")
-	b, err := cmd.Output()
-	if err != nil {
-		t.Fatalf("Unable to initialize git repo, %s", string(b))
-	}
+	repo.SaveFile("event.go", "event", "")
+	repo.SaveFile("event_test.go", "event", "")
+	repo.SaveFile("1458496803.event", ".gtm", filepath.Join("event", "event.go"))
+	repo.SaveFile("1458496811.event", ".gtm", filepath.Join("event", "event_test.go"))
+	repo.SaveFile("1458496818.event", ".gtm", filepath.Join("event", "event.go"))
+	repo.SaveFile("1458496943.event", ".gtm", filepath.Join("event", "event.go"))
 
-	// commit source files to git repo
-	cmd = exec.Command("git", "add", "event/")
-	b, err = cmd.Output()
-	if err != nil {
-		t.Fatalf("Unable to run git add, %s", string(b))
-	}
-	cmd = exec.Command("git", "commit", "-m", "Initial commit")
-	b, err = cmd.Output()
-	if err != nil {
-		t.Fatalf("Unable to run git commit, %s", string(b))
-	}
+	treeId := repo.Stage("event/event.go", "event/event_test.go")
+	commitId := repo.Commit(treeId)
 
 	_, err = Process(false)
 	if err != nil {
 		t.Fatalf("Process(false) - test full commit, want error nil, got %s", err)
 	}
 
-	cmd = exec.Command("git", "notes", "--ref", project.NoteNameSpace, "show")
-	b, err = cmd.Output()
-	if err != nil {
-		t.Fatalf("Unable to run git notes, %s, %s", string(b), err)
-	}
+	n, err := scm.ReadNote(commitId.String(), "gtm-data")
+	util.CheckFatal(t, err)
 
 	want := []string{`total:300.*`, `event.go:280.*,m`, `event_test.go:20.*,m`}
 	for _, s := range want {
-		matched, err := regexp.MatchString(s, string(b))
-		if err != nil {
-			t.Fatalf("Unable to run regexp.MatchString(%s, %s), %s", s, string(b), err)
-		}
+		matched, err := regexp.MatchString(s, n.Note)
+		util.CheckFatal(t, err)
 		if !matched {
-			t.Errorf("Process(false) - test full commit, \nwant:\n%s,\ngot:\n%s", s, string(b))
-		}
-	}
-
-	// Test Process by committing a tracked file that has been modified and one untracked file that is not added/commited
-
-	// change back to saved current working directory and setup
-	if err := os.Chdir(savedCurDir); err != nil {
-		t.Fatalf("Unable to change working directory, %s", err)
-	}
-	rootPath, gtmPath, f2 := processSetup(t)
-	defer f2()
-
-	// chandge working directory and initialize git repo
-	if err := os.Chdir(rootPath); err != nil {
-		t.Fatalf("Unable to change working directory, %s", err)
-	}
-	cmd = exec.Command("git", "init")
-	b, err = cmd.Output()
-	if err != nil {
-		t.Fatalf("Unable to initialize git repo, %s", string(b))
-	}
-
-	// commit source files to git repo
-	cmd = exec.Command("git", "add", "event/event_test.go")
-	b, err = cmd.Output()
-	if err != nil {
-		t.Fatalf("Unable to run git add, %s", string(b))
-	}
-	cmd = exec.Command("git", "commit", "-m", "Initial commit")
-	b, err = cmd.Output()
-	if err != nil {
-		t.Fatalf("Unable to run git commit, %s", string(b))
-	}
-
-	_, err = Process(false)
-	if err != nil {
-		t.Fatalf("Process(false), want error nil, got %s", err)
-	}
-
-	cmd = exec.Command("git", "notes", "--ref", project.NoteNameSpace, "show")
-	b, err = cmd.Output()
-	if err != nil {
-		t.Fatalf("Unable to run git notes, %s", string(b))
-	}
-
-	want = []string{`total:300`, `event_test.go:20.*,m`}
-	for _, s := range want {
-		matched, err := regexp.MatchString(s, string(b))
-		if err != nil {
-			t.Fatalf("Unable to run regexp.MatchString(%s, %s), %s", s, string(b), err)
-		}
-		if !matched {
-			t.Errorf("Process(false) - test partial commit, \nwant:\n%s,\ngot:\n%s", s, string(b))
-		}
-
-	}
-	fp := filepath.Join(gtmPath, "6f53bc90ba625b5afaac80b422b44f1f609d6367.metric")
-	if _, err := os.Stat(fp); !os.IsNotExist(err) {
-		t.Errorf("Process(false) - test partial commit, want file %s does not exist, got file exists true", fp)
-	}
-
-	// Test Process by committing a tracked file that has been modified and one tracked file that is unmodified
-
-	// change back to saved current working directory and setup
-	if err := os.Chdir(savedCurDir); err != nil {
-		t.Fatalf("Unable to change working directory, %s", err)
-	}
-	rootPath, gtmPath, f3 := processSetup(t)
-	defer f3()
-
-	// chandge working directory and initialize git repo
-	if err := os.Chdir(rootPath); err != nil {
-		t.Fatalf("Unable to change working directory, %s", err)
-	}
-	cmd = exec.Command("git", "init")
-	b, err = cmd.Output()
-	if err != nil {
-		t.Fatalf("Unable to initialize git repo, %s", string(b))
-	}
-
-	// commit source files to git repo
-	cmd = exec.Command("git", "add", "event/event_test.go")
-	b, err = cmd.Output()
-	if err != nil {
-		t.Fatalf("Unable to run git add, %s", string(b))
-	}
-	cmd = exec.Command("git", "commit", "-m", "Initial commit")
-	b, err = cmd.Output()
-	if err != nil {
-		t.Fatalf("Unable to run git commit, %s", string(b))
-	}
-
-	// commit source files to git repo
-	cmd = exec.Command("git", "add", "event/event.go")
-	b, err = cmd.Output()
-	if err != nil {
-		t.Fatalf("Unable to run git add, %s", string(b))
-	}
-	cmd = exec.Command("git", "commit", "-m", "Second commit")
-	b, err = cmd.Output()
-	if err != nil {
-		t.Fatalf("Unable to run git commit, %s", string(b))
-	}
-
-	_, err = Process(false)
-	if err != nil {
-		t.Fatalf("Process(false) - test commit with readonly, want error nil, got %s", err)
-	}
-
-	cmd = exec.Command("git", "notes", "--ref", project.NoteNameSpace, "show")
-	b, err = cmd.Output()
-	if err != nil {
-		t.Fatalf("Unable to run git notes, %s", string(b))
-	}
-
-	want = []string{`total:300`, `event_test.go:20.*,r`, `event/event.go:280.*,m`}
-	for _, s := range want {
-		matched, err := regexp.MatchString(s, string(b))
-		if err != nil {
-			t.Fatalf("Unable to run regexp.MatchString(%s, %s), %s", s, string(b), err)
-		}
-		if !matched {
-			t.Errorf("Process(false) - test commit with readonly, \nwant:\n%s,\ngot:\n%s", s, string(b))
+			t.Errorf("Process(false) - test full commit, \nwant:\n%s,\ngot:\n%s", s, n.Note)
 		}
 
 	}
 }
 
-func processSetup(t *testing.T) (string, string, func()) {
-	var (
-		rootPath   string
-		gtmPath    string
-		sourcePath string
-		sourceFile string
-		err        error
-	)
+func TestPartialCommit(t *testing.T) {
+	repo := util.NewTestRepo(t, false)
+	defer repo.Remove()
 
-	// setup directories and source files
-	rootPath, err = ioutil.TempDir("", "gtm")
+	curDir, err := os.Getwd()
+	util.CheckFatal(t, err)
+	defer os.Chdir(curDir)
+
+	os.Chdir(repo.PathIn(""))
+
+	repo.SaveFile("event.go", "event", "")
+	repo.SaveFile("event_test.go", "event", "")
+	treeId := repo.Stage("event/event.go", "event/event_test.go")
+	commitId := repo.Commit(treeId)
+
+	repo.SaveFile("event_test.go", "event", "update")
+	repo.SaveFile("1458496803.event", ".gtm", filepath.Join("event", "event.go"))
+	repo.SaveFile("1458496811.event", ".gtm", filepath.Join("event", "event_test.go"))
+	repo.SaveFile("1458496818.event", ".gtm", filepath.Join("event", "event.go"))
+	repo.SaveFile("1458496943.event", ".gtm", filepath.Join("event", "event.go"))
+
+	treeId = repo.Stage("event/event_test.go")
+	commitId = repo.Commit(treeId)
+
+	_, err = Process(false)
 	if err != nil {
-		t.Fatalf("Unable to create tempory directory %s, %s", rootPath, err)
-	}
-	gtmPath = filepath.Join(rootPath, project.GTMDirectory)
-	if err = os.MkdirAll(gtmPath, 0700); err != nil {
-		t.Fatalf("Unable to create tempory directory %s, %s", gtmPath, err)
-	}
-	sourcePath = filepath.Join(rootPath, "event")
-	if err = os.MkdirAll(sourcePath, 0700); err != nil {
-		t.Fatalf("Unable to create tempory directory %s, %s", sourcePath, err)
-	}
-	sourceFile = filepath.Join(sourcePath, "event.go")
-	if err = ioutil.WriteFile(sourceFile, []byte{}, 0600); err != nil {
-		t.Fatalf("Unable to create tempory file %s, %s", sourceFile, err)
-	}
-	sourceFile = filepath.Join(sourcePath, "event_test.go")
-	if err = ioutil.WriteFile(sourceFile, []byte{}, 0600); err != nil {
-		t.Fatalf("Unable to create tempory file %s, %s", sourceFile, err)
+		t.Fatalf("Process(false) - test full commit, want error nil, got %s", err)
 	}
 
-	// replace project.Paths with a mock
-	savePaths := project.Paths
-	project.Paths = func(path ...string) (string, string, error) {
-		return rootPath, gtmPath, nil
-	}
+	n, err := scm.ReadNote(commitId.String(), "gtm-data")
+	util.CheckFatal(t, err)
 
-	var (
-		wd          string
-		fixturePath string
-		cmd         *exec.Cmd
-		files       []os.FileInfo
-	)
-
-	// copy fixtures
-	wd, err = os.Getwd()
-	if err != nil {
-		t.Fatalf("Sweep(), error getting current working directory, %s", err)
-	}
-	fixturePath = filepath.Join(wd, "../event/test-fixtures/gtm")
-	files, err = ioutil.ReadDir(fixturePath)
-	for _, f := range files {
-		cmd = exec.Command("cp", filepath.Join(fixturePath, f.Name()), gtmPath)
-		_, err = cmd.Output()
-		if err != nil {
-			t.Fatalf("Unable to copy %s directory to %s", fixturePath, gtmPath)
+	want := []string{`total:300`, `event_test.go:20.*,m`, `event.go:280.*,r`}
+	for _, s := range want {
+		matched, err := regexp.MatchString(s, n.Note)
+		util.CheckFatal(t, err)
+		if !matched {
+			t.Errorf("Process(false) - test partial commit, \nwant:\n%s,\ngot:\n%s", s, n.Note)
 		}
 	}
+}
 
-	return rootPath, gtmPath, func() {
-		project.Paths = savePaths
-		if err = os.RemoveAll(rootPath); err != nil {
-			fmt.Printf("Error removing %s dir, %s", rootPath, err)
-		}
+func TestInterim(t *testing.T) {
+	repo := util.NewTestRepo(t, false)
+	defer repo.Remove()
+
+	curDir, err := os.Getwd()
+	util.CheckFatal(t, err)
+	defer os.Chdir(curDir)
+
+	os.Chdir(repo.PathIn(""))
+
+	repo.SaveFile("event.go", "event", "")
+	repo.SaveFile("event_test.go", "event", "")
+	repo.SaveFile("1458496803.event", ".gtm", filepath.Join("event", "event.go"))
+	repo.SaveFile("1458496811.event", ".gtm", filepath.Join("event", "event_test.go"))
+	repo.SaveFile("1458496818.event", ".gtm", filepath.Join("event", "event.go"))
+	repo.SaveFile("1458496943.event", ".gtm", filepath.Join("event", "event.go"))
+
+	treeId := repo.Stage("event/event.go", "event/event_test.go")
+	commitId := repo.Commit(treeId)
+
+	commitNote, err := Process(true)
+	if err != nil {
+		t.Fatalf("Process(false) - test full commit, want error nil, got %s", err)
+	}
+
+	n, err := scm.ReadNote(commitId.String(), "gtm-data")
+	util.CheckFatal(t, err)
+
+	if n.Note != "" {
+		t.Errorf("Process(true) - test interm, notes is note blank, \n%s\n", n.Note)
+	}
+
+	if commitNote.Total() != 300 {
+		t.Errorf("Process(true) - test interm, want total 300, got %d", commitNote.Total())
 	}
 }

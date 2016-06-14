@@ -183,6 +183,6 @@ func TestStatus(t *testing.T) {
 		t.Error("status.HasStaged() want \"true\" got \"false\"")
 	}
 	if len(status.Files) != 1 {
-		t.Errorf("len(status.Files) want \"1\" got \"%s\"", len(status.Files))
+		t.Errorf("len(status.Files) want \"1\" got \"%d\"", len(status.Files))
 	}
 }

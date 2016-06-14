@@ -59,17 +59,21 @@ func (t TestRepo) PathIn(name string) string {
 	return filepath.ToSlash(filepath.Join(filepath.Dir(filepath.Dir(t.repo.Path())), name))
 }
 
-func (t TestRepo) Stage(file string) *git.Oid {
+func (t TestRepo) Stage(files ...string) *git.Oid {
 	idx, err := t.repo.Index()
 	CheckFatal(t.test, err)
-	err = idx.AddByPath(file)
+	for _, f := range files {
+		err = idx.AddByPath(f)
+		CheckFatal(t.test, err)
+	}
+	treeId, err := idx.WriteTreeTo(t.repo)
 	CheckFatal(t.test, err)
-	treeId, err := idx.WriteTree()
+	err = idx.Write()
 	CheckFatal(t.test, err)
 	return treeId
 }
 
-func (t TestRepo) Commit(treeId *git.Oid) {
+func (t TestRepo) Commit(treeId *git.Oid) *git.Oid {
 	loc, err := time.LoadLocation("America/Chicago")
 	CheckFatal(t.test, err)
 	sig := &git.Signature{
@@ -93,19 +97,23 @@ func (t TestRepo) Commit(treeId *git.Oid) {
 	tree, err := t.repo.LookupTree(treeId)
 	CheckFatal(t.test, err)
 
+	var commitId *git.Oid
 	if headUnborn {
-		_, err = t.repo.CreateCommit("HEAD", sig, sig, message, tree)
+		commitId, err = t.repo.CreateCommit("HEAD", sig, sig, message, tree)
 	} else {
-		_, err = t.repo.CreateCommit("HEAD", sig, sig, message, tree,
+		commitId, err = t.repo.CreateCommit("HEAD", sig, sig, message, tree,
 			currentTip)
 	}
 	CheckFatal(t.test, err)
 
-	return
+	return commitId
 }
 
 func (t TestRepo) SaveFile(filename, subdir, content string) {
-	err := ioutil.WriteFile(t.PathIn(filepath.Join(subdir, filename)), []byte(content), 0644)
+	d := filepath.Join(t.PathIn(""), subdir)
+	err := os.MkdirAll(d, 0700)
+	CheckFatal(t.test, err)
+	err = ioutil.WriteFile(filepath.Join(d, filename), []byte(content), 0644)
 	CheckFatal(t.test, err)
 }
 
