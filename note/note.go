@@ -2,6 +2,7 @@ package note
 
 import (
 	"fmt"
+	"path/filepath"
 	"regexp"
 	"sort"
 	"strconv"
@@ -26,7 +27,8 @@ func Marshal(n CommitNote) string {
 	//TODO use a text template here instead
 	s := fmt.Sprintf("[ver:%s,total:%d]\n", "1", n.Total())
 	for _, fl := range n.Files {
-		s += fmt.Sprintf("%s:%d,", fl.SourceFile, fl.TimeSpent)
+		// nomralize file paths to unix convention
+		s += fmt.Sprintf("%s:%d,", filepath.ToSlash(fl.SourceFile), fl.TimeSpent)
 		for _, e := range fl.SortEpochs() {
 			s += fmt.Sprintf("%d:%d,", e, fl.Timeline[e])
 		}

@@ -18,7 +18,7 @@ import (
 )
 
 func getFileID(filePath string) string {
-	return fmt.Sprintf("%x", sha1.Sum([]byte(filePath)))
+	return fmt.Sprintf("%x", sha1.Sum([]byte(filepath.ToSlash(filePath))))
 }
 
 // allocateTime calculates access time for each file within an epoch window

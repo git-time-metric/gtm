@@ -43,7 +43,7 @@ func (t TestRepo) Remove() {
 	}
 
 	// assert it's in a temp dir just in case
-	if !strings.Contains(repoPath, os.TempDir()) {
+	if !strings.Contains(filepath.Clean(repoPath), filepath.Clean(os.TempDir())) {
 		CheckFatal(t.test, fmt.Errorf("Unable to remove, repoPath %s is not within %s", repoPath, os.TempDir()))
 		return
 	}
@@ -63,7 +63,7 @@ func (t TestRepo) Stage(files ...string) *git.Oid {
 	idx, err := t.repo.Index()
 	CheckFatal(t.test, err)
 	for _, f := range files {
-		err = idx.AddByPath(f)
+		err = idx.AddByPath(filepath.ToSlash(f))
 		CheckFatal(t.test, err)
 	}
 	treeId, err := idx.WriteTreeTo(t.repo)

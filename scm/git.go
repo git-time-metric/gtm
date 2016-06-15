@@ -471,8 +471,12 @@ func NewStatus(wd ...string) (Status, error) {
 	}
 	defer repo.Free()
 
-	opts := &git.StatusOptions{Show: git.StatusShowIndexAndWorkdir}
+	//TODO: research what status options to set
+	opts := &git.StatusOptions{}
+	opts.Show = git.StatusShowIndexAndWorkdir
+	opts.Flags = git.StatusOptIncludeUntracked | git.StatusOptRenamesHeadToIndex | git.StatusOptSortCaseSensitively
 	statusList, err := repo.StatusList(opts)
+
 	if err != nil {
 		return status, err
 	}

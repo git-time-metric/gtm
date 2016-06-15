@@ -55,8 +55,8 @@ func TestRecord(t *testing.T) {
 		t.Fatalf("Record(%s), unable to read event file %s, %s", sourceFile, files[0].Name(), err)
 	}
 
-	if !strings.Contains(string(b), "event/event.go") {
-		t.Errorf("Record(%s), want file contents %s, got %s", sourceFile, "event/event.go", string(b))
+	if !strings.Contains(string(b), filepath.Join("event", "event.go")) {
+		t.Errorf("Record(%s), want file contents %s, got %s", sourceFile, filepath.Join("event", "event.go"), string(b))
 	}
 }
 
@@ -79,11 +79,11 @@ func TestProcess(t *testing.T) {
 
 	// NOTE - last two are idle events, 1458496980 & 1458497040
 	expected := map[int64]map[string]int{
-		int64(1458496800): map[string]int{"event/event.go": 2, "event/event_test.go": 1},
-		int64(1458496860): map[string]int{"event/event.go": 1},
-		int64(1458496920): map[string]int{"event/event.go": 1},
-		int64(1458496980): map[string]int{"event/event.go": 1},
-		int64(1458497040): map[string]int{"event/event.go": 1},
+		int64(1458496800): map[string]int{filepath.Join("event", "event.go"): 2, filepath.Join("event", "event_test.go"): 1},
+		int64(1458496860): map[string]int{filepath.Join("event", "event.go"): 1},
+		int64(1458496920): map[string]int{filepath.Join("event", "event.go"): 1},
+		int64(1458496980): map[string]int{filepath.Join("event", "event.go"): 1},
+		int64(1458497040): map[string]int{filepath.Join("event", "event.go"): 1},
 	}
 
 	rootPath := repo.PathIn("")

@@ -27,7 +27,7 @@ func TestFullCommit(t *testing.T) {
 	repo.SaveFile("1458496818.event", ".gtm", filepath.Join("event", "event.go"))
 	repo.SaveFile("1458496943.event", ".gtm", filepath.Join("event", "event.go"))
 
-	treeId := repo.Stage("event/event.go", "event/event_test.go")
+	treeId := repo.Stage(filepath.Join("event", "event.go"), filepath.Join("event", "event_test.go"))
 	commitId := repo.Commit(treeId)
 
 	_, err = Process(false)
@@ -61,7 +61,7 @@ func TestPartialCommit(t *testing.T) {
 
 	repo.SaveFile("event.go", "event", "")
 	repo.SaveFile("event_test.go", "event", "")
-	treeId := repo.Stage("event/event.go", "event/event_test.go")
+	treeId := repo.Stage(filepath.Join("event", "event.go"), filepath.Join("event", "event_test.go"))
 	commitId := repo.Commit(treeId)
 
 	repo.SaveFile("event_test.go", "event", "update")
@@ -70,7 +70,7 @@ func TestPartialCommit(t *testing.T) {
 	repo.SaveFile("1458496818.event", ".gtm", filepath.Join("event", "event.go"))
 	repo.SaveFile("1458496943.event", ".gtm", filepath.Join("event", "event.go"))
 
-	treeId = repo.Stage("event/event_test.go")
+	treeId = repo.Stage(filepath.Join("event", "event_test.go"))
 	commitId = repo.Commit(treeId)
 
 	_, err = Process(false)
@@ -108,7 +108,7 @@ func TestInterim(t *testing.T) {
 	repo.SaveFile("1458496818.event", ".gtm", filepath.Join("event", "event.go"))
 	repo.SaveFile("1458496943.event", ".gtm", filepath.Join("event", "event.go"))
 
-	treeId := repo.Stage("event/event.go", "event/event_test.go")
+	treeId := repo.Stage(filepath.Join("event", "event.go"), filepath.Join("event", "event_test.go"))
 	commitId := repo.Commit(treeId)
 
 	commitNote, err := Process(true)
