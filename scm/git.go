@@ -330,6 +330,7 @@ func Config(settings map[string]string, wd ...string) error {
 
 // SetHooks creates git hooks
 func SetHooks(hooks map[string]string, wd ...string) error {
+	const shebang = "#!/bin/sh"
 	for hook, command := range hooks {
 		var (
 			p   string
@@ -353,21 +354,20 @@ func SetHooks(hooks map[string]string, wd ...string) error {
 				return err
 			}
 			output = string(b)
-
-			if strings.Contains(output, command+"\n") {
-				// if file already exists this will make sure it's executable
-				if err := os.Chmod(fp, 0755); err != nil {
-					return err
-				}
-				return nil
-			}
 		}
 
-		if err = ioutil.WriteFile(
-			fp, []byte(fmt.Sprintf("%s\n%s\n", output, command)), 0755); err != nil {
+		if !strings.Contains(output, shebang) {
+			output = fmt.Sprintf("%s\n%s", shebang, output)
+		}
+
+		if !strings.Contains(output, command) {
+			output = fmt.Sprintf("%s\n%s\n", output, command)
+		}
+
+		if err = ioutil.WriteFile(fp, []byte(output), 0755); err != nil {
 			return err
 		}
-		// if file already exists this will make sure it's executable
+
 		if err := os.Chmod(fp, 0755); err != nil {
 			return err
 		}
