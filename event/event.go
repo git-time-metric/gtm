@@ -10,36 +10,30 @@ import (
 	"edgeg.io/gtm/project"
 )
 
-func findPaths(file string) (string, string, string, error) {
-	// TODO: convert to a struct type
-	if fileInfo, err := os.Stat(file); os.IsNotExist(err) || fileInfo.IsDir() {
-		return "", "", "", project.ErrFileNotFound
+func pathFromSource(f string) (string, string, error) {
+	if fileInfo, err := os.Stat(f); os.IsNotExist(err) || fileInfo.IsDir() {
+		return "", "", project.ErrFileNotFound
 	}
 
-	filePath, err := getFilePath(file)
+	repoPath, gtmPath, err := project.Paths(filepath.Dir(f))
 	if err != nil {
-		return "", "", "", err
+		return "", "", err
 	}
 
-	rootPath, gtmPath, err := project.Paths(filePath)
+	sourcePath, err := filepath.Rel(repoPath, f)
 	if err != nil {
-		return "", "", "", err
+		return "", "", err
 	}
 
-	relFilePath, err := filepath.Rel(rootPath, file)
-	if err != nil {
-		return "", "", "", err
-	}
-
-	return rootPath, relFilePath, gtmPath, nil
+	return sourcePath, gtmPath, nil
 }
 
-func writeEventFile(relFilePath, gtmPath string) error {
+func writeEventFile(sourcePath, gtmPath string) error {
 	if err := ioutil.WriteFile(
 		filepath.Join(
 			gtmPath,
 			fmt.Sprintf("%d.event", project.Now())),
-		[]byte(fmt.Sprintf("%s", relFilePath)),
+		[]byte(fmt.Sprintf("%s", sourcePath)),
 		0644); err != nil {
 		return err
 	}
@@ -62,16 +56,4 @@ func removeFiles(files []string) error {
 		}
 	}
 	return nil
-}
-
-func getFilePath(f string) (string, error) {
-	p := filepath.Dir(f)
-	info, err := os.Stat(p)
-	if err != nil {
-		return "", fmt.Errorf("Unable to extract file path from %s, %s", f, err)
-	}
-	if !info.IsDir() {
-		return "", fmt.Errorf("Unable to extract file path from %s", f)
-	}
-	return p, nil
 }

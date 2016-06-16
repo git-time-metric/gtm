@@ -123,23 +123,23 @@ func Initialize() (string, error) {
 // Paths returns the root git repo and gtm paths
 func Paths(wd ...string) (string, string, error) {
 	var (
-		rootPath string
+		repoPath string
 		err      error
 	)
 	if len(wd) > 0 {
-		rootPath, err = scm.RootPath(wd[0])
+		repoPath, err = scm.RootPath(wd[0])
 	} else {
-		rootPath, err = scm.RootPath()
+		repoPath, err = scm.RootPath()
 	}
 	if err != nil {
 		return "", "", ErrNotInitialized
 	}
 
-	gtmPath := filepath.Join(rootPath, GTMDir)
+	gtmPath := filepath.Join(repoPath, GTMDir)
 	if _, err := os.Stat(gtmPath); os.IsNotExist(err) {
 		return "", "", ErrNotInitialized
 	}
-	return rootPath, gtmPath, nil
+	return repoPath, gtmPath, nil
 }
 
 // Log logs to a gtm log in the GTMDir

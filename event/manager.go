@@ -14,12 +14,12 @@ import (
 
 // Record creates an event for a source
 func Record(file string) error {
-	_, relFilePath, gtmPath, err := findPaths(file)
+	sourcePath, gtmPath, err := pathFromSource(file)
 	if err != nil {
 		return err
 	}
 
-	if err := writeEventFile(relFilePath, gtmPath); err != nil {
+	if err := writeEventFile(sourcePath, gtmPath); err != nil {
 		return err
 	}
 
