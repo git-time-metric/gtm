@@ -17,3 +17,8 @@ func Minute(t int64) int64 {
 func MinuteNow() int64 {
 	return Minute(project.Now().Unix())
 }
+
+// Now returns the current Unix time
+func Now() int64 {
+	return project.Now().Unix()
+}

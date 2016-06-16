@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"edgeg.io/gtm/epoch"
 	"edgeg.io/gtm/project"
 )
 
@@ -32,7 +33,7 @@ func writeEventFile(sourcePath, gtmPath string) error {
 	if err := ioutil.WriteFile(
 		filepath.Join(
 			gtmPath,
-			fmt.Sprintf("%d.event", project.Now())),
+			fmt.Sprintf("%d.event", epoch.Now())),
 		[]byte(fmt.Sprintf("%s", sourcePath)),
 		0644); err != nil {
 		return err

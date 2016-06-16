@@ -113,7 +113,7 @@ func (r ReportCmd) Run(args []string) int {
 
 func (r ReportCmd) Synopsis() string {
 	return `
-	Usage: gtm report [-n] [-format] [-total-only]
+	Usage: gtm report [-n] [-format commits|totals|files|timeline] [-total-only]
 	Report on time logged
 	`
 }

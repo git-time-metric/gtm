@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	c := cli.NewCLI("Git Time Metric", "1.0.0")
+	c := cli.NewCLI("gtm", "1.0.0")
 	c.Args = os.Args[1:]
 	c.Commands = map[string]cli.CommandFactory{
 		"init":   command.NewInit,
