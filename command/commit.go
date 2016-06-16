@@ -18,11 +18,7 @@ func NewCommit() (cli.Command, error) {
 }
 
 func (r GitCommit) Help() string {
-	return `
-	Log time for git tracked files and set the file's tracked time to zero.
-
-	gtm commit [--yes] [--debug]
-	`
+	return r.Synopsis()
 }
 
 func (r GitCommit) Run(args []string) int {
@@ -30,7 +26,7 @@ func (r GitCommit) Run(args []string) int {
 	yes := commitFlags.Bool(
 		"yes",
 		false,
-		"Automatically confirm yes for commit command")
+		"Automatically confirm yes for saving logged time with last commit")
 	if err := commitFlags.Parse(os.Args[2:]); err != nil {
 		fmt.Println(err)
 		return 1
@@ -59,6 +55,9 @@ func (r GitCommit) Run(args []string) int {
 
 func (r GitCommit) Synopsis() string {
 	return `
-	Log time for git tracked files
+	Usage: gtm commit [--yes]
+	Save your logged time with the last commit
+	This is automatically called from the postcommit hook
+	Warning - any time logged will be cleared from your working directory
 	`
 }

@@ -67,6 +67,7 @@ func allocateTime(ep int64, metricMap map[string]FileMetric, eventMap map[string
 	return nil
 }
 
+// FileMetric contains the source file and it's time metrics
 type FileMetric struct {
 	Updated    bool // Updated signifies if we need to save the metric file
 	SourceFile string
@@ -74,12 +75,14 @@ type FileMetric struct {
 	Timeline   map[int64]int
 }
 
+// AddTimeSpent accumulates time spent for a source file
 func (f *FileMetric) AddTimeSpent(ep int64, t int) {
 	f.Updated = true
 	f.TimeSpent += t
 	f.Timeline[ep] += t
 }
 
+// Downsample return timeline by hour
 func (f *FileMetric) Downsample() {
 	byHour := map[int64]int{}
 	for ep, t := range f.Timeline {
@@ -88,6 +91,7 @@ func (f *FileMetric) Downsample() {
 	f.Timeline = byHour
 }
 
+// SortEpochs returns sorted timeline epochs
 func (f *FileMetric) SortEpochs() []int64 {
 	keys := []int64{}
 	for k := range f.Timeline {
@@ -97,6 +101,7 @@ func (f *FileMetric) SortEpochs() []int64 {
 	return keys
 }
 
+// FileMetricByTime is an array of FileMetrics
 type FileMetricByTime []FileMetric
 
 func (a FileMetricByTime) Len() int           { return len(a) }

@@ -17,11 +17,7 @@ func NewRecord() (cli.Command, error) {
 }
 
 func (r RecordCmd) Help() string {
-	return `
-	Records a timestamped file event that denotes when a file has been accessed 
-
-	gtm record <full-path to a file>
-	`
+	return r.Synopsis()
 }
 
 func (r RecordCmd) Run(args []string) int {
@@ -43,6 +39,7 @@ func (r RecordCmd) Run(args []string) int {
 
 func (r RecordCmd) Synopsis() string {
 	return `
+	Usage: gtm record <filepath>
 	Record a file event
 	`
 }

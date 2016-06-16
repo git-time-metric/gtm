@@ -7,11 +7,11 @@ import (
 	"path/filepath"
 	"strings"
 
-	"edgeg.io/gtm/epoch"
 	"edgeg.io/gtm/project"
 )
 
 func findPaths(file string) (string, string, string, error) {
+	// TODO: convert to a struct type
 	if fileInfo, err := os.Stat(file); os.IsNotExist(err) || fileInfo.IsDir() {
 		return "", "", "", project.ErrFileNotFound
 	}
@@ -38,7 +38,7 @@ func writeEventFile(relFilePath, gtmPath string) error {
 	if err := ioutil.WriteFile(
 		filepath.Join(
 			gtmPath,
-			fmt.Sprintf("%d.event", epoch.Now())),
+			fmt.Sprintf("%d.event", project.Now())),
 		[]byte(fmt.Sprintf("%s", relFilePath)),
 		0644); err != nil {
 		return err

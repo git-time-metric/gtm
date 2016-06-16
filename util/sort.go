@@ -1,5 +1,6 @@
 package util
 
+// ByInt64 list of type int64
 type ByInt64 []int64
 
 func (e ByInt64) Len() int           { return len(e) }

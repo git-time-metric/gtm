@@ -63,6 +63,7 @@ const (
 {{ end }}`
 )
 
+// Status returns the status report
 func Status(n note.CommitNote, totalOnly bool) (string, error) {
 	if totalOnly {
 		return util.FormatDuration(n.Total()), nil
@@ -77,6 +78,7 @@ func Status(n note.CommitNote, totalOnly bool) (string, error) {
 	return b.String(), nil
 }
 
+// Commits returns the commits report
 func Commits(commits []string, totalOnly bool) (string, error) {
 	notes := retrieveNotes(commits)
 	b := new(bytes.Buffer)
@@ -104,6 +106,7 @@ func Commits(commits []string, totalOnly bool) (string, error) {
 	return b.String(), nil
 }
 
+// Timeline returns the timeline report
 func Timeline(commits []string) (string, error) {
 	notes := retrieveNotes(commits)
 	b := new(bytes.Buffer)
@@ -121,6 +124,7 @@ func Timeline(commits []string) (string, error) {
 	return b.String(), nil
 }
 
+// Files returns the files report
 func Files(commits []string) (string, error) {
 	notes := retrieveNotes(commits)
 	b := new(bytes.Buffer)

@@ -1,6 +1,7 @@
 package report
 
 import (
+	"fmt"
 	"sort"
 	"strings"
 	"time"
@@ -27,7 +28,7 @@ func retrieveNotes(commits []string) commitNoteDetails {
 		var commitNote note.CommitNote
 		commitNote, err = note.UnMarshal(n.Note)
 		if err != nil {
-			project.Log("Error unmarshalling note \n\n%s \n\n%s", n.Note, err)
+			project.Log(fmt.Sprintf("Error unmarshalling note \n\n%s \n\n%s", n.Note, err))
 			commitNote = note.CommitNote{}
 		}
 

@@ -19,9 +19,7 @@ func NewStatus() (cli.Command, error) {
 }
 
 func (r StatusCmd) Help() string {
-	return `
-	Show time spent for working or staged files
-	`
+	return r.Synopsis()
 }
 
 func (r StatusCmd) Run(args []string) int {
@@ -56,6 +54,7 @@ func (r StatusCmd) Run(args []string) int {
 
 func (r StatusCmd) Synopsis() string {
 	return `
+	Usage: gtm status [-total-only]
 	Show time spent for working or staged files
 	`
 }

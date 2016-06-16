@@ -11,10 +11,12 @@ import (
 	"edgeg.io/gtm/util"
 )
 
+// CommitNote contains the time metrics for a commit
 type CommitNote struct {
 	Files []FileDetail
 }
 
+// Total returns the total time for a commit note
 func (n CommitNote) Total() int {
 	total := 0
 	for _, fm := range n.Files {
@@ -23,6 +25,7 @@ func (n CommitNote) Total() int {
 	return total
 }
 
+// Marshal converts a commit note to a serialized string
 func Marshal(n CommitNote) string {
 	//TODO use a text template here instead
 	s := fmt.Sprintf("[ver:%s,total:%d]\n", "1", n.Total())
@@ -37,6 +40,7 @@ func Marshal(n CommitNote) string {
 	return s
 }
 
+// UnMarshal unserializes a git note string into a commit note
 func UnMarshal(s string) (CommitNote, error) {
 	var (
 		version string
@@ -104,7 +108,7 @@ func UnMarshal(s string) (CommitNote, error) {
 			// check for existing file path and merge if found
 			// for example, this can happen when rewriting commits with git commit --amend
 			found := false
-			for idx, _ := range files {
+			for idx := range files {
 				if files[idx].SourceFile == filePath {
 					for epoch, secs := range fileTimeline {
 						files[idx].TimeSpent += secs
@@ -136,6 +140,7 @@ func UnMarshal(s string) (CommitNote, error) {
 	return CommitNote{Files: files}, nil
 }
 
+// FileDetail contains a source file's time metrics
 type FileDetail struct {
 	SourceFile string
 	TimeSpent  int
@@ -143,6 +148,7 @@ type FileDetail struct {
 	Status     string
 }
 
+// SortEpochs returns timeline keys sorted by epoch
 func (f *FileDetail) SortEpochs() []int64 {
 	keys := []int64{}
 	for k := range f.Timeline {
@@ -152,6 +158,7 @@ func (f *FileDetail) SortEpochs() []int64 {
 	return keys
 }
 
+// FileByTime is list of FileDetails
 type FileByTime []FileDetail
 
 func (a FileByTime) Len() int           { return len(a) }

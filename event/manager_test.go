@@ -40,7 +40,7 @@ func TestRecord(t *testing.T) {
 		t.Errorf("Record(%s), want error nil, got %s", sourceFile, err)
 	}
 
-	gtmPath := filepath.Join(repo.PathIn(""), ".gtm")
+	gtmPath := filepath.Join(repo.PathIn(""), project.GTMDir)
 
 	files, err := ioutil.ReadDir(gtmPath)
 	if err != nil {
@@ -72,10 +72,10 @@ func TestProcess(t *testing.T) {
 
 	repo.SaveFile("event.go", "event", "")
 	repo.SaveFile("event_test.go", "event", "")
-	repo.SaveFile("1458496803.event", ".gtm", filepath.Join("event", "event.go"))
-	repo.SaveFile("1458496811.event", ".gtm", filepath.Join("event", "event_test.go"))
-	repo.SaveFile("1458496818.event", ".gtm", filepath.Join("event", "event.go"))
-	repo.SaveFile("1458496943.event", ".gtm", filepath.Join("event", "event.go"))
+	repo.SaveFile("1458496803.event", project.GTMDir, filepath.Join("event", "event.go"))
+	repo.SaveFile("1458496811.event", project.GTMDir, filepath.Join("event", "event_test.go"))
+	repo.SaveFile("1458496818.event", project.GTMDir, filepath.Join("event", "event.go"))
+	repo.SaveFile("1458496943.event", project.GTMDir, filepath.Join("event", "event.go"))
 
 	// NOTE - last two are idle events, 1458496980 & 1458497040
 	expected := map[int64]map[string]int{
@@ -87,7 +87,7 @@ func TestProcess(t *testing.T) {
 	}
 
 	rootPath := repo.PathIn("")
-	gtmPath := filepath.Join(rootPath, ".gtm")
+	gtmPath := filepath.Join(rootPath, project.GTMDir)
 
 	got, err := Process(rootPath, gtmPath, true)
 	if err != nil {

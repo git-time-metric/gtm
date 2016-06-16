@@ -8,24 +8,18 @@ import (
 	"github.com/mitchellh/cli"
 )
 
-type initCmd struct {
+type InitCmd struct {
 }
 
 func NewInit() (cli.Command, error) {
-	return initCmd{}, nil
+	return InitCmd{}, nil
 }
 
-func (i initCmd) Help() string {
-	return `
-	Initialize Git Time Metric for a project 
-
-	gtm init
-
-	Note - run from the root directory of project
-	`
+func (i InitCmd) Help() string {
+	return i.Synopsis()
 }
 
-func (i initCmd) Run(args []string) int {
+func (i InitCmd) Run(args []string) int {
 	m, err := project.Initialize()
 	if err != nil {
 		fmt.Println(err)
@@ -35,8 +29,9 @@ func (i initCmd) Run(args []string) int {
 	return 0
 }
 
-func (i initCmd) Synopsis() string {
+func (i InitCmd) Synopsis() string {
 	return `
-	Initialize Git Time Metric for a project 
+	Usage: gtm init
+	Initialize a git project for time tracking 
 	`
 }

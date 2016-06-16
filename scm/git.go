@@ -12,6 +12,7 @@ import (
 	"github.com/libgit2/git2go"
 )
 
+// RootPath discovers the base directory for a git repo
 func RootPath(path ...string) (string, error) {
 	var (
 		wd  string
@@ -33,6 +34,7 @@ func RootPath(path ...string) (string, error) {
 	return filepath.ToSlash(filepath.Dir(filepath.Dir(p))), nil
 }
 
+// CommitIDs returns commit SHA1 IDs starting from the head up to the limit
 func CommitIDs(limit int, wd ...string) ([]string, error) {
 	var (
 		repo *git.Repository
@@ -81,6 +83,7 @@ func CommitIDs(limit int, wd ...string) ([]string, error) {
 	return commits, nil
 }
 
+// Commit contains commit details
 type Commit struct {
 	ID      string
 	OID     *git.Oid
@@ -92,6 +95,7 @@ type Commit struct {
 	Files   []string
 }
 
+// HeadCommit returns the latest commit
 func HeadCommit(wd ...string) (Commit, error) {
 	var (
 		repo *git.Repository
@@ -109,7 +113,7 @@ func HeadCommit(wd ...string) (Commit, error) {
 	}
 	defer repo.Free()
 
-	headCommit, err := LookupHeadCommit(repo)
+	headCommit, err := lookupHeadCommit(repo)
 	if err != nil {
 		if err == ErrHeadUnborn {
 			return commit, nil
@@ -191,6 +195,7 @@ func HeadCommit(wd ...string) (Commit, error) {
 	return commit, nil
 }
 
+// CreateNote creates a git note associated with the head commit
 func CreateNote(noteTxt string, nameSpace string, wd ...string) error {
 	var (
 		repo *git.Repository
@@ -207,7 +212,7 @@ func CreateNote(noteTxt string, nameSpace string, wd ...string) error {
 	}
 	defer repo.Free()
 
-	headCommit, err := LookupHeadCommit(repo)
+	headCommit, err := lookupHeadCommit(repo)
 	if err != nil {
 		return err
 	}
@@ -226,6 +231,7 @@ func CreateNote(noteTxt string, nameSpace string, wd ...string) error {
 	return nil
 }
 
+// CommitNote contains a git note's details
 type CommitNote struct {
 	ID      string
 	OID     *git.Oid
@@ -237,6 +243,7 @@ type CommitNote struct {
 	Note    string
 }
 
+// ReadNote returns a commit note for the SHA1 commit id
 func ReadNote(commitID string, nameSpace string, wd ...string) (CommitNote, error) {
 	var (
 		err    error
@@ -295,6 +302,7 @@ func ReadNote(commitID string, nameSpace string, wd ...string) (CommitNote, erro
 	}, nil
 }
 
+// Config persists git configuration settings
 func Config(settings map[string]string, wd ...string) error {
 	var (
 		err  error
@@ -320,6 +328,7 @@ func Config(settings map[string]string, wd ...string) error {
 	return nil
 }
 
+// SetHooks creates git hooks
 func SetHooks(hooks map[string]string, wd ...string) error {
 	for hook, command := range hooks {
 		var (
@@ -367,6 +376,7 @@ func SetHooks(hooks map[string]string, wd ...string) error {
 	return nil
 }
 
+// Ignore persists paths/files to ignore for a git repo
 func Ignore(ignore string, wd ...string) error {
 	var (
 		p   string
@@ -423,10 +433,11 @@ func openRepository(wd ...string) (*git.Repository, error) {
 }
 
 var (
+	// ErrHeadUnborn is raised when there are no commits yet in the git repo
 	ErrHeadUnborn = errors.New("Head commit not found")
 )
 
-func LookupHeadCommit(repo *git.Repository) (*git.Commit, error) {
+func lookupHeadCommit(repo *git.Repository) (*git.Commit, error) {
 
 	headUnborn, err := repo.IsHeadUnborn()
 	if err != nil {
@@ -450,10 +461,12 @@ func LookupHeadCommit(repo *git.Repository) (*git.Commit, error) {
 	return commit, nil
 }
 
+// Status contains the git file statuses
 type Status struct {
-	Files []FileStatus
+	Files []fileStatus
 }
 
+// NewStatus create a Status struct for a git repo
 func NewStatus(wd ...string) (Status, error) {
 	var (
 		repo *git.Repository
@@ -498,6 +511,7 @@ func NewStatus(wd ...string) (Status, error) {
 	return status, nil
 }
 
+// AddFile adds a StatusEntry for each file in working and staging directories
 func (s *Status) AddFile(e git.StatusEntry) {
 	var path string
 	if e.Status == git.StatusIndexNew ||
@@ -509,9 +523,10 @@ func (s *Status) AddFile(e git.StatusEntry) {
 	} else {
 		path = filepath.ToSlash(e.IndexToWorkdir.NewFile.Path)
 	}
-	s.Files = append(s.Files, FileStatus{Path: path, Status: e.Status})
+	s.Files = append(s.Files, fileStatus{Path: path, Status: e.Status})
 }
 
+// HasStaged returns true if there are any files in staging
 func (s *Status) HasStaged() bool {
 	for _, f := range s.Files {
 		if f.InStaging() {
@@ -521,6 +536,7 @@ func (s *Status) HasStaged() bool {
 	return false
 }
 
+// IsModified returns true if the file is modified in either working or staging
 func (s *Status) IsModified(path string, staging bool) bool {
 	path = filepath.ToSlash(path)
 	for _, f := range s.Files {
@@ -531,6 +547,7 @@ func (s *Status) IsModified(path string, staging bool) bool {
 	return false
 }
 
+// IsTracked returns true if file is tracked by the git repo
 func (s *Status) IsTracked(path string) bool {
 	path = filepath.ToSlash(path)
 	for _, f := range s.Files {
@@ -541,12 +558,13 @@ func (s *Status) IsTracked(path string) bool {
 	return false
 }
 
-type FileStatus struct {
+type fileStatus struct {
 	Status git.Status
 	Path   string
 }
 
-func (f FileStatus) InStaging() bool {
+// InStaging returns true if the file is in staging
+func (f fileStatus) InStaging() bool {
 	return f.Status == git.StatusIndexNew ||
 		f.Status == git.StatusIndexModified ||
 		f.Status == git.StatusIndexDeleted ||
@@ -554,18 +572,21 @@ func (f FileStatus) InStaging() bool {
 		f.Status == git.StatusIndexTypeChange
 }
 
-func (f FileStatus) InWorking() bool {
+// InWorking returns true if the file is in working
+func (f fileStatus) InWorking() bool {
 	return f.Status == git.StatusWtModified ||
 		f.Status == git.StatusWtDeleted ||
 		f.Status == git.StatusWtRenamed ||
 		f.Status == git.StatusWtTypeChange
 }
 
-func (f FileStatus) IsTracked() bool {
+// IsTracked returns true if the file is tracked by git
+func (f fileStatus) IsTracked() bool {
 	return f.Status != git.StatusIgnored &&
 		f.Status != git.StatusWtNew
 }
 
-func (f FileStatus) IsModified() bool {
+// IsModified returns true if the file has been modified
+func (f fileStatus) IsModified() bool {
 	return f.InStaging() || f.InWorking()
 }

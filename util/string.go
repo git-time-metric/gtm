@@ -7,6 +7,7 @@ import (
 	"time"
 )
 
+// FormatDuration converts seconds into a duration string
 func FormatDuration(secs int) string {
 	durStr := (time.Duration(secs) * time.Second).String()
 	vals := regexp.MustCompile(`\d+`)
@@ -24,6 +25,8 @@ func FormatDuration(secs int) string {
 }
 
 // https://github.com/DaddyOh/golang-samples/blob/master/pad.go
+
+// RightPad2Len https://github.com/DaddyOh/golang-samples/blob/master/pad.go
 func RightPad2Len(s string, padStr string, overallLen int) string {
 	var padCountInt int
 	padCountInt = 1 + ((overallLen - len(padStr)) / len(padStr))
@@ -31,7 +34,7 @@ func RightPad2Len(s string, padStr string, overallLen int) string {
 	return retStr[:overallLen]
 }
 
-// https://github.com/DaddyOh/golang-samples/blob/master/pad.go
+// LeftPad2Len https://github.com/DaddyOh/golang-samples/blob/master/pad.go
 func LeftPad2Len(s string, padStr string, overallLen int) string {
 	var padCountInt int
 	padCountInt = 1 + ((overallLen - len(padStr)) / len(padStr))
@@ -39,6 +42,7 @@ func LeftPad2Len(s string, padStr string, overallLen int) string {
 	return retStr[(len(retStr) - overallLen):]
 }
 
+// StringInSlice https://github.com/DaddyOh/golang-samples/blob/master/pad.go
 func StringInSlice(list []string, a string) bool {
 	for _, b := range list {
 		if b == a {

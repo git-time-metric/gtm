@@ -22,15 +22,7 @@ func NewReport() (cli.Command, error) {
 }
 
 func (r ReportCmd) Help() string {
-	return `
-	Report on time logged
-
-	Show report for a specific sha1 commits:
-	gtm report sha1 ...
-
-	Show report by piping output from git log:
-	git report -1 --pretty=%H|gtm report
-	`
+	return r.Synopsis()
 }
 
 func (r ReportCmd) Run(args []string) int {
@@ -121,6 +113,7 @@ func (r ReportCmd) Run(args []string) int {
 
 func (r ReportCmd) Synopsis() string {
 	return `
-	Show commit time logs
+	Usage: gtm report [-n] [-format] [-total-only]
+	Report on time logged
 	`
 }

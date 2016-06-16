@@ -13,11 +13,13 @@ import (
 	"github.com/libgit2/git2go"
 )
 
+// TestRepo represents a test git repo used in testing
 type TestRepo struct {
 	repo *git.Repository
 	test *testing.T
 }
 
+// NewTestRepo creates a new instance of TestRepo
 func NewTestRepo(t *testing.T, bare bool) TestRepo {
 	path, err := ioutil.TempDir("", "gtm")
 	CheckFatal(t, err)
@@ -26,6 +28,7 @@ func NewTestRepo(t *testing.T, bare bool) TestRepo {
 	return TestRepo{repo: repo, test: t}
 }
 
+// Seed creates test data for the git repo
 func (t TestRepo) Seed() {
 	t.SaveFile("README", "", "foo\n")
 	treeOid := t.Stage("README")
@@ -33,6 +36,7 @@ func (t TestRepo) Seed() {
 	return
 }
 
+// Remove deletes temp directories, files and git repo
 func (t TestRepo) Remove() {
 	var repoPath string
 
@@ -55,10 +59,12 @@ func (t TestRepo) Remove() {
 	return
 }
 
+// PathIn returns full path of file within repo
 func (t TestRepo) PathIn(name string) string {
 	return filepath.ToSlash(filepath.Join(filepath.Dir(filepath.Dir(t.repo.Path())), name))
 }
 
+// Stage adds files to staging for git repo
 func (t TestRepo) Stage(files ...string) *git.Oid {
 	idx, err := t.repo.Index()
 	CheckFatal(t.test, err)
@@ -66,14 +72,15 @@ func (t TestRepo) Stage(files ...string) *git.Oid {
 		err = idx.AddByPath(filepath.ToSlash(f))
 		CheckFatal(t.test, err)
 	}
-	treeId, err := idx.WriteTreeTo(t.repo)
+	treeID, err := idx.WriteTreeTo(t.repo)
 	CheckFatal(t.test, err)
 	err = idx.Write()
 	CheckFatal(t.test, err)
-	return treeId
+	return treeID
 }
 
-func (t TestRepo) Commit(treeId *git.Oid) *git.Oid {
+// Commit commits staged files
+func (t TestRepo) Commit(treeID *git.Oid) *git.Oid {
 	loc, err := time.LoadLocation("America/Chicago")
 	CheckFatal(t.test, err)
 	sig := &git.Signature{
@@ -94,21 +101,22 @@ func (t TestRepo) Commit(treeId *git.Oid) *git.Oid {
 	}
 
 	message := "This is a commit\n"
-	tree, err := t.repo.LookupTree(treeId)
+	tree, err := t.repo.LookupTree(treeID)
 	CheckFatal(t.test, err)
 
-	var commitId *git.Oid
+	var commitID *git.Oid
 	if headUnborn {
-		commitId, err = t.repo.CreateCommit("HEAD", sig, sig, message, tree)
+		commitID, err = t.repo.CreateCommit("HEAD", sig, sig, message, tree)
 	} else {
-		commitId, err = t.repo.CreateCommit("HEAD", sig, sig, message, tree,
+		commitID, err = t.repo.CreateCommit("HEAD", sig, sig, message, tree,
 			currentTip)
 	}
 	CheckFatal(t.test, err)
 
-	return commitId
+	return commitID
 }
 
+// SaveFile creates a file within the git repo project
 func (t TestRepo) SaveFile(filename, subdir, content string) {
 	d := filepath.Join(t.PathIn(""), subdir)
 	err := os.MkdirAll(d, 0700)
@@ -117,6 +125,7 @@ func (t TestRepo) SaveFile(filename, subdir, content string) {
 	CheckFatal(t.test, err)
 }
 
+// CheckFatal raises a fatal error if error is not nil
 func CheckFatal(t *testing.T, err error) {
 	if err == nil {
 		return

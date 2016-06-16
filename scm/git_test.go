@@ -49,7 +49,7 @@ func TestCommitIDs(t *testing.T) {
 		t.Errorf("CommitIDs error, %s", err)
 	}
 	if len(commits) != 1 {
-		t.Errorf("CommitIDs want 1 commit, got %s", len(commits))
+		t.Errorf("CommitIDs want 1 commit, got %d", len(commits))
 	}
 
 	saveDir, err := os.Getwd()
@@ -64,7 +64,7 @@ func TestCommitIDs(t *testing.T) {
 		t.Errorf("CommitIDs error, %s", err)
 	}
 	if len(commits) != 1 {
-		t.Errorf("CommitIDs want 1 commit, got %s", len(commits))
+		t.Errorf("CommitIDs want 1 commit, got %d", len(commits))
 	}
 }
 

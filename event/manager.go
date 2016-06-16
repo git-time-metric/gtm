@@ -12,6 +12,7 @@ import (
 	"edgeg.io/gtm/project"
 )
 
+// Record creates an event for a source
 func Record(file string) error {
 	_, relFilePath, gtmPath, err := findPaths(file)
 	if err != nil {
@@ -25,6 +26,7 @@ func Record(file string) error {
 	return nil
 }
 
+// Process processes event files for a git repo
 func Process(rootPath, gtmPath string, interim bool) (map[int64]map[string]int, error) {
 	events := make(map[int64]map[string]int, 0)
 

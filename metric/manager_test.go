@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"testing"
 
+	"edgeg.io/gtm/project"
 	"edgeg.io/gtm/scm"
 	"edgeg.io/gtm/util"
 )
@@ -22,20 +23,20 @@ func TestFullCommit(t *testing.T) {
 
 	repo.SaveFile("event.go", "event", "")
 	repo.SaveFile("event_test.go", "event", "")
-	repo.SaveFile("1458496803.event", ".gtm", filepath.Join("event", "event.go"))
-	repo.SaveFile("1458496811.event", ".gtm", filepath.Join("event", "event_test.go"))
-	repo.SaveFile("1458496818.event", ".gtm", filepath.Join("event", "event.go"))
-	repo.SaveFile("1458496943.event", ".gtm", filepath.Join("event", "event.go"))
+	repo.SaveFile("1458496803.event", project.GTMDir, filepath.Join("event", "event.go"))
+	repo.SaveFile("1458496811.event", project.GTMDir, filepath.Join("event", "event_test.go"))
+	repo.SaveFile("1458496818.event", project.GTMDir, filepath.Join("event", "event.go"))
+	repo.SaveFile("1458496943.event", project.GTMDir, filepath.Join("event", "event.go"))
 
-	treeId := repo.Stage(filepath.Join("event", "event.go"), filepath.Join("event", "event_test.go"))
-	commitId := repo.Commit(treeId)
+	treeID := repo.Stage(filepath.Join("event", "event.go"), filepath.Join("event", "event_test.go"))
+	commitID := repo.Commit(treeID)
 
 	_, err = Process(false)
 	if err != nil {
 		t.Fatalf("Process(false) - test full commit, want error nil, got %s", err)
 	}
 
-	n, err := scm.ReadNote(commitId.String(), "gtm-data")
+	n, err := scm.ReadNote(commitID.String(), "gtm-data")
 	util.CheckFatal(t, err)
 
 	want := []string{`total:300.*`, `event.go:280.*,m`, `event_test.go:20.*,m`}
@@ -61,24 +62,24 @@ func TestPartialCommit(t *testing.T) {
 
 	repo.SaveFile("event.go", "event", "")
 	repo.SaveFile("event_test.go", "event", "")
-	treeId := repo.Stage(filepath.Join("event", "event.go"), filepath.Join("event", "event_test.go"))
-	commitId := repo.Commit(treeId)
+	treeID := repo.Stage(filepath.Join("event", "event.go"), filepath.Join("event", "event_test.go"))
+	commitID := repo.Commit(treeID)
 
 	repo.SaveFile("event_test.go", "event", "update")
-	repo.SaveFile("1458496803.event", ".gtm", filepath.Join("event", "event.go"))
-	repo.SaveFile("1458496811.event", ".gtm", filepath.Join("event", "event_test.go"))
-	repo.SaveFile("1458496818.event", ".gtm", filepath.Join("event", "event.go"))
-	repo.SaveFile("1458496943.event", ".gtm", filepath.Join("event", "event.go"))
+	repo.SaveFile("1458496803.event", project.GTMDir, filepath.Join("event", "event.go"))
+	repo.SaveFile("1458496811.event", project.GTMDir, filepath.Join("event", "event_test.go"))
+	repo.SaveFile("1458496818.event", project.GTMDir, filepath.Join("event", "event.go"))
+	repo.SaveFile("1458496943.event", project.GTMDir, filepath.Join("event", "event.go"))
 
-	treeId = repo.Stage(filepath.Join("event", "event_test.go"))
-	commitId = repo.Commit(treeId)
+	treeID = repo.Stage(filepath.Join("event", "event_test.go"))
+	commitID = repo.Commit(treeID)
 
 	_, err = Process(false)
 	if err != nil {
 		t.Fatalf("Process(false) - test full commit, want error nil, got %s", err)
 	}
 
-	n, err := scm.ReadNote(commitId.String(), "gtm-data")
+	n, err := scm.ReadNote(commitID.String(), "gtm-data")
 	util.CheckFatal(t, err)
 
 	want := []string{`total:300`, `event_test.go:20.*,m`, `event.go:280.*,r`}
@@ -103,20 +104,20 @@ func TestInterim(t *testing.T) {
 
 	repo.SaveFile("event.go", "event", "")
 	repo.SaveFile("event_test.go", "event", "")
-	repo.SaveFile("1458496803.event", ".gtm", filepath.Join("event", "event.go"))
-	repo.SaveFile("1458496811.event", ".gtm", filepath.Join("event", "event_test.go"))
-	repo.SaveFile("1458496818.event", ".gtm", filepath.Join("event", "event.go"))
-	repo.SaveFile("1458496943.event", ".gtm", filepath.Join("event", "event.go"))
+	repo.SaveFile("1458496803.event", project.GTMDir, filepath.Join("event", "event.go"))
+	repo.SaveFile("1458496811.event", project.GTMDir, filepath.Join("event", "event_test.go"))
+	repo.SaveFile("1458496818.event", project.GTMDir, filepath.Join("event", "event.go"))
+	repo.SaveFile("1458496943.event", project.GTMDir, filepath.Join("event", "event.go"))
 
-	treeId := repo.Stage(filepath.Join("event", "event.go"), filepath.Join("event", "event_test.go"))
-	commitId := repo.Commit(treeId)
+	treeID := repo.Stage(filepath.Join("event", "event.go"), filepath.Join("event", "event_test.go"))
+	commitID := repo.Commit(treeID)
 
 	commitNote, err := Process(true)
 	if err != nil {
 		t.Fatalf("Process(false) - test full commit, want error nil, got %s", err)
 	}
 
-	n, err := scm.ReadNote(commitId.String(), "gtm-data")
+	n, err := scm.ReadNote(commitID.String(), "gtm-data")
 	util.CheckFatal(t, err)
 
 	if n.Note != "" {
