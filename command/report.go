@@ -55,11 +55,11 @@ func (r ReportCmd) Run(args []string) int {
 		err     error
 	)
 
-	sha1Regex := regexp.MustCompile(`\A([0-9a-f]{6,40})\z`)
+	sha1Regex := regexp.MustCompile(`\A([0-9a-f]{40})\z`)
 
 	for _, a := range reportFlags.Args() {
 		if !sha1Regex.MatchString(a) {
-			fmt.Printf("\nNot a valid commit sha1 %s\n", a)
+			fmt.Printf("\nNot a valid commit SHA %s\n", a)
 			return 1
 		}
 		commits = append(commits, a)
@@ -71,7 +71,7 @@ func (r ReportCmd) Run(args []string) int {
 		scanner := bufio.NewScanner(os.Stdin)
 		for scanner.Scan() {
 			if !sha1Regex.MatchString(scanner.Text()) {
-				fmt.Printf("\nNot a valid commit sha1 %s\n", scanner.Text())
+				fmt.Printf("\nNot a valid commit SHA %s\n", scanner.Text())
 				return 1
 			}
 			commits = append(commits, scanner.Text())
