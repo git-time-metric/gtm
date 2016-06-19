@@ -10,8 +10,10 @@ import (
 	"github.com/mitchellh/cli"
 )
 
+var version string = "0.0.0"
+
 func main() {
-	c := cli.NewCLI("gtm", "1.0.0")
+	c := cli.NewCLI("gtm", version)
 	c.Args = os.Args[1:]
 	c.Commands = map[string]cli.CommandFactory{
 		"init":   command.NewInit,
