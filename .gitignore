@@ -55,3 +55,8 @@ _testmain.go
 
 .gtm/
 gtm
+### https://raw.github.com/github/gitignore/10eb19db07e36f5b8b26315ec90e27c5e82a4b47/Global/Vagrant.gitignore
+
+.vagrant/
+
+
