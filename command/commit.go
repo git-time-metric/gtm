@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	"edgeg.io/gtm/metric"
+	"github.com/git-time-metric/gtm/metric"
 	"github.com/mitchellh/cli"
 )
 

@@ -7,9 +7,9 @@ import (
 	"os"
 	"regexp"
 
-	"edgeg.io/gtm/report"
-	"edgeg.io/gtm/scm"
-	"edgeg.io/gtm/util"
+	"github.com/git-time-metric/gtm/report"
+	"github.com/git-time-metric/gtm/scm"
+	"github.com/git-time-metric/gtm/util"
 	"github.com/mattn/go-isatty"
 	"github.com/mitchellh/cli"
 )

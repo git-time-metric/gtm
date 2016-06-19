@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"edgeg.io/gtm/epoch"
-	"edgeg.io/gtm/project"
+	"github.com/git-time-metric/gtm/epoch"
+	"github.com/git-time-metric/gtm/project"
 )
 
 func pathFromSource(f string) (string, string, error) {

@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"edgeg.io/gtm/util"
+	"github.com/git-time-metric/gtm/util"
 )
 
 func TestRootPath(t *testing.T) {

@@ -12,7 +12,7 @@ import (
 
 	"golang.org/x/crypto/ssh/terminal"
 
-	"edgeg.io/gtm/scm"
+	"github.com/git-time-metric/gtm/scm"
 )
 
 var (

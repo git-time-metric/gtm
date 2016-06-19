@@ -6,9 +6,9 @@ import (
 	"regexp"
 	"testing"
 
-	"edgeg.io/gtm/project"
-	"edgeg.io/gtm/scm"
-	"edgeg.io/gtm/util"
+	"github.com/git-time-metric/gtm/project"
+	"github.com/git-time-metric/gtm/scm"
+	"github.com/git-time-metric/gtm/util"
 )
 
 func TestFullCommit(t *testing.T) {

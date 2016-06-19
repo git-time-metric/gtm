@@ -8,8 +8,8 @@ import (
 	"strings"
 	"testing"
 
-	"edgeg.io/gtm/project"
-	"edgeg.io/gtm/util"
+	"github.com/git-time-metric/gtm/project"
+	"github.com/git-time-metric/gtm/util"
 )
 
 func TestRecord(t *testing.T) {

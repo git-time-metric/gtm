@@ -1,10 +1,10 @@
 package metric
 
 import (
-	"edgeg.io/gtm/event"
-	"edgeg.io/gtm/note"
-	"edgeg.io/gtm/project"
-	"edgeg.io/gtm/scm"
+	"github.com/git-time-metric/gtm/event"
+	"github.com/git-time-metric/gtm/note"
+	"github.com/git-time-metric/gtm/project"
+	"github.com/git-time-metric/gtm/scm"
 )
 
 // Process events for last git commit and save time spent as a git note

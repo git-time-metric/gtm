@@ -3,7 +3,7 @@ package command
 import (
 	"fmt"
 
-	"edgeg.io/gtm/project"
+	"github.com/git-time-metric/gtm/project"
 
 	"github.com/mitchellh/cli"
 )

@@ -7,8 +7,8 @@ import (
 
 	"golang.org/x/crypto/ssh/terminal"
 
-	"edgeg.io/gtm/note"
-	"edgeg.io/gtm/util"
+	"github.com/git-time-metric/gtm/note"
+	"github.com/git-time-metric/gtm/util"
 )
 
 var funcMap = template.FuncMap{

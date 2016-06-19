@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"edgeg.io/gtm/command"
-	"edgeg.io/gtm/project"
+	"github.com/git-time-metric/gtm/command"
+	"github.com/git-time-metric/gtm/project"
 
 	"github.com/mitchellh/cli"
 )

@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"edgeg.io/gtm/util"
+	"github.com/git-time-metric/gtm/util"
 )
 
 // CommitNote contains the time metrics for a commit

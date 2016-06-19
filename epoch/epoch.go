@@ -1,6 +1,6 @@
 package epoch
 
-import "edgeg.io/gtm/project"
+import "github.com/git-time-metric/gtm/project"
 
 // WindowSize is number seconds in an epoch window
 const WindowSize = 60

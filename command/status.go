@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"os"
 
-	"edgeg.io/gtm/metric"
-	"edgeg.io/gtm/note"
-	"edgeg.io/gtm/report"
+	"github.com/git-time-metric/gtm/metric"
+	"github.com/git-time-metric/gtm/note"
+	"github.com/git-time-metric/gtm/report"
 	"github.com/mitchellh/cli"
 )
 

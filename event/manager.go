@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"strings"
 
-	"edgeg.io/gtm/epoch"
-	"edgeg.io/gtm/project"
+	"github.com/git-time-metric/gtm/epoch"
+	"github.com/git-time-metric/gtm/project"
 )
 
 // Record creates an event for a source
