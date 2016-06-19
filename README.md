@@ -1,14 +1,14 @@
 # Git Time Metrics (GTM)
 ### Simple, seamless, lightweight time tracking for all your git projects
 
-Git Time Metrics (GTM) is a tool to automatically track time spent reading and working on code that you store 
+Git Time Metrics (GTM) is a tool to automatically track time spent reading and working on code that you store
 in a Git repository. By installing GTM and using supported plugins to your favorite editors, you can immediately
 realize better insight into how you are spending your time and on what files.
 
-GTM has reached beta status for the initial release but we are looking for others to help make it great. We 
-also need to expand the editor plugin library. 
+GTM has reached beta status for the initial release but we are looking for others to help make it great. We
+also need to expand the editor plugin library.
 
-The plugins are very simple to write. Take a look at the Atom, Vim and Sublime plugins to see how easy it is to 
+The plugins are very simple to write. Take a look at the Atom, Vim and Sublime plugins to see how easy it is to
 create plugins.
 
 ## Initializing your Git project for time tracking
@@ -92,8 +92,8 @@ Thu Jun 16 22:28:45 2016 -0500 Michael Schenk  1h  1m  0s
 
 ## Installing From Binaries
 
-We will be providing pre-built binaries that you can download from here and also via package managers such as 
-Homebrew and apt-get. Please check back in the next couple of weeks for this.  
+We will be providing pre-built binaries that you can download from here and also via package managers such as
+Homebrew and apt-get. Please check back in the next couple of weeks for this.
 
 ## Installing From Source
 
@@ -115,4 +115,5 @@ make install
 go get -u github.com/git-time-metric/gtm
 cd $GOPATH/src/github.com/git-time-metric/gtm
 gvt restore
+go install
 ```
