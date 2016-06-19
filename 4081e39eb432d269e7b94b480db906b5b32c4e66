@@ -1,0 +1,11 @@
+[ver:1,total:1080]
+main.go:645,1466348400:645,m
+Vagrantfile:180,1466344800:180,r
+command/commit.go:92,1466348400:92,m
+.git/COMMIT_EDITMSG:60,1466352000:60,r
+command/record.go:26,1466348400:26,m
+report/report.go:25,1466348400:25,m
+command/init.go:17,1466348400:17,m
+metric/manager_test.go:15,1466348400:15,m
+epoch/epoch.go:10,1466348400:10,m
+project/project.go:10,1466348400:10,m
