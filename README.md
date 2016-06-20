@@ -92,8 +92,8 @@ Thu Jun 16 22:28:45 2016 -0500 Michael Schenk  1h  1m  0s
 
 ## Installing From Binaries
 
-We will be providing pre-built binaries that you can download from here and also via package managers such as
-Homebrew and apt-get. Please check back in the next couple of weeks for this.
+Pre-built binaries can be download [here](https://github.com/git-time-metric/gtm/releases). The binary requires that [libssh2](https://www.libssh2.org) be installed on your system.
+For OS X, you can `brew install libssh2`. Most systems already have this, so first try running GTM before installing this library.
 
 ## Installing From Source
 
