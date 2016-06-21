@@ -103,8 +103,6 @@ for OS X and Linux to compile and install locally.
 
 ### OS X and Linux
 
-We use [gvt](https://github.com/FiloSottile/gvt) to vendor our packages.
-
 ```
 go get -d github.com/libgit2/git2go
 cd $GOPATH/src/github.com/libgit2/git2go
@@ -114,6 +112,7 @@ make install
 
 go get -u github.com/git-time-metric/gtm
 cd $GOPATH/src/github.com/git-time-metric/gtm
-gvt restore
+go get -t -v ./...
+go test ./...
 go install
 ```

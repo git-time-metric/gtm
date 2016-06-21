@@ -25,22 +25,19 @@ Vagrant.configure(2) do |config|
       sudo ln -s /vagrant /home/vagrant/dev/src/github.com/git-time-metric/gtm
     fi
 
-    echo "Installing git2go and libgit2"
-
     source /home/vagrant/.profile
-    sudo chown -R vagrant:vagrant /home/vagrant/dev
+
     go get -d github.com/libgit2/git2go
     cd $GOPATH/src/github.com/libgit2/git2go
     git checkout next
     git submodule update --init
     make install
 
-    # test and install gtm
     cd $GOPATH/src/github.com/git-time-metric/gtm
-    go get -u github.com/FiloSottile/gvt
-    gvt restore
+    go get -t -v ./...
     go test ./...
     go install
+
     sudo chown -R vagrant:vagrant /home/vagrant/dev
   SHELL
 
