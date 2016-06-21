@@ -5,16 +5,9 @@ sudo: required
 go:
   - 1.6
 
-script:
+before_install:
   - go get -d github.com/libgit2/git2go
   - cd $GOPATH/src/github.com/libgit2/git2go
   - git checkout next
   - git submodule update --init
   - make install
-
-  - cd $GOPATH/src/github.com/git-time-metric/gtm
-  - go get -u github.com/FiloSottile/gvt
-  - $GOBIN/gvt restore
-  - go test ./...
-  - go build
-
