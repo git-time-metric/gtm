@@ -12,9 +12,4 @@ before_install:
   - git checkout next
   - git submodule update --init
   - make install
-
-script:
-  - cd $GOPATH/src/git-time-metric/gtm
-  - go get ./...
-  - go install
-  - go test -v ./...
+  - cd $TRAVIS_BUILD_DIR
