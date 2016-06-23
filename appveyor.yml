@@ -14,6 +14,7 @@ install:
   - cd c:\gopath\src\github.com\libgit2\git2go
   - git checkout next
   - git submodule update --init
+  - bash  -lc "cp /c/gopath/src/github.com/git-time-metric/gtm/script/build-libgit2-static.sh /c/gopath/src/github.com/libgit2/git2go/script/build-libgit2-static.sh"
   - bash  -lc "cd /c/gopath/src/github.com/libgit2/git2go && make install"
   - cd c:\gopath\src\github.com\git-time-metric\gtm
 
