@@ -15,7 +15,7 @@ install:
   - git checkout next
   - git submodule update --init
   - bash  -lc "cp /c/gopath/src/github.com/git-time-metric/gtm/script/build-libgit2-static.sh /c/gopath/src/github.com/libgit2/git2go/script/build-libgit2-static.sh"
-  - bash  -lc "pacman -S make mingw-w64-x86_64-cmake mingw-w64-x86_64-pkg-config git-core"
+  - bash  -lc "pacman --noconfirm -S make mingw-w64-x86_64-cmake mingw-w64-x86_64-pkg-config git-core"
   - bash  -lc "cd /c/gopath/src/github.com/libgit2/git2go && make install"
   - cd c:\gopath\src\github.com\git-time-metric\gtm
 
