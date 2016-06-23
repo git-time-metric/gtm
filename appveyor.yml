@@ -1,6 +1,8 @@
 version: "{build}"
 
-os: Windows Server 2012 R2
+matrix:
+  - GENERATOR: "MSYS Makefiles"
+    ARCH: 64
 
 clone_folder: c:\gopath\src\github.com\git-time-metric\gtm
 
