@@ -14,8 +14,8 @@ install:
   - cd c:\gopath\src\github.com\libgit2\git2go
   - git checkout next
   - git submodule update --init
-  - bash  -lc "make install"
-  - cd -
+  - bash  -lc "cd /c/gopath/src/github.com/libgit2/git2go && make install"
+  - cd c:\gopath\src\github.com\git-time-metric\gtm
 
 build_script:
  - go get -t -v .\...
