@@ -12,7 +12,7 @@ install:
   - cd c:\gopath\src\github.com\libgit2\git2go
   - git checkout next
   - git submodule update --init
-  - make install
+  - C:\MinGW\msys\1.0\bin\sh --login make install
   - cd -
 
 build_script:
