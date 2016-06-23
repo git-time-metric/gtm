@@ -1,8 +1,7 @@
 version: "{build}"
 
-matrix:
-  - GENERATOR: "MSYS Makefiles"
-    ARCH: 64
+platform:
+  - x64
 
 clone_folder: c:\gopath\src\github.com\git-time-metric\gtm
 
@@ -10,11 +9,12 @@ environment:
   GOPATH: c:\gopath
 
 install:
+  - set PATH=C:\msys64\usr\bin;%PATH%
   - go get -d github.com\libgit2\git2go
   - cd c:\gopath\src\github.com\libgit2\git2go
   - git checkout next
   - git submodule update --init
-  - C:\MinGW\msys\1.0\bin\sh --login make install
+  - bash  -lc "make install"
   - cd -
 
 build_script:
