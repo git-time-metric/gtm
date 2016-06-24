@@ -6,4 +6,3 @@ clone_folder: c:\gopath\src\github.com\git-time-metric\gtm
 
 build_script:
   - c:\msys64\usr\bin\bash -lc /c/gopath/src/github.com/git-time-metric/gtm/script/appveyor-build.sh
-
