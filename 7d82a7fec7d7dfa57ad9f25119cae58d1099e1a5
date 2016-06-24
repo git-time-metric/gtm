@@ -1,0 +1,4 @@
+[ver:1,total:360]
+script/appveyor-build.sh:234,1466733600:30,1466737200:204,m
+appveyor.yml:72,1466733600:60,1466737200:12,r
+script/build-libgit2-static.sh:54,1466733600:30,1466737200:24,r
