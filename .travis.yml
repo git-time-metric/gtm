@@ -2,8 +2,11 @@ language: go
 
 sudo: required
 
+os:
+  - linux
+  - osx
+
 go:
-  - 1.6
   - tip
 
 before_install:

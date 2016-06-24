@@ -53,7 +53,10 @@ func (t TestRepo) Remove() {
 	}
 
 	err := os.RemoveAll(repoPath)
-	CheckFatal(t.test, err)
+	if err != nil {
+		// this could be just the issue with Windows os.RemoveAll() and privileges, ignore
+		fmt.Println(err)
+	}
 	t.repo.Free()
 
 	return
