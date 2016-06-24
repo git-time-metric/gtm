@@ -1,0 +1,3 @@
+[ver:1,total:240]
+appveyor.yml:180,1466784000:180,m
+script/appveyor-build.sh:60,1466784000:60,r
