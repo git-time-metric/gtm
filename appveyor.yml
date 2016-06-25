@@ -8,7 +8,7 @@ build_script:
   - c:\msys64\usr\bin\bash -lc /c/gopath/src/github.com/git-time-metric/gtm/script/appveyor-build.sh
 
 artifacts:
-  - path: gtm.$(appveyor_repo_tag).w64-x86_64
+  - path: gtm.$(appveyor_repo_tag).windows.tar.gz
     name: gtm.zip
 
 deploy:
