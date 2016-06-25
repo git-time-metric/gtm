@@ -1,7 +1,7 @@
 # Git Time Metrics (GTM)
 ### Simple, seamless, lightweight time tracking for all your git projects
 
-[![Build Status](https://travis-ci.org/git-time-metric/gtm.svg?branch=develop)](https://travis-ci.org/git-time-metric/gtm)
+[![Build Status](https://travis-ci.org/git-time-metric/gtm.svg?branch=develop)](https://travis-ci.org/git-time-metric/gtm) [![Build status](https://ci.appveyor.com/api/projects/status/gj6tvm8njgwj0hqi?svg=true)](https://ci.appveyor.com/project/mschenk42/gtm)
 
 Git Time Metrics (GTM) is a tool to automatically track time spent reading and working on code that you store
 in a Git repository. By installing GTM and using supported plugins to your favorite editors, you can immediately
