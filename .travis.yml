@@ -10,14 +10,16 @@ go:
 - 1.6
 
 before_install:
-- go get -d github.com/libgit2/git2go
-- cd $GOPATH/src/github.com/libgit2/git2go
-- git checkout next
-- git submodule update --init
-- make install
-- cd $TRAVIS_BUILD_DIR
-- go build -v -ldflags "-X main.version=${TRAVIS_TAG}"./...
-- tar -zcf gtm${TRAVIS_TAG}.${TRAVIS_OS}.tar.gz gtm
+  - go get -d github.com/libgit2/git2go
+  - cd $GOPATH/src/github.com/libgit2/git2go
+  - git checkout next
+  - git submodule update --init
+  - make install
+  - cd $TRAVIS_BUILD_DIR
+
+before_deploy:
+  - go build -v -ldflags "-X main.version=${TRAVIS_TAG}"./...
+  - tar -zcf gtm${TRAVIS_TAG}.${TRAVIS_OS}.tar.gz gtm
 
 deploy:
   provider: releases
