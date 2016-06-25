@@ -11,9 +11,6 @@ artifacts:
   - path: gtm.$(appveyor_repo_tag).w64-x86_64
     name: gtm.zip
 
-after_build:
- - 7z a gtm.%APPVEYOR_REPO_TAG%.w64-x86_64.zip %APPVEYOR_BUILD_FOLDER%\gtm.exe
-
 deploy:
   description: ''
   provider: GitHub
