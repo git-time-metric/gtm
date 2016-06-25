@@ -3,11 +3,11 @@ language: go
 sudo: required
 
 os:
-- linux
-- osx
+  - linux
+  - osx
 
 go:
-- 1.6
+  - 1.6
 
 before_install:
   - go get -d github.com/libgit2/git2go
