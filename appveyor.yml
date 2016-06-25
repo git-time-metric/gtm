@@ -6,3 +6,20 @@ clone_folder: c:\gopath\src\github.com\git-time-metric\gtm
 
 build_script:
   - c:\msys64\usr\bin\bash -lc /c/gopath/src/github.com/git-time-metric/gtm/script/appveyor-build.sh
+
+artifacts:
+  - path: gtm.zip
+    name: gtm.$(appveyor_repo_tag).w64-x86_64
+
+after_build:
+ - 7z a gtm.zip %APPVEYOR_BUILD_FOLDER%\gtm.exe
+
+deploy:
+  description: ''
+  provider: GitHub
+  auth_token:
+    secure: O47of1Osqbk2qkk1Vn228XXF/YDwev5j5YHyNPzEPJR1pxuqwPaqlvsFDVUYQoiu
+  artifact: gtm.$(appveyor_repo_tag).w64-x86_64
+  force_update: true
+  on:
+    appveyor_repo_tag: true
