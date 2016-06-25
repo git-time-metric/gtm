@@ -1,10 +1,14 @@
 language: go
+
 sudo: required
+
 os:
 - linux
 - osx
+
 go:
 - 1.6
+
 before_install:
 - go get -d github.com/libgit2/git2go
 - cd $GOPATH/src/github.com/libgit2/git2go
@@ -12,12 +16,16 @@ before_install:
 - git submodule update --init
 - make install
 - cd $TRAVIS_BUILD_DIR
+- go build -v -ldflags "-X main.version=${TRAVIS_TAG}"./...
+- tar -zcf gtm${TRAVIS_TAG}.${TRAVIS_OS}.tar.gz gtm
+
 deploy:
   provider: releases
   api_key:
     secure: ESUJSNG50G0iQM8iRsfdwpcH/UBH0dhAn7PhqF1F1uAfR6NeQSZwGDWumgwf3G7CX5GcfFu6PbNXlUo8+q7u12TgQ1ZoQ38vBgfLJUvwuoYPSfU2TttX9RdPSJiCCtM+UQsqDY1l7vjLOsYV3OaR9GpO21ttxaSGX3+AoAgfh24SWaLiwSNK6SEyO4B4gzJcvXdt4D31vBXfFaQ33kSP+WcbYov+R1OI/MeyHbesrmFgFwzo+CX+baIHd9FFy6iR/EMpK9YKoSOa5obMx3eINuwYFYXDxz7/kWX7CtAoChySodAbKLHGO3IY1vAvrDaaSclGgSGfK/J69KurO+RvH/4NZh1KhAgUhEXk62KxYtjS/Dr2g8G8ucXQ6nGa77QWXjWSPbwjJWF4CUMPFiRramqcS6O19v61MgRcawAQ/gxkx0XLYXSDz8RlM+rrt7ZJoJ6JSSoMhS089E46nTMroqlQWGoBFKXxIBq76mn3Qh/4TyOcFp6b8Bb224aaIrR7Teg9Pv9fTkzoO85mlhQfigdJ5PAUo6LLR0njBsY4PatTATcuW94vRmtbUaOLKiH81n7fE6NTA9gHPGB7650q4SjG0TSk45yNvDFo7hdcE2Hv7HY5+1ZmJtXE6NpmxjohDYIjcPL6tYunJgsSitzr3Ewwkb8eJVt+GHVHyqRbrcg=
-  file: gtm
+  file: gtm${TRAVIS_TAG}.${TRAVIS_OS}.tar.gz
   skip_cleanup: true
+  overwrite: true
   on:
     tags: true
     repo: git-time-metric/gtm
