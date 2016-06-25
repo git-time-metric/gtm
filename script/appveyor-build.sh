@@ -20,6 +20,6 @@ make install
 cd /c/gopath/src/github.com/git-time-metric/gtm
 go get -t -v ./...
 go test -v ./...
-if [[ -n ${APPVEYOR_REPO_TAG} ]]; then
+if [[ "${APPVEYOR_REPO_TAG}" = true ]]; then
   go build -v -ldflags "-X main.version=${APPVEYOR_REPO_TAG_NAME}"
 fi
