@@ -56,9 +56,9 @@ Note - GTM depends upon [libssh2](https://www.libssh2.org). Most systems already
 
 Currently we have plug-ins for Atom, Sublime and Vim. More will be added shortly and we are looking for others to contribute plug-ins. 
 
-- [Sublime 3](https://github.com/git-time-metric/gtm-sublime3-plug-in)
-- [Atom](https://github.com/git-time-metric/gtm-atom-plug-in)
-- [Vim](https://github.com/git-time-metric/gtm-vim-plug-in)
+- [Sublime 3](https://github.com/git-time-metric/gtm-sublime3-plugin)
+- [Atom](https://github.com/git-time-metric/gtm-atom-plugin)
+- [Vim](https://github.com/git-time-metric/gtm-vim-plugin)
 
 #### Initialize a project for time tracking
 
