@@ -17,11 +17,11 @@ Sun Jun 19 09:43:47 2016 -0500 Michael Schenk  1h 16m  0s
 Thu Jun 16 22:28:45 2016 -0500 Michael Schenk  1h  1m  0s
 ```
 
-Git Time Metrics (GTM) is a tool to automatically track time spent reading and working on code that you store in a Git repository. By installing GTM and using supported plug-ins for your favorite editors, you can immediately realize better insight into how you are spending your time and on what files.  
+Git Time Metrics (GTM) is a tool to automatically track time spent reading and working on code that you store in a Git repository. By installing GTM and using supported plug-ins for your favorite editors, you can immediately realize better insight into how you are spending your time and on what files.
 
-GTM is automatic, seamless and lightweight.  There is no need to remember to start and stop timers.  It's a process that only runs on occasion to capture edit events triggered by the editor.  It does not require a background process or any file system monitoring.  
+GTM is automatic, seamless and lightweight.  There is no need to remember to start and stop timers.  It's a process that only runs on occasion to capture edit events triggered by the editor.  It does not require a background process or any file system monitoring.
 
-Your time metrics are stored locally with the repo as [Git notes](https://git-scm.com/docs/git-notes). If you want to share your data,  it can be pushed and fetched to and from the remote repo. Other GTM users on your team can do the same. This provides you the ability to see time metrics for the entire team. 
+Your time metrics are stored locally with the repository as [Git notes](https://git-scm.com/docs/git-notes). If you want to share your data,  it can be pushed and fetched to and from the remote repository. Other GTM users on your team can do the same. This provides you the ability to see time metrics for the entire team.
 
 
 # Getting Started
@@ -50,11 +50,11 @@ brew install gtm
 - You may need to also instal [libssh2](https://www.libssh2.org)
 - Stay tuned, we will soon be providing an installer for Windows
 
-Note - GTM depends upon [libssh2](https://www.libssh2.org). Most systems already have this, so first try running GTM before installing this library.  For OS X, you can `brew install libssh2`. This will be done automatically if you use `brew install gtm`. 
-    
+Note - GTM depends upon [libssh2](https://www.libssh2.org). Most systems already have this, so first try running GTM before installing this library.  For OS X, you can `brew install libssh2`. This will be done automatically if you use `brew install gtm`.
+
 #### Install a GTM plug-in for your favorite editor
 
-Currently we have plug-ins for Atom, Sublime and Vim. More will be added shortly and we are looking for others to contribute plug-ins. 
+Currently we have plug-ins for Atom, Sublime and Vim. More will be added shortly and we are looking for others to contribute plug-ins.
 
 - [Sublime 3](https://github.com/git-time-metric/gtm-sublime3-plugin)
 - [Atom](https://github.com/git-time-metric/gtm-atom-plugin)
@@ -71,13 +71,13 @@ gtm init
 
 Spend some time editing your files.  Check your progress with `gtm status`.
 
-#### Commit your work 
+#### Commit your work
 
-When your ready, commit your work like you usually do.  GTM will automatically save the time spent associated with your commit. To check the time of the last commit `gtm report`.  
+When you are ready, commit your work like you usually do.  GTM will automatically save the time spent associated with your commit. To check the time of the last commit type `gtm report`.
 
-# Command Line Interface 
+# Command Line Interface
 
-GTM provides a simple CLI for initializing tracking and reporting on your time.  
+GTM provides a simple CLI for initializing tracking and reporting on your time.
 
 Here's a list of all the commands available for GTM.
 ```
@@ -126,7 +126,7 @@ gtm report -n 5 -format timeline
 *Report on a specific commit SHA1*
 
 ```
-gtm report 2401f73324c677f88fd40d2b434f2d007ce0b6f3 93f57ee594c917b2a372e06f09fa22009a145aac 
+gtm report 2401f73324c677f88fd40d2b434f2d007ce0b6f3 93f57ee594c917b2a372e06f09fa22009a145aac
 ```
 
 *Pipe output from git log*
@@ -135,24 +135,24 @@ gtm report 2401f73324c677f88fd40d2b434f2d007ce0b6f3 93f57ee594c917b2a372e06f09fa
  git log --pretty=%H --since="8 days ago" | gtm report
 ```
 
-**Pushing and fetching notes to and from the remote repo**
+**Pushing and fetching notes to and from the remote repository**
 
-GTM adds a couple of [git aliases](https://git-scm.com/book/en/v2/Git-Basics-Git-Aliases) to make this easy.  It defaults to origin for the remote repo.
+GTM adds a couple of [git aliases](https://git-scm.com/book/en/v2/Git-Basics-Git-Aliases) to make this easy.  It defaults to origin for the remote repository.
 
 ```
-git fetchgtm 
+git fetchgtm
 git pushgtm
 ```
 
-Note - if you don't push your notes to the remote repo you will lose them if you delete and re-clone a repo.
+Note - if you don't push your notes to the remote repository you will lose them if you delete and re-clone a repository.
 
 # Known Issues
 
-- Currently `git stash` is not fully supported.  You can certainly use git stash but your time may be assigned to the wrong commit. We will be adding full support for stashing in the near future. 
+- Currently `git stash` is not fully supported.  You can certainly use git stash but your time may be assigned to the wrong commit. We will be adding full support for stashing in the near future.
 
 # Contributing
 
-GTM has reached beta status for the initial release but we are looking for others to help make it great. We also need to expand the editor plug-in library.  
+GTM has reached beta status for the initial release but we are looking for others to help make it great. We also need to expand the editor plug-in library.
 
-The plug-ins are very simple to write. Take a look at the Atom, Vim and Sublime plug-ins to see how easy it is to create plug-ins.
+The plug-ins are very simple to write. Take a look at the [Atom](https://github.com/git-time-metric/gtm-atom-plugin), [Vim](https://github.com/git-time-metric/gtm-vim-plugin) and [Sublime 3](https://github.com/git-time-metric/gtm-sublime3-plugin) plug-ins to see how easy it is to create plug-ins.
 
