@@ -7,11 +7,12 @@ os:
 go:
   - 1.6
 
+addons:
+  apt:
+    packages:
+    - libssh2-1-dev
+
 before_install:
-  addons:
-    apt:
-      packages:
-        - libssh2-1-dev
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update;          fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install libssh2; fi
   # - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then apt-get -qq update;               fi
