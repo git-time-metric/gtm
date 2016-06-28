@@ -46,6 +46,7 @@ brew install gtm
 **Windows**
 
 - Download the pre-build executable from [here](https://github.com/git-time-metric/gtm/releases)
+  - The release archive is in a tar format, here are some options documented on the Haskell site for [unpacking in Windows](https://wiki.haskell.org/How_to_unpack_a_tar_file_in_Windows)
 - Create directory C:\gtm and add it to your system's path
 - You may need to also instal [libssh2](https://www.libssh2.org)
 - Stay tuned, we will soon be providing an installer for Windows
