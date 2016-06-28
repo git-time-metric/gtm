@@ -40,7 +40,6 @@ brew install gtm
 
 - Download the pre-build executable from [here](https://github.com/git-time-metric/gtm/releases)
 - Copy to /usr/local/bin and make sure your system's path contains this directory
-- You may need to also install [libssh2](https://www.libssh2.org)
 - Stay tuned, we will soon be distributing Linux packages
 
 **Windows**
@@ -48,10 +47,9 @@ brew install gtm
 - Download the pre-build executable from [here](https://github.com/git-time-metric/gtm/releases)
   - The release archive is in a tar format, here are some options documented on the Haskell site for [unpacking in Windows](https://wiki.haskell.org/How_to_unpack_a_tar_file_in_Windows)
 - Create directory C:\gtm and add it to your system's path
-- You may need to also instal [libssh2](https://www.libssh2.org)
 - Stay tuned, we will soon be providing an installer for Windows
 
-Note - GTM depends upon [libssh2](https://www.libssh2.org). Most systems already have this, so first try running GTM before installing this library.  For OS X, you can `brew install libssh2`. This will be done automatically if you use `brew install gtm`.
+Note - When running GTM, if you recieve an error about something related to [libssh2](https://www.libssh2.org), please create an issue so we can look into it.
 
 #### Install a GTM plug-in for your favorite editor
 
