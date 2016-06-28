@@ -10,6 +10,10 @@ go:
   - 1.6
 
 before_install:
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update;          fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install libssh2; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then apt-get update;                fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then apt-get install libssh2-1-dev; fi
   - go get -d github.com/libgit2/git2go
   - cd $GOPATH/src/github.com/libgit2/git2go
   - git checkout next
