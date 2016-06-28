@@ -39,7 +39,7 @@ environment/drone/run-tests-cron.sh:700,1460066400:540,1460070000:160,m
 environment/drone/run-tests.sh:725,1460066400:705,1460070000:20,m
 environment/drone/run-tests-cron.sh:700,1460066400:540,1460070000:160,m
 
-[ver:1,total:1425]
+[ver:1,total:60]
 environment/drone/test.go:60,1460070000:60,r
 
 `,
