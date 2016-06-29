@@ -28,7 +28,7 @@ Your time metrics are stored locally with the repository as [Git notes](https://
 
 #### Install the latest GTM release
 
-**Mac OS X**
+**Mac OS X***
 
 The simplest way to install is to use [Homebrew](http://brew.sh).
 ```
@@ -36,20 +36,29 @@ brew tap git-time-metric/gtm
 brew install gtm
 ```
 
-**Linux or Mac OS X**
+**Linux or Mac OS X***
 
 - Download the pre-build executable from [here](https://github.com/git-time-metric/gtm/releases/latest)
-- Copy to /usr/local/bin and make sure your system's path contains this directory
+- Extract the tar file to /usr/local/bin, `tar -C /usr/local/bin -zxf <file.tar.gz>`
+- Make sure it's executable, `chmod +x /usr/local/bin/gtm`
+- Check to make sure `/usr/loca/bin` is in your PATH (it should be already there)
 - Stay tuned, we will soon be distributing Linux packages
 
-**Windows**
 
+**Windows***
+
+*Option 1*
+
+- Download and run the windows installer from [here](https://github.com/git-time-metric/gtm/releases/latest)
+
+*Option 2*
+
+- Create a `gtm` directory in `c:\Program Files (x86)` and add it to your system's path
 - Download the pre-build executable from [here](https://github.com/git-time-metric/gtm/releases/latest)
+- Extract the tar file and install the `gtm.exe` in `c:\Program Files (x86)\gtm`
   - The release archive is in a tar format, here are some options documented on the Haskell site for [unpacking in Windows](https://wiki.haskell.org/How_to_unpack_a_tar_file_in_Windows)
-- Create directory C:\gtm and add it to your system's path
-- Stay tuned, we will soon be providing an installer for Windows
 
-Note - When running GTM, if you recieve an error about something related to [libssh2](https://www.libssh2.org), please create an issue so we can look into it.
+***Note** - When running GTM in Windows, Mac OS X or Linux, if you recieve an error about something related to [libssh2](https://www.libssh2.org), please create an issue so we can look into it.
 
 #### Install a GTM plug-in for your favorite editor
 
