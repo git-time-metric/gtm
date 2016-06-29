@@ -3,10 +3,13 @@
 
 [![Build Status](https://travis-ci.org/git-time-metric/gtm.svg?branch=develop)](https://travis-ci.org/git-time-metric/gtm) [![Build status](https://ci.appveyor.com/api/projects/status/gj6tvm8njgwj0hqi?svg=true)](https://ci.appveyor.com/project/mschenk42/gtm)
 
-```
-601d24c Conditionally install go and compile git2go and libgit2
-Sun Jun 19 12:27:14 2016 -0500 Michael Schenk  42m 30s
+Git Time Metrics (GTM) is a tool to automatically track time spent reading and working on code that you store in a Git repository. By installing GTM and using supported plug-ins for your favorite editors, you can immediately realize better insight into how you are spending your time and on what files.
 
+GTM is automatic, seamless and lightweight.  There is no need to remember to start and stop timers.  It's a process that only runs on occasion to capture edit events triggered by the editor.  It does not require a background process or any file system monitoring.
+
+Your time metrics are stored locally with the repository as [Git notes](https://git-scm.com/docs/git-notes). If you want to share your data,  it can be pushed and fetched to and from the remote repository. Other GTM users on your team can do the same. This provides you the ability to see time metrics for the entire team.
+
+```
 9361c18 Rename packages
 Sun Jun 19 09:56:40 2016 -0500 Michael Schenk  34m 30s
 
@@ -16,14 +19,28 @@ Sun Jun 19 09:43:47 2016 -0500 Michael Schenk  1h 16m  0s
 792ba19 Require a 40 char SHA commit hash
 Thu Jun 16 22:28:45 2016 -0500 Michael Schenk  1h  1m  0s
 ```
+```
+b2d16c8 Refactor discovering of paths when recording events
+Thu Jun 16 11:08:47 2016 -0500 Michael Schenk
 
-Git Time Metrics (GTM) is a tool to automatically track time spent reading and working on code that you store in a Git repository. By installing GTM and using supported plug-ins for your favorite editors, you can immediately realize better insight into how you are spending your time and on what files.
-
-GTM is automatic, seamless and lightweight.  There is no need to remember to start and stop timers.  It's a process that only runs on occasion to capture edit events triggered by the editor.  It does not require a background process or any file system monitoring.
-
-Your time metrics are stored locally with the repository as [Git notes](https://git-scm.com/docs/git-notes). If you want to share your data,  it can be pushed and fetched to and from the remote repository. Other GTM users on your team can do the same. This provides you the ability to see time metrics for the entire team.
-
-
+       30m 18s  [m] event/event.go
+       12m 31s  [m] event/manager.go
+        3m 14s  [m] project/project.go
+        1m 12s  [r] .git/COMMIT_EDITMSG
+        1m  0s  [r] .git/index
+           25s  [r] event/manager_test.go
+           20s  [r] metric/manager.go
+       49m  0s
+```
+```
+           0123456789012345678901234
+Fri Jun 24 *                              22m  0s
+Sat Jun 25 **                          1h 28m  0s
+Sun Jun 26 ****                        3h 28m  0s
+Mon Jun 27 *                               4m  0s
+Tue Jun 28 **                          1h 36m  0s
+                                       6h 58m  0s
+```
 # Getting Started
 
 #### Install the latest GTM release
@@ -58,7 +75,7 @@ brew install gtm
 - Extract the tar file and install the `gtm.exe` in `c:\Program Files (x86)\gtm`
   - The release archive is in a tar format, here are some options documented on the Haskell site for [unpacking in Windows](https://wiki.haskell.org/How_to_unpack_a_tar_file_in_Windows)
 
-***Note** - When running GTM in Windows, Mac OS X or Linux, if you recieve an error about something related to [libssh2](https://www.libssh2.org), please create an issue so we can look into it.
+**Note** - when running GTM in Windows, Mac OS X or Linux, if you recieve an error about something related to [libssh2](https://www.libssh2.org), please create an issue so we can look into it.
 
 #### Install a GTM plug-in for your favorite editor
 
@@ -164,3 +181,4 @@ GTM has reached beta status for the initial release but we are looking for other
 
 The plug-ins are very simple to write. Take a look at the [Atom](https://github.com/git-time-metric/gtm-atom-plugin), [Vim](https://github.com/git-time-metric/gtm-vim-plugin) and [Sublime 3](https://github.com/git-time-metric/gtm-sublime3-plugin) plug-ins to see how easy it is to create plug-ins.
 
+For more detail on how to write plug-ins, check out the [Wiki](https://github.com/git-time-metric/gtm/wiki/Editor-Plug-ins).
