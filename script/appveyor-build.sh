@@ -5,15 +5,10 @@ export PATH=/c/msys64/mingw64/bin:/c/msys64/usr/bin:/c/Go/bin:/c/gopath/go/bin:$
 export GOROOT=/c/Go/
 export GOPATH=/c/gopath
 
-pacman -S --noconfirm mingw-w64-x86_64-libssh2 
-
-go get -d github.com/libgit2/git2go
-cd /c/gopath/src/github.com/libgit2/git2go
+go get -d github.com/git-time-metric/git2go
+cd /c/gopath/src/github.com/git-time-metric/git2go
 git checkout next
 git submodule update --init
-
-cp /c/gopath/src/github.com/git-time-metric/gtm/script/build-libgit2-static.sh \
-   /c/gopath/src/github.com/libgit2/git2go/script/build-libgit2-static.sh
 
 make install
 
