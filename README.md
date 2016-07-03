@@ -168,7 +168,6 @@ GTM adds a couple of [git aliases](https://git-scm.com/book/en/v2/Git-Basics-Git
 git fetchgtm
 git pushgtm
 ```
-
 Note - if you don't push your notes to the remote repository you will lose them if you delete and re-clone a repository.
 
 # Known Issues
