@@ -9,6 +9,10 @@ GTM is automatic, seamless and lightweight.  There is no need to remember to sta
 
 Your time metrics are stored locally with the repository as [Git notes](https://git-scm.com/docs/git-notes). If you want to share your data,  it can be pushed and fetched to and from the remote repository. Other GTM users on your team can do the same. This provides you the ability to see time metrics for the entire team.
 
+Here are some examples of insights GTM can provide you.
+
+**Git commits with time spent**
+
 ```
 9361c18 Rename packages
 Sun Jun 19 09:56:40 2016 -0500 Michael Schenk  34m 30s
@@ -19,6 +23,9 @@ Sun Jun 19 09:43:47 2016 -0500 Michael Schenk  1h 16m  0s
 792ba19 Require a 40 char SHA commit hash
 Thu Jun 16 22:28:45 2016 -0500 Michael Schenk  1h  1m  0s
 ```
+
+**Git commits with detailed time spent by file**
+
 ```
 b2d16c8 Refactor discovering of paths when recording events
 Thu Jun 16 11:08:47 2016 -0500 Michael Schenk
@@ -32,6 +39,9 @@ Thu Jun 16 11:08:47 2016 -0500 Michael Schenk
            20s  [r] metric/manager.go
        49m  0s
 ```
+
+**Timeline of time spent by day**
+
 ```
            0123456789012345678901234
 Fri Jun 24 *                              22m  0s
@@ -41,19 +51,20 @@ Mon Jun 27 *                               4m  0s
 Tue Jun 28 **                          1h 36m  0s
                                        6h 58m  0s
 ```
+
 # Getting Started
 
-#### Install the latest GTM release
+## Install the latest GTM release
 
-**Mac OS X***
+**Mac OS X**
 
-The simplest way to install is to use [Homebrew](http://brew.sh).
+The simplest way to install is to use [Homebrew](http://brew.sh) - *Recommended*.
 ```
 brew tap git-time-metric/gtm
 brew install gtm
 ```
 
-**Linux or Mac OS X***
+**Linux or Mac OS X**
 
 - Download the pre-build executable from [here](https://github.com/git-time-metric/gtm/releases/latest)
 - Extract the tar file to /usr/local/bin, `tar -C /usr/local/bin -zxf <file.tar.gz>`
@@ -62,9 +73,9 @@ brew install gtm
 - Stay tuned, we will soon be distributing Linux packages
 
 
-**Windows***
+**Windows**
 
-*Option 1*
+*Option 1 - Recommended*
 
 - Download and run the windows installer from [here](https://github.com/git-time-metric/gtm/releases/latest)
 
@@ -75,30 +86,53 @@ brew install gtm
 - Extract the tar file and install the `gtm.exe` in `c:\Program Files (x86)\gtm`
   - The release archive is in a tar format, here are some options documented on the Haskell site for [unpacking in Windows](https://wiki.haskell.org/How_to_unpack_a_tar_file_in_Windows)
 
-**Note** - when running GTM in Windows, Mac OS X or Linux, if you recieve an error about something related to [libssh2](https://www.libssh2.org), please create an issue so we can look into it.
+## Install a GTM plug-in for your favorite editor
 
-#### Install a GTM plug-in for your favorite editor
-
-Currently we have plug-ins for Atom, Sublime and Vim. More will be added shortly and we are looking for others to contribute plug-ins.
+Currently there are plug-ins for Atom, Sublime and Vim. More will be added shortly and we are looking for others to contribute plug-ins.
 
 - [Sublime 3](https://github.com/git-time-metric/gtm-sublime3-plugin)
 - [Atom](https://github.com/git-time-metric/gtm-atom-plugin)
 - [Vim](https://github.com/git-time-metric/gtm-vim-plugin)
 
-#### Initialize a project for time tracking
+## Initialize a project for time tracking
 
-```sh
-cd ~/some-project
-gtm init
+For each project that has a Git repo you need to initialize it with `gtm init` for tracking with GTM otherwise it will be ignored.
+```
+> cd /Users/mschenk/Projects/go/src/github.com/git-time-metric/gtm
+> gtm init
+
+Git Time Metric initialized for /Users/mschenk/Projects/go/src/github.com/git-time-metric/gtm
+
+     post-commit: gtm commit --yes
+  alias.fetchgtm: fetch origin refs/notes/gtm-data:refs/notes/gtm-data
+   alias.pushgtm: push origin refs/notes/gtm-data
+notes.rewriteref: refs/notes/gtm-data
+      .gitignore: .gtm/
 ```
 
-#### Edit your files
+## Edit some files in your project
 
 Spend some time editing your files.  Check your progress with `gtm status`.
 
-#### Commit your work
+```
+> gtm status
+
+       36m  0s  [m] README.md
+       36m  0s
+```
+
+## Commit your work
 
 When you are ready, commit your work like you usually do.  GTM will automatically save the time spent associated with your commit. To check the time of the last commit type `gtm report`.
+```
+> gtm report
+
+6620f55 Add more help content to README
+Sun Jul 03 16:57:15 2016 -0500 Michael Schenk
+
+       40m  0s  [m] README.md
+       40m  0s
+```
 
 # Command Line Interface
 
@@ -134,7 +168,7 @@ status
 
 For general help `gtm --help` and for help on a command `gtm --help <command>`
 
-**Some examples on how to use the CLI**
+## Some examples on how to use the CLI
 
 *Report on the last 5 commits*
 
@@ -160,7 +194,10 @@ gtm report 2401f73324c677f88fd40d2b434f2d007ce0b6f3 93f57ee594c917b2a372e06f09fa
  git log --pretty=%H --since="8 days ago" | gtm report
 ```
 
-**Pushing and fetching notes to and from the remote repository**
+The `git log` command provides some nice options for [limiting and filtering output](https://git-scm.com/book/en/v2/Git-Basics-Viewing-the-Commit-History#Limiting-Log-Output).  You can use all these options as long as the output format is set to `--pretty=%H`.
+
+
+## Pushing and fetching notes to and from the remote repository
 
 GTM adds a couple of [git aliases](https://git-scm.com/book/en/v2/Git-Basics-Git-Aliases) to make this easy.  It defaults to origin for the remote repository.
 
@@ -168,6 +205,7 @@ GTM adds a couple of [git aliases](https://git-scm.com/book/en/v2/Git-Basics-Git
 git fetchgtm
 git pushgtm
 ```
+
 Note - if you don't push your notes to the remote repository you will lose them if you delete and re-clone a repository.
 
 # Known Issues
