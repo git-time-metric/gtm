@@ -1,0 +1,5 @@
+[ver:1,total:840]
+Vagrantfile:400,1467586800:340,1467590400:60,m
+script/appveyor-build.sh:210,1467590400:210,r
+appveyor.yml:180,1467590400:180,r
+.travis.yml:50,1467586800:20,1467590400:30,r
