@@ -27,8 +27,8 @@ Vagrant.configure(2) do |config|
 
     source /home/vagrant/.profile
 
-    go get -d github.com/libgit2/git2go
-    cd $GOPATH/src/github.com/libgit2/git2go
+    go get -d github.com/git-time-metric/git2go
+    cd $GOPATH/src/github.com/git-time-metric/git2go
     git checkout next
     git submodule update --init
     make install
