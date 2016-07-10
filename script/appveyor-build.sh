@@ -16,6 +16,6 @@ cd /c/gopath/src/github.com/git-time-metric/gtm
 go get -t -v ./...
 go test -v ./...
 if [[ "${APPVEYOR_REPO_TAG}" = true ]]; then
-  go build -v -ldflags "-X main.version=${APPVEYOR_REPO_TAG_NAME}"
+  go build -v -ldflags "-X main.Version=${APPVEYOR_REPO_TAG_NAME}"
   tar -zcf gtm.${APPVEYOR_REPO_TAG_NAME}.windows.tar.gz gtm.exe
 fi

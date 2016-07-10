@@ -16,7 +16,7 @@ before_install:
   - cd $TRAVIS_BUILD_DIR
 
 before_deploy:
-  - go build -v -ldflags "-X main.version=${TRAVIS_TAG}"
+  - go build -v -ldflags "-X main.Version=${TRAVIS_TAG}"
   - tar -zcf gtm.${TRAVIS_TAG}.${TRAVIS_OS_NAME}.tar.gz gtm
 
 deploy:
