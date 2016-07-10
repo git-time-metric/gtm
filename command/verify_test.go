@@ -14,8 +14,7 @@ func TestCheck(t *testing.T) {
 		{">= 1.0.0", VerifyCmd{Version: "V1.0.0"}, true, false},
 		{">= 1.0.0", VerifyCmd{Version: "1.0.0"}, true, false},
 		{">= 1.0-beta.5", VerifyCmd{Version: "v1.0-beta.5"}, true, false},
-		{">= 1.0.0", VerifyCmd{Version: "1.0.0.0"}, false, true},
-		{"v1.0.0", VerifyCmd{Version: "1.0.0"}, false, true},
+		{">= 1.0.0", VerifyCmd{Version: "1.0.xxx"}, false, true},
 	}
 
 	for _, tc := range cases {

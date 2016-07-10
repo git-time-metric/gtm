@@ -18,6 +18,14 @@
 			"notests": true
 		},
 		{
+			"importpath": "github.com/hashicorp/go-version",
+			"repository": "https://github.com/hashicorp/go-version",
+			"vcs": "git",
+			"revision": "0181db47023708a38c2d20d2fe25a5fa034d5743",
+			"branch": "master",
+			"notests": true
+		},
+		{
 			"importpath": "github.com/mattn/go-isatty",
 			"repository": "https://github.com/mattn/go-isatty",
 			"vcs": "git",
@@ -37,7 +45,7 @@
 			"importpath": "golang.org/x/crypto/ssh/terminal",
 			"repository": "https://go.googlesource.com/crypto",
 			"vcs": "git",
-			"revision": "77f4136a99ffb5ecdbdd0226bd5cb146cf56bc0e",
+			"revision": "c2f4947f41766b144bb09066e919466da5eddeae",
 			"branch": "master",
 			"path": "/ssh/terminal",
 			"notests": true
@@ -46,7 +54,7 @@
 			"importpath": "golang.org/x/sys/unix",
 			"repository": "https://go.googlesource.com/sys",
 			"vcs": "git",
-			"revision": "7f918dd405547ecb864d14a8ecbbfe205b5f930f",
+			"revision": "a408501be4d17ee978c04a618e7a1b22af058c0e",
 			"branch": "master",
 			"path": "/unix",
 			"notests": true
