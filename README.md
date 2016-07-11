@@ -1,3 +1,4 @@
+![GTM Logo](https://raw.githubusercontent.com/git-time-metric/gtm-atom-plugin/master/lib/GTMLogo-128.png)
 # Git Time Metrics (GTM)
 ### Simple, seamless, lightweight time tracking for all your git projects
 
