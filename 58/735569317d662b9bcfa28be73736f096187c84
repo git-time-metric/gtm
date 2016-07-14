@@ -1,0 +1,13 @@
+[ver:1,total:1920]
+README.md:780,1468530000:780,m
+main.go:647,1468357200:647,r
+command/report.go:160,1468202400:130,1468206000:30,r
+command/commit.go:160,1468202400:10,1468206000:150,r
+vendor/github.com/mitchellh/cli/command.go:50,1468357200:50,r
+command/record.go:30,1468206000:30,r
+AUTHORS:25,1468202400:10,1468206000:15,r
+project/project.go:23,1468357200:23,r
+.gitignore:15,1468206000:15,r
+command/init.go:10,1468202400:10,r
+note/note_test.go:10,1468202400:10,r
+note/note.go:10,1468202400:10,r
