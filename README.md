@@ -220,3 +220,9 @@ GTM has reached beta status for the initial release but we are looking for other
 The plug-ins are very simple to write. Take a look at the [Atom](https://github.com/git-time-metric/gtm-atom-plugin), [Vim](https://github.com/git-time-metric/gtm-vim-plugin) and [Sublime 3](https://github.com/git-time-metric/gtm-sublime3-plugin) plug-ins to see how easy it is to create plug-ins.
 
 For more detail on how to write plug-ins, check out the [Wiki](https://github.com/git-time-metric/gtm/wiki/Editor-Plug-ins).
+
+# Support
+
+To report a bug, please submit an issue on the [GitHub Page](https://github.com/git-time-metric/gtm/issues)
+
+Consult the [Wiki](https://github.com/git-time-metric/gtm/wiki) for more information.
