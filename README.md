@@ -89,11 +89,12 @@ brew install gtm
 
 ## Install a GTM plug-in for your favorite editor
 
-Currently there are plug-ins for Atom, Sublime and Vim. More will be added shortly and we are looking for others to contribute plug-ins.
+Currently there are plug-ins for Atom, Sublime, Jetbrains IDEs and Vim. More will be added shortly and we are looking for others to contribute plug-ins.
 
 - [Sublime 3](https://github.com/git-time-metric/gtm-sublime3-plugin)
 - [Atom](https://github.com/git-time-metric/gtm-atom-plugin)
 - [Vim](https://github.com/git-time-metric/gtm-vim-plugin)
+- [IntelliJ IDEA, PyCharm, WebStorm, AppCode, RubyMine, PhpStorm, AndroidStudio ](https://github.com/git-time-metric/gtm-jetbrains-plugin)
 
 ## Initialize a project for time tracking
 
