@@ -12,18 +12,18 @@ import (
 )
 
 func TestInitialize(t *testing.T) {
-	d, err := ioutil.TempDir("", "gtm")
+	rootPath, err := ioutil.TempDir("", "gtm")
 	if err != nil {
-		t.Fatalf("Unable to create tempory directory %s, %s", d, err)
+		t.Fatalf("Unable to create tempory directory %s, %s", rootPath, err)
 	}
 	defer func() {
-		if err = os.RemoveAll(d); err != nil {
-			fmt.Printf("Error removing %s dir, %s", d, err)
+		if err = os.RemoveAll(rootPath); err != nil {
+			fmt.Printf("Error removing %s dir, %s", rootPath, err)
 		}
 	}()
 
 	savedCurDir, _ := os.Getwd()
-	if err := os.Chdir(d); err != nil {
+	if err := os.Chdir(rootPath); err != nil {
 		t.Fatalf("Unable to change working directory, %s", err)
 	}
 	defer func() {
@@ -47,7 +47,7 @@ func TestInitialize(t *testing.T) {
 	}
 
 	for hook, command := range GitHooks {
-		fp := filepath.Join(d, ".git", "hooks", hook)
+		fp := filepath.Join(rootPath, ".git", "hooks", hook)
 		if _, err := os.Stat(fp); os.IsNotExist(err) {
 			t.Errorf("Initialize(), want file post-commit, got %s", err)
 		}
@@ -71,7 +71,7 @@ func TestInitialize(t *testing.T) {
 		}
 	}
 
-	fp := filepath.Join(d, ".gitignore")
+	fp := filepath.Join(rootPath, ".gitignore")
 	if _, err := os.Stat(fp); os.IsNotExist(err) {
 		t.Errorf("Initialize(), want file .gitignore, got %s", err)
 	}
@@ -84,18 +84,18 @@ func TestInitialize(t *testing.T) {
 }
 
 func TestUninitialize(t *testing.T) {
-	d, err := ioutil.TempDir("", "gtm")
+	rootPath, err := ioutil.TempDir("", "gtm")
 	if err != nil {
-		t.Fatalf("Unable to create tempory directory %s, %s", d, err)
+		t.Fatalf("Unable to create tempory directory %s, %s", rootPath, err)
 	}
 	defer func() {
-		if err = os.RemoveAll(d); err != nil {
-			fmt.Printf("Error removing %s dir, %s", d, err)
+		if err = os.RemoveAll(rootPath); err != nil {
+			fmt.Printf("Error removing %s dir, %s", rootPath, err)
 		}
 	}()
 
 	savedCurDir, _ := os.Getwd()
-	if err := os.Chdir(d); err != nil {
+	if err := os.Chdir(rootPath); err != nil {
 		t.Fatalf("Unable to change working directory, %s", err)
 	}
 	defer func() {
@@ -124,7 +124,7 @@ func TestUninitialize(t *testing.T) {
 	}
 
 	for hook, command := range GitHooks {
-		fp := filepath.Join(d, ".git", "hooks", hook)
+		fp := filepath.Join(rootPath, ".git", "hooks", hook)
 		if b, err = ioutil.ReadFile(fp); err != nil {
 			t.Fatalf("Uninitialize(), want error nil, got %s", err)
 		}
@@ -145,7 +145,7 @@ func TestUninitialize(t *testing.T) {
 		}
 	}
 
-	fp := filepath.Join(d, ".gitignore")
+	fp := filepath.Join(rootPath, ".gitignore")
 	if b, err = ioutil.ReadFile(fp); err != nil {
 		t.Fatalf("Uninitialize(), want error nil, got %s", err)
 	}
@@ -153,24 +153,24 @@ func TestUninitialize(t *testing.T) {
 		t.Errorf("Uninitialize(), do not want %s got %s", GitIgnore, string(b))
 	}
 
-	if _, err := os.Stat(path.Join(d, ".gtm")); !os.IsNotExist(err) {
+	if _, err := os.Stat(path.Join(rootPath, ".gtm")); !os.IsNotExist(err) {
 		t.Errorf("Uninitialize(), error directory .gtm exists")
 	}
 }
 
 func TestClean(t *testing.T) {
-	d, err := ioutil.TempDir("", "gtm")
+	rootPath, err := ioutil.TempDir("", "gtm")
 	if err != nil {
-		t.Fatalf("Unable to create tempory directory %s, %s", d, err)
+		t.Fatalf("Unable to create tempory directory %s, %s", rootPath, err)
 	}
 	defer func() {
-		if err = os.RemoveAll(d); err != nil {
-			fmt.Printf("Error removing %s dir, %s", d, err)
+		if err = os.RemoveAll(rootPath); err != nil {
+			fmt.Printf("Error removing %s dir, %s", rootPath, err)
 		}
 	}()
 
 	savedCurDir, _ := os.Getwd()
-	if err := os.Chdir(d); err != nil {
+	if err := os.Chdir(rootPath); err != nil {
 		t.Fatalf("Unable to change working directory, %s", err)
 	}
 	defer func() {
@@ -190,7 +190,7 @@ func TestClean(t *testing.T) {
 		t.Fatalf("Want error nil got error %s", err)
 	}
 
-	gtmPath := filepath.Join(d, GTMDir)
+	gtmPath := filepath.Join(rootPath, GTMDir)
 	if _, err := os.Stat(gtmPath); os.IsNotExist(err) {
 		t.Fatalf("%s directory not found", gtmPath)
 	}
