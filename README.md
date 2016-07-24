@@ -145,27 +145,41 @@ Here's a list of all the commands available for GTM.
 usage: gtm [--version] [--help] <command> [<args>]
 
 Available commands are:
-commit
-    Usage: gtm commit [-yes]
-    Save your logged time with the last commit
-    This is automatically called from the postcommit hook
-    Warning - any time logged will be cleared from your working directory
+    clean
+	Usage: gtm clean [-yes]
+	Cleans uncommitted time data by removing all event and metric files from the .gtm directory
 
-init
-    Usage: gtm init
-    Initialize a git project for time tracking
+    commit
+	Usage: gtm commit [-yes]
+	Save your logged time with the last commit
+	This is automatically called from the postcommit hook
+	Warning - any time logged will be cleared from your working directory
 
-record
-    Usage: gtm record <filepath>
-    Record a file event
+    init
+	Usage: gtm init
+	Initialize a git project for time tracking
 
-report
-    Usage: gtm report [-n] [-format commits|totals|files|timeline] [-total-only] <commit-sha1...>
-    Report on time logged
+    record
+	Usage: gtm record [-status] <path/file>
+	Record a file event
 
-status
-    Usage: gtm status [-total-only]
-    Show time spent for working or staged files
+    report
+	Usage: gtm report [-n] [-format commits|totals|files|timeline] [-total-only]
+	Report on time logged
+
+    status
+	Usage: gtm status [-total-only]
+	Show time spent for working or staged files
+
+    uninit
+	Usage: gtm uninit [-yes]
+	Remove GTM tracking for the current git repository
+	Note - this removes uncommitted time data but does not remove time data that is committed
+
+    verify
+	Usage: gtm verify <version constraint>
+	Verify gtm satisfies the version constraint
+	This is typically invoked by plug-ins to determine if GTM needs to be upgraded
 ```
 
 For general help `gtm --help` and for help on a command `gtm --help <command>`
