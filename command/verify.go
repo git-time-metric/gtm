@@ -41,6 +41,7 @@ func (v VerifyCmd) Synopsis() string {
 	return `
 	Usage: gtm verify <version constraint>
 	Verify gtm satisfies the version constraint
+	This is typically invoked by plug-ins to determine if GTM needs to be upgraded
 	`
 }
 

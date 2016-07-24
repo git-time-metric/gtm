@@ -302,8 +302,8 @@ func ReadNote(commitID string, nameSpace string, wd ...string) (CommitNote, erro
 	}, nil
 }
 
-// Config persists git configuration settings
-func Config(settings map[string]string, wd ...string) error {
+// ConfigSet persists git configuration settings
+func ConfigSet(settings map[string]string, wd ...string) error {
 	var (
 		err  error
 		repo *git.Repository
@@ -321,6 +321,32 @@ func Config(settings map[string]string, wd ...string) error {
 
 	for k, v := range settings {
 		err = cfg.SetString(k, v)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// ConfigRemove removes git configuration settings
+func ConfigRemove(settings map[string]string, wd ...string) error {
+	var (
+		err  error
+		repo *git.Repository
+		cfg  *git.Config
+	)
+
+	if len(wd) > 0 {
+		repo, err = openRepository(wd[0])
+	} else {
+		repo, err = openRepository()
+	}
+
+	cfg, err = repo.Config()
+	defer cfg.Free()
+
+	for k := range settings {
+		err = cfg.Delete(k)
 		if err != nil {
 			return err
 		}
@@ -376,8 +402,48 @@ func SetHooks(hooks map[string]string, wd ...string) error {
 	return nil
 }
 
-// Ignore persists paths/files to ignore for a git repo
-func Ignore(ignore string, wd ...string) error {
+// RemoveHooks remove matching git hook commands
+func RemoveHooks(hooks map[string]string, wd ...string) error {
+	for hook, command := range hooks {
+		var (
+			p   string
+			err error
+		)
+
+		if len(wd) > 0 {
+			p = wd[0]
+		} else {
+			p, err = os.Getwd()
+			if err != nil {
+				return err
+			}
+		}
+		fp := filepath.Join(p, ".git", "hooks", hook)
+
+		if _, err := os.Stat(fp); os.IsNotExist(err) {
+			continue
+		}
+
+		b, err := ioutil.ReadFile(fp)
+		if err != nil {
+			return err
+		}
+		output := string(b)
+
+		if strings.Contains(output, command) {
+			output = strings.Replace(output, command, "", -1)
+			if err = ioutil.WriteFile(fp, []byte(output), 0755); err != nil {
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// IgnoreSet persists paths/files to ignore for a git repo
+func IgnoreSet(ignore string, wd ...string) error {
 	var (
 		p   string
 		err error
@@ -409,6 +475,40 @@ func Ignore(ignore string, wd ...string) error {
 	if err = ioutil.WriteFile(
 		fp, []byte(fmt.Sprintf("%s\n%s\n", output, ignore)), 0644); err != nil {
 		return err
+	}
+	return nil
+}
+
+// IgnoreRemove removes paths/files ignored for a git repo
+func IgnoreRemove(ignore string, wd ...string) error {
+	var (
+		p   string
+		err error
+	)
+
+	if len(wd) > 0 {
+		p = wd[0]
+	} else {
+		p, err = os.Getwd()
+		if err != nil {
+			return err
+		}
+	}
+	fp := filepath.Join(p, ".gitignore")
+
+	if _, err := os.Stat(fp); os.IsNotExist(err) {
+		return fmt.Errorf("Unable to remove %s from .gitignore, %s not found", ignore, fp)
+	}
+	b, err := ioutil.ReadFile(fp)
+	if err != nil {
+		return err
+	}
+	output := string(b)
+	if strings.Contains(output, ignore+"\n") {
+		output = strings.Replace(output, ignore+"\n", "", 1)
+		if err = ioutil.WriteFile(fp, []byte(output), 0644); err != nil {
+			return err
+		}
 	}
 	return nil
 }

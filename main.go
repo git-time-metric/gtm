@@ -9,7 +9,8 @@ import (
 	"github.com/mitchellh/cli"
 )
 
-var Version string = "0.0.0"
+// Version is the released version set during the release build process
+var Version = "0.0.0"
 
 func main() {
 	c := cli.NewCLI("gtm", Version)
@@ -21,6 +22,8 @@ func main() {
 		"report": command.NewReport,
 		"status": command.NewStatus,
 		"verify": command.NewVerify(Version),
+		"uninit": command.NewUninit,
+		"clean":  command.NewClean,
 	}
 
 	exitStatus, err := c.Run()

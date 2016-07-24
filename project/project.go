@@ -4,9 +4,11 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"text/template"
 	"time"
 
@@ -53,6 +55,19 @@ const initMsgTpl string = `
 {{end -}}
 {{ print ".gitignore:" | printf "%17s" }} {{ .GitIgnore }}
 `
+const removeMsgTpl string = `
+{{print "Git Time Metric uninitialized for " (.ProjectPath) | printf (.HeaderFormat) }}
+
+The following items have been removed.
+
+{{ range $hook, $command := .GitHooks -}}
+	{{- $hook | printf "%16s" }}: {{ $command }}
+{{ end -}}
+{{ range $key, $val := .GitConfig -}}
+	{{- $key | printf "%16s" }}: {{ $val }}
+{{end -}}
+{{ print ".gitignore:" | printf "%17s" }} {{ .GitIgnore }}
+`
 
 // Now is the func used for system time within gtm
 // This allows for manipulating system time during testing
@@ -60,35 +75,39 @@ var Now = func() time.Time { return time.Now() }
 
 // Initialize initializes a git repo for time tracking
 func Initialize() (string, error) {
-	var fp string
-
 	wd, err := os.Getwd()
 	if err != nil {
 		return "", err
 	}
 
-	fp = filepath.Join(wd, ".git")
-	if _, err := os.Stat(fp); os.IsNotExist(err) {
+	projRoot, err := scm.RootPath(wd)
+	if err != nil {
 		return "", fmt.Errorf(
-			"Unable to intialize Git Time Metric, Git repository not found in %s", wd)
+			"Unable to intialize Git Time Metric, Git repository not found in %s", projRoot)
 	}
 
-	fp = filepath.Join(wd, GTMDir)
-	if _, err := os.Stat(fp); os.IsNotExist(err) {
-		if err := os.MkdirAll(fp, 0700); err != nil {
+	gitPath := filepath.Join(projRoot, ".git")
+	if _, err := os.Stat(gitPath); os.IsNotExist(err) {
+		return "", fmt.Errorf(
+			"Unable to intialize Git Time Metric, Git repository not found in %s", gitPath)
+	}
+
+	gtmPath := filepath.Join(projRoot, GTMDir)
+	if _, err := os.Stat(gtmPath); os.IsNotExist(err) {
+		if err := os.MkdirAll(gtmPath, 0700); err != nil {
 			return "", err
 		}
 	}
 
-	if err := scm.SetHooks(GitHooks); err != nil {
+	if err := scm.SetHooks(GitHooks, projRoot); err != nil {
 		return "", err
 	}
 
-	if err := scm.Config(GitConfig); err != nil {
+	if err := scm.ConfigSet(GitConfig, projRoot); err != nil {
 		return "", err
 	}
 
-	if err := scm.Ignore(GitIgnore); err != nil {
+	if err := scm.IgnoreSet(GitIgnore, projRoot); err != nil {
 		return "", err
 	}
 
@@ -108,7 +127,7 @@ func Initialize() (string, error) {
 			GitIgnore    string
 		}{
 			headerFormat,
-			wd,
+			projRoot,
 			GitHooks,
 			GitConfig,
 			GitIgnore})
@@ -118,6 +137,100 @@ func Initialize() (string, error) {
 	}
 
 	return b.String(), nil
+}
+
+//Uninitialize remove GTM tracking from the project in the current working directory
+func Uninitialize() (string, error) {
+	wd, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+
+	projRoot, err := scm.RootPath(wd)
+	if err != nil {
+		return "", fmt.Errorf(
+			"Unable to unintialize Git Time Metric, Git repository not found in %s", projRoot)
+	}
+
+	gtmPath := filepath.Join(projRoot, GTMDir)
+	if _, err := os.Stat(gtmPath); os.IsNotExist(err) {
+		return "", fmt.Errorf(
+			"Unable to uninitialize Git Time Metric, %s directory not found", gtmPath)
+	}
+	if err := scm.RemoveHooks(GitHooks, projRoot); err != nil {
+		return "", err
+	}
+	if err := scm.ConfigRemove(GitConfig, projRoot); err != nil {
+		return "", err
+	}
+	if err := scm.IgnoreRemove(GitIgnore, projRoot); err != nil {
+		return "", err
+	}
+	if err := os.RemoveAll(gtmPath); err != nil {
+		return "", err
+	}
+
+	headerFormat := "%s"
+	if terminal.IsTerminal(int(os.Stdout.Fd())) {
+		headerFormat = "\x1b[1m%s\x1b[0m"
+	}
+	b := new(bytes.Buffer)
+	t := template.Must(template.New("msg").Parse(removeMsgTpl))
+	err = t.Execute(b,
+		struct {
+			HeaderFormat string
+			ProjectPath  string
+			GitHooks     map[string]string
+			GitConfig    map[string]string
+			GitIgnore    string
+		}{
+			headerFormat,
+			projRoot,
+			GitHooks,
+			GitConfig,
+			GitIgnore})
+
+	if err != nil {
+		return "", err
+	}
+
+	return b.String(), nil
+}
+
+//Clean removes any event or metrics files from project in the current working directory
+func Clean() (string, error) {
+	wd, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+
+	projRoot, err := scm.RootPath(wd)
+	if err != nil {
+		return "", fmt.Errorf(
+			"Unable to clean, Git repository not found in %s", projRoot)
+	}
+
+	gtmPath := filepath.Join(projRoot, GTMDir)
+	if _, err := os.Stat(gtmPath); os.IsNotExist(err) {
+		return "", fmt.Errorf(
+			"Unable to clean GTM data, %s directory not found", gtmPath)
+	}
+
+	files, err := ioutil.ReadDir(gtmPath)
+	if err != nil {
+		return "", err
+	}
+	for _, f := range files {
+		if !strings.HasSuffix(f.Name(), ".event") &&
+			!strings.HasSuffix(f.Name(), ".metric") {
+			continue
+		}
+		if err := os.Remove(filepath.Join(gtmPath, f.Name())); err != nil {
+			return "", err
+		}
+	}
+
+	return "", nil
 }
 
 // Paths returns the root git repo and gtm paths

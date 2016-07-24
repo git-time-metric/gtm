@@ -65,7 +65,7 @@ func (r ReportCmd) Run(args []string) int {
 		commits = append(commits, a)
 	}
 
-	// if running from within a MINGW console isatty does not work
+	// TODO: if running from within a MINGW console isatty does not work
 	// https://github.com/mintty/mintty/issues/482
 	if !isatty.IsTerminal(os.Stdin.Fd()) && len(commits) == 0 && *limit == 0 {
 		scanner := bufio.NewScanner(os.Stdin)
