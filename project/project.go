@@ -8,13 +8,13 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"text/template"
 	"time"
 
-	"golang.org/x/crypto/ssh/terminal"
-
 	"github.com/git-time-metric/gtm/scm"
+	isatty "github.com/mattn/go-isatty"
 )
 
 var (
@@ -112,7 +112,7 @@ func Initialize() (string, error) {
 	}
 
 	headerFormat := "%s"
-	if terminal.IsTerminal(int(os.Stdout.Fd())) {
+	if isatty.IsTerminal(os.Stdout.Fd()) && runtime.GOOS != "windows" {
 		headerFormat = "\x1b[1m%s\x1b[0m"
 	}
 
@@ -171,7 +171,7 @@ func Uninitialize() (string, error) {
 	}
 
 	headerFormat := "%s"
-	if terminal.IsTerminal(int(os.Stdout.Fd())) {
+	if isatty.IsTerminal(os.Stdout.Fd()) && runtime.GOOS != "windows" {
 		headerFormat = "\x1b[1m%s\x1b[0m"
 	}
 	b := new(bytes.Buffer)

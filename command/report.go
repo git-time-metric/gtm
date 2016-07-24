@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"strings"
 
 	"github.com/git-time-metric/gtm/report"
 	"github.com/git-time-metric/gtm/scm"
@@ -65,9 +66,14 @@ func (r ReportCmd) Run(args []string) int {
 		commits = append(commits, a)
 	}
 
-	// TODO: if running from within a MINGW console isatty does not work
+	// if running from within a MINGW console isatty detection does not work
 	// https://github.com/mintty/mintty/issues/482
-	if !isatty.IsTerminal(os.Stdin.Fd()) && len(commits) == 0 && *limit == 0 {
+	isMinGW := strings.HasPrefix(os.Getenv("MSYSTEM"), "MINGW")
+	if isMinGW && *limit == 0 && len(commits) == 0 {
+		fmt.Println("\nGTM does not fully support the MinGW console, defaulting to gtm report -n 1")
+		fmt.Println("To avoid this message, use gtm report -n option or directly provide SHA1s as arguments")
+	}
+	if !isMinGW && !isatty.IsTerminal(os.Stdin.Fd()) && len(commits) == 0 && *limit == 0 {
 		scanner := bufio.NewScanner(os.Stdin)
 		for scanner.Scan() {
 			if !sha1Regex.MatchString(scanner.Text()) {

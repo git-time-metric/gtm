@@ -3,12 +3,12 @@ package report
 import (
 	"bytes"
 	"os"
+	"runtime"
 	"text/template"
-
-	"golang.org/x/crypto/ssh/terminal"
 
 	"github.com/git-time-metric/gtm/note"
 	"github.com/git-time-metric/gtm/util"
+	isatty "github.com/mattn/go-isatty"
 )
 
 var funcMap = template.FuncMap{
@@ -89,7 +89,7 @@ func Commits(commits []string, totalOnly bool) (string, error) {
 		t = template.Must(template.New("Commits").Funcs(funcMap).Parse(commitsTpl))
 	}
 	headerFormat := "%s"
-	if terminal.IsTerminal(int(os.Stdout.Fd())) {
+	if isatty.IsTerminal(os.Stdout.Fd()) && runtime.GOOS != "windows" {
 		headerFormat = "\x1b[1m%s\x1b[0m"
 	}
 	err := t.Execute(
