@@ -95,6 +95,7 @@ Currently there are plug-ins for Atom, Sublime, Jetbrains IDEs and Vim. More wil
 - [Atom](https://github.com/git-time-metric/gtm-atom-plugin)
 - [Vim](https://github.com/git-time-metric/gtm-vim-plugin)
 - [IntelliJ IDEA, PyCharm, WebStorm, AppCode, RubyMine, PhpStorm, AndroidStudio ](https://github.com/git-time-metric/gtm-jetbrains-plugin)
+- [VSCode](https://github.com/nexus-uw/vscode-gtm)
 
 ## Initialize a project for time tracking
 
