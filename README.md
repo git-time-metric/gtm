@@ -65,7 +65,19 @@ brew tap git-time-metric/gtm
 brew install gtm
 ```
 
-**Linux or Mac OS X**
+**Arch Linux**
+
+The package available in Arch Linux User Repository:
+
+[https://aur.archlinux.org/packages/gtm/](https://aur.archlinux.org/packages/gtm/)
+
+Installing using yaourt:
+
+```
+yaourt -S gtm
+```
+
+**Other Linux distro or Mac OS X**
 
 - Download the pre-build executable from [here](https://github.com/git-time-metric/gtm/releases/latest)
 - Extract the tar file to /usr/local/bin, `tar -C /usr/local/bin -zxf <file.tar.gz>`
