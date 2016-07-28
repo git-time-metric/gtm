@@ -1,7 +1,9 @@
 package scm
 
 import (
+	"io/ioutil"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/git-time-metric/gtm/util"
@@ -184,5 +186,146 @@ func TestStatus(t *testing.T) {
 	}
 	if len(status.Files) != 1 {
 		t.Errorf("len(status.Files) want \"1\" got \"%d\"", len(status.Files))
+	}
+}
+
+func TestIgnoreSet_GitignoreDoesNotExists(t *testing.T) {
+	repo := util.NewTestRepo(t, false)
+	defer repo.Remove()
+
+	repoPath := repo.PathIn("")
+	gitignorePath := repo.PathIn(".gitignore")
+
+	err := IgnoreSet("/.gtm/", repoPath)
+	if err != nil {
+		t.Errorf("IgnoreSet error: %s", err)
+	}
+
+	data, err := ioutil.ReadFile(gitignorePath)
+	if err != nil {
+		t.Errorf("read .gitignore error: %s", err)
+	}
+
+	if string(data) != "/.gtm/\n" {
+		t.Errorf(
+			".gitignore want contents \"/.gtm/\n\", got \"%s\"",
+			string(data),
+		)
+	}
+}
+
+func TestIgnoreSet_GitignoreIsEmpty(t *testing.T) {
+	repo := util.NewTestRepo(t, false)
+	defer repo.Remove()
+
+	repoPath := repo.PathIn("")
+	gitignorePath := repo.PathIn(".gitignore")
+
+	_, err := os.Create(gitignorePath)
+	if err != nil {
+		t.Errorf("can't create .gitignore: %s", err)
+	}
+
+	err = IgnoreSet("/.gtm/", repoPath)
+	if err != nil {
+		t.Errorf("IgnoreSet error: %s", err)
+	}
+
+	data, err := ioutil.ReadFile(gitignorePath)
+	if err != nil {
+		t.Errorf("read .gitignore error: %s", err)
+	}
+
+	if string(data) != "/.gtm/\n" {
+		t.Errorf(
+			".gitignore want contents \"/.gtm/\n\", got \"%s\"",
+			string(data),
+		)
+	}
+}
+
+func TestIgnoreSet_GitignoreContainsSomeData(t *testing.T) {
+	repo := util.NewTestRepo(t, false)
+	defer repo.Remove()
+
+	repoPath := repo.PathIn("")
+	gitignorePath := repo.PathIn(".gitignore")
+
+	err := ioutil.WriteFile(gitignorePath, []byte("blah\n"), 0644)
+	if err != nil {
+		t.Errorf("can't create .gitignore: %s", err)
+	}
+
+	err = IgnoreSet("/.gtm/", repoPath)
+	if err != nil {
+		t.Errorf("IgnoreSet error: %s", err)
+	}
+
+	data, err := ioutil.ReadFile(gitignorePath)
+	if err != nil {
+		t.Errorf("read .gitignore error: %s", err)
+	}
+
+	if string(data) != "blah\n/.gtm/\n" {
+		t.Errorf(
+			".gitignore want contents \"blah\n/.gtm/\n\", got \"%s\"",
+			string(data),
+		)
+	}
+}
+
+func TestIgnoreSet_GitignoreAlreadyContainsGivenData(t *testing.T) {
+	repo := util.NewTestRepo(t, false)
+	defer repo.Remove()
+
+	repoPath := repo.PathIn("")
+	gitignorePath := repo.PathIn(".gitignore")
+
+	err := ioutil.WriteFile(gitignorePath, []byte("/.gtm/\n"), 0644)
+	if err != nil {
+		t.Errorf("can't create .gitignore: %s", err)
+	}
+
+	err = IgnoreSet("/.gtm/", repoPath)
+	if err != nil {
+		t.Errorf("IgnoreSet error: %s", err)
+	}
+
+	data, err := ioutil.ReadFile(gitignorePath)
+	if err != nil {
+		t.Errorf("read .gitignore error: %s", err)
+	}
+
+	if string(data) != "/.gtm/\n" {
+		t.Errorf(
+			".gitignore want contents \"/.gtm/\n\", got \"%s\"",
+			string(data),
+		)
+	}
+}
+
+func TestIgnoreSet_GitignoreError(t *testing.T) {
+	repo := util.NewTestRepo(t, false)
+	defer repo.Remove()
+
+	repoPath := repo.PathIn("")
+	gitignorePath := repo.PathIn(".gitignore")
+
+	// create directory with name .gitignore for io read error
+	err := os.Mkdir(gitignorePath, 0644)
+	if err != nil {
+		t.Errorf("can't create directory %s: %s", gitignorePath, err)
+	}
+
+	err = IgnoreSet("/.gtm/", repoPath)
+	if err == nil {
+		t.Errorf("IgnoreSet must return error, .gitignore is error")
+	}
+
+	if !strings.Contains(err.Error(), "can't read") {
+		t.Errorf(
+			"IgnoreSet error must contain \"can't read\", got \"%s\"",
+			err,
+		)
 	}
 }

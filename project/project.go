@@ -33,8 +33,8 @@ var (
 		"alias.pushgtm":    "push origin refs/notes/gtm-data",
 		"alias.fetchgtm":   "fetch origin refs/notes/gtm-data:refs/notes/gtm-data",
 		"notes.rewriteref": "refs/notes/gtm-data"}
-	// GitIgnore is list of file/path ignores to apply to git repo
-	GitIgnore = ".gtm/"
+	// GitIgnore is file ignore to apply to git repo
+	GitIgnore = "/.gtm/"
 )
 
 const (

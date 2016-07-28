@@ -457,25 +457,35 @@ func IgnoreSet(ignore string, wd ...string) error {
 			return err
 		}
 	}
+
 	fp := filepath.Join(p, ".gitignore")
 
 	var output string
-	if _, err := os.Stat(fp); !os.IsNotExist(err) {
-		b, err := ioutil.ReadFile(fp)
-		if err != nil {
-			return err
-		}
-		output = string(b)
 
-		if strings.Contains(output, ignore+"\n") {
-			return nil
+	data, err := ioutil.ReadFile(fp)
+	if err == nil {
+		output = string(data)
+
+		lines := strings.Split(output, "\n")
+		for _, line := range lines {
+			if strings.TrimSpace(line) == ignore {
+				return nil
+			}
 		}
+	} else if !os.IsNotExist(err) {
+		return fmt.Errorf("can't read %s: %s", fp, err)
 	}
 
-	if err = ioutil.WriteFile(
-		fp, []byte(fmt.Sprintf("%s\n%s\n", output, ignore)), 0644); err != nil {
-		return err
+	if len(output) > 0 && !strings.HasSuffix(output, "\n") {
+		output += "\n"
 	}
+
+	output += ignore + "\n"
+
+	if err = ioutil.WriteFile(fp, []byte(output), 0644); err != nil {
+		return fmt.Errorf("can't write %s: %s", fp, err)
+	}
+
 	return nil
 }
 
