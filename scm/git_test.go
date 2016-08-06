@@ -3,6 +3,7 @@ package scm
 import (
 	"io/ioutil"
 	"os"
+	"path"
 	"strings"
 	"testing"
 
@@ -327,5 +328,51 @@ func TestIgnoreSet_GitignoreError(t *testing.T) {
 			"IgnoreSet error must contain \"can't read\", got \"%s\"",
 			err,
 		)
+	}
+}
+
+func TestSetGitHooks(t *testing.T) {
+	repo := util.NewTestRepo(t, false)
+	defer repo.Remove()
+
+	repoPath := repo.PathIn("")
+	hooks := map[string]string{"post-commit": "gtm commit --yes"}
+
+	// test when hook exists
+	err := ioutil.WriteFile(path.Join(repoPath, ".git", "hooks", "post-commit"), []byte{}, 0755)
+	if err != nil {
+		t.Fatalf("SetHooks(hooks) expect error nil, got %s", err)
+	}
+
+	err = SetHooks(hooks, repoPath)
+	if err != nil {
+		t.Fatalf("SetHooks(hooks) expect error nil, got %s", err)
+	}
+	b, err := ioutil.ReadFile(path.Join(repoPath, ".git", "hooks", "post-commit"))
+	if err != nil {
+		t.Fatalf("SetHooks(hooks) expect error nil, got %s", err)
+	}
+	output := string(b)
+	if !strings.Contains(output, hooks["post-commit"]) {
+		t.Errorf("SetHooks(hooks) expected post-commit to contain %s, got %s", hooks["post-commit"], output)
+	}
+
+	// test if hook doesn't exist
+	err = os.Remove(path.Join(repoPath, ".git", "hooks", "post-commit"))
+	if err != nil {
+		t.Fatalf("SetHooks(hooks) expect error nil, got %s", err)
+	}
+
+	err = SetHooks(hooks, repoPath)
+	if err != nil {
+		t.Errorf("SetHooks(hooks) expect error nil, got %s", err)
+	}
+	b, err = ioutil.ReadFile(path.Join(repoPath, ".git", "hooks", "post-commit"))
+	if err != nil {
+		t.Fatalf("SetHooks(hooks) expect error nil, got %s", err)
+	}
+	output = string(b)
+	if !strings.Contains(output, hooks["post-commit"]) {
+		t.Errorf("SetHooks(hooks) expected post-commit to contain %s, got %s", hooks["post-commit"], output)
 	}
 }
