@@ -53,6 +53,7 @@ const initMsgTpl string = `
 {{ range $key, $val := .GitConfig -}}
 	{{- $key | printf "%16s" }}: {{ $val }}
 {{end -}}
+{{ print "terminal:" | printf "%17s" }} {{ .Terminal }}
 {{ print ".gitignore:" | printf "%17s" }} {{ .GitIgnore }}
 `
 const removeMsgTpl string = `
@@ -74,7 +75,7 @@ The following items have been removed.
 var Now = func() time.Time { return time.Now() }
 
 // Initialize initializes a git repo for time tracking
-func Initialize() (string, error) {
+func Initialize(terminal bool) (string, error) {
 	wd, err := os.Getwd()
 	if err != nil {
 		return "", err
@@ -97,6 +98,15 @@ func Initialize() (string, error) {
 		if err := os.MkdirAll(gtmPath, 0700); err != nil {
 			return "", err
 		}
+	}
+
+	if terminal {
+		if err := ioutil.WriteFile(filepath.Join(gtmPath, "terminal.app"), []byte(""), 0644); err != nil {
+			return "", err
+		}
+	} else {
+		// file may not exist, ignore error
+		os.Remove(filepath.Join(gtmPath, "terminal.app"))
 	}
 
 	if err := scm.SetHooks(GitHooks, projRoot); err != nil {
@@ -125,12 +135,15 @@ func Initialize() (string, error) {
 			GitHooks     map[string]string
 			GitConfig    map[string]string
 			GitIgnore    string
+			Terminal     bool
 		}{
 			headerFormat,
 			projRoot,
 			GitHooks,
 			GitConfig,
-			GitIgnore})
+			GitIgnore,
+			terminal,
+		})
 
 	if err != nil {
 		return "", err

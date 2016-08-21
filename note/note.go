@@ -158,6 +158,10 @@ func (f *FileDetail) SortEpochs() []int64 {
 	return keys
 }
 
+func (f *FileDetail) IsTerminal() bool {
+	return f.SourceFile == ".gtm/terminal.app"
+}
+
 // FileByTime is list of FileDetails
 type FileByTime []FileDetail
 

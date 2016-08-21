@@ -31,7 +31,7 @@ func (r ReportCmd) Run(args []string) int {
 	format := reportFlags.String(
 		"format",
 		"commits",
-		"Specify report format [commits|totals|files|timeline]")
+		"Specify report format [commits|files|timeline]")
 	limit := reportFlags.Int(
 		"n",
 		0,
@@ -119,7 +119,7 @@ func (r ReportCmd) Run(args []string) int {
 
 func (r ReportCmd) Synopsis() string {
 	return `
-	Usage: gtm report [-n] [-format commits|totals|files|timeline] [-total-only]
+	Usage: gtm report [-n] [-format commits|files|timeline] [-total-only]
 	Report on time logged
 	`
 }

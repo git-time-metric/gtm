@@ -13,7 +13,7 @@
 			"importpath": "github.com/bgentry/speakeasy",
 			"repository": "https://github.com/bgentry/speakeasy",
 			"vcs": "git",
-			"revision": "e1439544d8ecd0f3e9373a636d447668096a8f81",
+			"revision": "a1ccbf2c40dfc8ce514b5c5c6e6d1429ea6880da",
 			"branch": "master",
 			"notests": true
 		},
@@ -21,7 +21,7 @@
 			"importpath": "github.com/hashicorp/go-version",
 			"repository": "https://github.com/hashicorp/go-version",
 			"vcs": "git",
-			"revision": "0181db47023708a38c2d20d2fe25a5fa034d5743",
+			"revision": "deeb027c13a95d56c7585df3fe29207208c6706e",
 			"branch": "master",
 			"notests": true
 		},
@@ -29,7 +29,7 @@
 			"importpath": "github.com/mattn/go-isatty",
 			"repository": "https://github.com/mattn/go-isatty",
 			"vcs": "git",
-			"revision": "56b76bdf51f7708750eac80fa38b952bb9f32639",
+			"revision": "66b8e73f3f5cda9f96b69efd03dd3d7fc4a5cdb8",
 			"branch": "master",
 			"notests": true
 		},
@@ -37,7 +37,7 @@
 			"importpath": "github.com/mitchellh/cli",
 			"repository": "https://github.com/mitchellh/cli",
 			"vcs": "git",
-			"revision": "168daae10d6ff81b8b1201b0a4c9607d7e9b82e3",
+			"revision": "fcf521421aa29bde1d93b6920dfce826d7932208",
 			"branch": "master",
 			"notests": true
 		},
@@ -45,7 +45,7 @@
 			"importpath": "golang.org/x/crypto/ssh/terminal",
 			"repository": "https://go.googlesource.com/crypto",
 			"vcs": "git",
-			"revision": "c2f4947f41766b144bb09066e919466da5eddeae",
+			"revision": "aa2481cbfe81d911eb62b642b7a6b5ec58bbea71",
 			"branch": "master",
 			"path": "/ssh/terminal",
 			"notests": true
@@ -54,7 +54,7 @@
 			"importpath": "golang.org/x/sys/unix",
 			"repository": "https://go.googlesource.com/sys",
 			"vcs": "git",
-			"revision": "a408501be4d17ee978c04a618e7a1b22af058c0e",
+			"revision": "30de6d19a3bd89a5f38ae4028e23aaa5582648af",
 			"branch": "master",
 			"path": "/unix",
 			"notests": true

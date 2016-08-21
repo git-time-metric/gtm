@@ -9,9 +9,8 @@ import (
 
 // FormatDuration converts seconds into a duration string
 func FormatDuration(secs int) string {
-	durStr := (time.Duration(secs) * time.Second).String()
 	vals := regexp.MustCompile(`\d+`)
-	matches := vals.FindAllString(durStr, -1)
+	matches := vals.FindAllString(DurationStr(secs), -1)
 	switch len(matches) {
 	case 3:
 		return fmt.Sprintf("%sh %2sm %2ss", matches[0], matches[1], matches[2])
@@ -22,6 +21,11 @@ func FormatDuration(secs int) string {
 	default:
 		return ""
 	}
+}
+
+//DurationStr returns seconds as a duration string, i.e. 9h10m30s
+func DurationStr(secs int) string {
+	return (time.Duration(secs) * time.Second).String()
 }
 
 // https://github.com/DaddyOh/golang-samples/blob/master/pad.go

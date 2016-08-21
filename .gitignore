@@ -57,8 +57,18 @@ gtm
 ### https://raw.github.com/github/gitignore/10eb19db07e36f5b8b26315ec90e27c5e82a4b47/Global/Vagrant.gitignore
 
 .vagrant/
+/.gtm/
+### https://raw.github.com/github/gitignore/10eb19db07e36f5b8b26315ec90e27c5e82a4b47/Global/Vim.gitignore
+
+# swap
+[._]*.s[a-w][a-z]
+[._]s[a-w][a-z]
+# session
+Session.vim
+# temporary
+.netrwhist
+*~
+# auto-generated tag files
+tags
 
 
-
-
-.gtm/

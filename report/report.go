@@ -24,7 +24,11 @@ const (
 	{{- printf $headerFormat $note.Hash }} {{ printf $headerFormat $note.Subject }}{{- printf "\n" }}
 	{{- $note.Date }} {{ $note.Author }} {{- printf "\n" }}
 	{{- range $i, $f := .Note.Files }}
-		{{- FormatDuration $f.TimeSpent | printf "\n%14s" }}  [{{ $f.Status }}] {{$f.SourceFile}}
+		{{- if $f.IsTerminal }}
+			{{- FormatDuration $f.TimeSpent | printf "\n%14s" }}  [{{ $f.Status }}] Terminal
+		{{- else }}
+			{{- FormatDuration $f.TimeSpent | printf "\n%14s" }}  [{{ $f.Status }}] {{$f.SourceFile}}
+		{{- end }}
 	{{- end }}
 	{{- if len .Note.Files }}
 		{{- FormatDuration .Note.Total | printf "\n%14s\n\n" }}
@@ -34,7 +38,11 @@ const (
 {{- end -}}`
 	statusTpl string = `
 {{ range $i, $f := .Note.Files }}
-	{{- FormatDuration $f.TimeSpent | printf "%14s" }}  [{{ $f.Status }}] {{$f.SourceFile}}
+	{{- if $f.IsTerminal }}
+		{{- FormatDuration $f.TimeSpent | printf "%14s" }}  [{{ $f.Status }}] Terminal
+	{{- else }}
+		{{- FormatDuration $f.TimeSpent | printf "%14s" }}  [{{ $f.Status }}] {{$f.SourceFile}}
+	{{- end }}
 {{ end }}
 {{- if len .Note.Files }}
 	{{- FormatDuration .Note.Total | printf "%14s" }}
@@ -56,7 +64,11 @@ const (
 {{ end }}`
 	filesTpl string = `
 {{ range $i, $f := .Files }}
-	{{- $f.Duration | printf "%14s" }}  {{ $f.Filename }}
+	{{- if $f.IsTerminal }}
+		{{- $f.Duration | printf "%14s" }}  Terminal
+	{{- else }}
+		{{- $f.Duration | printf "%14s" }}  {{ $f.Filename }}
+	{{- end }}
 {{ end }}
 {{- if len .Files }}
 	{{- .Files.Duration | printf "%14s" }}
@@ -66,7 +78,7 @@ const (
 // Status returns the status report
 func Status(n note.CommitNote, totalOnly bool) (string, error) {
 	if totalOnly {
-		return util.FormatDuration(n.Total()), nil
+		return util.DurationStr(n.Total()), nil
 	}
 	b := new(bytes.Buffer)
 	t := template.Must(template.New("Status").Funcs(funcMap).Parse(statusTpl))

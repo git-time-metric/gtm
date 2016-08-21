@@ -11,6 +11,7 @@ import (
 	"github.com/git-time-metric/gtm/note"
 	"github.com/git-time-metric/gtm/project"
 	"github.com/git-time-metric/gtm/report"
+	"github.com/git-time-metric/gtm/scm"
 
 	"github.com/mitchellh/cli"
 )
@@ -32,17 +33,33 @@ func (r RecordCmd) Run(args []string) int {
 		"status",
 		false,
 		"After recording, return current total time spent [gtm status -total-only]")
+	terminal := recordFlags.Bool(
+		"terminal",
+		false,
+		"Record a terminal event")
 	if err := recordFlags.Parse(os.Args[2:]); err != nil {
 		fmt.Println(err)
 		return 1
 	}
 
-	if len(recordFlags.Args()) == 0 {
+	if !*terminal && len(recordFlags.Args()) == 0 {
 		fmt.Println("Unable to record, file not provided")
 		return 1
 	}
 
-	if err := event.Record(recordFlags.Args()[0]); err != nil && !(err == project.ErrNotInitialized || err == project.ErrFileNotFound) {
+	fileToRecord := ""
+	if *terminal {
+		projPath, err := scm.RootPath()
+		if err != nil {
+			// if not found, ignore error
+			return 0
+		}
+		fileToRecord = filepath.Join(projPath, ".gtm", "terminal.app")
+	} else {
+		fileToRecord = recordFlags.Args()[0]
+	}
+
+	if err := event.Record(fileToRecord); err != nil && !(err == project.ErrNotInitialized || err == project.ErrFileNotFound) {
 		if err := project.Log(err); err != nil {
 			fmt.Println(err)
 		}
@@ -62,7 +79,7 @@ func (r RecordCmd) Run(args []string) int {
 		}
 		defer os.Chdir(wd)
 
-		os.Chdir(filepath.Dir(recordFlags.Args()[0]))
+		os.Chdir(filepath.Dir(fileToRecord))
 
 		if commitNote, err = metric.Process(true); err != nil {
 			fmt.Println(err)
@@ -81,7 +98,10 @@ func (r RecordCmd) Run(args []string) int {
 
 func (r RecordCmd) Synopsis() string {
 	return `
-	Usage: gtm record [-status] <path/file>
-	Record a file event
+	Usage: gtm record [-status] [-terminal] [<path/file>]
+	Record a file or terminal events
+
+	record file event     -> gtm record /path/file
+	record terminal event -> gtm record -terminal
 	`
 }

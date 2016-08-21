@@ -173,3 +173,7 @@ func (f *fileEntry) add(s int) {
 func (f *fileEntry) Duration() string {
 	return util.FormatDuration(f.Seconds)
 }
+
+func (f *fileEntry) IsTerminal() bool {
+	return f.Filename == ".gtm/terminal.app"
+}

@@ -38,7 +38,7 @@ func TestInitialize(t *testing.T) {
 		t.Fatalf("Unable to initialize git repo, %s", string(b))
 	}
 
-	s, err := Initialize()
+	s, err := Initialize(false)
 	if err != nil {
 		t.Errorf("Initialize(), want error nil got error %s", err)
 	}
@@ -81,6 +81,59 @@ func TestInitialize(t *testing.T) {
 	if !strings.Contains(string(b), GitIgnore+"\n") {
 		t.Errorf("Initialize(), want %s got %s", GitIgnore, string(b))
 	}
+	fp = filepath.Join(rootPath, ".gtm", "terminal.app")
+	if _, err := os.Stat(fp); !os.IsNotExist(err) {
+		t.Errorf("Initialize(), want file terminal.app does not exist, got %s", err)
+	}
+
+	// let's reinitialize with terminal tracking enabled
+	s, err = Initialize(true)
+	if err != nil {
+		t.Errorf("Initialize(true), want error nil got error %s", err)
+	}
+	if !strings.Contains(s, "Git Time Metric initialized") {
+		t.Errorf("Initialize(true), want Git Time Metric has been initialized, got %s", s)
+	}
+
+	for hook, command := range GitHooks {
+		fp := filepath.Join(rootPath, ".git", "hooks", hook)
+		if _, err := os.Stat(fp); os.IsNotExist(err) {
+			t.Errorf("Initialize(true), want file post-commit, got %s", err)
+		}
+		if b, err = ioutil.ReadFile(fp); err != nil {
+			t.Fatalf("Initialize(true), want error nil, got %s", err)
+		}
+		if !strings.Contains(string(b), command+"\n") {
+			t.Errorf("Initialize(true), want %s got %s", command, string(b))
+		}
+	}
+
+	cmd = exec.Command("git", "config", "-l")
+	b, err = cmd.Output()
+	if err != nil {
+		t.Fatalf("Unable to initialize git repo, %s", string(b))
+	}
+	for k, v := range GitConfig {
+		want := fmt.Sprintf("%s=%s", k, v)
+		if !strings.Contains(string(b), want) {
+			t.Errorf("Initialize(true), want %s got %s", want, string(b))
+		}
+	}
+
+	fp = filepath.Join(rootPath, ".gitignore")
+	if _, err := os.Stat(fp); os.IsNotExist(err) {
+		t.Errorf("Initialize(true), want file .gitignore, got %s", err)
+	}
+	if b, err = ioutil.ReadFile(fp); err != nil {
+		t.Fatalf("Initialize(true), want error nil, got %s", err)
+	}
+	if !strings.Contains(string(b), GitIgnore+"\n") {
+		t.Errorf("Initialize(true), want %s got %s", GitIgnore, string(b))
+	}
+	fp = filepath.Join(rootPath, ".gtm", "terminal.app")
+	if _, err := os.Stat(fp); os.IsNotExist(err) {
+		t.Errorf("Initialize(true), want file terminal.app, got %s", err)
+	}
 }
 
 func TestUninitialize(t *testing.T) {
@@ -110,7 +163,7 @@ func TestUninitialize(t *testing.T) {
 		t.Fatalf("Unable to initialize git repo, %s", string(b))
 	}
 
-	s, err := Initialize()
+	s, err := Initialize(false)
 	if err != nil {
 		t.Fatalf("Want error nil got error %s", err)
 	}
@@ -185,7 +238,7 @@ func TestClean(t *testing.T) {
 		t.Fatalf("Unable to initialize git repo, %s", string(b))
 	}
 
-	_, err = Initialize()
+	_, err = Initialize(false)
 	if err != nil {
 		t.Fatalf("Want error nil got error %s", err)
 	}

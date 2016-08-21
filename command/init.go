@@ -1,7 +1,9 @@
 package command
 
 import (
+	"flag"
 	"fmt"
+	"os"
 
 	"github.com/git-time-metric/gtm/project"
 
@@ -20,7 +22,16 @@ func (i InitCmd) Help() string {
 }
 
 func (i InitCmd) Run(args []string) int {
-	m, err := project.Initialize()
+	initFlags := flag.NewFlagSet("init", flag.ExitOnError)
+	terminal := initFlags.Bool(
+		"terminal",
+		true,
+		"Track time spent in terminal (command line)")
+	if err := initFlags.Parse(os.Args[2:]); err != nil {
+		fmt.Println(err)
+		return 1
+	}
+	m, err := project.Initialize(*terminal)
 	if err != nil {
 		fmt.Println(err)
 		return 1
@@ -31,7 +42,7 @@ func (i InitCmd) Run(args []string) int {
 
 func (i InitCmd) Synopsis() string {
 	return `
-	Usage: gtm init
+	Usage: gtm init [-terminal=[true|false]]
 	Initialize a git project for time tracking 
 	`
 }
