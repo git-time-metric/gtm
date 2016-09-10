@@ -20,6 +20,7 @@ before_deploy:
   - tar -zcf gtm.${TRAVIS_TAG}.${TRAVIS_OS_NAME}.tar.gz gtm
 
 script:
+  - go get -t -v ./...
   - make test vet
 
 deploy:
