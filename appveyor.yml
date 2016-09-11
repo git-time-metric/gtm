@@ -4,6 +4,12 @@ os: Visual Studio 2015
 
 clone_folder: c:\gopath\src\github.com\git-time-metric\gtm
 
+install:
+  - echo %PATH%
+  - echo %GOPATH%
+  - go version
+  - go env
+
 build_script:
   - c:\msys64\usr\bin\bash -lc /c/gopath/src/github.com/git-time-metric/gtm/script/appveyor-build.sh
 
