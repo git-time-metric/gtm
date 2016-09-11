@@ -39,7 +39,7 @@ func TestFullCommit(t *testing.T) {
 	n, err := scm.ReadNote(commitID.String(), "gtm-data")
 	util.CheckFatal(t, err)
 
-	want := []string{`total:300.*`, `event.go:280.*,m`, `event_test.go:20.*,m`}
+	want := []string{`total:180.*`, `event.go:160.*,m`, `event_test.go:20.*,m`}
 	for _, s := range want {
 		matched, err := regexp.MatchString(s, n.Note)
 		util.CheckFatal(t, err)
@@ -82,7 +82,7 @@ func TestPartialCommit(t *testing.T) {
 	n, err := scm.ReadNote(commitID.String(), "gtm-data")
 	util.CheckFatal(t, err)
 
-	want := []string{`total:300`, `event_test.go:20.*,m`, `event.go:280.*,r`}
+	want := []string{`total:180`, `event_test.go:20.*,m`, `event.go:160.*,r`}
 	for _, s := range want {
 		matched, err := regexp.MatchString(s, n.Note)
 		util.CheckFatal(t, err)
@@ -124,7 +124,7 @@ func TestInterim(t *testing.T) {
 		t.Errorf("Process(true) - test interm, notes is note blank, \n%s\n", n.Note)
 	}
 
-	if commitNote.Total() != 300 {
+	if commitNote.Total() != 180 {
 		t.Errorf("Process(true) - test interm, want total 300, got %d", commitNote.Total())
 	}
 }

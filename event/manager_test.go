@@ -77,13 +77,10 @@ func TestProcess(t *testing.T) {
 	repo.SaveFile("1458496818.event", project.GTMDir, filepath.Join("event", "event.go"))
 	repo.SaveFile("1458496943.event", project.GTMDir, filepath.Join("event", "event.go"))
 
-	// NOTE - last two are idle events, 1458496980 & 1458497040
 	expected := map[int64]map[string]int{
 		int64(1458496800): map[string]int{filepath.Join("event", "event.go"): 2, filepath.Join("event", "event_test.go"): 1},
 		int64(1458496860): map[string]int{filepath.Join("event", "event.go"): 1},
 		int64(1458496920): map[string]int{filepath.Join("event", "event.go"): 1},
-		int64(1458496980): map[string]int{filepath.Join("event", "event.go"): 1},
-		int64(1458497040): map[string]int{filepath.Join("event", "event.go"): 1},
 	}
 
 	rootPath := repo.PathIn("")

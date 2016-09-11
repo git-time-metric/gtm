@@ -85,17 +85,6 @@ func Process(rootPath, gtmPath string, interim bool) (map[int64]map[string]int, 
 		prevFilePath = sourcePath
 	}
 
-	// Add idle events for last event
-	epochNow := epoch.MinuteNow()
-	if prevEpoch != 0 && prevFilePath != "" {
-		for e := prevEpoch + epoch.WindowSize; e < epochNow && e <= prevEpoch+epoch.IdleTimeout; e += epoch.WindowSize {
-			if _, ok := events[e]; !ok {
-				events[e] = make(map[string]int, 0)
-			}
-			events[e][prevFilePath]++
-		}
-	}
-
 	if !interim {
 		if err := removeFiles(filesToRemove); err != nil {
 			return events, err
