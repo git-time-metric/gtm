@@ -108,6 +108,7 @@ Currently there are plug-ins for Atom, Sublime, Jetbrains IDEs and Vim. More wil
 - [Vim](https://github.com/git-time-metric/gtm-vim-plugin)
 - [IntelliJ IDEA, PyCharm, WebStorm, AppCode, RubyMine, PhpStorm, AndroidStudio ](https://github.com/git-time-metric/gtm-jetbrains-plugin)
 - [VSCode](https://github.com/nexus-uw/vscode-gtm)
+- [Terminal](https://github.com/git-time-metric/gtm-terminal-plugin)
 
 ## Initialize a project for time tracking
 
@@ -169,15 +170,18 @@ Available commands are:
 	Warning - any time logged will be cleared from your working directory
 
     init
-	Usage: gtm init
+	Usage: gtm init [-terminal=[true|false]]
 	Initialize a git project for time tracking
 
     record
-	Usage: gtm record [-status] <path/file>
-	Record a file event
+	Usage: gtm record [-status] [-terminal] [<path/file>]
+	Record a file or terminal events
+
+	record file event     -> gtm record /path/file
+	record terminal event -> gtm record -terminal
 
     report
-	Usage: gtm report [-n] [-format commits|totals|files|timeline] [-total-only]
+	Usage: gtm report [-n] [-format commits|files|timeline] [-total-only]
 	Report on time logged
 
     status
