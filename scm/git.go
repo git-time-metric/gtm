@@ -372,8 +372,16 @@ func SetHooks(hooks map[string]string, wd ...string) error {
 			}
 		}
 		fp := filepath.Join(p, ".git", "hooks", hook)
+		hooksDir := filepath.Join(p, ".git", "hooks")
 
 		var output string
+
+		if _, err := os.Stat(hooksDir); os.IsNotExist(err) {
+			if err := os.MkdirAll(hooksDir, 0700); err != nil {
+				return err
+			}
+		}
+
 		if _, err := os.Stat(fp); !os.IsNotExist(err) {
 			b, err := ioutil.ReadFile(fp)
 			if err != nil {
