@@ -7,6 +7,13 @@ import (
 	"time"
 )
 
+func Percent(val, total int) float64 {
+	if total == 0 {
+		return float64(0)
+	}
+	return (float64(val) / float64(total)) * 100
+}
+
 // FormatDuration converts seconds into a duration string
 func FormatDuration(secs int) string {
 	vals := regexp.MustCompile(`\d+`)

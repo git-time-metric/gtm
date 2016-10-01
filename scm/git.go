@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/git-time-metric/git2go"
+	"github.com/jinzhu/now"
 )
 
 // RootPath discovers the base directory for a git repo
@@ -34,8 +35,140 @@ func RootPath(path ...string) (string, error) {
 	return filepath.ToSlash(filepath.Dir(filepath.Dir(p))), nil
 }
 
+type commitLimiter struct {
+	Max        int
+	Before     time.Time
+	After      time.Time
+	Author     string
+	Message    string
+	HasMax     bool
+	HasBefore  bool
+	HasAfter   bool
+	HasAuthor  bool
+	HasMessage bool
+}
+
+func NewCommitLimiter(
+	max int, beforeStr, afterStr, author, message string,
+	today, yesterday, thisWeek, lastWeek,
+	thisMonth, lastMonth, thisYear, lastYear bool) (commitLimiter, error) {
+
+	const dateFormat = "2006-01-02"
+
+	hasMax := max != 0
+	hasBefore := beforeStr != ""
+	hasAfter := afterStr != ""
+	hasAuthor := author != ""
+	hasMessage := message != ""
+
+	var err error
+	after := time.Time{}
+	before := time.Time{}
+
+	switch {
+	case today:
+		hasAfter = true
+		after = now.EndOfDay().AddDate(0, 0, -1)
+		// fmt.Println("after", after)
+	case yesterday:
+		hasAfter = true
+		hasBefore = true
+		before = now.BeginningOfDay()
+		after = now.EndOfDay().AddDate(0, 0, -2)
+		// fmt.Println("before", before, "after", after)
+	case thisWeek:
+		hasAfter = true
+		after = now.EndOfWeek().AddDate(0, 0, -7)
+		// fmt.Println("after", after)
+	case lastWeek:
+		hasAfter = true
+		hasBefore = true
+		before = now.BeginningOfWeek()
+		after = now.EndOfWeek().AddDate(0, 0, -14)
+		// fmt.Println("before", before, "after", after)
+	case thisMonth:
+		hasAfter = true
+		after = now.EndOfMonth().AddDate(0, -1, -1)
+		// fmt.Println("after", after)
+	case lastMonth:
+		hasAfter = true
+		hasBefore = true
+		before = now.BeginningOfMonth()
+		after = now.EndOfMonth().AddDate(0, -2, 0)
+		// fmt.Println("before", before, "after", after)
+	case thisYear:
+		hasAfter = true
+		after = now.EndOfYear().AddDate(-1, 0, 0)
+		// fmt.Println("after", after)
+	case lastYear:
+		hasAfter = true
+		hasBefore = true
+		before = now.BeginningOfYear()
+		after = now.EndOfYear().AddDate(-2, 0, 0)
+		// fmt.Println("before", before, "after", after)
+	case hasBefore:
+		before, err = time.Parse(dateFormat, beforeStr)
+		if err != nil {
+			return commitLimiter{}, err
+		}
+		fallthrough
+	case hasAfter:
+		after, err = time.Parse(dateFormat, afterStr)
+		if err != nil {
+			return commitLimiter{}, err
+		}
+	}
+
+	if hasBefore && hasAfter && before.Before(after) {
+		return commitLimiter{}, fmt.Errorf("Before %s can not be older than after %s", before, after)
+	}
+
+	if !(hasMax || hasBefore || hasAfter || hasAuthor || hasMessage) {
+		// if no limits set default to max of one result
+		hasMax = true
+		max = 1
+	}
+
+	return commitLimiter{
+		Max:        max,
+		Before:     before,
+		After:      after,
+		Author:     author,
+		Message:    message,
+		HasMax:     hasMax,
+		HasBefore:  hasBefore,
+		HasAfter:   hasAfter,
+		HasAuthor:  hasAuthor,
+		HasMessage: hasMessage,
+	}, nil
+}
+
+func (l commitLimiter) filter(c *git.Commit, cnt int) (bool, bool, error) {
+	if l.HasMax && l.Max == cnt {
+		return false, true, nil
+	}
+
+	if l.HasBefore && !c.Author().When.Before(l.Before) {
+		return false, false, nil
+	}
+
+	if l.HasAfter && !c.Author().When.After(l.After) {
+		return false, true, nil
+	}
+
+	if l.HasAuthor && !strings.Contains(c.Author().Name, l.Author) {
+		return false, false, nil
+	}
+
+	if l.HasMessage && !(strings.Contains(c.Summary(), l.Message) || strings.Contains(c.Message(), l.Message)) {
+		return false, false, nil
+	}
+
+	return true, false, nil
+}
+
 // CommitIDs returns commit SHA1 IDs starting from the head up to the limit
-func CommitIDs(limit int, wd ...string) ([]string, error) {
+func CommitIDs(limiter commitLimiter, wd ...string) ([]string, error) {
 	var (
 		repo *git.Repository
 		cnt  int
@@ -66,16 +199,28 @@ func CommitIDs(limit int, wd ...string) ([]string, error) {
 		return commits, err
 	}
 
+	var filterError error
+
 	err = w.Iterate(
 		func(commit *git.Commit) bool {
-			if limit == cnt {
+			include, done, err := limiter.filter(commit, cnt)
+			if err != nil {
+				filterError = err
 				return false
 			}
-			commits = append(commits, commit.Object.Id().String())
-			cnt++
+			if done {
+				return false
+			}
+			if include {
+				commits = append(commits, commit.Object.Id().String())
+				cnt++
+			}
 			return true
 		})
 
+	if filterError != nil {
+		return commits, filterError
+	}
 	if err != nil {
 		return commits, err
 	}

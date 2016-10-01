@@ -2,6 +2,7 @@ package report
 
 import (
 	"fmt"
+	"path/filepath"
 	"sort"
 	"strings"
 	"time"
@@ -12,44 +13,53 @@ import (
 	"github.com/git-time-metric/gtm/util"
 )
 
-func retrieveNotes(commits []string) commitNoteDetails {
+func retrieveNotes(projects []ProjectCommits) commitNoteDetails {
 	notes := commitNoteDetails{}
 
-	for _, c := range commits {
+	for _, p := range projects {
+		for _, c := range p.Commits {
 
-		n, err := scm.ReadNote(c, project.NoteNameSpace)
-		if err != nil {
-			notes = append(notes, commitNoteDetail{})
-			continue
+			n, err := scm.ReadNote(c, project.NoteNameSpace, p.Path)
+			if err != nil {
+				notes = append(notes, commitNoteDetail{})
+				continue
+			}
+
+			when := n.When.Format("Mon Jan 02 15:04:05 2006 MST")
+
+			var commitNote note.CommitNote
+			commitNote, err = note.UnMarshal(n.Note)
+			if err != nil {
+				project.Log(fmt.Sprintf("Error unmarshalling note \n\n%s \n\n%s", n.Note, err))
+				commitNote = note.CommitNote{}
+			}
+
+			id := n.ID
+			if len(id) > 7 {
+				id = id[:7]
+			}
+
+			notes = append(notes,
+				commitNoteDetail{
+					Author:  n.Author,
+					Date:    when,
+					When:    n.When,
+					Hash:    id,
+					Subject: n.Summary,
+					Note:    commitNote,
+					Project: filepath.Base(p.Path),
+				})
 		}
-
-		when := n.When.Format("Mon Jan 02 15:04:05 2006 MST")
-
-		var commitNote note.CommitNote
-		commitNote, err = note.UnMarshal(n.Note)
-		if err != nil {
-			project.Log(fmt.Sprintf("Error unmarshalling note \n\n%s \n\n%s", n.Note, err))
-			commitNote = note.CommitNote{}
-		}
-
-		id := n.ID
-		if len(id) > 7 {
-			id = id[:7]
-		}
-
-		notes = append(notes,
-			commitNoteDetail{
-				Author:  n.Author,
-				Date:    when,
-				Hash:    id,
-				Subject: n.Summary,
-				Note:    commitNote,
-			})
 	}
+	sort.Sort(notes)
 	return notes
 }
 
 type commitNoteDetails []commitNoteDetail
+
+func (n commitNoteDetails) Len() int           { return len(n) }
+func (n commitNoteDetails) Swap(i, j int)      { n[i], n[j] = n[j], n[i] }
+func (n commitNoteDetails) Less(i, j int) bool { return n[i].When.After(n[j].When) }
 
 func (n commitNoteDetails) Total() int {
 	t := 0
@@ -62,8 +72,10 @@ func (n commitNoteDetails) Total() int {
 type commitNoteDetail struct {
 	Author  string
 	Date    string
+	When    time.Time
 	Hash    string
 	Subject string
+	Project string
 	Note    note.CommitNote
 }
 
@@ -154,11 +166,15 @@ func (f fileEntries) Swap(i, j int)      { f[i], f[j] = f[j], f[i] }
 func (f fileEntries) Less(i, j int) bool { return f[i].Seconds < f[j].Seconds }
 
 func (f fileEntries) Duration() string {
+	return util.FormatDuration(f.Total())
+}
+
+func (f fileEntries) Total() int {
 	total := 0
 	for _, entry := range f {
 		total += entry.Seconds
 	}
-	return util.FormatDuration(total)
+	return total
 }
 
 type fileEntry struct {

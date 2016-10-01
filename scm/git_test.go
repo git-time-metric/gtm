@@ -47,7 +47,7 @@ func TestCommitIDs(t *testing.T) {
 
 	repoPath := repo.PathIn("")
 
-	commits, err := CommitIDs(2, repoPath)
+	commits, err := CommitIDs(commitLimiter{Max: 2}, repoPath)
 	if err != nil {
 		t.Errorf("CommitIDs error, %s", err)
 	}
@@ -62,7 +62,7 @@ func TestCommitIDs(t *testing.T) {
 	err = os.Chdir(repoPath)
 	util.CheckFatal(t, err)
 
-	commits, err = CommitIDs(2)
+	commits, err = CommitIDs(commitLimiter{Max: 2})
 	if err != nil {
 		t.Errorf("CommitIDs error, %s", err)
 	}

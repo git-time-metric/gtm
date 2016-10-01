@@ -15,23 +15,30 @@ var funcMap = template.FuncMap{
 	"FormatDuration": util.FormatDuration,
 	"RightPad2Len":   util.RightPad2Len,
 	"LeftPad2Len":    util.LeftPad2Len,
+	"Percent":        util.Percent,
+}
+
+type ProjectCommits struct {
+	Path    string
+	Commits []string
 }
 
 const (
 	commitsTpl string = `
 {{ $headerFormat := .HeaderFormat }}
-{{- range $_, $note := .Notes }}
+{{- range $note := .Notes }}
+	{{- $total := .Note.Total }}
 	{{- printf $headerFormat $note.Hash }} {{ printf $headerFormat $note.Subject }}{{- printf "\n" }}
-	{{- $note.Date }} {{ $note.Author }} {{- printf "\n" }}
+	{{- $note.Date }} {{ $note.Project }} {{ $note.Author }}{{- printf "\n" }}
 	{{- range $i, $f := .Note.Files }}
 		{{- if $f.IsTerminal }}
-			{{- FormatDuration $f.TimeSpent | printf "\n%14s" }}  [{{ $f.Status }}] Terminal
+			{{- FormatDuration $f.TimeSpent | printf "\n%14s" }} {{ Percent $f.TimeSpent $total | printf "%5.2f"}}%% [{{ $f.Status }}] Terminal
 		{{- else }}
-			{{- FormatDuration $f.TimeSpent | printf "\n%14s" }}  [{{ $f.Status }}] {{$f.SourceFile}}
+			{{- FormatDuration $f.TimeSpent | printf "\n%14s" }} {{ Percent $f.TimeSpent $total | printf "%5.2f"}}%% [{{ $f.Status }}] {{$f.SourceFile}}
 		{{- end }}
 	{{- end }}
 	{{- if len .Note.Files }}
-		{{- FormatDuration .Note.Total | printf "\n%14s\n\n" }}
+		{{- FormatDuration $total | printf "\n%14s\n\n" }}
 	{{- else }}
 		{{- printf "\n" }}
 	{{- end }}
@@ -49,9 +56,10 @@ const (
 {{ end }}`
 	commitTotalsTpl string = `
 {{ $headerFormat := .HeaderFormat }}
+{{- $total := .Notes.Total }}
 {{- range $_, $note := .Notes }}
 	{{- printf $headerFormat $note.Hash }} {{ printf $headerFormat $note.Subject }}{{- printf "\n" }}
-	{{- $note.Date }} {{ $note.Author }}  {{if len .Note.Files }}{{ FormatDuration .Note.Total }}{{ end }}
+	{{- $note.Date }} {{ $note.Project }} {{ $note.Author }} {{if len .Note.Files }}{{ Percent $note.Note.Total $total | printf "%.2f"}}%% {{ FormatDuration .Note.Total }}{{ end }}
 	{{- print "\n" }}
 {{ end }}`
 	timelineTpl string = `
@@ -63,11 +71,12 @@ const (
 	{{- LeftPad2Len .Timeline.Duration " " 49 }}
 {{ end }}`
 	filesTpl string = `
+{{- $total := .Files.Total }}
 {{ range $i, $f := .Files }}
 	{{- if $f.IsTerminal }}
-		{{- $f.Duration | printf "%14s" }}  Terminal
+		{{- $f.Duration | printf "%14s" }} {{ Percent $f.Seconds $total | printf "%5.2f"}}%%  Terminal
 	{{- else }}
-		{{- $f.Duration | printf "%14s" }}  {{ $f.Filename }}
+		{{- $f.Duration | printf "%14s" }} {{ Percent $f.Seconds $total | printf "%5.2f"}}%%  {{ $f.Filename }}
 	{{- end }}
 {{ end }}
 {{- if len .Files }}
@@ -91,8 +100,8 @@ func Status(n note.CommitNote, totalOnly bool) (string, error) {
 }
 
 // Commits returns the commits report
-func Commits(commits []string, totalOnly bool) (string, error) {
-	notes := retrieveNotes(commits)
+func Commits(projects []ProjectCommits, totalOnly bool, limit int) (string, error) {
+	notes := retrieveNotes(projects)
 	b := new(bytes.Buffer)
 	var t *template.Template
 	if totalOnly {
@@ -104,6 +113,11 @@ func Commits(commits []string, totalOnly bool) (string, error) {
 	if isatty.IsTerminal(os.Stdout.Fd()) && runtime.GOOS != "windows" {
 		headerFormat = "\x1b[1m%s\x1b[0m"
 	}
+
+	if limit > 0 && len(notes) > limit {
+		notes = notes[0:limit]
+	}
+
 	err := t.Execute(
 		b,
 		struct {
@@ -119,10 +133,15 @@ func Commits(commits []string, totalOnly bool) (string, error) {
 }
 
 // Timeline returns the timeline report
-func Timeline(commits []string) (string, error) {
-	notes := retrieveNotes(commits)
+func Timeline(projects []ProjectCommits, limit int) (string, error) {
+	notes := retrieveNotes(projects)
 	b := new(bytes.Buffer)
 	t := template.Must(template.New("Timeline").Funcs(funcMap).Parse(timelineTpl))
+
+	if limit > 0 && len(notes) > limit {
+		notes = notes[0:limit]
+	}
+
 	err := t.Execute(
 		b,
 		struct {
@@ -137,10 +156,15 @@ func Timeline(commits []string) (string, error) {
 }
 
 // Files returns the files report
-func Files(commits []string) (string, error) {
-	notes := retrieveNotes(commits)
+func Files(projects []ProjectCommits, limit int) (string, error) {
+	notes := retrieveNotes(projects)
 	b := new(bytes.Buffer)
 	t := template.Must(template.New("Files").Funcs(funcMap).Parse(filesTpl))
+
+	if limit > 0 && len(notes) > limit {
+		notes = notes[0:limit]
+	}
+
 	err := t.Execute(
 		b,
 		struct {

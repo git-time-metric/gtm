@@ -38,7 +38,7 @@ func TestInitialize(t *testing.T) {
 		t.Fatalf("Unable to initialize git repo, %s", string(b))
 	}
 
-	s, err := Initialize(false)
+	s, err := Initialize(false, []string{}, false)
 	if err != nil {
 		t.Errorf("Initialize(), want error nil got error %s", err)
 	}
@@ -87,7 +87,7 @@ func TestInitialize(t *testing.T) {
 	}
 
 	// let's reinitialize with terminal tracking enabled
-	s, err = Initialize(true)
+	s, err = Initialize(true, []string{}, false)
 	if err != nil {
 		t.Errorf("Initialize(true), want error nil got error %s", err)
 	}
@@ -163,7 +163,7 @@ func TestUninitialize(t *testing.T) {
 		t.Fatalf("Unable to initialize git repo, %s", string(b))
 	}
 
-	s, err := Initialize(false)
+	s, err := Initialize(false, []string{}, false)
 	if err != nil {
 		t.Fatalf("Want error nil got error %s", err)
 	}
@@ -238,7 +238,7 @@ func TestClean(t *testing.T) {
 		t.Fatalf("Unable to initialize git repo, %s", string(b))
 	}
 
-	_, err = Initialize(false)
+	_, err = Initialize(false, []string{}, false)
 	if err != nil {
 		t.Fatalf("Want error nil got error %s", err)
 	}

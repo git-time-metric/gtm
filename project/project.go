@@ -55,6 +55,7 @@ const initMsgTpl string = `
 {{end -}}
 {{ print "terminal:" | printf "%17s" }} {{ .Terminal }}
 {{ print ".gitignore:" | printf "%17s" }} {{ .GitIgnore }}
+{{ print "tags:" | printf "%17s" }} {{.Tags }}
 `
 const removeMsgTpl string = `
 {{print "Git Time Metric uninitialized for " (.ProjectPath) | printf (.HeaderFormat) }}
@@ -75,7 +76,7 @@ The following items have been removed.
 var Now = func() time.Time { return time.Now() }
 
 // Initialize initializes a git repo for time tracking
-func Initialize(terminal bool) (string, error) {
+func Initialize(terminal bool, tags []string, clearTags bool) (string, error) {
 	wd, err := os.Getwd()
 	if err != nil {
 		return "", err
@@ -98,6 +99,21 @@ func Initialize(terminal bool) (string, error) {
 		if err := os.MkdirAll(gtmPath, 0700); err != nil {
 			return "", err
 		}
+	}
+
+	if clearTags {
+		err = removeTags(gtmPath)
+		if err != nil {
+			return "", err
+		}
+	}
+	err = saveTags(tags, gtmPath)
+	if err != nil {
+		return "", err
+	}
+	tags, err = loadTags(gtmPath)
+	if err != nil {
+		return "", err
 	}
 
 	if terminal {
@@ -130,6 +146,7 @@ func Initialize(terminal bool) (string, error) {
 	t := template.Must(template.New("msg").Parse(initMsgTpl))
 	err = t.Execute(b,
 		struct {
+			Tags         string
 			HeaderFormat string
 			ProjectPath  string
 			GitHooks     map[string]string
@@ -137,6 +154,7 @@ func Initialize(terminal bool) (string, error) {
 			GitIgnore    string
 			Terminal     bool
 		}{
+			strings.Join(tags, " "),
 			headerFormat,
 			projRoot,
 			GitHooks,
@@ -145,6 +163,17 @@ func Initialize(terminal bool) (string, error) {
 			terminal,
 		})
 
+	if err != nil {
+		return "", err
+	}
+
+	index, err := NewIndex()
+	if err != nil {
+		return "", err
+	}
+
+	index.add(projRoot)
+	err = index.save()
 	if err != nil {
 		return "", err
 	}
@@ -203,6 +232,17 @@ func Uninitialize() (string, error) {
 			GitConfig,
 			GitIgnore})
 
+	if err != nil {
+		return "", err
+	}
+
+	index, err := NewIndex()
+	if err != nil {
+		return "", err
+	}
+
+	index.remove(projRoot)
+	err = index.save()
 	if err != nil {
 		return "", err
 	}
@@ -282,5 +322,46 @@ func Log(v ...interface{}) error {
 	log.SetOutput(f)
 
 	log.Println(v)
+	return nil
+}
+
+func removeTags(gtmPath string) error {
+	files, err := ioutil.ReadDir(gtmPath)
+	if err != nil {
+		return err
+	}
+	for i := range files {
+		if strings.HasSuffix(files[i].Name(), ".tag") {
+			tagFile := filepath.Join(gtmPath, files[i].Name())
+			if err := os.Remove(tagFile); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func loadTags(gtmPath string) ([]string, error) {
+	tags := []string{}
+	files, err := ioutil.ReadDir(gtmPath)
+	if err != nil {
+		return []string{}, err
+	}
+	for i := range files {
+		if strings.HasSuffix(files[i].Name(), ".tag") {
+			tags = append(tags, strings.TrimSuffix(files[i].Name(), filepath.Ext(files[i].Name())))
+		}
+	}
+	return tags, nil
+}
+
+func saveTags(tags []string, gtmPath string) error {
+	if len(tags) > 0 {
+		for _, t := range tags {
+			if err := ioutil.WriteFile(filepath.Join(gtmPath, fmt.Sprintf("%s.tag", t)), []byte(""), 0644); err != nil {
+				return err
+			}
+		}
+	}
 	return nil
 }
