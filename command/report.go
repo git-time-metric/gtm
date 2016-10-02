@@ -178,6 +178,8 @@ func (r ReportCmd) Run(args []string) int {
 			*today, *yesterday, *thisWeek, *lastWeek,
 			*thisMonth, *lastMonth, *thisYear, *lastYear)
 
+		*limit = limiter.Max
+
 		for _, p := range projects {
 			commits, err = scm.CommitIDs(limiter, p)
 			if err != nil {
