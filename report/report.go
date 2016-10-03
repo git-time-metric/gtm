@@ -65,7 +65,7 @@ const (
 		{{- printf "\n" }}  {{ FormatDuration .Note.Total | printf "%14s" }}   {{ Percent $note.Note.Total $total | printf "%.2f"}}%%{{- print "\n" }}
 	{{- end }}
 {{- end }}
-  {{ FormatDuration $total | printf "%14s" }} 100.00%% {{ printf "\n" }}
+  {{ FormatDuration $total | printf "%14s" }} Total Hours {{ printf "\n" }}
 `
 	timelineTpl string = `
            0123456789012345678901234
