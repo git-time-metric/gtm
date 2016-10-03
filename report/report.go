@@ -29,7 +29,7 @@ const (
 {{- range $note := .Notes }}
 	{{- $total := .Note.Total }}
 	{{- printf $headerFormat $note.Hash }} {{ printf $headerFormat $note.Subject }}{{- printf "\n" }}
-	{{- $note.Date }} {{ $note.Project }} {{ $note.Author }}{{- printf "\n" }}
+	{{- $note.Date }} {{ printf $headerFormat $note.Project }} {{ $note.Author }}{{- printf "\n" }}
 	{{- range $i, $f := .Note.Files }}
 		{{- if $f.IsTerminal }}
 			{{- FormatDuration $f.TimeSpent | printf "\n%14s" }} {{ Percent $f.TimeSpent $total | printf "%5.2f"}}%% [{{ $f.Status }}] Terminal
@@ -58,10 +58,15 @@ const (
 {{ $headerFormat := .HeaderFormat }}
 {{- $total := .Notes.Total }}
 {{- range $_, $note := .Notes }}
-	{{- printf $headerFormat $note.Hash }} {{ printf $headerFormat $note.Subject }}{{- printf "\n" }}
-	{{- $note.Date }} {{ $note.Project }} {{ $note.Author }} {{if len .Note.Files }}{{ Percent $note.Note.Total $total | printf "%.2f"}}%% {{ FormatDuration .Note.Total }}{{ end }}
 	{{- print "\n" }}
-{{ end }}`
+	{{- printf $headerFormat $note.Hash }} {{ printf $headerFormat $note.Subject }}{{- printf "\n" }}
+	{{- $note.Date }} {{ printf $headerFormat $note.Project }} {{ $note.Author }}{{- printf "\n" }}
+	{{- if len .Note.Files }}
+		{{- printf "\n" }}  {{ FormatDuration .Note.Total | printf "%14s" }}   {{ Percent $note.Note.Total $total | printf "%.2f"}}%%{{- print "\n" }}
+	{{- end }}
+{{- end }}
+  {{ FormatDuration $total | printf "%14s" }} 100.00%% {{ printf "\n" }}
+`
 	timelineTpl string = `
            0123456789012345678901234
 {{ range $_, $entry := .Timeline }}
