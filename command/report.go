@@ -32,7 +32,7 @@ func (r ReportCmd) Run(args []string) int {
 	color := reportFlags.Bool(
 		"color",
 		false,
-		"Always output color even if no terminal is detected.\n Use this with pagers i.e 'less -R' or 'more -R'")
+		"Always output color even if no terminal is detected. Use with pagers, i.e 'less -R' or 'more -R'")
 	format := reportFlags.String(
 		"format",
 		"commits",
