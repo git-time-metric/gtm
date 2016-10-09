@@ -29,6 +29,10 @@ func (r ReportCmd) Help() string {
 
 func (r ReportCmd) Run(args []string) int {
 	reportFlags := flag.NewFlagSet("report", flag.ExitOnError)
+	color := reportFlags.Bool(
+		"color",
+		false,
+		"Always output color even if no terminal is detected.\n Use this with pagers i.e 'less -R' or 'more -R'")
 	format := reportFlags.String(
 		"format",
 		"commits",
@@ -41,6 +45,10 @@ func (r ReportCmd) Run(args []string) int {
 		"total-only",
 		false,
 		"Only display total time")
+	fullMessage := reportFlags.Bool(
+		"full-message",
+		false,
+		"Include full commit message")
 	before := reportFlags.String(
 		"before",
 		"",
@@ -190,17 +198,13 @@ func (r ReportCmd) Run(args []string) int {
 		}
 	}
 
-	// if len(projCommits) == 0 || len(projCommits[0].Commits) == 0 {
-	// 	return 0
-	// }
-
 	switch *format {
 	case "commits":
-		out, err = report.Commits(projCommits, *totalOnly, *limit)
+		out, err = report.Commits(projCommits, *totalOnly, *fullMessage, *color, *limit)
 	case "files":
-		out, err = report.Files(projCommits, *limit)
+		out, err = report.Files(projCommits, *limit, *color)
 	case "timeline":
-		out, err = report.Timeline(projCommits, *limit)
+		out, err = report.Timeline(projCommits, *limit, *color)
 	case "projects":
 	case "json":
 	case "csv":

@@ -27,19 +27,24 @@ type ProjectCommits struct {
 const (
 	commitsTpl string = `
 {{ $headerFormat := .HeaderFormat }}
+{{- $fullMessage := .FullMessage }}
+{{- $totalOnly := .TotalOnly }}
 {{- range $note := .Notes }}
 	{{- $total := .Note.Total }}
 	{{- printf $headerFormat $note.Hash }} {{ printf $headerFormat $note.Subject }}{{- printf "\n" }}
 	{{- $note.Date }} {{ printf $headerFormat $note.Project }} {{ $note.Author }}{{- printf "\n" }}
-	{{- range $i, $f := .Note.Files }}
-		{{- if $f.IsTerminal }}
-			{{- FormatDuration $f.TimeSpent | printf "\n%14s" }} {{ Percent $f.TimeSpent $total | printf "%5.2f"}}%% [{{ $f.Status }}] Terminal
-		{{- else }}
-			{{- FormatDuration $f.TimeSpent | printf "\n%14s" }} {{ Percent $f.TimeSpent $total | printf "%5.2f"}}%% [{{ $f.Status }}] {{$f.SourceFile}}
+	{{- if $fullMessage}}{{- if $note.Message }}{{- printf "\n"}}{{- $note.Message }}{{- printf "\n"}}{{end}}{{end}}
+	{{- if not $totalOnly }}
+		{{- range $i, $f := .Note.Files }}
+			{{- if $f.IsTerminal }}
+				{{- FormatDuration $f.TimeSpent | printf "\n%14s" }} {{ Percent $f.TimeSpent $total | printf "%3.0f"}}%% [{{ $f.Status }}] Terminal
+			{{- else }}
+				{{- FormatDuration $f.TimeSpent | printf "\n%14s" }} {{ Percent $f.TimeSpent $total | printf "%3.0f"}}%% [{{ $f.Status }}] {{$f.SourceFile}}
+			{{- end }}
 		{{- end }}
 	{{- end }}
 	{{- if len .Note.Files }}
-		{{- FormatDuration $total | printf "\n%14s\n\n" }}
+		{{- FormatDuration $total | printf "\n%14s" }}          {{ printf $headerFormat $note.Project }}{{ printf "\n\n" }}
 	{{- else }}
 		{{- printf "\n" }}
 	{{- end }}
@@ -47,29 +52,17 @@ const (
 	statusTpl string = `
 {{- $headerFormat := .HeaderFormat }}
 {{- if .Note.Files }}{{ printf "\n"}}{{end}}
+{{- $total := .Note.Total }}
 {{- range $i, $f := .Note.Files }}
 	{{- if $f.IsTerminal }}
-		{{- FormatDuration $f.TimeSpent | printf "%14s" }}  [{{ $f.Status }}] Terminal
+		{{- FormatDuration $f.TimeSpent | printf "%14s" }} {{ Percent $f.TimeSpent $total | printf "%3.0f"}}%% [{{ $f.Status }}] Terminal
 	{{- else }}
-		{{- FormatDuration $f.TimeSpent | printf "%14s" }}  [{{ $f.Status }}] {{$f.SourceFile}}
+		{{- FormatDuration $f.TimeSpent | printf "%14s" }} {{ Percent $f.TimeSpent $total | printf "%3.0f"}}%% [{{ $f.Status }}] {{$f.SourceFile}}
 	{{- end }}
 {{ end }}
 {{- if len .Note.Files }}
-	{{- FormatDuration .Note.Total | printf "%14s" }}      {{ printf $headerFormat .ProjectName }}
+	{{- FormatDuration .Note.Total | printf "%14s" }}          {{ printf $headerFormat .ProjectName }}
 {{ end }}`
-	commitTotalsTpl string = `
-{{ $headerFormat := .HeaderFormat }}
-{{- $total := .Notes.Total }}
-{{- range $_, $note := .Notes }}
-	{{- print "\n" }}
-	{{- printf $headerFormat $note.Hash }} {{ printf $headerFormat $note.Subject }}{{- printf "\n" }}
-	{{- $note.Date }} {{ printf $headerFormat $note.Project }} {{ $note.Author }}{{- printf "\n" }}
-	{{- if len .Note.Files }}
-		{{- printf "\n" }}  {{ FormatDuration .Note.Total | printf "%14s" }}   {{ Percent $note.Note.Total $total | printf "%.2f"}}%%{{- print "\n" }}
-	{{- end }}
-{{- end }}
-  {{ FormatDuration $total | printf "%14s" }} Total Hours {{ printf "\n" }}
-`
 	timelineTpl string = `
            0123456789012345678901234
 {{ range $_, $entry := .Timeline }}
@@ -82,9 +75,9 @@ const (
 {{- $total := .Files.Total }}
 {{ range $i, $f := .Files }}
 	{{- if $f.IsTerminal }}
-		{{- $f.Duration | printf "%14s" }} {{ Percent $f.Seconds $total | printf "%5.2f"}}%%  Terminal
+		{{- $f.Duration | printf "%14s" }} {{ Percent $f.Seconds $total | printf "%3.0f"}}%%  Terminal
 	{{- else }}
-		{{- $f.Duration | printf "%14s" }} {{ Percent $f.Seconds $total | printf "%5.2f"}}%%  {{ $f.Filename }}
+		{{- $f.Duration | printf "%14s" }} {{ Percent $f.Seconds $total | printf "%3.0f"}}%%  {{ $f.Filename }}
 	{{- end }}
 {{ end }}
 {{- if len .Files }}
@@ -93,7 +86,7 @@ const (
 )
 
 // Status returns the status report
-func Status(n note.CommitNote, totalOnly bool, projPath ...string) (string, error) {
+func Status(n note.CommitNote, totalOnly bool, color bool, projPath ...string) (string, error) {
 	if totalOnly {
 		return util.DurationStr(n.Total()), nil
 	}
@@ -106,11 +99,6 @@ func Status(n note.CommitNote, totalOnly bool, projPath ...string) (string, erro
 	b := new(bytes.Buffer)
 	t := template.Must(template.New("Status").Funcs(funcMap).Parse(statusTpl))
 
-	headerFormat := "%s"
-	if isatty.IsTerminal(os.Stdout.Fd()) && runtime.GOOS != "windows" {
-		headerFormat = "\x1b[1m%s\x1b[0m"
-	}
-
 	err := t.Execute(
 		b,
 		struct {
@@ -120,7 +108,7 @@ func Status(n note.CommitNote, totalOnly bool, projPath ...string) (string, erro
 		}{
 			projName,
 			commitNoteDetail{Note: n},
-			headerFormat,
+			setBoldFormat(color),
 		})
 
 	if err != nil {
@@ -131,19 +119,11 @@ func Status(n note.CommitNote, totalOnly bool, projPath ...string) (string, erro
 }
 
 // Commits returns the commits report
-func Commits(projects []ProjectCommits, totalOnly bool, limit int) (string, error) {
+func Commits(projects []ProjectCommits, totalOnly bool, fullMessage bool, color bool, limit int) (string, error) {
 	notes := retrieveNotes(projects)
+
 	b := new(bytes.Buffer)
-	var t *template.Template
-	if totalOnly {
-		t = template.Must(template.New("Commit Totals").Funcs(funcMap).Parse(commitTotalsTpl))
-	} else {
-		t = template.Must(template.New("Commits").Funcs(funcMap).Parse(commitsTpl))
-	}
-	headerFormat := "%s"
-	if isatty.IsTerminal(os.Stdout.Fd()) && runtime.GOOS != "windows" {
-		headerFormat = "\x1b[1m%s\x1b[0m"
-	}
+	t := template.Must(template.New("Commits").Funcs(funcMap).Parse(commitsTpl))
 
 	if limit > 0 && len(notes) > limit {
 		notes = notes[0:limit]
@@ -152,11 +132,15 @@ func Commits(projects []ProjectCommits, totalOnly bool, limit int) (string, erro
 	err := t.Execute(
 		b,
 		struct {
+			TotalOnly    bool
+			FullMessage  bool
 			Notes        commitNoteDetails
 			HeaderFormat string
 		}{
+			totalOnly,
+			fullMessage,
 			notes,
-			headerFormat})
+			setBoldFormat(color)})
 	if err != nil {
 		return "", err
 	}
@@ -164,7 +148,7 @@ func Commits(projects []ProjectCommits, totalOnly bool, limit int) (string, erro
 }
 
 // Timeline returns the timeline report
-func Timeline(projects []ProjectCommits, limit int) (string, error) {
+func Timeline(projects []ProjectCommits, limit int, color bool) (string, error) {
 	notes := retrieveNotes(projects)
 	b := new(bytes.Buffer)
 	t := template.Must(template.New("Timeline").Funcs(funcMap).Parse(timelineTpl))
@@ -187,7 +171,7 @@ func Timeline(projects []ProjectCommits, limit int) (string, error) {
 }
 
 // Files returns the files report
-func Files(projects []ProjectCommits, limit int) (string, error) {
+func Files(projects []ProjectCommits, limit int, color bool) (string, error) {
 	notes := retrieveNotes(projects)
 	b := new(bytes.Buffer)
 	t := template.Must(template.New("Files").Funcs(funcMap).Parse(filesTpl))
@@ -208,4 +192,11 @@ func Files(projects []ProjectCommits, limit int) (string, error) {
 	}
 	return b.String(), nil
 
+}
+
+func setBoldFormat(color bool) string {
+	if (color || isatty.IsTerminal(os.Stdout.Fd())) && runtime.GOOS != "windows" {
+		return "\x1b[1m%s\x1b[0m"
+	}
+	return "%s"
 }

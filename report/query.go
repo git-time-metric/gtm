@@ -39,6 +39,9 @@ func retrieveNotes(projects []ProjectCommits) commitNoteDetails {
 				id = id[:7]
 			}
 
+			message := strings.TrimPrefix(n.Message, n.Summary)
+			message = strings.TrimSpace(message)
+
 			notes = append(notes,
 				commitNoteDetail{
 					Author:  n.Author,
@@ -46,6 +49,7 @@ func retrieveNotes(projects []ProjectCommits) commitNoteDetails {
 					When:    n.When,
 					Hash:    id,
 					Subject: n.Summary,
+					Message: message,
 					Note:    commitNote,
 					Project: filepath.Base(p.Path),
 				})
@@ -76,6 +80,7 @@ type commitNoteDetail struct {
 	Hash    string
 	Subject string
 	Project string
+	Message string
 	Note    note.CommitNote
 }
 
