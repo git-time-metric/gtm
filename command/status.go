@@ -43,6 +43,11 @@ func (r StatusCmd) Run(args []string) int {
 		return 1
 	}
 
+	if *totalOnly && (*all || *tags != "") {
+		fmt.Fprint(os.Stderr, "\n-tags and -all options not allowed with -total-only\n")
+		return 1
+	}
+
 	var (
 		err        error
 		commitNote note.CommitNote
