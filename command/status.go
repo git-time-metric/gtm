@@ -29,7 +29,7 @@ func (r StatusCmd) Run(args []string) int {
 		false,
 		"Only display total time")
 	if err := statusFlags.Parse(os.Args[2:]); err != nil {
-		fmt.Println(err)
+		fmt.Fprint(os.Stderr, err)
 		return 1
 	}
 
@@ -40,12 +40,12 @@ func (r StatusCmd) Run(args []string) int {
 	)
 
 	if commitNote, err = metric.Process(true); err != nil {
-		fmt.Println(err)
+		fmt.Fprint(os.Stderr, err)
 		return 1
 	}
 	out, err = report.Status(commitNote, *totalOnly)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Fprint(os.Stderr, err)
 		return 1
 	}
 	fmt.Printf(out)
