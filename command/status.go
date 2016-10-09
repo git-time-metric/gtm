@@ -4,9 +4,11 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/git-time-metric/gtm/metric"
 	"github.com/git-time-metric/gtm/note"
+	"github.com/git-time-metric/gtm/project"
 	"github.com/git-time-metric/gtm/report"
 	"github.com/mitchellh/cli"
 )
@@ -28,6 +30,14 @@ func (r StatusCmd) Run(args []string) int {
 		"total-only",
 		false,
 		"Only display total time")
+	tags := statusFlags.String(
+		"tags",
+		"",
+		"Project tags to show status on")
+	all := statusFlags.Bool(
+		"all",
+		false,
+		"Show status for all projects")
 	if err := statusFlags.Parse(os.Args[2:]); err != nil {
 		fmt.Fprint(os.Stderr, err)
 		return 1
@@ -39,15 +49,31 @@ func (r StatusCmd) Run(args []string) int {
 		out        string
 	)
 
-	if commitNote, err = metric.Process(true); err != nil {
-		fmt.Fprint(os.Stderr, err)
-		return 1
-	}
-	out, err = report.Status(commitNote, *totalOnly)
+	index, err := project.NewIndex()
 	if err != nil {
-		fmt.Fprint(os.Stderr, err)
+		fmt.Fprintln(os.Stderr, err)
 		return 1
 	}
+
+	projects, err := index.Get(strings.Fields(*tags), *all)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		return 1
+	}
+
+	for _, projPath := range projects {
+		if commitNote, err = metric.Process(true, projPath); err != nil {
+			fmt.Fprint(os.Stderr, err)
+			return 1
+		}
+		o, err := report.Status(commitNote, *totalOnly, projPath)
+		if err != nil {
+			fmt.Fprint(os.Stderr, err)
+			return 1
+		}
+		out += o
+	}
+
 	fmt.Printf(out)
 	return 0
 }

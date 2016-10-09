@@ -2,11 +2,11 @@ package project
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"os/user"
 	"path/filepath"
+	"sort"
 	"time"
 
 	"github.com/git-time-metric/gtm/scm"
@@ -49,6 +49,7 @@ func (i *Index) Get(tags []string, all bool) ([]string, error) {
 				projectsWithTags = append(projectsWithTags, p)
 			}
 		}
+		sort.Strings(projectsWithTags)
 		return projectsWithTags, nil
 	default:
 		curProjPath, err := scm.RootPath()
@@ -70,7 +71,7 @@ func (i *Index) add(p string) {
 }
 
 func (i *Index) remove(p string) {
-	fmt.Println("Removing", p)
+	// fmt.Println("Removing", p)
 	delete(i.Projects, p)
 }
 
@@ -79,6 +80,7 @@ func (i *Index) projects() []string {
 	for k := range i.Projects {
 		keys = append(keys, k)
 	}
+	sort.Strings(keys)
 	return keys
 }
 

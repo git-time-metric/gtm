@@ -3,6 +3,7 @@ package report
 import (
 	"bytes"
 	"os"
+	"path/filepath"
 	"runtime"
 	"text/template"
 
@@ -44,7 +45,9 @@ const (
 	{{- end }}
 {{- end -}}`
 	statusTpl string = `
-{{ range $i, $f := .Note.Files }}
+{{- $headerFormat := .HeaderFormat }}
+{{- if .Note.Files }}{{ printf "\n"}}{{end}}
+{{- range $i, $f := .Note.Files }}
 	{{- if $f.IsTerminal }}
 		{{- FormatDuration $f.TimeSpent | printf "%14s" }}  [{{ $f.Status }}] Terminal
 	{{- else }}
@@ -52,7 +55,7 @@ const (
 	{{- end }}
 {{ end }}
 {{- if len .Note.Files }}
-	{{- FormatDuration .Note.Total | printf "%14s" }}
+	{{- FormatDuration .Note.Total | printf "%14s" }}      {{ printf $headerFormat .ProjectName }}
 {{ end }}`
 	commitTotalsTpl string = `
 {{ $headerFormat := .HeaderFormat }}
@@ -90,17 +93,40 @@ const (
 )
 
 // Status returns the status report
-func Status(n note.CommitNote, totalOnly bool) (string, error) {
+func Status(n note.CommitNote, totalOnly bool, projPath ...string) (string, error) {
 	if totalOnly {
 		return util.DurationStr(n.Total()), nil
 	}
+
+	projName := ""
+	if len(projPath) > 0 {
+		projName = filepath.Base(projPath[0])
+	}
+
 	b := new(bytes.Buffer)
 	t := template.Must(template.New("Status").Funcs(funcMap).Parse(statusTpl))
 
-	err := t.Execute(b, commitNoteDetail{Note: n})
+	headerFormat := "%s"
+	if isatty.IsTerminal(os.Stdout.Fd()) && runtime.GOOS != "windows" {
+		headerFormat = "\x1b[1m%s\x1b[0m"
+	}
+
+	err := t.Execute(
+		b,
+		struct {
+			ProjectName string
+			commitNoteDetail
+			HeaderFormat string
+		}{
+			projName,
+			commitNoteDetail{Note: n},
+			headerFormat,
+		})
+
 	if err != nil {
 		return "", err
 	}
+
 	return b.String(), nil
 }
 

@@ -9,9 +9,9 @@ import (
 
 // Process events for last git commit and save time spent as a git note
 // If interim is true, process events for the current working and staged files
-func Process(interim bool) (note.CommitNote, error) {
+func Process(interim bool, projPath ...string) (note.CommitNote, error) {
 
-	rootPath, gtmPath, err := project.Paths()
+	rootPath, gtmPath, err := project.Paths(projPath...)
 	if err != nil {
 		return note.CommitNote{}, err
 	}
