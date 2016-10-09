@@ -32,7 +32,7 @@ func (r StatusCmd) Run(args []string) int {
 		"Always output color even if no terminal is detected. Use this with pagers i.e 'less -R' or 'more -R'")
 	terminalOff := statusFlags.Bool(
 		"terminal-off",
-		true,
+		false,
 		"Exclude time spent in terminal (Terminal plugin is required)")
 	totalOnly := statusFlags.Bool(
 		"total-only",
