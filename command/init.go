@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/git-time-metric/gtm/project"
+	"github.com/git-time-metric/gtm/util"
 
 	"github.com/mitchellh/cli"
 )
@@ -31,7 +32,7 @@ func (i InitCmd) Run(args []string) int {
 	tags := initFlags.String(
 		"tags",
 		"",
-		"Set tags on project, i.e. \"work gtm\"")
+		"Set tags on project, i.e. \"work,gtm\"")
 	clearTags := initFlags.Bool(
 		"clear-tags",
 		false,
@@ -40,7 +41,7 @@ func (i InitCmd) Run(args []string) int {
 		fmt.Println(err)
 		return 1
 	}
-	m, err := project.Initialize(*terminal, strings.Fields(*tags), *clearTags)
+	m, err := project.Initialize(*terminal, util.Map(strings.Split(*tags, ","), strings.TrimSpace), *clearTags)
 	if err != nil {
 		fmt.Println(err)
 		return 1

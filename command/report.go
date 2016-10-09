@@ -104,7 +104,7 @@ func (r ReportCmd) Run(args []string) int {
 	tags := reportFlags.String(
 		"tags",
 		"",
-		"Project tags to report on")
+		"Project tags to report on, i.e --tags tag1,tag2")
 	all := reportFlags.Bool(
 		"all",
 		false,
@@ -179,7 +179,7 @@ func (r ReportCmd) Run(args []string) int {
 			return 1
 		}
 
-		projects, err := index.Get(strings.Fields(*tags), *all)
+		projects, err := index.Get(util.Map(strings.Split(*tags, ","), strings.TrimSpace), *all)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			return 1
