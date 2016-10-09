@@ -30,10 +30,10 @@ func (r StatusCmd) Run(args []string) int {
 		"color",
 		false,
 		"Always output color even if no terminal is detected. Use this with pagers i.e 'less -R' or 'more -R'")
-	terminal := statusFlags.Bool(
-		"terminal",
+	terminalOff := statusFlags.Bool(
+		"terminal-off",
 		true,
-		"Include time spent in terminal (Terminal plugin is required)")
+		"Exclude time spent in terminal (Terminal plugin is required)")
 	totalOnly := statusFlags.Bool(
 		"total-only",
 		false,
@@ -79,7 +79,7 @@ func (r StatusCmd) Run(args []string) int {
 			fmt.Fprint(os.Stderr, err)
 			return 1
 		}
-		o, err := report.Status(commitNote, *totalOnly, *terminal, *color, projPath)
+		o, err := report.Status(commitNote, *totalOnly, *terminalOff, *color, projPath)
 		if err != nil {
 			fmt.Fprint(os.Stderr, err)
 			return 1

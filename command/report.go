@@ -32,11 +32,11 @@ func (r ReportCmd) Run(args []string) int {
 	color := reportFlags.Bool(
 		"color",
 		false,
-		"Always output color even if no terminal is detected. Use with pagers, i.e 'less -R' or 'more -R'")
-	terminal := reportFlags.Bool(
-		"terminal",
-		true,
-		"Include time spent in terminal (Terminal plugin is required)")
+		"Always output color even if no terminal is detected, i.e 'gtm report -color | less -R'")
+	terminalOff := reportFlags.Bool(
+		"terminal-off",
+		false,
+		"Exclude time spent in terminal (Terminal plugin is required)")
 	format := reportFlags.String(
 		"format",
 		"commits",
@@ -204,11 +204,11 @@ func (r ReportCmd) Run(args []string) int {
 
 	switch *format {
 	case "commits":
-		out, err = report.Commits(projCommits, *totalOnly, *fullMessage, *terminal, *color, *limit)
+		out, err = report.Commits(projCommits, *totalOnly, *fullMessage, *terminalOff, *color, *limit)
 	case "files":
-		out, err = report.Files(projCommits, *terminal, *color, *limit)
+		out, err = report.Files(projCommits, *terminalOff, *color, *limit)
 	case "timeline":
-		out, err = report.Timeline(projCommits, *terminal, *color, *limit)
+		out, err = report.Timeline(projCommits, *terminalOff, *color, *limit)
 	case "projects":
 	case "json":
 	case "csv":

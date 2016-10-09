@@ -86,8 +86,8 @@ const (
 )
 
 // Status returns the status report
-func Status(n note.CommitNote, totalOnly, terminal, color bool, projPath ...string) (string, error) {
-	if !terminal {
+func Status(n note.CommitNote, totalOnly, terminalOff, color bool, projPath ...string) (string, error) {
+	if terminalOff {
 		n = n.FilterOutTerminal()
 	}
 
@@ -123,8 +123,8 @@ func Status(n note.CommitNote, totalOnly, terminal, color bool, projPath ...stri
 }
 
 // Commits returns the commits report
-func Commits(projects []ProjectCommits, totalOnly, fullMessage, terminal, color bool, limit int) (string, error) {
-	notes := retrieveNotes(projects, terminal)
+func Commits(projects []ProjectCommits, totalOnly, fullMessage, terminalOff, color bool, limit int) (string, error) {
+	notes := retrieveNotes(projects, terminalOff)
 
 	b := new(bytes.Buffer)
 	t := template.Must(template.New("Commits").Funcs(funcMap).Parse(commitsTpl))
@@ -152,8 +152,8 @@ func Commits(projects []ProjectCommits, totalOnly, fullMessage, terminal, color 
 }
 
 // Timeline returns the timeline report
-func Timeline(projects []ProjectCommits, terminal, color bool, limit int) (string, error) {
-	notes := retrieveNotes(projects, terminal)
+func Timeline(projects []ProjectCommits, terminalOff, color bool, limit int) (string, error) {
+	notes := retrieveNotes(projects, terminalOff)
 	b := new(bytes.Buffer)
 	t := template.Must(template.New("Timeline").Funcs(funcMap).Parse(timelineTpl))
 
@@ -175,8 +175,8 @@ func Timeline(projects []ProjectCommits, terminal, color bool, limit int) (strin
 }
 
 // Files returns the files report
-func Files(projects []ProjectCommits, terminal, color bool, limit int) (string, error) {
-	notes := retrieveNotes(projects, terminal)
+func Files(projects []ProjectCommits, terminalOff, color bool, limit int) (string, error) {
+	notes := retrieveNotes(projects, terminalOff)
 	b := new(bytes.Buffer)
 	t := template.Must(template.New("Files").Funcs(funcMap).Parse(filesTpl))
 

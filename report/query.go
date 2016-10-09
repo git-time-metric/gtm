@@ -13,7 +13,7 @@ import (
 	"github.com/git-time-metric/gtm/util"
 )
 
-func retrieveNotes(projects []ProjectCommits, terminal bool) commitNoteDetails {
+func retrieveNotes(projects []ProjectCommits, terminalOff bool) commitNoteDetails {
 	notes := commitNoteDetails{}
 
 	for _, p := range projects {
@@ -34,7 +34,7 @@ func retrieveNotes(projects []ProjectCommits, terminal bool) commitNoteDetails {
 				commitNote = note.CommitNote{}
 			}
 
-			if !terminal {
+			if terminalOff {
 				commitNote = commitNote.FilterOutTerminal()
 			}
 
