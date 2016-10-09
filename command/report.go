@@ -58,27 +58,27 @@ func (r ReportCmd) Run(args []string) int {
 		false,
 		"Show commits for yesterday")
 	thisWeek := reportFlags.Bool(
-		"thisweek",
+		"this-week",
 		false,
 		"Show commits for this week")
 	lastWeek := reportFlags.Bool(
-		"lastweek",
+		"last-week",
 		false,
 		"Show commits for last week")
 	thisMonth := reportFlags.Bool(
-		"thismonth",
+		"this-month",
 		false,
 		"Show commits for this month")
 	lastMonth := reportFlags.Bool(
-		"lastmonth",
+		"last-month",
 		false,
 		"Show commits for last month")
 	thisYear := reportFlags.Bool(
-		"thisyear",
+		"this-year",
 		false,
 		"Show commits for this year")
 	lastYear := reportFlags.Bool(
-		"lastyear",
+		"last-year",
 		false,
 		"Show commits for last year")
 	author := reportFlags.String(
