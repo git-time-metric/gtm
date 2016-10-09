@@ -16,6 +16,16 @@ type CommitNote struct {
 	Files []FileDetail
 }
 
+func (n CommitNote) FilterOutTerminal() CommitNote {
+	fds := []FileDetail{}
+	for _, f := range n.Files {
+		if !f.IsTerminal() {
+			fds = append(fds, f)
+		}
+	}
+	return CommitNote{Files: fds}
+}
+
 // Total returns the total time for a commit note
 func (n CommitNote) Total() int {
 	total := 0

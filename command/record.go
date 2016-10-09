@@ -85,7 +85,7 @@ func (r RecordCmd) Run(args []string) int {
 			fmt.Println(err)
 			return 1
 		}
-		out, err = report.Status(commitNote, *status, false)
+		out, err = report.Status(commitNote, *status, true, false)
 		if err != nil {
 			fmt.Println(err)
 			return 1

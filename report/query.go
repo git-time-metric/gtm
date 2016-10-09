@@ -13,7 +13,7 @@ import (
 	"github.com/git-time-metric/gtm/util"
 )
 
-func retrieveNotes(projects []ProjectCommits) commitNoteDetails {
+func retrieveNotes(projects []ProjectCommits, terminal bool) commitNoteDetails {
 	notes := commitNoteDetails{}
 
 	for _, p := range projects {
@@ -32,6 +32,10 @@ func retrieveNotes(projects []ProjectCommits) commitNoteDetails {
 			if err != nil {
 				project.Log(fmt.Sprintf("Error unmarshalling note \n\n%s \n\n%s", n.Note, err))
 				commitNote = note.CommitNote{}
+			}
+
+			if !terminal {
+				commitNote = commitNote.FilterOutTerminal()
 			}
 
 			id := n.ID
