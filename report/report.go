@@ -42,12 +42,12 @@ func (o OutputOptions) limitNotes(notes commitNoteDetails) commitNoteDetails {
 
 const (
 	commitsTpl string = `
-{{ $headerFormat := .HeaderFormat }}
+{{ $boldFormat := .BoldFormat }}
 {{- $fullMessage := .FullMessage }}
 {{- range $note := .Notes }}
 	{{- $total := .Note.Total }}
-	{{- printf $headerFormat $note.Hash }} {{ printf $headerFormat $note.Subject }}{{- printf "\n" }}
-	{{- $note.Date }} {{ printf $headerFormat $note.Project }} {{ $note.Author }}{{- printf "\n" }}
+	{{- printf $boldFormat $note.Hash }} {{ printf $boldFormat $note.Subject }}{{- printf "\n" }}
+	{{- $note.Date }} {{ printf $boldFormat $note.Project }} {{ $note.Author }}{{- printf "\n" }}
 	{{- if $fullMessage}}{{- if $note.Message }}{{- printf "\n"}}{{- $note.Message }}{{- printf "\n"}}{{end}}{{end}}
 	{{- range $i, $f := .Note.Files }}
 		{{- if $f.IsTerminal }}
@@ -57,13 +57,13 @@ const (
 		{{- end }}
 	{{- end }}
 	{{- if len .Note.Files }}
-		{{- FormatDuration $total | printf "\n%14s" }}          {{ printf $headerFormat $note.Project }}{{ printf "\n\n" }}
+		{{- FormatDuration $total | printf "\n%14s" }}          {{ printf $boldFormat $note.Project }}{{ printf "\n\n" }}
 	{{- else }}
 		{{- printf "\n" }}
 	{{- end }}
 {{- end -}}`
 	statusTpl string = `
-{{- $headerFormat := .HeaderFormat }}
+{{- $boldFormat := .BoldFormat }}
 {{- if .Note.Files }}{{ printf "\n"}}{{end}}
 {{- $total := .Note.Total }}
 {{- range $i, $f := .Note.Files }}
@@ -74,12 +74,13 @@ const (
 	{{- end }}
 {{ end }}
 {{- if len .Note.Files }}
-	{{- FormatDuration .Note.Total | printf "%14s" }}          {{ printf $headerFormat .ProjectName }}
+	{{- FormatDuration .Note.Total | printf "%14s" }}          {{ printf $boldFormat .ProjectName }}
 {{ end }}`
 	timelineTpl string = `
-           0123456789012345678901234
+{{- $boldFormat := .BoldFormat }}
+{{printf $boldFormat "           0123456789012345678901234" }}
 {{ range $_, $entry := .Timeline }}
-	{{- $entry.Day }} {{ RightPad2Len $entry.Bars " " 24 }} {{ LeftPad2Len $entry.Duration " " 13 }}
+	{{- printf $boldFormat $entry.Day }} {{ RightPad2Len $entry.Bars " " 24 }} {{ LeftPad2Len $entry.Duration " " 13 }}
 {{ end }}
 {{- if len .Timeline }}
 	{{- LeftPad2Len .Timeline.Duration " " 49 }}
@@ -121,7 +122,7 @@ func Status(n note.CommitNote, options OutputOptions, projPath ...string) (strin
 		struct {
 			ProjectName string
 			commitNoteDetail
-			HeaderFormat string
+			BoldFormat string
 		}{
 			projName,
 			commitNoteDetail{Note: n},
@@ -145,9 +146,9 @@ func Commits(projects []ProjectCommits, options OutputOptions) (string, error) {
 	err := t.Execute(
 		b,
 		struct {
-			FullMessage  bool
-			Notes        commitNoteDetails
-			HeaderFormat string
+			FullMessage bool
+			Notes       commitNoteDetails
+			BoldFormat  string
 		}{
 			options.FullMessage,
 			notes,
@@ -168,9 +169,11 @@ func Timeline(projects []ProjectCommits, options OutputOptions) (string, error) 
 	err := t.Execute(
 		b,
 		struct {
-			Timeline timelineEntries
+			Timeline   timelineEntries
+			BoldFormat string
 		}{
 			notes.timeline(),
+			setBoldFormat(options.Color),
 		})
 	if err != nil {
 		return "", err
