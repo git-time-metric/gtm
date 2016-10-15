@@ -16,10 +16,10 @@ fmt:
 	go fmt $$(go list ./... | grep -v vendor)
 
 todo:
-	ag "TODO:" --color | grep -v vendor
+	ag "TODO:" --go --color --after --ignore vendor 
 
 note:
-	ag "NOTE:" --color | grep -v vendor
+	ag "NOTE:" --go --color --after --ignore vendor
 
 install:
 	go install ${LDFLAGS}

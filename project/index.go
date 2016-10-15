@@ -23,6 +23,7 @@ func NewIndex() (Index, error) {
 
 	err := i.load()
 	if err != nil {
+		//TODO: do we need to save here?
 		err := i.save()
 		if err != nil {
 			return i, err
