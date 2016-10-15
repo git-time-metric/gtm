@@ -24,6 +24,22 @@ type ProjectCommits struct {
 	Commits []string
 }
 
+type OutputOptions struct {
+	TotalOnly   bool
+	FullMessage bool
+	TerminalOff bool
+	Color       bool
+	Limit       int
+}
+
+func (o OutputOptions) limitNotes(notes commitNoteDetails) commitNoteDetails {
+	ns := notes
+	if o.Limit > 0 && len(ns) > o.Limit {
+		ns = ns[0:o.Limit]
+	}
+	return ns
+}
+
 const (
 	commitsTpl string = `
 {{ $headerFormat := .HeaderFormat }}
@@ -86,12 +102,12 @@ const (
 )
 
 // Status returns the status report
-func Status(n note.CommitNote, totalOnly, terminalOff, color bool, projPath ...string) (string, error) {
-	if terminalOff {
+func Status(n note.CommitNote, options OutputOptions, projPath ...string) (string, error) {
+	if options.TerminalOff {
 		n = n.FilterOutTerminal()
 	}
 
-	if totalOnly {
+	if options.TotalOnly {
 		return util.DurationStr(n.Total()), nil
 	}
 
@@ -112,7 +128,7 @@ func Status(n note.CommitNote, totalOnly, terminalOff, color bool, projPath ...s
 		}{
 			projName,
 			commitNoteDetail{Note: n},
-			setBoldFormat(color),
+			setBoldFormat(options.Color),
 		})
 
 	if err != nil {
@@ -123,15 +139,11 @@ func Status(n note.CommitNote, totalOnly, terminalOff, color bool, projPath ...s
 }
 
 // Commits returns the commits report
-func Commits(projects []ProjectCommits, totalOnly, fullMessage, terminalOff, color bool, limit int) (string, error) {
-	notes := retrieveNotes(projects, terminalOff)
+func Commits(projects []ProjectCommits, options OutputOptions) (string, error) {
+	notes := options.limitNotes(retrieveNotes(projects, options.TerminalOff))
 
 	b := new(bytes.Buffer)
 	t := template.Must(template.New("Commits").Funcs(funcMap).Parse(commitsTpl))
-
-	if limit > 0 && len(notes) > limit {
-		notes = notes[0:limit]
-	}
 
 	err := t.Execute(
 		b,
@@ -141,10 +153,10 @@ func Commits(projects []ProjectCommits, totalOnly, fullMessage, terminalOff, col
 			Notes        commitNoteDetails
 			HeaderFormat string
 		}{
-			totalOnly,
-			fullMessage,
+			options.TotalOnly,
+			options.FullMessage,
 			notes,
-			setBoldFormat(color)})
+			setBoldFormat(options.Color)})
 	if err != nil {
 		return "", err
 	}
@@ -152,14 +164,11 @@ func Commits(projects []ProjectCommits, totalOnly, fullMessage, terminalOff, col
 }
 
 // Timeline returns the timeline report
-func Timeline(projects []ProjectCommits, terminalOff, color bool, limit int) (string, error) {
-	notes := retrieveNotes(projects, terminalOff)
+func Timeline(projects []ProjectCommits, options OutputOptions) (string, error) {
+	notes := options.limitNotes(retrieveNotes(projects, options.TerminalOff))
+
 	b := new(bytes.Buffer)
 	t := template.Must(template.New("Timeline").Funcs(funcMap).Parse(timelineTpl))
-
-	if limit > 0 && len(notes) > limit {
-		notes = notes[0:limit]
-	}
 
 	err := t.Execute(
 		b,
@@ -175,14 +184,11 @@ func Timeline(projects []ProjectCommits, terminalOff, color bool, limit int) (st
 }
 
 // Files returns the files report
-func Files(projects []ProjectCommits, terminalOff, color bool, limit int) (string, error) {
-	notes := retrieveNotes(projects, terminalOff)
+func Files(projects []ProjectCommits, options OutputOptions) (string, error) {
+	notes := options.limitNotes(retrieveNotes(projects, options.TerminalOff))
+
 	b := new(bytes.Buffer)
 	t := template.Must(template.New("Files").Funcs(funcMap).Parse(filesTpl))
-
-	if limit > 0 && len(notes) > limit {
-		notes = notes[0:limit]
-	}
 
 	err := t.Execute(
 		b,

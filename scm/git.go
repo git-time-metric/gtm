@@ -55,69 +55,80 @@ func NewCommitLimiter(
 
 	const dateFormat = "2006-01-02"
 
-	hasMax := max != 0
-	hasBefore := beforeStr != ""
-	hasAfter := afterStr != ""
-	hasAuthor := author != ""
-	hasMessage := message != ""
+	beforeStr = strings.TrimSpace(beforeStr)
+	afterStr = strings.TrimSpace(afterStr)
+	author = strings.TrimSpace(author)
+	message = strings.TrimSpace(message)
+
+	cnt := func(vals []bool) int {
+		var c int
+		for _, v := range vals {
+			if v {
+				c++
+			}
+		}
+		return c
+	}([]bool{
+		beforeStr != "" || afterStr != "",
+		today, yesterday, thisWeek, lastWeek, thisMonth, lastMonth, thisYear, lastYear})
+
+	if cnt > 1 {
+		return commitLimiter{}, fmt.Errorf("Using multiple temporal flags is not allowed")
+	}
 
 	var err error
 	after := time.Time{}
 	before := time.Time{}
 
 	switch {
+	case beforeStr != "" || afterStr != "":
+		if beforeStr != "" {
+			before, err = time.Parse(dateFormat, beforeStr)
+			if err != nil {
+				return commitLimiter{}, err
+			}
+		}
+		if afterStr != "" {
+			after, err = time.Parse(dateFormat, afterStr)
+			if err != nil {
+				return commitLimiter{}, err
+			}
+		}
 	case today:
-		hasAfter = true
 		after = now.EndOfDay().AddDate(0, 0, -1)
 		// fmt.Println("after", after)
 	case yesterday:
-		hasAfter = true
-		hasBefore = true
 		before = now.BeginningOfDay()
 		after = now.EndOfDay().AddDate(0, 0, -2)
 		// fmt.Println("before", before, "after", after)
 	case thisWeek:
-		hasAfter = true
 		after = now.EndOfWeek().AddDate(0, 0, -7)
 		// fmt.Println("after", after)
 	case lastWeek:
-		hasAfter = true
-		hasBefore = true
 		before = now.BeginningOfWeek()
 		after = now.EndOfWeek().AddDate(0, 0, -14)
 		// fmt.Println("before", before, "after", after)
 	case thisMonth:
-		hasAfter = true
 		after = now.EndOfMonth().AddDate(0, -1, -1)
 		// fmt.Println("after", after)
 	case lastMonth:
-		hasAfter = true
-		hasBefore = true
 		before = now.BeginningOfMonth()
 		after = now.EndOfMonth().AddDate(0, -2, 0)
 		// fmt.Println("before", before, "after", after)
 	case thisYear:
-		hasAfter = true
 		after = now.EndOfYear().AddDate(-1, 0, 0)
 		// fmt.Println("after", after)
 	case lastYear:
-		hasAfter = true
-		hasBefore = true
 		before = now.BeginningOfYear()
 		after = now.EndOfYear().AddDate(-2, 0, 0)
 		// fmt.Println("before", before, "after", after)
-	case hasBefore:
-		before, err = time.Parse(dateFormat, beforeStr)
-		if err != nil {
-			return commitLimiter{}, err
-		}
-		fallthrough
-	case hasAfter:
-		after, err = time.Parse(dateFormat, afterStr)
-		if err != nil {
-			return commitLimiter{}, err
-		}
 	}
+
+	hasMax := max > 0
+	hasBefore := !before.IsZero()
+	hasAfter := !after.IsZero()
+	hasAuthor := author != ""
+	hasMessage := message != ""
 
 	if hasBefore && hasAfter && before.Before(after) {
 		return commitLimiter{}, fmt.Errorf("Before %s can not be older than after %s", before, after)

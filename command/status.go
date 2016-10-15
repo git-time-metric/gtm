@@ -74,12 +74,17 @@ func (r StatusCmd) Run(args []string) int {
 		return 1
 	}
 
+	options := report.OutputOptions{
+		TotalOnly:   *totalOnly,
+		TerminalOff: *terminalOff,
+		Color:       *color}
+
 	for _, projPath := range projects {
 		if commitNote, err = metric.Process(true, projPath); err != nil {
 			fmt.Fprint(os.Stderr, err)
 			return 1
 		}
-		o, err := report.Status(commitNote, *totalOnly, *terminalOff, *color, projPath)
+		o, err := report.Status(commitNote, options, projPath)
 		if err != nil {
 			fmt.Fprint(os.Stderr, err)
 			return 1

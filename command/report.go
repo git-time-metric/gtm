@@ -44,7 +44,7 @@ func (r ReportCmd) Run(args []string) int {
 	limit := reportFlags.Int(
 		"n",
 		0,
-		fmt.Sprintf("Limit number of log enteries"))
+		fmt.Sprintf("Limit output, 0 is no limits, defaults to 1 when no limiting flags (i.e. -today, -author, etc) otherwise defaults to 0"))
 	totalOnly := reportFlags.Bool(
 		"total-only",
 		false,
@@ -179,7 +179,11 @@ func (r ReportCmd) Run(args []string) int {
 			return 1
 		}
 
-		projects, err := index.Get(util.Map(strings.Split(*tags, ","), strings.TrimSpace), *all)
+		tagList := []string{}
+		if *tags != "" {
+			tagList = util.Map(strings.Split(*tags, ","), strings.TrimSpace)
+		}
+		projects, err := index.Get(tagList, *all)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			return 1
@@ -189,6 +193,11 @@ func (r ReportCmd) Run(args []string) int {
 			*limit, *before, *after, *author, *message,
 			*today, *yesterday, *thisWeek, *lastWeek,
 			*thisMonth, *lastMonth, *thisYear, *lastYear)
+
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			return 1
+		}
 
 		*limit = limiter.Max
 
@@ -202,13 +211,20 @@ func (r ReportCmd) Run(args []string) int {
 		}
 	}
 
+	options := report.OutputOptions{
+		TotalOnly:   *totalOnly,
+		FullMessage: *fullMessage,
+		TerminalOff: *terminalOff,
+		Color:       *color,
+		Limit:       *limit}
+
 	switch *format {
 	case "commits":
-		out, err = report.Commits(projCommits, *totalOnly, *fullMessage, *terminalOff, *color, *limit)
+		out, err = report.Commits(projCommits, options)
 	case "files":
-		out, err = report.Files(projCommits, *terminalOff, *color, *limit)
+		out, err = report.Files(projCommits, options)
 	case "timeline":
-		out, err = report.Timeline(projCommits, *terminalOff, *color, *limit)
+		out, err = report.Timeline(projCommits, options)
 	case "projects":
 	case "json":
 	case "csv":
