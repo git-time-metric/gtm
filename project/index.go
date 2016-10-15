@@ -12,6 +12,8 @@ import (
 	"github.com/git-time-metric/gtm/scm"
 )
 
+//TODO: write tests
+
 type Index struct {
 	Projects map[string]time.Time
 }

@@ -15,10 +15,16 @@ vet:
 fmt:
 	go fmt $$(go list ./... | grep -v vendor)
 
+todo:
+	ag "TODO:" --color | grep -v vendor
+
+note:
+	ag "NOTE:" --color | grep -v vendor
+
 install:
 	go install ${LDFLAGS}
 
 clean:
 	go clean
 
-.PHONY: test vet install clean fmt
+.PHONY: test vet install clean fmt todo note

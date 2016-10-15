@@ -48,7 +48,7 @@ func allocateTime(ep int64, metricMap map[string]FileMetric, eventMap map[string
 		}
 		fm.AddTimeSpent(ep, t)
 
-		//NOTE - Go has some gotchas when it comes to structs contained within maps
+		//NOTE: Go has some gotchas when it comes to structs contained within maps
 		// a copy is returned and not the reference to the struct
 		// https://groups.google.com/forum/#!topic/golang-nuts/4_pabWnsMp0
 		// assigning the new & updated metricFile instance to the map
