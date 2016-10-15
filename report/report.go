@@ -44,19 +44,16 @@ const (
 	commitsTpl string = `
 {{ $headerFormat := .HeaderFormat }}
 {{- $fullMessage := .FullMessage }}
-{{- $totalOnly := .TotalOnly }}
 {{- range $note := .Notes }}
 	{{- $total := .Note.Total }}
 	{{- printf $headerFormat $note.Hash }} {{ printf $headerFormat $note.Subject }}{{- printf "\n" }}
 	{{- $note.Date }} {{ printf $headerFormat $note.Project }} {{ $note.Author }}{{- printf "\n" }}
 	{{- if $fullMessage}}{{- if $note.Message }}{{- printf "\n"}}{{- $note.Message }}{{- printf "\n"}}{{end}}{{end}}
-	{{- if not $totalOnly }}
-		{{- range $i, $f := .Note.Files }}
-			{{- if $f.IsTerminal }}
-				{{- FormatDuration $f.TimeSpent | printf "\n%14s" }} {{ Percent $f.TimeSpent $total | printf "%3.0f"}}%% [{{ $f.Status }}] Terminal
-			{{- else }}
-				{{- FormatDuration $f.TimeSpent | printf "\n%14s" }} {{ Percent $f.TimeSpent $total | printf "%3.0f"}}%% [{{ $f.Status }}] {{$f.SourceFile}}
-			{{- end }}
+	{{- range $i, $f := .Note.Files }}
+		{{- if $f.IsTerminal }}
+			{{- FormatDuration $f.TimeSpent | printf "\n%14s" }} {{ Percent $f.TimeSpent $total | printf "%3.0f"}}%% [{{ $f.Status }}] Terminal
+		{{- else }}
+			{{- FormatDuration $f.TimeSpent | printf "\n%14s" }} {{ Percent $f.TimeSpent $total | printf "%3.0f"}}%% [{{ $f.Status }}] {{$f.SourceFile}}
 		{{- end }}
 	{{- end }}
 	{{- if len .Note.Files }}
@@ -148,12 +145,10 @@ func Commits(projects []ProjectCommits, options OutputOptions) (string, error) {
 	err := t.Execute(
 		b,
 		struct {
-			TotalOnly    bool
 			FullMessage  bool
 			Notes        commitNoteDetails
 			HeaderFormat string
 		}{
-			options.TotalOnly,
 			options.FullMessage,
 			notes,
 			setBoldFormat(options.Color)})

@@ -45,10 +45,6 @@ func (r ReportCmd) Run(args []string) int {
 		"n",
 		0,
 		fmt.Sprintf("Limit output, 0 is no limits, defaults to 1 when no limiting flags (i.e. -today, -author, etc) otherwise defaults to 0"))
-	totalOnly := reportFlags.Bool(
-		"total-only",
-		false,
-		"Only display total time")
 	fullMessage := reportFlags.Bool(
 		"full-message",
 		false,
@@ -212,7 +208,6 @@ func (r ReportCmd) Run(args []string) int {
 	}
 
 	options := report.OutputOptions{
-		TotalOnly:   *totalOnly,
 		FullMessage: *fullMessage,
 		TerminalOff: *terminalOff,
 		Color:       *color,
