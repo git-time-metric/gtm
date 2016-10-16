@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"text/template"
 
 	"github.com/git-time-metric/gtm/note"
@@ -17,6 +18,7 @@ var funcMap = template.FuncMap{
 	"RightPad2Len":   util.RightPad2Len,
 	"LeftPad2Len":    util.LeftPad2Len,
 	"Percent":        util.Percent,
+	"Blocks":         BlockForSeconds,
 }
 
 type ProjectCommits struct {
@@ -78,12 +80,14 @@ const (
 {{ end }}`
 	timelineTpl string = `
 {{- $boldFormat := .BoldFormat }}
-{{printf $boldFormat "           0123456789012345678901234" }}
+{{printf $boldFormat "             00.01.02.03.04.05.06.07.08.09.10.11.12.01.02.03.04.05.06.07.08.09.10.11." }}
+{{printf $boldFormat "             ------------------------------------------------------------------------"}}
 {{ range $_, $entry := .Timeline }}
-	{{- printf $boldFormat $entry.Day }} {{ RightPad2Len $entry.Bars " " 24 }} {{ LeftPad2Len $entry.Duration " " 13 }}
+{{- printf $boldFormat $entry.Day }} | {{ range $_, $h := .Hours }}{{ Blocks $h }}{{ end }} | {{ LeftPad2Len $entry.Duration " " 13 | printf $boldFormat }}
+{{printf $boldFormat "             ------------------------------------------------------------------------"}}
 {{ end }}
 {{- if len .Timeline }}
-	{{- LeftPad2Len .Timeline.Duration " " 49 }}
+	{{- LeftPad2Len .Timeline.Duration " " 101 | printf $boldFormat }}
 {{ end }}`
 	filesTpl string = `
 {{- $total := .Files.Total }}
@@ -162,17 +166,21 @@ func Commits(projects []ProjectCommits, options OutputOptions) (string, error) {
 // Timeline returns the timeline report
 func Timeline(projects []ProjectCommits, options OutputOptions) (string, error) {
 	notes := options.limitNotes(retrieveNotes(projects, options.TerminalOff))
+	timeline, err := notes.timeline()
+	if err != nil {
+		return "", err
+	}
 
 	b := new(bytes.Buffer)
 	t := template.Must(template.New("Timeline").Funcs(funcMap).Parse(timelineTpl))
 
-	err := t.Execute(
+	err = t.Execute(
 		b,
 		struct {
 			Timeline   timelineEntries
 			BoldFormat string
 		}{
-			notes.timeline(),
+			timeline,
 			setBoldFormat(options.Color),
 		})
 	if err != nil {
@@ -207,4 +215,21 @@ func setBoldFormat(color bool) string {
 		return "\x1b[1m%s\x1b[0m"
 	}
 	return "%s"
+}
+
+func BlockForSeconds(s int) string {
+	const (
+		secsPerBlock = 401
+		colSize      = 3
+	)
+	var blocks = []string{` `, `▁`, `▂`, `▃`, `▄`, `▅`, `▆`, `▇`, `█`}
+	blockCnt := s / secsPerBlock
+	if blockCnt == 0 && s != 0 {
+		blockCnt = 1
+	}
+	// let make sure we don't get index out range panic
+	if blockCnt > 8 {
+		blockCnt = 8
+	}
+	return strings.Repeat(blocks[blockCnt], colSize)
 }

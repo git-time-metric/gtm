@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -88,7 +89,7 @@ type commitNoteDetail struct {
 	Note    note.CommitNote
 }
 
-func (n commitNoteDetails) timeline() timelineEntries {
+func (n commitNoteDetails) timeline() (timelineEntries, error) {
 	timelineMap := map[string]timelineEntry{}
 	timeline := []timelineEntry{}
 	for _, n := range n {
@@ -96,10 +97,16 @@ func (n commitNoteDetails) timeline() timelineEntries {
 			for epoch, secs := range f.Timeline {
 				t := time.Unix(epoch, 0)
 				day := t.Format("2006-01-02")
+				hour, err := strconv.Atoi(t.Format("15"))
+				if err != nil {
+					return timelineEntries{}, err
+				}
 				if entry, ok := timelineMap[day]; !ok {
-					timelineMap[day] = timelineEntry{Day: t.Format("Mon Jan 02"), Seconds: secs}
+					var hours [24]int
+					hours[hour] = secs
+					timelineMap[day] = timelineEntry{Day: t.Format("Mon Jan 02"), Hours: hours, Seconds: secs}
 				} else {
-					entry.add(secs)
+					entry.add(secs, hour)
 					timelineMap[day] = entry
 				}
 			}
@@ -114,7 +121,8 @@ func (n commitNoteDetails) timeline() timelineEntries {
 	for _, k := range keys {
 		timeline = append(timeline, timelineMap[k])
 	}
-	return timeline
+
+	return timeline, nil
 }
 
 type timelineEntries []timelineEntry
@@ -130,10 +138,12 @@ func (t timelineEntries) Duration() string {
 type timelineEntry struct {
 	Day     string
 	Seconds int
+	Hours   [24]int
 }
 
-func (t *timelineEntry) add(s int) {
+func (t *timelineEntry) add(s int, hour int) {
 	t.Seconds += s
+	t.Hours[hour] += s
 }
 
 func (t *timelineEntry) Bars() string {

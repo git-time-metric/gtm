@@ -221,6 +221,7 @@ func (r ReportCmd) Run(args []string) int {
 	case "timeline":
 		out, err = report.Timeline(projCommits, options)
 	case "projects":
+		// TODO: project report: full path, tags, terminal, ...
 	case "json":
 	case "csv":
 	}
