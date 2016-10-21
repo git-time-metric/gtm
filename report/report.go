@@ -18,7 +18,7 @@ var funcMap = template.FuncMap{
 	"RightPad2Len":   util.RightPad2Len,
 	"LeftPad2Len":    util.LeftPad2Len,
 	"Percent":        util.Percent,
-	"Blocks":         BlockForSeconds,
+	"Blocks":         BlockForVal,
 }
 
 type ProjectCommits struct {
@@ -64,6 +64,7 @@ const (
 		{{- printf "\n" }}
 	{{- end }}
 {{- end -}}`
+
 	statusTpl string = `
 {{- $boldFormat := .BoldFormat }}
 {{- if .Note.Files }}{{ printf "\n"}}{{end}}
@@ -78,17 +79,22 @@ const (
 {{- if len .Note.Files }}
 	{{- FormatDuration .Note.Total | printf "%14s" }}          {{ printf $boldFormat .ProjectName }}
 {{ end }}`
+
+	// TODO: determine left padding based on size of total duration
 	timelineTpl string = `
 {{- $boldFormat := .BoldFormat }}
+{{- $maxSecondsInHour := .Timeline.HourMaxSeconds }}
 {{printf $boldFormat "             00.01.02.03.04.05.06.07.08.09.10.11.12.01.02.03.04.05.06.07.08.09.10.11." }}
 {{printf $boldFormat "             ------------------------------------------------------------------------"}}
 {{ range $_, $entry := .Timeline }}
-{{- printf $boldFormat $entry.Day }} | {{ range $_, $h := .Hours }}{{ Blocks $h }}{{ end }} | {{ LeftPad2Len $entry.Duration " " 13 | printf $boldFormat }}
+{{- printf $boldFormat $entry.Day }} | {{ range $_, $h := .Hours }}{{ Blocks $h $maxSecondsInHour }}{{ end }} | {{ LeftPad2Len $entry.Duration " " 13 | printf $boldFormat }}
 {{printf $boldFormat "             ------------------------------------------------------------------------"}}
 {{ end }}
 {{- if len .Timeline }}
 	{{- LeftPad2Len .Timeline.Duration " " 101 | printf $boldFormat }}
 {{ end }}`
+
+	// TODO: determine left padding based on total hours
 	filesTpl string = `
 {{- $total := .Files.Total }}
 {{ range $i, $f := .Files }}
@@ -163,6 +169,7 @@ func Commits(projects []ProjectCommits, options OutputOptions) (string, error) {
 	return b.String(), nil
 }
 
+// TODO: optional timeline that reports on total commits per hour
 // Timeline returns the timeline report
 func Timeline(projects []ProjectCommits, options OutputOptions) (string, error) {
 	notes := options.limitNotes(retrieveNotes(projects, options.TerminalOff))
@@ -171,9 +178,11 @@ func Timeline(projects []ProjectCommits, options OutputOptions) (string, error) 
 		return "", err
 	}
 
+	// TODO: option to report on all days and not just days with commits
+	// TODO: calculate average total daily hours
+	// TODO: calculate busiest days of the week
 	b := new(bytes.Buffer)
 	t := template.Must(template.New("Timeline").Funcs(funcMap).Parse(timelineTpl))
-
 	err = t.Execute(
 		b,
 		struct {
@@ -217,19 +226,28 @@ func setBoldFormat(color bool) string {
 	return "%s"
 }
 
-func BlockForSeconds(s int) string {
+func BlockForVal(val, max int) string {
 	const (
-		secsPerBlock = 401
-		colSize      = 3
+		blockCnt   int = 8
+		blockWidth int = 3
 	)
-	var blocks = []string{` `, `▁`, `▂`, `▃`, `▄`, `▅`, `▆`, `▇`, `█`}
-	blockCnt := s / secsPerBlock
-	if blockCnt == 0 && s != 0 {
-		blockCnt = 1
+
+	blocks := []string{`▁`, `▂`, `▃`, `▄`, `▅`, `▆`, `▇`, `█`}
+
+	if val == 0 {
+		return strings.Repeat(" ", blockWidth)
 	}
-	// let make sure we don't get index out range panic
-	if blockCnt > 8 {
-		blockCnt = 8
+
+	inc := max / blockCnt
+	if inc == 0 {
+		return strings.Repeat(" ", blockWidth)
 	}
-	return strings.Repeat(blocks[blockCnt], colSize)
+
+	// let's make sure we don't get index out range panic
+	idx := val / inc
+	if idx > blockCnt-1 {
+		idx = blockCnt - 1
+	}
+
+	return strings.Repeat(blocks[idx], blockWidth)
 }

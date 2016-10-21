@@ -135,6 +135,21 @@ func (t timelineEntries) Duration() string {
 	return util.FormatDuration(total)
 }
 
+func (t timelineEntries) HourMaxSeconds() int {
+	// Default to number of seconds in a hour
+	// Actual max can be much higher when reporting
+	// across multiple projects and users
+	max := 3600
+	for _, entry := range t {
+		for _, secs := range entry.Hours {
+			if secs > max {
+				max = secs
+			}
+		}
+	}
+	return max
+}
+
 type timelineEntry struct {
 	Day     string
 	Seconds int
@@ -144,13 +159,6 @@ type timelineEntry struct {
 func (t *timelineEntry) add(s int, hour int) {
 	t.Seconds += s
 	t.Hours[hour] += s
-}
-
-func (t *timelineEntry) Bars() string {
-	if t.Seconds == 0 {
-		return ""
-	}
-	return strings.Repeat("*", 1+(t.Seconds/3601))
 }
 
 func (t *timelineEntry) Duration() string {
