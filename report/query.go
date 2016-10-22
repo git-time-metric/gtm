@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"path/filepath"
 	"sort"
-	"strconv"
 	"strings"
 	"time"
 
@@ -66,14 +65,14 @@ func retrieveNotes(projects []ProjectCommits, terminalOff bool) commitNoteDetail
 
 type commitNoteDetails []commitNoteDetail
 
-func (n commitNoteDetails) Len() int           { return len(n) }
-func (n commitNoteDetails) Swap(i, j int)      { n[i], n[j] = n[j], n[i] }
-func (n commitNoteDetails) Less(i, j int) bool { return n[i].When.After(n[j].When) }
+func (c commitNoteDetails) Len() int           { return len(c) }
+func (c commitNoteDetails) Swap(i, j int)      { c[i], c[j] = c[j], c[i] }
+func (c commitNoteDetails) Less(i, j int) bool { return c[i].When.After(c[j].When) }
 
-func (n commitNoteDetails) Total() int {
+func (c commitNoteDetails) Total() int {
 	t := 0
-	for i := range n {
-		t += n[i].Note.Total()
+	for i := range c {
+		t += c[i].Note.Total()
 	}
 	return t
 }
@@ -89,85 +88,9 @@ type commitNoteDetail struct {
 	Note    note.CommitNote
 }
 
-func (n commitNoteDetails) timeline() (timelineEntries, error) {
-	timelineMap := map[string]timelineEntry{}
-	timeline := []timelineEntry{}
-	for _, n := range n {
-		for _, f := range n.Note.Files {
-			for epoch, secs := range f.Timeline {
-				t := time.Unix(epoch, 0)
-				day := t.Format("2006-01-02")
-				hour, err := strconv.Atoi(t.Format("15"))
-				if err != nil {
-					return timelineEntries{}, err
-				}
-				if entry, ok := timelineMap[day]; !ok {
-					var hours [24]int
-					hours[hour] = secs
-					timelineMap[day] = timelineEntry{Day: t.Format("Mon Jan 02"), Hours: hours, Seconds: secs}
-				} else {
-					entry.add(secs, hour)
-					timelineMap[day] = entry
-				}
-			}
-		}
-	}
-
-	keys := make([]string, 0, len(timelineMap))
-	for key := range timelineMap {
-		keys = append(keys, key)
-	}
-	sort.Sort(sort.StringSlice(keys))
-	for _, k := range keys {
-		timeline = append(timeline, timelineMap[k])
-	}
-
-	return timeline, nil
-}
-
-type timelineEntries []timelineEntry
-
-func (t timelineEntries) Duration() string {
-	total := 0
-	for _, entry := range t {
-		total += entry.Seconds
-	}
-	return util.FormatDuration(total)
-}
-
-func (t timelineEntries) HourMaxSeconds() int {
-	// Default to number of seconds in a hour
-	// Actual max can be much higher when reporting
-	// across multiple projects and users
-	max := 3600
-	for _, entry := range t {
-		for _, secs := range entry.Hours {
-			if secs > max {
-				max = secs
-			}
-		}
-	}
-	return max
-}
-
-type timelineEntry struct {
-	Day     string
-	Seconds int
-	Hours   [24]int
-}
-
-func (t *timelineEntry) add(s int, hour int) {
-	t.Seconds += s
-	t.Hours[hour] += s
-}
-
-func (t *timelineEntry) Duration() string {
-	return util.FormatDuration(t.Seconds)
-}
-
-func (n commitNoteDetails) files() fileEntries {
+func (c commitNoteDetails) files() fileEntries {
 	filesMap := map[string]fileEntry{}
-	for _, n := range n {
+	for _, n := range c {
 		for _, f := range n.Note.Files {
 			if entry, ok := filesMap[f.SourceFile]; !ok {
 				filesMap[f.SourceFile] = fileEntry{Filename: f.SourceFile, Seconds: f.TimeSpent}

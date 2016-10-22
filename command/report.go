@@ -40,7 +40,7 @@ func (r ReportCmd) Run(args []string) int {
 	format := reportFlags.String(
 		"format",
 		"commits",
-		"Specify report format [commits|files|timeline]")
+		"Specify report format [commits|files|timeline-hours|timeline-commits]")
 	limit := reportFlags.Int(
 		"n",
 		0,
@@ -111,7 +111,7 @@ func (r ReportCmd) Run(args []string) int {
 		return 1
 	}
 
-	if !util.StringInSlice([]string{"commits", "timeline", "files"}, *format) {
+	if !util.StringInSlice([]string{"commits", "timeline-hours", "files", "timeline-commits"}, *format) {
 		fmt.Fprintf(os.Stderr, "report --format=%s not valid\n", *format)
 		return 1
 	}
@@ -218,8 +218,10 @@ func (r ReportCmd) Run(args []string) int {
 		out, err = report.Commits(projCommits, options)
 	case "files":
 		out, err = report.Files(projCommits, options)
-	case "timeline":
+	case "timeline-hours":
 		out, err = report.Timeline(projCommits, options)
+	case "timeline-commits":
+		out, err = report.TimelineCommits(projCommits, options)
 	case "projects":
 		// TODO: project report: full path, tags, terminal, ...
 	case "json":
