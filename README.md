@@ -1,107 +1,82 @@
-![GTM Logo](https://raw.githubusercontent.com/git-time-metric/gtm-atom-plugin/master/lib/GTMLogo-128.png)
-# Git Time Metrics (GTM)
-### Simple, seamless, lightweight time tracking for all your git projects
+<div align="center"><img src="https://cloud.githubusercontent.com/assets/630550/19619834/43c460dc-9835-11e6-8652-1c8fff91cf02.png" alt="GTM Logo" height="115" width="275"></div>
+# <div align="center">Git Time Metrics</div>
+### Seamless time tracking for all your Git projects
 
-[![Build Status](https://travis-ci.org/git-time-metric/gtm.svg?branch=develop)](https://travis-ci.org/git-time-metric/gtm) [![Build status](https://ci.appveyor.com/api/projects/status/gj6tvm8njgwj0hqi?svg=true)](https://ci.appveyor.com/project/mschenk42/gtm)
+<pre>$ gtm report -today -author Schenk
 
-Git Time Metrics (GTM) is a tool to automatically track time spent reading and working on code that you store in a Git repository. By installing GTM and using supported plug-ins for your favorite editors, you can immediately realize better insight into how you are spending your time and on what files.
+7129f00 <b>Remove post processing of status</b>
+Fri Sep 09 20:45:03 2016 -0500 <b>gtm-vim-plugin</b> Michael Schenk
 
-GTM is automatic, seamless and lightweight.  There is no need to remember to start and stop timers.  It's a process that only runs on occasion to capture edit events triggered by the editor.  It does not require a background process or any file system monitoring.
+       20m 40s  53% [m] plugin/gtm.vim
+       18m  5s  46% [r] Terminal
+           15s   1% [m] .gitignore
+       39m  0s          <b>gtm-vim-plugin</b> </pre>
 
-Your time metrics are stored locally with the repository as [Git notes](https://git-scm.com/docs/git-notes). If you want to share your data,  it can be pushed and fetched to and from the remote repository. Other GTM users on your team can do the same. This provides you the ability to see time metrics for the entire team.
+<pre>$ gtm report -format timeline-hours -last-week -author Schenk
 
-Here are some examples of insights GTM can provide you.
+             <b>00.01.02.03.04.05.06.07.08.09.10.11.12.01.02.03.04.05.06.07.08.09.10.11.</b>
+             ------------------------------------------------------------------------
+<b>Sat Oct 08</b> |                                                          ▃▃▃             |       <b>17m  0s</b>
+             ------------------------------------------------------------------------
+<b>Sun Oct 09</b> |                      ▁▁▁   █████████▃▃▃██████▂▂▂   ▂▂▂                   |    <b>5h 33m  0s</b>
+             ------------------------------------------------------------------------
+<b>Tue Oct 11</b> |                                                       ▂▂▂         ▂▂▂    |       <b>16m  0s</b>
+             ------------------------------------------------------------------------
+<b>Fri Oct 14</b> |                                     ▂▂▂                                  |       <b>13m  0s</b>
+             ------------------------------------------------------------------------
+<b>Sat Oct 15</b> |                            ███▇▇▇███▇▇▇███▁▁▁▇▇▇▂▂▂▁▁▁▃▃▃▆▆▆███▇▇▇       |    <b>8h 11m  0s</b>
+             ------------------------------------------------------------------------
+                                                                                          <b>14h 30m  0s</b> </pre>
 
-**Git commits with time spent**
+GTM is automatic, seamless and lightweight.  There is no need to remember to start and stop timers.  It runs on occasion to capture activity triggered by your editor.  The time metrics are stored locally with the git repository as [Git notes](https://git-scm.com/docs/git-notes) and can be pushed to the remote repository. 
 
-```
-9361c18 Rename packages
-Sun Jun 19 09:56:40 2016 -0500 Michael Schenk  34m 30s
+### <center>Plugins</center>
 
-341bd77 Vagrant file for testing on Linux
-Sun Jun 19 09:43:47 2016 -0500 Michael Schenk  1h 16m  0s
+Simply install a plugin for your favorite editor and the GTM command line utility to start tracking your time now.
 
-792ba19 Require a 40 char SHA commit hash
-Thu Jun 16 22:28:45 2016 -0500 Michael Schenk  1h  1m  0s
-```
-
-**Git commits with detailed time spent by file**
-
-```
-b2d16c8 Refactor discovering of paths when recording events
-Thu Jun 16 11:08:47 2016 -0500 Michael Schenk
-
-       30m 18s  [m] event/event.go
-       12m 31s  [m] event/manager.go
-        3m 14s  [m] project/project.go
-        1m 12s  [r] .git/COMMIT_EDITMSG
-        1m  0s  [r] .git/index
-           25s  [r] event/manager_test.go
-           20s  [r] metric/manager.go
-       49m  0s
-```
-
-**Timeline of time spent by day**
-
-```
-           0123456789012345678901234
-Fri Jun 24 *                              22m  0s
-Sat Jun 25 **                          1h 28m  0s
-Sun Jun 26 ****                        3h 28m  0s
-Mon Jun 27 *                               4m  0s
-Tue Jun 28 **                          1h 36m  0s
-                                       6h 58m  0s
-```
+<p><img src="https://cloud.githubusercontent.com/assets/630550/17458557/72247454-5bda-11e6-84ce-03364b8ac832.png" width="64" height="64">
+<img src="https://cloud.githubusercontent.com/assets/630550/17458560/72397408-5bda-11e6-909c-c2dd2dad3b52.png" width="64" height="64">
+<img src="https://cloud.githubusercontent.com/assets/630550/17458562/7264e2be-5bda-11e6-8311-bbed672ffb8f.png" width="64" height="64">
+<img src="https://cloud.githubusercontent.com/assets/630550/17458559/72302916-5bda-11e6-886e-2a41f423b06f.png" width="64" height="64">
+<img src="https://cloud.githubusercontent.com/assets/630550/17458563/7264f06a-5bda-11e6-9fb6-d0469730c1cb.png" width="64" height="64">
+<img src="https://cloud.githubusercontent.com/assets/630550/17458556/72030a62-5bda-11e6-89e4-6a3921034aed.png" width="64" height="64">
+<img src="https://cloud.githubusercontent.com/assets/630550/17458564/727d43a4-5bda-11e6-8b3c-56d3fb7bf988.png" width="64" height="64">
+<img src="https://cloud.githubusercontent.com/assets/630550/17458555/71e4352e-5bda-11e6-89d3-e8ff2c3a86e2.png" width="64" height="64">
+<img src="https://cloud.githubusercontent.com/assets/630550/17458561/72417ac2-5bda-11e6-9769-04cffc64397e.png" width="64" height="64">
+<img src="https://cloud.githubusercontent.com/assets/630550/17458591/82e06c98-5bdb-11e6-8ae0-c5b2bd2fe97f.png" width="64" height="64">
+<img src="https://cloud.githubusercontent.com/assets/630550/17458558/72269342-5bda-11e6-8194-d9bf030bd037.png" width="64" height="64">
+<img src="https://cloud.githubusercontent.com/assets/630550/19619987/f9f7523a-9838-11e6-99da-c3fda05ce0d6.png" width="64" height="64"></p>
 
 # Getting Started
 
-## Install the latest GTM release
+### Install the latest GTM release
 
 **Mac OS X**
 
-The simplest way to install is to use [Homebrew](http://brew.sh) - *Recommended*.
+The simplest way to install is to use [Homebrew](http://brew.sh)
 ```
 brew tap git-time-metric/gtm
 brew install gtm
 ```
 
+**Windows**
+
+- Download and run the windows installer from [here](https://github.com/git-time-metric/gtm/releases/latest)
+
 **Arch Linux**
 
-The package available in Arch Linux User Repository:
-
-[https://aur.archlinux.org/packages/gtm/](https://aur.archlinux.org/packages/gtm/)
-
-Installing using yaourt:
+The package available in Arch Linux User Repository: [https://aur.archlinux.org/packages/gtm/](https://aur.archlinux.org/packages/gtm/)
 
 ```
 yaourt -S gtm
 ```
 
-**Other Linux distro or Mac OS X**
+**Manually install for Linux, OSX or Windows**
 
-- Download the pre-build executable from [here](https://github.com/git-time-metric/gtm/releases/latest)
-- Extract the tar file to /usr/local/bin, `tar -C /usr/local/bin -zxf <file.tar.gz>`
-- Make sure it's executable, `chmod +x /usr/local/bin/gtm`
-- Check to make sure `/usr/loca/bin` is in your PATH (it should be already there)
-- Stay tuned, we will soon be distributing Linux packages
+- Download and install the executable from [here](https://github.com/git-time-metric/gtm/releases/latest)
 
 
-**Windows**
-
-*Option 1 - Recommended*
-
-- Download and run the windows installer from [here](https://github.com/git-time-metric/gtm/releases/latest)
-
-*Option 2*
-
-- Create a `gtm` directory in `c:\Program Files (x86)` and add it to your system's path
-- Download the pre-build executable from [here](https://github.com/git-time-metric/gtm/releases/latest)
-- Extract the tar file and install the `gtm.exe` in `c:\Program Files (x86)\gtm`
-  - The release archive is in a tar format, here are some options documented on the Haskell site for [unpacking in Windows](https://wiki.haskell.org/How_to_unpack_a_tar_file_in_Windows)
-
-## Install a GTM plug-in for your favorite editor
-
-Currently there are plug-ins for Atom, Sublime, Jetbrains IDEs and Vim. More will be added shortly and we are looking for others to contribute plug-ins.
+### Install a plugin for your editor
 
 - [Sublime 3](https://github.com/git-time-metric/gtm-sublime3-plugin)
 - [Atom](https://github.com/git-time-metric/gtm-atom-plugin)
@@ -110,148 +85,69 @@ Currently there are plug-ins for Atom, Sublime, Jetbrains IDEs and Vim. More wil
 - [VSCode](https://github.com/nexus-uw/vscode-gtm)
 - [Terminal](https://github.com/git-time-metric/gtm-terminal-plugin)
 
-## Initialize a project for time tracking
+### Initialize a project for time tracking
 
-For each project that has a Git repo you need to initialize it with `gtm init` for tracking with GTM otherwise it will be ignored.
-```
-> cd /Users/mschenk/Projects/go/src/github.com/git-time-metric/gtm
-> gtm init
+<pre>$ cd /my/project/dir
+$ gtm init
 
-Git Time Metric initialized for /Users/mschenk/Projects/go/src/github.com/git-time-metric/gtm
+Git Time Metric initialized for /my/project/dir
 
      post-commit: gtm commit --yes
   alias.fetchgtm: fetch origin refs/notes/gtm-data:refs/notes/gtm-data
    alias.pushgtm: push origin refs/notes/gtm-data
 notes.rewriteref: refs/notes/gtm-data
-      .gitignore: .gtm/
-```
+        terminal: true
+      .gitignore: /.gtm/
+            tags: tag1, tag2 </pre>
 
-## Edit some files in your project
+### Edit some files in your project
 
-Spend some time editing your files.  Check your progress with `gtm status`.
+Check your progress with `gtm status`.
 
-```
-> gtm status
+<pre>$ gtm status
 
-       36m  0s  [m] README.md
-       36m  0s
-```
+       20m 40s  53% [m] plugin/gtm.vim
+       18m  5s  46% [r] Terminal
+           15s   1% [m] .gitignore
+       39m  0s          <b>gtm-vim-plugin</b> </pre> 
 
-## Commit your work
+### Commit your work
 
 When you are ready, commit your work like you usually do.  GTM will automatically save the time spent associated with your commit. To check the time of the last commit type `gtm report`.
-```
-> gtm report
+<pre>$ gtm report
 
-6620f55 Add more help content to README
-Sun Jul 03 16:57:15 2016 -0500 Michael Schenk
+7129f00 <b>Remove post processing of status</b>
+Fri Sep 09 20:45:03 2016 -0500 <b>gtm-vim-plugin</b> Michael Schenk
 
-       40m  0s  [m] README.md
-       40m  0s
-```
+       20m 40s  53% [m] plugin/gtm.vim
+       18m  5s  46% [r] Terminal
+           15s   1% [m] .gitignore
+       39m  0s          <b>gtm-vim-plugin</b> </pre> 
 
-# Command Line Interface
+### Optionally save time in the remote Git repository
 
-GTM provides a simple CLI for initializing tracking and reporting on your time.
+GTM provides [git aliases](https://git-scm.com/book/en/v2/Git-Basics-Git-Aliases) to make this easy.  It defaults to origin for the remote repository.
 
-Here's a list of all the commands available for GTM.
-```
-usage: gtm [--version] [--help] <command> [<args>]
+Time data can be saved to the remote repository by pushing.
+<pre>$ git pushgtm </pre>
 
-Available commands are:
-    clean
-	Usage: gtm clean [-yes]
-	Cleans uncommitted time data by removing all event and metric files from the .gtm directory
+Time data can be retrieved from the remote repository by fetching.
+<pre>$ git fetchgtm </pre>
 
-    commit
-	Usage: gtm commit [-yes]
-	Save your logged time with the last commit
-	This is automatically called from the postcommit hook
-	Warning - any time logged will be cleared from your working directory
+## Getting Help
 
-    init
-	Usage: gtm init [-terminal=[true|false]]
-	Initialize a git project for time tracking
+For help from the command line type `gtm --help` and `gtm <subcommand> --help`.
 
-    record
-	Usage: gtm record [-status] [-terminal] [<path/file>]
-	Record a file or terminal events
-
-	record file event     -> gtm record /path/file
-	record terminal event -> gtm record -terminal
-
-    report
-	Usage: gtm report [-n] [-format commits|files|timeline] [-total-only]
-	Report on time logged
-
-    status
-	Usage: gtm status [-total-only]
-	Show time spent for working or staged files
-
-    uninit
-	Usage: gtm uninit [-yes]
-	Remove GTM tracking for the current git repository
-	Note - this removes uncommitted time data but does not remove time data that is committed
-
-    verify
-	Usage: gtm verify <version constraint>
-	Verify gtm satisfies the version constraint
-	This is typically invoked by plug-ins to determine if GTM needs to be upgraded
-```
-
-For general help `gtm --help` and for help on a command `gtm --help <command>`
-
-## Some examples on how to use the CLI
-
-*Report on the last 5 commits*
-
-```
-gtm report -n 5
-```
-
-*Report on the last 5 commits as a timeline*
-
-```
-gtm report -n 5 -format timeline
-```
-
-*Report on a specific commit SHA1*
-
-```
-gtm report 2401f73324c677f88fd40d2b434f2d007ce0b6f3 93f57ee594c917b2a372e06f09fa22009a145aac
-```
-
-*Pipe output from git log*
-
-```
- git log --pretty=%H --since="8 days ago" | gtm report
-```
-
-The `git log` command provides some nice options for [limiting and filtering output](https://git-scm.com/book/en/v2/Git-Basics-Viewing-the-Commit-History#Limiting-Log-Output).  You can use all these options as long as the output format is set to `--pretty=%H`.
-
-
-## Pushing and fetching notes to and from the remote repository
-
-GTM adds a couple of [git aliases](https://git-scm.com/book/en/v2/Git-Basics-Git-Aliases) to make this easy.  It defaults to origin for the remote repository.
-
-```
-git fetchgtm
-git pushgtm
-```
-
-Note - if you don't push your notes to the remote repository you will lose them if you delete and re-clone a repository.
+For addtional help please consult the [Wiki](https://github.com/git-time-metric/gtm/wiki).
 
 # Known Issues
 
-- Currently `git stash` is not fully supported.  You can certainly use git stash but your time may be assigned to the wrong commit. We will be adding full support for stashing in the near future.
+- Currently `git stash` is not fully supported.  You can certainly use git stash but your time may be assigned to the wrong commit. We will be adding support for stashing in the near future.
 
 # Contributing
+[![Build Status](https://travis-ci.org/git-time-metric/gtm.svg?branch=develop)](https://travis-ci.org/git-time-metric/gtm) [![Build status](https://ci.appveyor.com/api/projects/status/gj6tvm8njgwj0hqi?svg=true)](https://ci.appveyor.com/project/mschenk42/gtm)
 
-GTM has reached beta status for the initial release but we are looking for others to help make it great. We also need to expand the editor plug-in library.
-
-The plug-ins are very simple to write. Take a look at the [Atom](https://github.com/git-time-metric/gtm-atom-plugin), [Vim](https://github.com/git-time-metric/gtm-vim-plugin) and [Sublime 3](https://github.com/git-time-metric/gtm-sublime3-plugin) plug-ins to see how easy it is to create plug-ins.
-
-For more detail on how to write plug-ins, check out the [Wiki](https://github.com/git-time-metric/gtm/wiki/Editor-Plug-ins).
+For more detail on how to write plugins, check out the [Wiki](https://github.com/git-time-metric/gtm/wiki).
 
 # Support
 
