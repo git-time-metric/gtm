@@ -1,5 +1,5 @@
 <div align="center"><img src="https://cloud.githubusercontent.com/assets/630550/19619834/43c460dc-9835-11e6-8652-1c8fff91cf02.png" alt="GTM Logo" height="115" width="275"></div>
-# <div align="center">Git Time Metrics</div>
+# <div align="center">Git Time Metric</div>
 ### Seamless time tracking for all your Git projects
 
 <pre>$ gtm report -today -author Schenk
@@ -30,7 +30,7 @@ Fri Sep 09 20:45:03 2016 -0500 <b>gtm-vim-plugin</b> Michael Schenk
 
 GTM is automatic, seamless and lightweight.  There is no need to remember to start and stop timers.  It runs on occasion to capture activity triggered by your editor.  The time metrics are stored locally with the git repository as [Git notes](https://git-scm.com/docs/git-notes) and can be pushed to the remote repository. 
 
-### <center>Plugins</center>
+### <div align="center">Plugins</div>
 
 Simply install a plugin for your favorite editor and the GTM command line utility to start tracking your time now.
 
@@ -61,7 +61,7 @@ brew install gtm
 
 **Windows**
 
-- Download and run the windows installer from [here](https://github.com/git-time-metric/gtm/releases/latest)
+- Download and run the Windows installer from [here](https://github.com/git-time-metric/gtm/releases/latest)
 
 **Arch Linux**
 
@@ -134,20 +134,18 @@ Time data can be saved to the remote repository by pushing.
 Time data can be retrieved from the remote repository by fetching.
 <pre>$ git fetchgtm </pre>
 
-## Getting Help
+### Getting Help
 
 For help from the command line type `gtm --help` and `gtm <subcommand> --help`.
 
-For addtional help please consult the [Wiki](https://github.com/git-time-metric/gtm/wiki).
-
-# Known Issues
-
-- Currently `git stash` is not fully supported.  You can certainly use git stash but your time may be assigned to the wrong commit. We will be adding support for stashing in the near future.
+For additional help please consult the [Wiki](https://github.com/git-time-metric/gtm/wiki).
 
 # Contributing
 [![Build Status](https://travis-ci.org/git-time-metric/gtm.svg?branch=develop)](https://travis-ci.org/git-time-metric/gtm) [![Build status](https://ci.appveyor.com/api/projects/status/gj6tvm8njgwj0hqi?svg=true)](https://ci.appveyor.com/project/mschenk42/gtm)
 
-For more detail on how to write plugins, check out the [Wiki](https://github.com/git-time-metric/gtm/wiki).
+If you find a bug or have an idea for a new feature please feel free to file new issues and submits PRs.  In particular if there isn't a plugin for your favorite editor, go ahead and create one!
+
+For more detail on how to write plugins, check out the [Wiki](https://github.com/git-time-metric/gtm/wiki/Editor-Plugins).
 
 # Support
 
