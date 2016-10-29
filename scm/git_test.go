@@ -375,4 +375,24 @@ func TestSetGitHooks(t *testing.T) {
 	if !strings.Contains(output, hooks["post-commit"]) {
 		t.Errorf("SetHooks(hooks) expected post-commit to contain %s, got %s", hooks["post-commit"], output)
 	}
+
+	// test if hooks folder doesn't exist
+	err = os.RemoveAll(path.Join(repoPath, ".git", "hooks"))
+	if err != nil {
+		t.Fatalf("SetHooks(hooks) expect error nil, got %s", err)
+	}
+
+	err = SetHooks(hooks, repoPath)
+	if err != nil {
+		t.Errorf("SetHooks(hooks) expect error nil, got %s", err)
+	}
+	b, err = ioutil.ReadFile(path.Join(repoPath, ".git", "hooks", "post-commit"))
+	if err != nil {
+		t.Fatalf("SetHooks(hooks) expect error nil, got %s", err)
+	}
+	output = string(b)
+	if !strings.Contains(output, hooks["post-commit"]) {
+		t.Errorf("SetHooks(hooks) expected post-commit to contain %s, got %s", hooks["post-commit"], output)
+	}
+
 }
