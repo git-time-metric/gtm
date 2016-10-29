@@ -164,7 +164,7 @@ func (l commitLimiter) filter(c *git.Commit, cnt int) (bool, bool, error) {
 	}
 
 	if l.HasAfter && !c.Author().When.After(l.After) {
-		return false, true, nil
+		return false, false, nil
 	}
 
 	if l.HasAuthor && !strings.Contains(c.Author().Name, l.Author) {
