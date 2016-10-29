@@ -239,7 +239,7 @@ func (r ReportCmd) Run(args []string) int {
 
 func (r ReportCmd) Synopsis() string {
 	return `
-	Usage: gtm report [-n] [-format commits|files|timeline] [-total-only]
+	Usage: gtm report [options]
 	Report on time logged
 	`
 }

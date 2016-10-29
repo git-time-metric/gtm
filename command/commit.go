@@ -57,6 +57,7 @@ func (r GitCommit) Synopsis() string {
 	return `
 	Usage: gtm commit [-yes]
 	Save your logged time with the last commit
+
 	This is automatically called from the postcommit hook
 	Warning - any time logged will be cleared from your working directory
 	`

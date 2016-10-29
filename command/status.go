@@ -98,7 +98,7 @@ func (r StatusCmd) Run(args []string) int {
 
 func (r StatusCmd) Synopsis() string {
 	return `
-	Usage: gtm status [-total-only]
+	Usage: gtm status [-total-only] [-tags tag1,tag2] [-all] [-color] [-terminal-off] 
 	Show time spent for working or staged files
 	`
 }

@@ -52,7 +52,7 @@ func (i InitCmd) Run(args []string) int {
 
 func (i InitCmd) Synopsis() string {
 	return `
-	Usage: gtm init [-terminal=[true|false]]
+	Usage: gtm init [-terminal=[true|false]] [-tags tag1,tag2] [-clear-tags]
 	Initialize a git project for time tracking 
 	`
 }
