@@ -1,6 +1,8 @@
 package metric
 
 import (
+	"fmt"
+
 	"github.com/git-time-metric/gtm/event"
 	"github.com/git-time-metric/gtm/note"
 	"github.com/git-time-metric/gtm/project"
@@ -39,8 +41,9 @@ func Process(interim bool, projPath ...string) (note.CommitNote, error) {
 	commitNote := note.CommitNote{}
 
 	if interim {
-		commitMap, readonlyMap, err := buildInterimCommitMaps(metricMap)
+		commitMap, readonlyMap, err := buildInterimCommitMaps(metricMap, projPath...)
 		if err != nil {
+			fmt.Println("here")
 			return note.CommitNote{}, err
 		}
 

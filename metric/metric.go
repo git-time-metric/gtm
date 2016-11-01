@@ -310,11 +310,11 @@ func buildCommitNote(rootPath string, metricMap map[string]FileMetric, commitMap
 	return note.CommitNote{Files: fls}, nil
 }
 
-func buildInterimCommitMaps(metricMap map[string]FileMetric) (map[string]FileMetric, map[string]FileMetric, error) {
+func buildInterimCommitMaps(metricMap map[string]FileMetric, projPath ...string) (map[string]FileMetric, map[string]FileMetric, error) {
 	commitMap := map[string]FileMetric{}
 	readonlyMap := map[string]FileMetric{}
 
-	status, err := scm.NewStatus()
+	status, err := scm.NewStatus(projPath...)
 	if err != nil {
 		return commitMap, readonlyMap, err
 	}

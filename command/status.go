@@ -10,6 +10,7 @@ import (
 	"github.com/git-time-metric/gtm/note"
 	"github.com/git-time-metric/gtm/project"
 	"github.com/git-time-metric/gtm/report"
+	"github.com/git-time-metric/gtm/util"
 	"github.com/mitchellh/cli"
 )
 
@@ -68,7 +69,12 @@ func (r StatusCmd) Run(args []string) int {
 		return 1
 	}
 
-	projects, err := index.Get(strings.Fields(*tags), *all)
+	tagList := []string{}
+	if *tags != "" {
+		tagList = util.Map(strings.Split(*tags, ","), strings.TrimSpace)
+	}
+
+	projects, err := index.Get(tagList, *all)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		return 1

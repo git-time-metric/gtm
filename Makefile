@@ -1,5 +1,5 @@
 BINARY=gtm
-VERSION=v1.2-beta.1
+VERSION=v1.2.1-beta
 
 LDFLAGS=-ldflags "-X main.Version=${VERSION}"
 
