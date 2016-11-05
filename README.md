@@ -1,4 +1,5 @@
 [![Stories in Ready](https://badge.waffle.io/git-time-metric/gtm.png?label=ready&title=Ready)](https://waffle.io/git-time-metric/gtm)
+[![Stories in Ready](https://badge.waffle.io/git-time-metric/gtm.png?label=ready&title=Ready)](https://waffle.io/git-time-metric/gtm)
 # Git Time Metrics (GTM)
 ### Simple, seamless, lightweight time tracking for all your git projects
 
