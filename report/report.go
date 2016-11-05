@@ -21,11 +21,13 @@ var funcMap = template.FuncMap{
 	"Blocks":         BlockForVal,
 }
 
+// ProjectCommits contains a project's directory path and commit ids
 type ProjectCommits struct {
 	Path    string
 	Commits []string
 }
 
+// OutputOptions contains cli options for reporting
 type OutputOptions struct {
 	TotalOnly   bool
 	FullMessage bool
@@ -102,7 +104,7 @@ func Commits(projects []ProjectCommits, options OutputOptions) (string, error) {
 	return b.String(), nil
 }
 
-// Timeline returns the timeline report
+// Timeline returns the time spent by hour
 func Timeline(projects []ProjectCommits, options OutputOptions) (string, error) {
 	notes := options.limitNotes(retrieveNotes(projects, options.TerminalOff))
 	timeline, err := notes.timeline()
@@ -131,6 +133,7 @@ func Timeline(projects []ProjectCommits, options OutputOptions) (string, error) 
 	return b.String(), nil
 }
 
+// TimelineCommits returns the number commits by hour
 func TimelineCommits(projects []ProjectCommits, options OutputOptions) (string, error) {
 	notes := options.limitNotes(retrieveNotes(projects, options.TerminalOff))
 	timeline, err := notes.timelineCommits()
@@ -184,6 +187,7 @@ func setBoldFormat(color bool) string {
 	return "%s"
 }
 
+// BlockForVal determines the correct block to return for a value
 func BlockForVal(val, max int) string {
 	const (
 		blockCnt   int = 8

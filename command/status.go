@@ -14,17 +14,21 @@ import (
 	"github.com/mitchellh/cli"
 )
 
+// StatusCmd containt methods for status command
 type StatusCmd struct {
 }
 
+// NewStatus returns new StatusCmd struct
 func NewStatus() (cli.Command, error) {
 	return StatusCmd{}, nil
 }
 
+// Help returns help for status command
 func (r StatusCmd) Help() string {
 	return r.Synopsis()
 }
 
+// Run executes status command with args
 func (r StatusCmd) Run(args []string) int {
 	statusFlags := flag.NewFlagSet("status", flag.ExitOnError)
 	color := statusFlags.Bool(
@@ -102,6 +106,7 @@ func (r StatusCmd) Run(args []string) int {
 	return 0
 }
 
+// Synopsis returns help for status command
 func (r StatusCmd) Synopsis() string {
 	return `
 	Usage: gtm status [-total-only] [-tags tag1,tag2] [-all] [-color] [-terminal-off] 

@@ -10,17 +10,21 @@ import (
 	"github.com/mitchellh/cli"
 )
 
+// CleanCmd contains method for clean method
 type CleanCmd struct {
 }
 
+// NewClean returns a new CleanCmd struct
 func NewClean() (cli.Command, error) {
 	return CleanCmd{}, nil
 }
 
+// Help returns help for the clean command
 func (v CleanCmd) Help() string {
 	return v.Synopsis()
 }
 
+// Run executes clean command with args
 func (v CleanCmd) Run(args []string) int {
 
 	cleanFlags := flag.NewFlagSet("clean", flag.ExitOnError)
@@ -59,6 +63,7 @@ func (v CleanCmd) Run(args []string) int {
 	return 0
 }
 
+// Synopsis return help for clean command
 func (v CleanCmd) Synopsis() string {
 	return `
 	Usage: gtm clean [-yes]

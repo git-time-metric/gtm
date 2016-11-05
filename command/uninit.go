@@ -10,17 +10,21 @@ import (
 	"github.com/mitchellh/cli"
 )
 
+// UninitCmd contains methods for uninit command
 type UninitCmd struct {
 }
 
+// NewUninit returns new UninitCmd struct
 func NewUninit() (cli.Command, error) {
 	return UninitCmd{}, nil
 }
 
+// Help returns help for uninit command
 func (v UninitCmd) Help() string {
 	return v.Synopsis()
 }
 
+// Run executes uninit command with args
 func (v UninitCmd) Run(args []string) int {
 
 	uninitFlags := flag.NewFlagSet("uninit", flag.ExitOnError)
@@ -59,6 +63,7 @@ func (v UninitCmd) Run(args []string) int {
 	return 0
 }
 
+// Synopsis returns help for uninit command
 func (v UninitCmd) Synopsis() string {
 	return `
 	Usage: gtm uninit [-yes]

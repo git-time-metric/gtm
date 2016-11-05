@@ -7,6 +7,7 @@ import (
 	"time"
 )
 
+// Percent returns a values percent of the total
 func Percent(val, total int) float64 {
 	if total == 0 {
 		return float64(0)
@@ -63,6 +64,7 @@ func StringInSlice(list []string, a string) bool {
 	return false
 }
 
+// Map applys a func to a string array
 func Map(vs []string, f func(string) string) []string {
 	vsm := make([]string, len(vs))
 	for i, v := range vs {

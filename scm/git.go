@@ -35,7 +35,8 @@ func RootPath(path ...string) (string, error) {
 	return filepath.ToSlash(filepath.Dir(filepath.Dir(p))), nil
 }
 
-type commitLimiter struct {
+// CommitLimiter struct filter commits by criteria
+type CommitLimiter struct {
 	Max        int
 	Before     time.Time
 	After      time.Time
@@ -48,10 +49,11 @@ type commitLimiter struct {
 	HasMessage bool
 }
 
+// NewCommitLimiter returns a new initialize CommitLimiter struct
 func NewCommitLimiter(
 	max int, beforeStr, afterStr, author, message string,
 	today, yesterday, thisWeek, lastWeek,
-	thisMonth, lastMonth, thisYear, lastYear bool) (commitLimiter, error) {
+	thisMonth, lastMonth, thisYear, lastYear bool) (CommitLimiter, error) {
 
 	const dateFormat = "2006-01-02"
 
@@ -73,7 +75,7 @@ func NewCommitLimiter(
 		today, yesterday, thisWeek, lastWeek, thisMonth, lastMonth, thisYear, lastYear})
 
 	if cnt > 1 {
-		return commitLimiter{}, fmt.Errorf("Using multiple temporal flags is not allowed")
+		return CommitLimiter{}, fmt.Errorf("Using multiple temporal flags is not allowed")
 	}
 
 	var err error
@@ -85,13 +87,13 @@ func NewCommitLimiter(
 		if beforeStr != "" {
 			before, err = time.Parse(dateFormat, beforeStr)
 			if err != nil {
-				return commitLimiter{}, err
+				return CommitLimiter{}, err
 			}
 		}
 		if afterStr != "" {
 			after, err = time.Parse(dateFormat, afterStr)
 			if err != nil {
-				return commitLimiter{}, err
+				return CommitLimiter{}, err
 			}
 		}
 	case today:
@@ -131,7 +133,7 @@ func NewCommitLimiter(
 	hasMessage := message != ""
 
 	if hasBefore && hasAfter && before.Before(after) {
-		return commitLimiter{}, fmt.Errorf("Before %s can not be older than after %s", before, after)
+		return CommitLimiter{}, fmt.Errorf("Before %s can not be older than after %s", before, after)
 	}
 
 	if !(hasMax || hasBefore || hasAfter || hasAuthor || hasMessage) {
@@ -140,7 +142,7 @@ func NewCommitLimiter(
 		max = 1
 	}
 
-	return commitLimiter{
+	return CommitLimiter{
 		Max:        max,
 		Before:     before,
 		After:      after,
@@ -154,7 +156,7 @@ func NewCommitLimiter(
 	}, nil
 }
 
-func (l commitLimiter) filter(c *git.Commit, cnt int) (bool, bool, error) {
+func (l CommitLimiter) filter(c *git.Commit, cnt int) (bool, bool, error) {
 	if l.HasMax && l.Max == cnt {
 		return false, true, nil
 	}
@@ -179,7 +181,7 @@ func (l commitLimiter) filter(c *git.Commit, cnt int) (bool, bool, error) {
 }
 
 // CommitIDs returns commit SHA1 IDs starting from the head up to the limit
-func CommitIDs(limiter commitLimiter, wd ...string) ([]string, error) {
+func CommitIDs(limiter CommitLimiter, wd ...string) ([]string, error) {
 	var (
 		repo *git.Repository
 		cnt  int

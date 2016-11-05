@@ -10,17 +10,21 @@ import (
 	"github.com/mitchellh/cli"
 )
 
+// GitCommit struct contain methods for commit command
 type GitCommit struct {
 }
 
+// NewCommit returns new GitCommit struct
 func NewCommit() (cli.Command, error) {
 	return GitCommit{}, nil
 }
 
+// Help returns help for commit command
 func (r GitCommit) Help() string {
 	return r.Synopsis()
 }
 
+// Run executes commit commands with args
 func (r GitCommit) Run(args []string) int {
 	commitFlags := flag.NewFlagSet("commit", flag.ExitOnError)
 	yes := commitFlags.Bool(
@@ -53,6 +57,7 @@ func (r GitCommit) Run(args []string) int {
 	return 0
 }
 
+// Synopsis return help for commit command
 func (r GitCommit) Synopsis() string {
 	return `
 	Usage: gtm commit [-yes]

@@ -16,17 +16,21 @@ import (
 	"github.com/mitchellh/cli"
 )
 
+// RecordCmd contains method for record command
 type RecordCmd struct {
 }
 
+// NewRecord return new RecordCmd struct
 func NewRecord() (cli.Command, error) {
 	return RecordCmd{}, nil
 }
 
+// Help returns help for record command
 func (r RecordCmd) Help() string {
 	return r.Synopsis()
 }
 
+// Run executes record command with args
 func (r RecordCmd) Run(args []string) int {
 	recordFlags := flag.NewFlagSet("record", flag.ExitOnError)
 	status := recordFlags.Bool(
@@ -96,6 +100,7 @@ func (r RecordCmd) Run(args []string) int {
 	return 0
 }
 
+// Synopsis returns help
 func (r RecordCmd) Synopsis() string {
 	return `
 	Usage: gtm record [-status] [-terminal] [<path/file>]

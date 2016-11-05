@@ -8,20 +8,24 @@ import (
 	"github.com/mitchellh/cli"
 )
 
+// VerifyCmd contains CLI commands for verify
 type VerifyCmd struct {
 	Version string
 }
 
+// NewVerify returns new VerifyCmd struct with version set
 func NewVerify(v string) func() (cli.Command, error) {
 	return func() (cli.Command, error) {
 		return VerifyCmd{Version: v}, nil
 	}
 }
 
+// Help returns CLI help for Verify command
 func (v VerifyCmd) Help() string {
 	return v.Synopsis()
 }
 
+// Run exectures verify commands with args
 func (v VerifyCmd) Run(args []string) int {
 	if len(args) == 0 {
 		fmt.Println("Unable to verify version, version constraint not provided")
@@ -37,6 +41,7 @@ func (v VerifyCmd) Run(args []string) int {
 	return 0
 }
 
+// Synopsis returns verify help
 func (v VerifyCmd) Synopsis() string {
 	return `
 	Usage: gtm verify <version constraint>

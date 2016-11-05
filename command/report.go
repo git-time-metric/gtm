@@ -16,17 +16,21 @@ import (
 	"github.com/mitchellh/cli"
 )
 
+// ReportCmd contains methods for report command
 type ReportCmd struct {
 }
 
+// NewReport create new ReportCmd struct
 func NewReport() (cli.Command, error) {
 	return ReportCmd{}, nil
 }
 
+// Help returns help for report command
 func (r ReportCmd) Help() string {
 	return r.Synopsis()
 }
 
+// Run exectues report command with args
 func (r ReportCmd) Run(args []string) int {
 	reportFlags := flag.NewFlagSet("report", flag.ExitOnError)
 	color := reportFlags.Bool(
@@ -237,6 +241,7 @@ func (r ReportCmd) Run(args []string) int {
 	return 0
 }
 
+// Synopsis return help for report command
 func (r ReportCmd) Synopsis() string {
 	return `
 	Usage: gtm report [options]

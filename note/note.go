@@ -16,6 +16,7 @@ type CommitNote struct {
 	Files []FileDetail
 }
 
+// FilterOutTerminal filters out terminal time from commit note
 func (n CommitNote) FilterOutTerminal() CommitNote {
 	fds := []FileDetail{}
 	for _, f := range n.Files {
@@ -168,6 +169,7 @@ func (f *FileDetail) SortEpochs() []int64 {
 	return keys
 }
 
+// IsTerminal returns true if file is terminal
 func (f *FileDetail) IsTerminal() bool {
 	return f.SourceFile == ".gtm/terminal.app"
 }

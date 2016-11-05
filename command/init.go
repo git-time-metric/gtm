@@ -12,17 +12,21 @@ import (
 	"github.com/mitchellh/cli"
 )
 
+// InitCmd contains methods for init command
 type InitCmd struct {
 }
 
+// NewInit returns new InitCmd struct
 func NewInit() (cli.Command, error) {
 	return InitCmd{}, nil
 }
 
+// Help return help for init command
 func (i InitCmd) Help() string {
 	return i.Synopsis()
 }
 
+// Run executes init command with args
 func (i InitCmd) Run(args []string) int {
 	initFlags := flag.NewFlagSet("init", flag.ExitOnError)
 	terminal := initFlags.Bool(
@@ -50,6 +54,7 @@ func (i InitCmd) Run(args []string) int {
 	return 0
 }
 
+// Synopsis return help for init command
 func (i InitCmd) Synopsis() string {
 	return `
 	Usage: gtm init [-terminal=[true|false]] [-tags tag1,tag2] [-clear-tags]

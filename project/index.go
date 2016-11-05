@@ -14,10 +14,12 @@ import (
 
 //TODO: write tests
 
+// Index contains list of projects and their locations
 type Index struct {
 	Projects map[string]time.Time
 }
 
+// NewIndex initializes Index
 func NewIndex() (Index, error) {
 	i := Index{Projects: map[string]time.Time{}}
 
@@ -33,6 +35,7 @@ func NewIndex() (Index, error) {
 	return i, nil
 }
 
+// Get finds projects by tags or all projects or the project in the current directory
 func (i *Index) Get(tags []string, all bool) ([]string, error) {
 	switch {
 	case all:

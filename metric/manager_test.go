@@ -121,10 +121,10 @@ func TestInterim(t *testing.T) {
 	util.CheckFatal(t, err)
 
 	if n.Note != "" {
-		t.Errorf("Process(true) - test interm, notes is note blank, \n%s\n", n.Note)
+		t.Errorf("Process(true) - test interim, notes is note blank, \n%s\n", n.Note)
 	}
 
 	if commitNote.Total() != 180 {
-		t.Errorf("Process(true) - test interm, want total 300, got %d", commitNote.Total())
+		t.Errorf("Process(true) - test interim, want total 300, got %d", commitNote.Total())
 	}
 }
