@@ -20,8 +20,9 @@ before_deploy:
   - tar -zcf gtm.${TRAVIS_TAG}.${TRAVIS_OS_NAME}.tar.gz gtm
 
 script:
+  - go get github.com/mattn/goveralls
   - go get -t -v ./...
-  - make test vet
+  - $HOME/gopath/bin/goveralls -service=travis-ci
 
 deploy:
   provider: releases
