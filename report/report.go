@@ -13,6 +13,7 @@ import (
 	"text/template"
 
 	"github.com/git-time-metric/gtm/note"
+	"github.com/git-time-metric/gtm/project"
 	"github.com/git-time-metric/gtm/util"
 	isatty "github.com/mattn/go-isatty"
 )
@@ -59,8 +60,14 @@ func Status(n note.CommitNote, options OutputOptions, projPath ...string) (strin
 	}
 
 	projName := ""
+	tags := ""
 	if len(projPath) > 0 {
 		projName = filepath.Base(projPath[0])
+		tagList, err := project.LoadTags(filepath.Join(projPath[0], ".gtm"))
+		if err != nil {
+			return "", err
+		}
+		tags = strings.Join(tagList, ",")
 	}
 
 	b := new(bytes.Buffer)
@@ -69,13 +76,17 @@ func Status(n note.CommitNote, options OutputOptions, projPath ...string) (strin
 	err := t.Execute(
 		b,
 		struct {
+			ProjPath    []string
 			ProjectName string
 			commitNoteDetail
 			BoldFormat string
+			Tags       string
 		}{
+			projPath,
 			projName,
 			commitNoteDetail{Note: n},
 			setBoldFormat(options.Color),
+			tags,
 		})
 
 	if err != nil {

@@ -39,7 +39,7 @@ const (
 	{{- end }}
 {{ end }}
 {{- if len .Note.Files }}
-	{{- FormatDuration .Note.Total | printf "%14s" }}          {{ printf $boldFormat .ProjectName }}
+	{{- FormatDuration .Note.Total | printf "%14s" }}          {{ printf $boldFormat .ProjectName }} {{ if .Tags }}[{{ .Tags }}]{{ end }}
 {{ end }}`
 
 	// TODO: determine left padding based on size of total duration

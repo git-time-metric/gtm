@@ -144,7 +144,7 @@ func (i *Index) save() error {
 }
 
 func (i *Index) hasTags(projectPath string, tagsToFind []string) (bool, error) {
-	tags, err := loadTags(filepath.Join(projectPath, ".gtm"))
+	tags, err := LoadTags(filepath.Join(projectPath, ".gtm"))
 	if err != nil {
 		return false, err
 	}

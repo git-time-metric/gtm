@@ -115,7 +115,7 @@ func Initialize(terminal bool, tags []string, clearTags bool) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	tags, err = loadTags(gtmPath)
+	tags, err = LoadTags(gtmPath)
 	if err != nil {
 		return "", err
 	}
@@ -345,7 +345,7 @@ func removeTags(gtmPath string) error {
 	return nil
 }
 
-func loadTags(gtmPath string) ([]string, error) {
+func LoadTags(gtmPath string) ([]string, error) {
 	tags := []string{}
 	files, err := ioutil.ReadDir(gtmPath)
 	if err != nil {
