@@ -362,6 +362,9 @@ func LoadTags(gtmPath string) ([]string, error) {
 func saveTags(tags []string, gtmPath string) error {
 	if len(tags) > 0 {
 		for _, t := range tags {
+			if strings.TrimSpace(t) == "" {
+				continue
+			}
 			if err := ioutil.WriteFile(filepath.Join(gtmPath, fmt.Sprintf("%s.tag", t)), []byte(""), 0644); err != nil {
 				return err
 			}
