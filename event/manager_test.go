@@ -90,7 +90,7 @@ func TestProcess(t *testing.T) {
 	rootPath := repo.PathIn("")
 	gtmPath := filepath.Join(rootPath, project.GTMDir)
 
-	got, err := Process(rootPath, gtmPath, true)
+	got, err := Process(gtmPath, true)
 	if err != nil {
 		t.Fatalf("Process(%s, %s, true), want error nil, got %s", rootPath, gtmPath, err)
 	}
@@ -98,7 +98,7 @@ func TestProcess(t *testing.T) {
 		t.Errorf("Process(%s, %s, true)\nwant:\n%+v\ngot:\n%+v\n", rootPath, gtmPath, expected, got)
 	}
 
-	got, err = Process(rootPath, gtmPath, false)
+	got, err = Process(gtmPath, false)
 	if err != nil {
 		t.Fatalf("Process(%s, %s, true), want error nil, got %s", rootPath, gtmPath, err)
 	}

@@ -5,8 +5,6 @@
 package metric
 
 import (
-	"fmt"
-
 	"github.com/git-time-metric/gtm/event"
 	"github.com/git-time-metric/gtm/note"
 	"github.com/git-time-metric/gtm/project"
@@ -23,13 +21,13 @@ func Process(interim bool, projPath ...string) (note.CommitNote, error) {
 	}
 
 	// load any saved metrics
-	metricMap, err := loadMetrics(rootPath, gtmPath)
+	metricMap, err := loadMetrics(gtmPath)
 	if err != nil {
 		return note.CommitNote{}, err
 	}
 
 	// process event files
-	epochEventMap, err := event.Process(rootPath, gtmPath, interim)
+	epochEventMap, err := event.Process(gtmPath, interim)
 	if err != nil {
 		return note.CommitNote{}, err
 	}
@@ -47,11 +45,10 @@ func Process(interim bool, projPath ...string) (note.CommitNote, error) {
 	if interim {
 		commitMap, readonlyMap, err := buildInterimCommitMaps(metricMap, projPath...)
 		if err != nil {
-			fmt.Println("here")
 			return note.CommitNote{}, err
 		}
 
-		commitNote, err = buildCommitNote(rootPath, metricMap, commitMap, readonlyMap)
+		commitNote, err = buildCommitNote(rootPath, commitMap, readonlyMap)
 		if err != nil {
 			return note.CommitNote{}, err
 		}
@@ -66,7 +63,7 @@ func Process(interim bool, projPath ...string) (note.CommitNote, error) {
 			return note.CommitNote{}, err
 		}
 
-		commitNote, err = buildCommitNote(rootPath, metricMap, commitMap, readonlyMap)
+		commitNote, err = buildCommitNote(rootPath, commitMap, readonlyMap)
 		if err != nil {
 			return note.CommitNote{}, err
 		}

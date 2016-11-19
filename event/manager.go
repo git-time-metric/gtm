@@ -30,8 +30,9 @@ func Record(file string) error {
 	return nil
 }
 
-// Process processes event files for a git repo
-func Process(rootPath, gtmPath string, interim bool) (map[int64]map[string]int, error) {
+// Process scans the gtmPath for event files and processes them.
+// If interim is true, event files are not purged.
+func Process(gtmPath string, interim bool) (map[int64]map[string]int, error) {
 	events := make(map[int64]map[string]int, 0)
 
 	files, err := ioutil.ReadDir(gtmPath)
