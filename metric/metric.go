@@ -266,6 +266,7 @@ func removeMetricFile(gtmPath, fileID string) error {
 // Files that are in the head commit are added to write commit map.
 // Files that are are not in the commit map and are readonly are added to the read-only commit map.
 func buildCommitMaps(metricMap map[string]FileMetric) (map[string]FileMetric, map[string]FileMetric, error) {
+
 	commitMap := map[string]FileMetric{}
 	readonlyMap := map[string]FileMetric{}
 
@@ -274,7 +275,7 @@ func buildCommitMaps(metricMap map[string]FileMetric) (map[string]FileMetric, ma
 		return commitMap, readonlyMap, err
 	}
 
-	for _, f := range commit.Files {
+	for _, f := range commit.Stats.Files {
 		fileID := getFileID(f)
 		if _, ok := metricMap[fileID]; !ok {
 			continue

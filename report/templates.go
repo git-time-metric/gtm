@@ -21,7 +21,7 @@ const (
 		{{- end }}
 	{{- end }}
 	{{- if len .Note.Files }}
-		{{- FormatDuration $total | printf "\n%14s" }}          {{ printf $boldFormat $note.Project }}{{ printf "\n\n" }}
+	{{- FormatDuration $total | printf "\n%14s" }}          {{ printf $boldFormat $note.Project }} [{{$note.LineAdd}} {{$note.LineDel}} = {{$note.LineDiff}}] [{{$note.ChangeRate}}/hr]{{ printf "\n\n" }}
 	{{- else }}
 		{{- printf "\n" }}
 	{{- end }}

@@ -255,6 +255,111 @@ type Commit struct {
 	Email   string
 	When    time.Time
 	Files   []string
+	Stats   CommitStats
+}
+
+// CommitStats contains the files changed and their stats
+type CommitStats struct {
+	Files        []string
+	Insertions   int
+	Deletions    int
+	FilesChanged int
+}
+
+func (c CommitStats) ChangeRatePerHour(seconds int) float64 {
+	if seconds == 0 {
+		return 0
+	}
+	return (float64(c.Insertions+c.Deletions) / float64(seconds)) * 3600
+}
+
+// DiffParentCommit compares commit to it's parent and returns their stats
+func DiffParentCommit(childCommit *git.Commit) (CommitStats, error) {
+	childTree, err := childCommit.Tree()
+	if err != nil {
+		return CommitStats{}, err
+	}
+	defer childTree.Free()
+
+	if childCommit.ParentCount() == 0 {
+		// there is no parent commit, should be the first commit in the repo?
+
+		path := ""
+		fileCnt := 0
+		files := []string{}
+
+		err := childTree.Walk(
+			func(s string, entry *git.TreeEntry) int {
+				switch entry.Filemode {
+				case git.FilemodeTree:
+					// directory where file entry is located
+					path = filepath.ToSlash(entry.Name)
+				default:
+					files = append(files, filepath.Join(path, entry.Name))
+					fileCnt++
+				}
+				return 0
+			})
+
+		if err != nil {
+			return CommitStats{}, err
+		}
+
+		return CommitStats{
+			Insertions:   fileCnt,
+			Deletions:    0,
+			Files:        files,
+			FilesChanged: fileCnt,
+		}, nil
+	}
+
+	parentTree, err := childCommit.Parent(0).Tree()
+	if err != nil {
+		return CommitStats{}, err
+	}
+	defer parentTree.Free()
+
+	options, err := git.DefaultDiffOptions()
+	if err != nil {
+		return CommitStats{}, err
+	}
+
+	diff, err := childCommit.Owner().DiffTreeToTree(parentTree, childTree, &options)
+	if err != nil {
+		return CommitStats{}, err
+	}
+	defer diff.Free()
+
+	files := []string{}
+	err = diff.ForEach(
+		func(delta git.DiffDelta, progress float64) (git.DiffForEachHunkCallback, error) {
+			// these should only be files that have changed
+
+			files = append(files, filepath.ToSlash(delta.NewFile.Path))
+
+			return func(hunk git.DiffHunk) (git.DiffForEachLineCallback, error) {
+				return func(line git.DiffLine) error {
+					return nil
+				}, nil
+			}, nil
+		}, git.DiffDetailFiles)
+
+	if err != nil {
+		return CommitStats{}, err
+	}
+
+	stats, err := diff.Stats()
+	if err != nil {
+		return CommitStats{}, err
+	}
+	defer stats.Free()
+
+	return CommitStats{
+		Insertions:   stats.Insertions(),
+		Deletions:    stats.Deletions(),
+		Files:        files,
+		FilesChanged: stats.FilesChanged(),
+	}, err
 }
 
 // HeadCommit returns the latest commit
@@ -284,67 +389,12 @@ func HeadCommit(wd ...string) (Commit, error) {
 	}
 	defer headCommit.Free()
 
-	headTree, err := headCommit.Tree()
+	commitStats, err := DiffParentCommit(headCommit)
 	if err != nil {
 		return commit, err
 	}
-	defer headTree.Free()
 
-	files := []string{}
-	if headCommit.ParentCount() > 0 {
-		parentTree, err := headCommit.Parent(0).Tree()
-		if err != nil {
-			return commit, err
-		}
-		defer parentTree.Free()
-
-		options, err := git.DefaultDiffOptions()
-		if err != nil {
-			return commit, err
-		}
-
-		diff, err := headCommit.Owner().DiffTreeToTree(parentTree, headTree, &options)
-		if err != nil {
-			return commit, err
-		}
-		defer diff.Free()
-
-		err = diff.ForEach(
-			func(file git.DiffDelta, progress float64) (git.DiffForEachHunkCallback, error) {
-
-				files = append(files, filepath.ToSlash(file.NewFile.Path))
-
-				return func(hunk git.DiffHunk) (git.DiffForEachLineCallback, error) {
-					return func(line git.DiffLine) error {
-						return nil
-					}, nil
-				}, nil
-			}, git.DiffDetailFiles)
-
-		if err != nil {
-			return commit, err
-		}
-
-	} else {
-
-		path := ""
-		err := headTree.Walk(
-			func(s string, entry *git.TreeEntry) int {
-				switch entry.Filemode {
-				case git.FilemodeTree:
-					path = filepath.ToSlash(entry.Name)
-				default:
-					files = append(files, filepath.Join(path, entry.Name))
-				}
-				return 0
-			})
-
-		if err != nil {
-			return commit, err
-		}
-	}
-
-	commit = Commit{
+	return Commit{
 		ID:      headCommit.Object.Id().String(),
 		OID:     headCommit.Object.Id(),
 		Summary: headCommit.Summary(),
@@ -352,9 +402,8 @@ func HeadCommit(wd ...string) (Commit, error) {
 		Author:  headCommit.Author().Name,
 		Email:   headCommit.Author().Email,
 		When:    headCommit.Author().When,
-		Files:   files}
-
-	return commit, nil
+		Stats:   commitStats,
+	}, nil
 }
 
 // CreateNote creates a git note associated with the head commit
@@ -403,6 +452,7 @@ type CommitNote struct {
 	Email   string
 	When    time.Time
 	Note    string
+	Stats   CommitStats
 }
 
 // ReadNote returns a commit note for the SHA1 commit id
@@ -452,6 +502,12 @@ func ReadNote(commitID string, nameSpace string, wd ...string) (CommitNote, erro
 		noteTxt = n.Message()
 	}
 
+	// TODO: should we make this optional for performance reasons?
+	stats, err := DiffParentCommit(commit)
+	if err != nil {
+		return CommitNote{}, err
+	}
+
 	return CommitNote{
 		ID:      commit.Object.Id().String(),
 		OID:     commit.Object.Id(),
@@ -461,6 +517,7 @@ func ReadNote(commitID string, nameSpace string, wd ...string) (CommitNote, erro
 		Email:   commit.Author().Email,
 		When:    commit.Author().When,
 		Note:    noteTxt,
+		Stats:   stats,
 	}, nil
 }
 

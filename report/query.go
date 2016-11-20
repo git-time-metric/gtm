@@ -52,14 +52,18 @@ func retrieveNotes(projects []ProjectCommits, terminalOff bool) commitNoteDetail
 
 			notes = append(notes,
 				commitNoteDetail{
-					Author:  n.Author,
-					Date:    when,
-					When:    n.When,
-					Hash:    id,
-					Subject: n.Summary,
-					Message: message,
-					Note:    commitNote,
-					Project: filepath.Base(p.Path),
+					Author:     n.Author,
+					Date:       when,
+					When:       n.When,
+					Hash:       id,
+					Subject:    n.Summary,
+					Message:    message,
+					Note:       commitNote,
+					Project:    filepath.Base(p.Path),
+					LineAdd:    fmt.Sprintf("+%d", n.Stats.Insertions),
+					LineDel:    fmt.Sprintf("-%d", n.Stats.Deletions),
+					LineDiff:   fmt.Sprintf("%d", n.Stats.Insertions-n.Stats.Deletions),
+					ChangeRate: fmt.Sprintf("%.0f", n.Stats.ChangeRatePerHour(commitNote.Total())),
 				})
 		}
 	}
@@ -82,14 +86,18 @@ func (c commitNoteDetails) Total() int {
 }
 
 type commitNoteDetail struct {
-	Author  string
-	Date    string
-	When    time.Time
-	Hash    string
-	Subject string
-	Project string
-	Message string
-	Note    note.CommitNote
+	Author     string
+	Date       string
+	When       time.Time
+	Hash       string
+	Subject    string
+	Project    string
+	Message    string
+	Note       note.CommitNote
+	LineAdd    string
+	LineDel    string
+	LineDiff   string
+	ChangeRate string
 }
 
 func (c commitNoteDetails) files() fileEntries {
