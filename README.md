@@ -4,13 +4,14 @@
 
 <pre>$ gtm report -today -author Schenk
 
-7129f00 <b>Remove post processing of status</b>
-Fri Sep 09 20:45:03 2016 -0500 <b>gtm-vim-plugin</b> Michael Schenk
+8104a33 <b>Improve error handling and informing user</b>
+Sat Jul 23 23:51:07 2016 -0500 <b>gtm-vim-plugin</b> Michael Schenk
 
-       20m 40s  53% [m] plugin/gtm.vim
-       18m  5s  46% [r] Terminal
-           15s   1% [m] .gitignore
-       39m  0s          <b>gtm-vim-plugin</b> </pre>
+       24m 10s  81% [m] plugin/gtm.vim
+        4m 30s  15% [d] vim.log
+        1m  0s   3% [r] .git/COMMIT_EDITMSG
+           20s   1% [r] LICENSE
+       30m  0s          <b>gtm-vim-plugin</b> [+10 -6 = 4] [32/hr]</pre>
 
 <pre>$ gtm report -format timeline-hours -last-week -author Schenk
 
