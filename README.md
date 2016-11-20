@@ -63,14 +63,6 @@ brew install gtm
 
 - Download and run the Windows installer from [here](https://github.com/git-time-metric/gtm/releases/latest)
 
-**Arch Linux**
-
-The package available in Arch Linux User Repository: [https://aur.archlinux.org/packages/gtm/](https://aur.archlinux.org/packages/gtm/)
-
-```
-yaourt -S gtm
-```
-
 **Manually install for Linux, OSX or Windows**
 
 - Download and install the executable from [here](https://github.com/git-time-metric/gtm/releases/latest)
