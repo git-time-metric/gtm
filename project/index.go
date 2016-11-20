@@ -12,8 +12,6 @@ import (
 	"path/filepath"
 	"sort"
 	"time"
-
-	"github.com/git-time-metric/gtm/scm"
 )
 
 //TODO: write tests
@@ -62,7 +60,7 @@ func (i *Index) Get(tags []string, all bool) ([]string, error) {
 		sort.Strings(projectsWithTags)
 		return projectsWithTags, nil
 	default:
-		curProjPath, err := scm.RootPath()
+		curProjPath, _, err := Paths()
 		if err != nil {
 			return []string{}, err
 		}
@@ -158,12 +156,11 @@ func (i *Index) hasTags(projectPath string, tagsToFind []string) (bool, error) {
 	return false, nil
 }
 
-func (i *Index) removeNotFound(projectPath string) bool {
-	if _, err := os.Stat(projectPath); os.IsNotExist(err) {
+func (i *Index) removeNotFound(projectPath string) {
+	if _, _, err := Paths(projectPath); err != nil {
 		i.remove(projectPath)
-		return true
+		return
 	}
-	return false
 }
 
 func (i *Index) clean() error {
