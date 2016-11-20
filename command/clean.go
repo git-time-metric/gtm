@@ -37,7 +37,7 @@ func (v CleanCmd) Run(args []string) int {
 		false,
 		"Automatically confirm yes for cleaning uncommitted time data")
 	if err := cleanFlags.Parse(os.Args[2:]); err != nil {
-		fmt.Println(err)
+		fmt.Fprintln(os.Stderr, err)
 		return 1
 	}
 
@@ -47,7 +47,7 @@ func (v CleanCmd) Run(args []string) int {
 		fmt.Printf("\nClean uncommitted time data (y/n)? ")
 		_, err := fmt.Scanln(&response)
 		if err != nil {
-			fmt.Println(err)
+			fmt.Fprintln(os.Stderr, err)
 			return 1
 		}
 		confirm = strings.TrimSpace(strings.ToLower(response)) == "y"
@@ -59,7 +59,7 @@ func (v CleanCmd) Run(args []string) int {
 			err error
 		)
 		if m, err = project.Clean(); err != nil {
-			fmt.Println(err)
+			fmt.Fprintln(os.Stderr, err)
 			return 1
 		}
 		fmt.Println(m)

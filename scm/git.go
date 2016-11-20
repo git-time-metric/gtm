@@ -102,32 +102,24 @@ func NewCommitLimiter(
 		}
 	case today:
 		after = now.EndOfDay().AddDate(0, 0, -1)
-		// fmt.Println("after", after)
 	case yesterday:
 		before = now.BeginningOfDay()
 		after = now.EndOfDay().AddDate(0, 0, -2)
-		// fmt.Println("before", before, "after", after)
 	case thisWeek:
 		after = now.EndOfWeek().AddDate(0, 0, -7)
-		// fmt.Println("after", after)
 	case lastWeek:
 		before = now.BeginningOfWeek()
 		after = now.EndOfWeek().AddDate(0, 0, -14)
-		// fmt.Println("before", before, "after", after)
 	case thisMonth:
 		after = now.EndOfMonth().AddDate(0, -1, -1)
-		// fmt.Println("after", after)
 	case lastMonth:
 		before = now.BeginningOfMonth()
 		after = now.EndOfMonth().AddDate(0, -2, 0)
-		// fmt.Println("before", before, "after", after)
 	case thisYear:
 		after = now.EndOfYear().AddDate(-1, 0, 0)
-		// fmt.Println("after", after)
 	case lastYear:
 		before = now.BeginningOfYear()
 		after = now.EndOfYear().AddDate(-2, 0, 0)
-		// fmt.Println("before", before, "after", after)
 	}
 
 	hasMax := max > 0

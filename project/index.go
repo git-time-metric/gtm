@@ -79,7 +79,6 @@ func (i *Index) add(p string) {
 }
 
 func (i *Index) remove(p string) {
-	// fmt.Println("Removing", p)
 	delete(i.Projects, p)
 }
 

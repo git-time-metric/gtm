@@ -33,7 +33,7 @@ func main() {
 	exitStatus, err := c.Run()
 	if err != nil {
 		if err := project.Log(err); err != nil {
-			fmt.Println(err)
+			fmt.Fprintln(os.Stderr, err)
 		}
 	}
 

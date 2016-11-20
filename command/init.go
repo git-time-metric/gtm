@@ -46,12 +46,12 @@ func (i InitCmd) Run(args []string) int {
 		false,
 		"Remove existing tags")
 	if err := initFlags.Parse(os.Args[2:]); err != nil {
-		fmt.Println(err)
+		fmt.Fprintln(os.Stderr, err)
 		return 1
 	}
 	m, err := project.Initialize(*terminal, util.Map(strings.Split(*tags, ","), strings.TrimSpace), *clearTags)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Fprintln(os.Stderr, err)
 		return 1
 	}
 	fmt.Println(m)

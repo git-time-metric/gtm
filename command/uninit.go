@@ -37,7 +37,7 @@ func (v UninitCmd) Run(args []string) int {
 		false,
 		"Automatically confirm yes to remove GTM tracking for the current Git repository")
 	if err := uninitFlags.Parse(os.Args[2:]); err != nil {
-		fmt.Println(err)
+		fmt.Fprintln(os.Stderr, err)
 		return 1
 	}
 
@@ -47,7 +47,7 @@ func (v UninitCmd) Run(args []string) int {
 		fmt.Printf("\nRemove GTM tracking for the current git repository (y/n)? ")
 		_, err := fmt.Scanln(&response)
 		if err != nil {
-			fmt.Println(err)
+			fmt.Fprintln(os.Stderr, err)
 			return 1
 		}
 		confirm = strings.TrimSpace(strings.ToLower(response)) == "y"
@@ -59,7 +59,7 @@ func (v UninitCmd) Run(args []string) int {
 			err error
 		)
 		if m, err = project.Uninitialize(); err != nil {
-			fmt.Println(err)
+			fmt.Fprintln(os.Stderr, err)
 			return 1
 		}
 		fmt.Println(m)

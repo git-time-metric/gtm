@@ -46,7 +46,7 @@ func (r RecordCmd) Run(args []string) int {
 		false,
 		"Record a terminal event")
 	if err := recordFlags.Parse(os.Args[2:]); err != nil {
-		fmt.Println(err)
+		fmt.Fprintln(os.Stderr, err)
 		return 1
 	}
 
@@ -69,7 +69,7 @@ func (r RecordCmd) Run(args []string) int {
 
 	if err := event.Record(fileToRecord); err != nil && !(err == project.ErrNotInitialized || err == project.ErrFileNotFound) {
 		if err := project.Log(err); err != nil {
-			fmt.Println(err)
+			fmt.Fprintln(os.Stderr, err)
 		}
 		return 1
 	} else if err == nil && *status {
@@ -82,7 +82,7 @@ func (r RecordCmd) Run(args []string) int {
 
 		wd, err = os.Getwd()
 		if err != nil {
-			fmt.Println(err)
+			fmt.Fprintln(os.Stderr, err)
 			return 1
 		}
 		defer os.Chdir(wd)
@@ -90,12 +90,12 @@ func (r RecordCmd) Run(args []string) int {
 		os.Chdir(filepath.Dir(fileToRecord))
 
 		if commitNote, err = metric.Process(true); err != nil {
-			fmt.Println(err)
+			fmt.Fprintln(os.Stderr, err)
 			return 1
 		}
 		out, err = report.Status(commitNote, report.OutputOptions{TotalOnly: true})
 		if err != nil {
-			fmt.Println(err)
+			fmt.Fprintln(os.Stderr, err)
 			return 1
 		}
 		fmt.Printf(out)

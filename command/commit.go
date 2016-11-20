@@ -36,7 +36,7 @@ func (r GitCommit) Run(args []string) int {
 		false,
 		"Automatically confirm yes for saving logged time with last commit")
 	if err := commitFlags.Parse(os.Args[2:]); err != nil {
-		fmt.Println(err)
+		fmt.Fprintln(os.Stderr, err)
 		return 1
 	}
 
@@ -46,7 +46,7 @@ func (r GitCommit) Run(args []string) int {
 		fmt.Printf("\nSave time for last commit (y/n)? ")
 		_, err := fmt.Scanln(&response)
 		if err != nil {
-			fmt.Println(err)
+			fmt.Fprintln(os.Stderr, err)
 			return 1
 		}
 		confirm = strings.TrimSpace(strings.ToLower(response)) == "y"
@@ -54,7 +54,7 @@ func (r GitCommit) Run(args []string) int {
 
 	if confirm {
 		if _, err := metric.Process(false); err != nil {
-			fmt.Println(err)
+			fmt.Fprintln(os.Stderr, err)
 			return 1
 		}
 	}

@@ -6,6 +6,7 @@ package command
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/hashicorp/go-version"
@@ -38,7 +39,7 @@ func (v VerifyCmd) Run(args []string) int {
 
 	valid, err := v.check(args[0])
 	if err != nil {
-		fmt.Println(err)
+		fmt.Fprintln(os.Stderr, err)
 		return 1
 	}
 	fmt.Printf("%t", valid)
