@@ -2,9 +2,11 @@ package command
 
 import (
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
+	"github.com/git-time-metric/gtm/project"
 	"github.com/git-time-metric/gtm/util"
 	"github.com/mitchellh/cli"
 )
@@ -12,13 +14,23 @@ import (
 func TestReportDefaultOptions(t *testing.T) {
 	repo := util.NewTestRepo(t, false)
 	defer repo.Remove()
-	repo.Seed()
 
-	repoPath := repo.PathIn("")
-	defer os.Chdir(repoPath)
-	os.Chdir(repoPath)
+	curDir, err := os.Getwd()
+	util.CheckFatal(t, err)
+	defer os.Chdir(curDir)
+
+	os.Chdir(repo.PathIn(""))
 
 	(InitCmd{Ui: new(cli.MockUi)}).Run([]string{})
+
+	repo.SaveFile("event.go", "event", "")
+	repo.SaveFile("event_test.go", "event", "")
+	repo.SaveFile("1458496803.event", project.GTMDir, filepath.Join("event", "event.go"))
+	repo.SaveFile("1458496811.event", project.GTMDir, filepath.Join("event", "event_test.go"))
+	repo.SaveFile("1458496818.event", project.GTMDir, filepath.Join("event", "event.go"))
+	repo.SaveFile("1458496943.event", project.GTMDir, filepath.Join("event", "event.go"))
+
+	repo.Commit(repo.Stage(filepath.Join("event", "event.go"), filepath.Join("event", "event_test.go")))
 
 	ui := new(cli.MockUi)
 	c := ReportCmd{Ui: ui}
@@ -34,13 +46,23 @@ func TestReportDefaultOptions(t *testing.T) {
 func TestReportAll(t *testing.T) {
 	repo := util.NewTestRepo(t, false)
 	defer repo.Remove()
-	repo.Seed()
 
-	repoPath := repo.PathIn("")
-	defer os.Chdir(repoPath)
-	os.Chdir(repoPath)
+	curDir, err := os.Getwd()
+	util.CheckFatal(t, err)
+	defer os.Chdir(curDir)
+
+	os.Chdir(repo.PathIn(""))
 
 	(InitCmd{Ui: new(cli.MockUi)}).Run([]string{})
+
+	repo.SaveFile("event.go", "event", "")
+	repo.SaveFile("event_test.go", "event", "")
+	repo.SaveFile("1458496803.event", project.GTMDir, filepath.Join("event", "event.go"))
+	repo.SaveFile("1458496811.event", project.GTMDir, filepath.Join("event", "event_test.go"))
+	repo.SaveFile("1458496818.event", project.GTMDir, filepath.Join("event", "event.go"))
+	repo.SaveFile("1458496943.event", project.GTMDir, filepath.Join("event", "event.go"))
+
+	repo.Commit(repo.Stage(filepath.Join("event", "event.go"), filepath.Join("event", "event_test.go")))
 
 	ui := new(cli.MockUi)
 	c := ReportCmd{Ui: ui}
@@ -52,16 +74,27 @@ func TestReportAll(t *testing.T) {
 		t.Errorf("gtm report(%+v), want 0 got %d, %s", args, rc, ui.ErrorWriter.String())
 	}
 }
+
 func TestReportTimelineHours(t *testing.T) {
 	repo := util.NewTestRepo(t, false)
 	defer repo.Remove()
-	repo.Seed()
 
-	repoPath := repo.PathIn("")
-	defer os.Chdir(repoPath)
-	os.Chdir(repoPath)
+	curDir, err := os.Getwd()
+	util.CheckFatal(t, err)
+	defer os.Chdir(curDir)
+
+	os.Chdir(repo.PathIn(""))
 
 	(InitCmd{Ui: new(cli.MockUi)}).Run([]string{})
+
+	repo.SaveFile("event.go", "event", "")
+	repo.SaveFile("event_test.go", "event", "")
+	repo.SaveFile("1458496803.event", project.GTMDir, filepath.Join("event", "event.go"))
+	repo.SaveFile("1458496811.event", project.GTMDir, filepath.Join("event", "event_test.go"))
+	repo.SaveFile("1458496818.event", project.GTMDir, filepath.Join("event", "event.go"))
+	repo.SaveFile("1458496943.event", project.GTMDir, filepath.Join("event", "event.go"))
+
+	repo.Commit(repo.Stage(filepath.Join("event", "event.go"), filepath.Join("event", "event_test.go")))
 
 	ui := new(cli.MockUi)
 	c := ReportCmd{Ui: ui}
@@ -77,13 +110,23 @@ func TestReportTimelineHours(t *testing.T) {
 func TestReportTimelineCommits(t *testing.T) {
 	repo := util.NewTestRepo(t, false)
 	defer repo.Remove()
-	repo.Seed()
 
-	repoPath := repo.PathIn("")
-	defer os.Chdir(repoPath)
-	os.Chdir(repoPath)
+	curDir, err := os.Getwd()
+	util.CheckFatal(t, err)
+	defer os.Chdir(curDir)
+
+	os.Chdir(repo.PathIn(""))
 
 	(InitCmd{Ui: new(cli.MockUi)}).Run([]string{})
+
+	repo.SaveFile("event.go", "event", "")
+	repo.SaveFile("event_test.go", "event", "")
+	repo.SaveFile("1458496803.event", project.GTMDir, filepath.Join("event", "event.go"))
+	repo.SaveFile("1458496811.event", project.GTMDir, filepath.Join("event", "event_test.go"))
+	repo.SaveFile("1458496818.event", project.GTMDir, filepath.Join("event", "event.go"))
+	repo.SaveFile("1458496943.event", project.GTMDir, filepath.Join("event", "event.go"))
+
+	repo.Commit(repo.Stage(filepath.Join("event", "event.go"), filepath.Join("event", "event_test.go")))
 
 	ui := new(cli.MockUi)
 	c := ReportCmd{Ui: ui}
@@ -99,13 +142,23 @@ func TestReportTimelineCommits(t *testing.T) {
 func TestReportFiles(t *testing.T) {
 	repo := util.NewTestRepo(t, false)
 	defer repo.Remove()
-	repo.Seed()
 
-	repoPath := repo.PathIn("")
-	defer os.Chdir(repoPath)
-	os.Chdir(repoPath)
+	curDir, err := os.Getwd()
+	util.CheckFatal(t, err)
+	defer os.Chdir(curDir)
+
+	os.Chdir(repo.PathIn(""))
 
 	(InitCmd{Ui: new(cli.MockUi)}).Run([]string{})
+
+	repo.SaveFile("event.go", "event", "")
+	repo.SaveFile("event_test.go", "event", "")
+	repo.SaveFile("1458496803.event", project.GTMDir, filepath.Join("event", "event.go"))
+	repo.SaveFile("1458496811.event", project.GTMDir, filepath.Join("event", "event_test.go"))
+	repo.SaveFile("1458496818.event", project.GTMDir, filepath.Join("event", "event.go"))
+	repo.SaveFile("1458496943.event", project.GTMDir, filepath.Join("event", "event.go"))
+
+	repo.Commit(repo.Stage(filepath.Join("event", "event.go"), filepath.Join("event", "event_test.go")))
 
 	ui := new(cli.MockUi)
 	c := ReportCmd{Ui: ui}
