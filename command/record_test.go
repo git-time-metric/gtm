@@ -3,7 +3,6 @@ package command
 import (
 	"io/ioutil"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -43,11 +42,7 @@ func TestRecordNoFile(t *testing.T) {
 	defer os.Chdir(repoPath)
 	os.Chdir(repoPath)
 
-	cmd := exec.Command("gtm", "init")
-	b, err := cmd.Output()
-	if err != nil {
-		t.Fatalf("Unable to initialize git repo, %s", string(b))
-	}
+	(InitCmd{Ui: new(cli.MockUi)}).Run([]string{})
 
 	ui := new(cli.MockUi)
 	c := RecordCmd{Ui: ui}
@@ -69,11 +64,7 @@ func TestRecordFile(t *testing.T) {
 	defer os.Chdir(repoPath)
 	os.Chdir(repoPath)
 
-	cmd := exec.Command("gtm", "init")
-	b, err := cmd.Output()
-	if err != nil {
-		t.Fatalf("Unable to initialize git repo, %s", string(b))
-	}
+	(InitCmd{Ui: new(cli.MockUi)}).Run([]string{})
 
 	ui := new(cli.MockUi)
 	c := RecordCmd{Ui: ui}
@@ -109,11 +100,7 @@ func TestRecordTerminal(t *testing.T) {
 	defer os.Chdir(repoPath)
 	os.Chdir(repoPath)
 
-	cmd := exec.Command("gtm", "init")
-	b, err := cmd.Output()
-	if err != nil {
-		t.Fatalf("Unable to initialize git repo, %s", string(b))
-	}
+	(InitCmd{Ui: new(cli.MockUi)}).Run([]string{})
 
 	ui := new(cli.MockUi)
 	c := RecordCmd{Ui: ui}
