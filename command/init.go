@@ -26,30 +26,36 @@ func NewInit() (cli.Command, error) {
 }
 
 // Help return help for init command
-func (i InitCmd) Help() string {
-	return i.Synopsis()
+func (c InitCmd) Help() string {
+	helpText := `
+Usage: gtm init [options]
+
+  Initialize a git repository for time tracking. 
+
+Options:
+
+  -terminal=true             Enable time tracking for terminal (requires Terminal plug-in).
+
+  -tags=tag1,tag2            Add tags to projects, multiple calls appends tags.
+
+  -clear-tags                Clear all tags.
+`
+	return strings.TrimSpace(helpText)
 }
 
 // Run executes init command with args
-func (i InitCmd) Run(args []string) int {
-	initFlags := flag.NewFlagSet("init", flag.ExitOnError)
-	terminal := initFlags.Bool(
-		"terminal",
-		true,
-		"Track time spent in terminal (command line)")
-	tags := initFlags.String(
-		"tags",
-		"",
-		"Set tags on project, i.e. \"work,gtm\"")
-	clearTags := initFlags.Bool(
-		"clear-tags",
-		false,
-		"Remove existing tags")
-	if err := initFlags.Parse(os.Args[2:]); err != nil {
-		fmt.Fprintln(os.Stderr, err)
+func (c InitCmd) Run(args []string) int {
+	var terminal, clearTags bool
+	var tags string
+	cmdFlags := flag.NewFlagSet("init", flag.ContinueOnError)
+	cmdFlags.BoolVar(&terminal, "terminal", true, "")
+	cmdFlags.BoolVar(&clearTags, "clear-tags", false, "")
+	cmdFlags.StringVar(&tags, "tags", "", "")
+	cmdFlags.Usage = func() { fmt.Print(c.Help()) }
+	if err := cmdFlags.Parse(args); err != nil {
 		return 1
 	}
-	m, err := project.Initialize(*terminal, util.Map(strings.Split(*tags, ","), strings.TrimSpace), *clearTags)
+	m, err := project.Initialize(terminal, util.Map(strings.Split(tags, ","), strings.TrimSpace), clearTags)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		return 1
@@ -59,9 +65,6 @@ func (i InitCmd) Run(args []string) int {
 }
 
 // Synopsis return help for init command
-func (i InitCmd) Synopsis() string {
-	return `
-	Usage: gtm init [-terminal=[true|false]] [-tags tag1,tag2] [-clear-tags]
-	Initialize a git project for time tracking 
-	`
+func (c InitCmd) Synopsis() string {
+	return "Initialize git repository for time tracking"
 }

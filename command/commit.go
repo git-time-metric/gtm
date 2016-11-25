@@ -24,30 +24,36 @@ func NewCommit() (cli.Command, error) {
 }
 
 // Help returns help for commit command
-func (r GitCommit) Help() string {
-	return r.Synopsis()
+func (c GitCommit) Help() string {
+	helpText := `
+Usage: gtm commit [options]
+
+  Save pending time with last commit. 
+
+Options:
+
+  -yes                       Save time data without asking for confirmation.
+`
+	return strings.TrimSpace(helpText)
 }
 
 // Run executes commit commands with args
-func (r GitCommit) Run(args []string) int {
-	commitFlags := flag.NewFlagSet("commit", flag.ExitOnError)
-	yes := commitFlags.Bool(
-		"yes",
-		false,
-		"Automatically confirm yes for saving logged time with last commit")
-	if err := commitFlags.Parse(os.Args[2:]); err != nil {
-		fmt.Fprintln(os.Stderr, err)
+func (c GitCommit) Run(args []string) int {
+
+	var yes bool
+	cmdFlags := flag.NewFlagSet("commit", flag.ContinueOnError)
+	cmdFlags.BoolVar(&yes, "yes", false, "")
+	cmdFlags.Usage = func() { fmt.Print(c.Help()) }
+	if err := cmdFlags.Parse(args); err != nil {
 		return 1
 	}
 
-	confirm := *yes
+	confirm := yes
 	if !confirm {
 		var response string
 		fmt.Printf("\nSave time for last commit (y/n)? ")
-		_, err := fmt.Scanln(&response)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-			return 1
+		if _, err := fmt.Scanln(&response); err != nil {
+			return 0
 		}
 		confirm = strings.TrimSpace(strings.ToLower(response)) == "y"
 	}
@@ -62,12 +68,6 @@ func (r GitCommit) Run(args []string) int {
 }
 
 // Synopsis return help for commit command
-func (r GitCommit) Synopsis() string {
-	return `
-	Usage: gtm commit [-yes]
-	Save your logged time with the last commit
-
-	This is automatically called from the postcommit hook
-	Warning - any time logged will be cleared from your working directory
-	`
+func (c GitCommit) Synopsis() string {
+	return "Save pending time with the last commit"
 }

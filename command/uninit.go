@@ -24,24 +24,29 @@ func NewUninit() (cli.Command, error) {
 }
 
 // Help returns help for uninit command
-func (v UninitCmd) Help() string {
-	return v.Synopsis()
+func (c UninitCmd) Help() string {
+	helpText := `
+Usage: gtm uninit [options]
+
+  Turn off time tracking for git repository (does not remove committed time data). 
+
+Options:
+
+  -yes                       Turn off without asking for confirmation.
+`
+	return strings.TrimSpace(helpText)
 }
 
 // Run executes uninit command with args
-func (v UninitCmd) Run(args []string) int {
-
-	uninitFlags := flag.NewFlagSet("uninit", flag.ExitOnError)
-	yes := uninitFlags.Bool(
-		"yes",
-		false,
-		"Automatically confirm yes to remove GTM tracking for the current Git repository")
-	if err := uninitFlags.Parse(os.Args[2:]); err != nil {
-		fmt.Fprintln(os.Stderr, err)
+func (c UninitCmd) Run(args []string) int {
+	var yes bool
+	cmdFlags := flag.NewFlagSet("uninit", flag.ExitOnError)
+	cmdFlags.BoolVar(&yes, "yes", false, "")
+	if err := cmdFlags.Parse(args); err != nil {
 		return 1
 	}
 
-	confirm := *yes
+	confirm := yes
 	if !confirm {
 		var response string
 		fmt.Printf("\nRemove GTM tracking for the current git repository (y/n)? ")
@@ -68,10 +73,6 @@ func (v UninitCmd) Run(args []string) int {
 }
 
 // Synopsis returns help for uninit command
-func (v UninitCmd) Synopsis() string {
-	return `
-	Usage: gtm uninit [-yes]
-	Remove GTM tracking for the current git repository 
-	Note - this removes uncommitted time data but does not remove time data that is committed
-	`
+func (c UninitCmd) Synopsis() string {
+	return "Turn off time tracking for git repository"
 }

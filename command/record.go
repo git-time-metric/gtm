@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/git-time-metric/gtm/event"
 	"github.com/git-time-metric/gtm/metric"
@@ -30,33 +31,39 @@ func NewRecord() (cli.Command, error) {
 }
 
 // Help returns help for record command
-func (r RecordCmd) Help() string {
-	return r.Synopsis()
+func (c RecordCmd) Help() string {
+	helpText := `
+Usage: gtm record [options] [/path/file]
+
+  Record file or terminal events.
+
+Options:
+
+  -terminal=false            Record a terminal event.
+
+  -status=false              Return total time recorded for event.
+`
+	return strings.TrimSpace(helpText)
 }
 
 // Run executes record command with args
-func (r RecordCmd) Run(args []string) int {
-	recordFlags := flag.NewFlagSet("record", flag.ExitOnError)
-	status := recordFlags.Bool(
-		"status",
-		false,
-		"After recording, return current total time spent [gtm status -total-only]")
-	terminal := recordFlags.Bool(
-		"terminal",
-		false,
-		"Record a terminal event")
-	if err := recordFlags.Parse(os.Args[2:]); err != nil {
-		fmt.Fprintln(os.Stderr, err)
+func (c RecordCmd) Run(args []string) int {
+	var status, terminal bool
+	cmdFlags := flag.NewFlagSet("record", flag.ContinueOnError)
+	cmdFlags.BoolVar(&status, "status", false, "")
+	cmdFlags.BoolVar(&terminal, "terminal", false, "")
+	cmdFlags.Usage = func() { fmt.Print(c.Help()) }
+	if err := cmdFlags.Parse(args); err != nil {
 		return 1
 	}
 
-	if !*terminal && len(recordFlags.Args()) == 0 {
+	if !terminal && len(cmdFlags.Args()) == 0 {
 		fmt.Println("Unable to record, file not provided")
 		return 1
 	}
 
 	fileToRecord := ""
-	if *terminal {
+	if terminal {
 		projPath, err := scm.RootPath()
 		if err != nil {
 			// if not found, ignore error
@@ -64,7 +71,7 @@ func (r RecordCmd) Run(args []string) int {
 		}
 		fileToRecord = filepath.Join(projPath, ".gtm", "terminal.app")
 	} else {
-		fileToRecord = recordFlags.Args()[0]
+		fileToRecord = cmdFlags.Args()[0]
 	}
 
 	if err := event.Record(fileToRecord); err != nil && !(err == project.ErrNotInitialized || err == project.ErrFileNotFound) {
@@ -72,7 +79,7 @@ func (r RecordCmd) Run(args []string) int {
 			fmt.Fprintln(os.Stderr, err)
 		}
 		return 1
-	} else if err == nil && *status {
+	} else if err == nil && status {
 		var (
 			err        error
 			commitNote note.CommitNote
@@ -105,12 +112,6 @@ func (r RecordCmd) Run(args []string) int {
 }
 
 // Synopsis returns help
-func (r RecordCmd) Synopsis() string {
-	return `
-	Usage: gtm record [-status] [-terminal] [<path/file>]
-	Record a file or terminal events
-
-	record file event     -> gtm record /path/file
-	record terminal event -> gtm record -terminal
-	`
+func (c RecordCmd) Synopsis() string {
+	return "Record file and terminal events"
 }

@@ -5,6 +5,7 @@
 package command
 
 import (
+	"flag"
 	"fmt"
 	"os"
 	"strings"
@@ -26,18 +27,29 @@ func NewVerify(v string) func() (cli.Command, error) {
 }
 
 // Help returns CLI help for Verify command
-func (v VerifyCmd) Help() string {
-	return v.Synopsis()
+func (c VerifyCmd) Help() string {
+	helpText := `
+Usage: gtm verify <version-constraint>
+
+  Check if gtm satisfies a Semantic Version 2.0 constraint.
+`
+	return strings.TrimSpace(helpText)
 }
 
-// Run exectures verify commands with args
-func (v VerifyCmd) Run(args []string) int {
+// Run executes verify commands with args
+func (c VerifyCmd) Run(args []string) int {
+	cmdFlags := flag.NewFlagSet("verify", flag.ContinueOnError)
+	cmdFlags.Usage = func() { fmt.Print(c.Help()) }
+	if err := cmdFlags.Parse(args); err != nil {
+		return 1
+	}
+
 	if len(args) == 0 {
 		fmt.Println("Unable to verify version, version constraint not provided")
 		return 1
 	}
 
-	valid, err := v.check(args[0])
+	valid, err := c.check(args[0])
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		return 1
@@ -47,12 +59,8 @@ func (v VerifyCmd) Run(args []string) int {
 }
 
 // Synopsis returns verify help
-func (v VerifyCmd) Synopsis() string {
-	return `
-	Usage: gtm verify <version constraint>
-	Verify gtm satisfies the version constraint
-	This is typically invoked by plug-ins to determine if GTM needs to be upgraded
-	`
+func (c VerifyCmd) Synopsis() string {
+	return "Check if gtm satisfies a Semantic Version 2.0 constraint"
 }
 
 func (v VerifyCmd) check(constraint string) (bool, error) {

@@ -24,31 +24,36 @@ func NewClean() (cli.Command, error) {
 }
 
 // Help returns help for the clean command
-func (v CleanCmd) Help() string {
-	return v.Synopsis()
+func (c CleanCmd) Help() string {
+	helpText := `
+Usage: gtm clean [options]
+
+  Deletes pending time data for the current git repository.
+
+Options:
+
+  -yes                       Delete time data without asking for confirmation.
+`
+	return strings.TrimSpace(helpText)
 }
 
 // Run executes clean command with args
-func (v CleanCmd) Run(args []string) int {
+func (c CleanCmd) Run(args []string) int {
 
-	cleanFlags := flag.NewFlagSet("clean", flag.ExitOnError)
-	yes := cleanFlags.Bool(
-		"yes",
-		false,
-		"Automatically confirm yes for cleaning uncommitted time data")
-	if err := cleanFlags.Parse(os.Args[2:]); err != nil {
-		fmt.Fprintln(os.Stderr, err)
+	var yes bool
+	cmdFlags := flag.NewFlagSet("clean", flag.ContinueOnError)
+	cmdFlags.BoolVar(&yes, "yes", false, "")
+	cmdFlags.Usage = func() { fmt.Print(c.Help()) }
+	if err := cmdFlags.Parse(args); err != nil {
 		return 1
 	}
 
-	confirm := *yes
+	confirm := yes
 	if !confirm {
 		var response string
-		fmt.Printf("\nClean uncommitted time data (y/n)? ")
-		_, err := fmt.Scanln(&response)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-			return 1
+		fmt.Printf("\nDelete pending time data (y/n)? ")
+		if _, err := fmt.Scanln(&response); err != nil {
+			return 0
 		}
 		confirm = strings.TrimSpace(strings.ToLower(response)) == "y"
 	}
@@ -68,9 +73,6 @@ func (v CleanCmd) Run(args []string) int {
 }
 
 // Synopsis return help for clean command
-func (v CleanCmd) Synopsis() string {
-	return `
-	Usage: gtm clean [-yes]
-	Cleans uncommitted time data by removing all event and metric files from the .gtm directory
-	`
+func (c CleanCmd) Synopsis() string {
+	return "Delete pending time data"
 }

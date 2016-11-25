@@ -16,7 +16,7 @@ import (
 	"github.com/git-time-metric/gtm/report"
 	"github.com/git-time-metric/gtm/scm"
 	"github.com/git-time-metric/gtm/util"
-	"github.com/mattn/go-isatty"
+	isatty "github.com/mattn/go-isatty"
 	"github.com/mitchellh/cli"
 )
 
@@ -30,97 +30,78 @@ func NewReport() (cli.Command, error) {
 }
 
 // Help returns help for report command
-func (r ReportCmd) Help() string {
-	return r.Synopsis()
+func (c ReportCmd) Help() string {
+	helpText := `
+Usage: gtm report [options] <Commit-ID>...
+
+  Display reports for one or more git repositories.
+
+Options:
+
+  Report Formats:
+
+  -format="commits"          Specify report format [commits|files|timeline-hours|timeline-commits] (default "commits")
+  -full-message=false        Include full commit message
+  -terminal-off=false        Exclude time spent in terminal (Terminal plug-in is required)
+  -color=false               Always output color even if no terminal is detected, i.e 'gtm report -color | less -R'
+
+  Commit Limiting:
+
+  -n int=1                   Limit output, 0 is no limits, defaults to 1 when no limiting flags otherwise defaults to 0
+  -before=""                 Show commits older than a specific date
+  -after string              Show commits more recent than a specific date
+  -author=""                 Show commits which contain author substring
+  -message=""                Show commits which contain message substring
+  -today=false               Show commits for today
+  -yesterday=false           Show commits for yesterday
+  -this-week=false           Show commits for this week
+  -last-week=false           Show commits for last week
+  -this-month=false          Show commits for this month
+  -last-month=false          Show commits for last month
+  -this-year=false           Show commits for this year
+  -last-year=false           Show commits for last year
+  
+  Multi-Project Reporting:
+
+  -tags=""                   Project tags to report on, i.e --tags tag1,tag2
+  -all=false                 Show commits for all projects
+`
+	return strings.TrimSpace(helpText)
 }
 
-// Run exectues report command with args
-func (r ReportCmd) Run(args []string) int {
-	reportFlags := flag.NewFlagSet("report", flag.ExitOnError)
-	color := reportFlags.Bool(
-		"color",
-		false,
-		"Always output color even if no terminal is detected, i.e 'gtm report -color | less -R'")
-	terminalOff := reportFlags.Bool(
-		"terminal-off",
-		false,
-		"Exclude time spent in terminal (Terminal plugin is required)")
-	format := reportFlags.String(
-		"format",
-		"commits",
-		"Specify report format [commits|files|timeline-hours|timeline-commits]")
-	limit := reportFlags.Int(
-		"n",
-		0,
-		fmt.Sprintf("Limit output, 0 is no limits, defaults to 1 when no limiting flags (i.e. -today, -author, etc) otherwise defaults to 0"))
-	fullMessage := reportFlags.Bool(
-		"full-message",
-		false,
-		"Include full commit message")
-	before := reportFlags.String(
-		"before",
-		"",
-		"Show commits older than a specific date")
-	after := reportFlags.String(
-		"after",
-		"",
-		"Show commits more recent than a specific date")
-	today := reportFlags.Bool(
-		"today",
-		false,
-		"Show commits for today")
-	yesterday := reportFlags.Bool(
-		"yesterday",
-		false,
-		"Show commits for yesterday")
-	thisWeek := reportFlags.Bool(
-		"this-week",
-		false,
-		"Show commits for this week")
-	lastWeek := reportFlags.Bool(
-		"last-week",
-		false,
-		"Show commits for last week")
-	thisMonth := reportFlags.Bool(
-		"this-month",
-		false,
-		"Show commits for this month")
-	lastMonth := reportFlags.Bool(
-		"last-month",
-		false,
-		"Show commits for last month")
-	thisYear := reportFlags.Bool(
-		"this-year",
-		false,
-		"Show commits for this year")
-	lastYear := reportFlags.Bool(
-		"last-year",
-		false,
-		"Show commits for last year")
-	author := reportFlags.String(
-		"author",
-		"",
-		"Show commits which contain author substring")
-	message := reportFlags.String(
-		"message",
-		"",
-		"Show commits which contain message substring")
-	tags := reportFlags.String(
-		"tags",
-		"",
-		"Project tags to report on, i.e --tags tag1,tag2")
-	all := reportFlags.Bool(
-		"all",
-		false,
-		"Show commits for all projects")
-
-	if err := reportFlags.Parse(os.Args[2:]); err != nil {
-		fmt.Fprintln(os.Stderr, err)
+// Run executes report command with args
+func (c ReportCmd) Run(args []string) int {
+	var limit int
+	var color, terminalOff, fullMessage bool
+	var today, yesterday, thisWeek, lastWeek, thisMonth, lastMonth, thisYear, lastYear, all bool
+	var before, after, message, author, tags, format string
+	cmdFlags := flag.NewFlagSet("report", flag.ContinueOnError)
+	cmdFlags.BoolVar(&color, "color", false, "")
+	cmdFlags.BoolVar(&terminalOff, "terminal-off", false, "")
+	cmdFlags.StringVar(&format, "format", "commits", "")
+	cmdFlags.IntVar(&limit, "n", 0, "")
+	cmdFlags.BoolVar(&fullMessage, "full-message", false, "")
+	cmdFlags.StringVar(&before, "before", "", "")
+	cmdFlags.StringVar(&after, "after", "", "")
+	cmdFlags.BoolVar(&today, "today", false, "")
+	cmdFlags.BoolVar(&yesterday, "yesterday", false, "")
+	cmdFlags.BoolVar(&thisWeek, "this-week", false, "")
+	cmdFlags.BoolVar(&lastWeek, "last-week", false, "")
+	cmdFlags.BoolVar(&thisMonth, "this-month", false, "")
+	cmdFlags.BoolVar(&lastMonth, "last-month", false, "")
+	cmdFlags.BoolVar(&thisYear, "this-year", false, "")
+	cmdFlags.BoolVar(&lastYear, "last-year", false, "")
+	cmdFlags.StringVar(&author, "author", "", "")
+	cmdFlags.StringVar(&message, "message", "", "")
+	cmdFlags.StringVar(&tags, "tags", "", "")
+	cmdFlags.BoolVar(&all, "all", false, "")
+	cmdFlags.Usage = func() { fmt.Print(c.Help()) }
+	if err := cmdFlags.Parse(args); err != nil {
 		return 1
 	}
 
-	if !util.StringInSlice([]string{"commits", "timeline-hours", "files", "timeline-commits"}, *format) {
-		fmt.Fprintf(os.Stderr, "report --format=%s not valid\n", *format)
+	if !util.StringInSlice([]string{"commits", "timeline-hours", "files", "timeline-commits"}, format) {
+		fmt.Fprintf(os.Stderr, "report --format=%s not valid\n", format)
 		return 1
 	}
 
@@ -130,9 +111,7 @@ func (r ReportCmd) Run(args []string) int {
 		err     error
 	)
 
-	const (
-		invalidSHA1 = "\nNot a valid commit SHA-1 %s\n"
-	)
+	const invalidSHA1 = "\nNot a valid commit SHA-1 %s\n"
 
 	// if running from within a MINGW console isatty detection does not work
 	// https://github.com/mintty/mintty/issues/482
@@ -160,8 +139,8 @@ func (r ReportCmd) Run(args []string) int {
 
 		projCommits = append(projCommits, report.ProjectCommits{Path: curProjPath, Commits: commits})
 
-	case len(reportFlags.Args()) > 0:
-		for _, a := range reportFlags.Args() {
+	case len(cmdFlags.Args()) > 0:
+		for _, a := range cmdFlags.Args() {
 			if !sha1Regex.MatchString(a) {
 				fmt.Fprintf(os.Stderr, invalidSHA1, a)
 				return 1
@@ -184,26 +163,26 @@ func (r ReportCmd) Run(args []string) int {
 		}
 
 		tagList := []string{}
-		if *tags != "" {
-			tagList = util.Map(strings.Split(*tags, ","), strings.TrimSpace)
+		if tags != "" {
+			tagList = util.Map(strings.Split(tags, ","), strings.TrimSpace)
 		}
-		projects, err := index.Get(tagList, *all)
+		projects, err := index.Get(tagList, all)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			return 1
 		}
 
 		limiter, err := scm.NewCommitLimiter(
-			*limit, *before, *after, *author, *message,
-			*today, *yesterday, *thisWeek, *lastWeek,
-			*thisMonth, *lastMonth, *thisYear, *lastYear)
+			limit, before, after, author, message,
+			today, yesterday, thisWeek, lastWeek,
+			thisMonth, lastMonth, thisYear, lastYear)
 
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			return 1
 		}
 
-		*limit = limiter.Max
+		limit = limiter.Max
 
 		for _, p := range projects {
 			commits, err = scm.CommitIDs(limiter, p)
@@ -216,12 +195,12 @@ func (r ReportCmd) Run(args []string) int {
 	}
 
 	options := report.OutputOptions{
-		FullMessage: *fullMessage,
-		TerminalOff: *terminalOff,
-		Color:       *color,
-		Limit:       *limit}
+		FullMessage: fullMessage,
+		TerminalOff: terminalOff,
+		Color:       color,
+		Limit:       limit}
 
-	switch *format {
+	switch format {
 	case "commits":
 		out, err = report.Commits(projCommits, options)
 	case "files":
@@ -246,9 +225,6 @@ func (r ReportCmd) Run(args []string) int {
 }
 
 // Synopsis return help for report command
-func (r ReportCmd) Synopsis() string {
-	return `
-	Usage: gtm report [options]
-	Report on time logged
-	`
+func (c ReportCmd) Synopsis() string {
+	return "Display reports for git repositories"
 }

@@ -28,39 +28,43 @@ func NewStatus() (cli.Command, error) {
 }
 
 // Help returns help for status command
-func (r StatusCmd) Help() string {
-	return r.Synopsis()
+func (c StatusCmd) Help() string {
+	helpText := `
+Usage: gtm status [options]
+
+  Show pending time for git repositories.
+
+Options:
+
+  -terminal-off=false        Exclude time spent in terminal (Terminal plug-in is required)
+
+  -color=false               Always output color even if no terminal is detected, i.e 'gtm status -color | less -R'
+
+  -total-only=false          Only display total pending time
+
+  -tags=""                   Project tags to report status for, i.e --tags tag1,tag2
+
+  -all=false                 Show status for all projects
+`
+	return strings.TrimSpace(helpText)
 }
 
 // Run executes status command with args
-func (r StatusCmd) Run(args []string) int {
-	statusFlags := flag.NewFlagSet("status", flag.ExitOnError)
-	color := statusFlags.Bool(
-		"color",
-		false,
-		"Always output color even if no terminal is detected. Use this with pagers i.e 'less -R' or 'more -R'")
-	terminalOff := statusFlags.Bool(
-		"terminal-off",
-		false,
-		"Exclude time spent in terminal (Terminal plugin is required)")
-	totalOnly := statusFlags.Bool(
-		"total-only",
-		false,
-		"Only display total time")
-	tags := statusFlags.String(
-		"tags",
-		"",
-		"Project tags to show status on")
-	all := statusFlags.Bool(
-		"all",
-		false,
-		"Show status for all projects")
-	if err := statusFlags.Parse(os.Args[2:]); err != nil {
-		fmt.Fprint(os.Stderr, err)
+func (c StatusCmd) Run(args []string) int {
+	var color, terminalOff, totalOnly, all bool
+	var tags string
+	cmdFlags := flag.NewFlagSet("status", flag.ContinueOnError)
+	cmdFlags.BoolVar(&color, "color", false, "Always output color even if no terminal is detected. Use this with pagers i.e 'less -R' or 'more -R'")
+	cmdFlags.BoolVar(&terminalOff, "terminal-off", false, "Exclude time spent in terminal (Terminal plugin is required)")
+	cmdFlags.BoolVar(&totalOnly, "total-only", false, "Only display total time")
+	cmdFlags.StringVar(&tags, "tags", "", "Project tags to show status on")
+	cmdFlags.BoolVar(&all, "all", false, "Show status for all projects")
+	cmdFlags.Usage = func() { fmt.Print(c.Help()) }
+	if err := cmdFlags.Parse(args); err != nil {
 		return 1
 	}
 
-	if *totalOnly && (*all || *tags != "") {
+	if totalOnly && (all || tags != "") {
 		fmt.Fprint(os.Stderr, "\n-tags and -all options not allowed with -total-only\n")
 		return 1
 	}
@@ -78,20 +82,20 @@ func (r StatusCmd) Run(args []string) int {
 	}
 
 	tagList := []string{}
-	if *tags != "" {
-		tagList = util.Map(strings.Split(*tags, ","), strings.TrimSpace)
+	if tags != "" {
+		tagList = util.Map(strings.Split(tags, ","), strings.TrimSpace)
 	}
 
-	projects, err := index.Get(tagList, *all)
+	projects, err := index.Get(tagList, all)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		return 1
 	}
 
 	options := report.OutputOptions{
-		TotalOnly:   *totalOnly,
-		TerminalOff: *terminalOff,
-		Color:       *color}
+		TotalOnly:   totalOnly,
+		TerminalOff: terminalOff,
+		Color:       color}
 
 	for _, projPath := range projects {
 		if commitNote, err = metric.Process(true, projPath); err != nil {
@@ -111,9 +115,6 @@ func (r StatusCmd) Run(args []string) int {
 }
 
 // Synopsis returns help for status command
-func (r StatusCmd) Synopsis() string {
-	return `
-	Usage: gtm status [-total-only] [-tags tag1,tag2] [-all] [-color] [-terminal-off] 
-	Show time spent for working or staged files
-	`
+func (c StatusCmd) Synopsis() string {
+	return "Show pending time"
 }
