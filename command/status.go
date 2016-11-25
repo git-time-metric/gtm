@@ -6,8 +6,6 @@ package command
 
 import (
 	"flag"
-	"fmt"
-	"os"
 	"strings"
 
 	"github.com/git-time-metric/gtm/metric"
@@ -20,6 +18,7 @@ import (
 
 // StatusCmd containt methods for status command
 type StatusCmd struct {
+	Ui cli.Ui
 }
 
 // NewStatus returns new StatusCmd struct
@@ -59,13 +58,13 @@ func (c StatusCmd) Run(args []string) int {
 	cmdFlags.BoolVar(&totalOnly, "total-only", false, "Only display total time")
 	cmdFlags.StringVar(&tags, "tags", "", "Project tags to show status on")
 	cmdFlags.BoolVar(&all, "all", false, "Show status for all projects")
-	cmdFlags.Usage = func() { fmt.Print(c.Help()) }
+	cmdFlags.Usage = func() { c.Ui.Output(c.Help()) }
 	if err := cmdFlags.Parse(args); err != nil {
 		return 1
 	}
 
 	if totalOnly && (all || tags != "") {
-		fmt.Fprint(os.Stderr, "\n-tags and -all options not allowed with -total-only\n")
+		c.Ui.Error("\n-tags and -all options not allowed with -total-only\n")
 		return 1
 	}
 
@@ -77,7 +76,7 @@ func (c StatusCmd) Run(args []string) int {
 
 	index, err := project.NewIndex()
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
+		c.Ui.Error(err.Error())
 		return 1
 	}
 
@@ -88,7 +87,7 @@ func (c StatusCmd) Run(args []string) int {
 
 	projects, err := index.Get(tagList, all)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
+		c.Ui.Error(err.Error())
 		return 1
 	}
 
@@ -99,18 +98,18 @@ func (c StatusCmd) Run(args []string) int {
 
 	for _, projPath := range projects {
 		if commitNote, err = metric.Process(true, projPath); err != nil {
-			fmt.Fprint(os.Stderr, err)
+			c.Ui.Error(err.Error())
 			return 1
 		}
 		o, err := report.Status(commitNote, options, projPath)
 		if err != nil {
-			fmt.Fprint(os.Stderr, err)
+			c.Ui.Error(err.Error())
 			return 1
 		}
 		out += o
 	}
 
-	fmt.Printf(out)
+	c.Ui.Output(out)
 	return 0
 }
 

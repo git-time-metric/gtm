@@ -7,7 +7,6 @@ package command
 import (
 	"flag"
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/hashicorp/go-version"
@@ -16,6 +15,7 @@ import (
 
 // VerifyCmd contains CLI commands for verify
 type VerifyCmd struct {
+	Ui      cli.Ui
 	Version string
 }
 
@@ -39,22 +39,22 @@ Usage: gtm verify <version-constraint>
 // Run executes verify commands with args
 func (c VerifyCmd) Run(args []string) int {
 	cmdFlags := flag.NewFlagSet("verify", flag.ContinueOnError)
-	cmdFlags.Usage = func() { fmt.Print(c.Help()) }
+	cmdFlags.Usage = func() { c.Ui.Output(c.Help()) }
 	if err := cmdFlags.Parse(args); err != nil {
 		return 1
 	}
 
 	if len(args) == 0 {
-		fmt.Println("Unable to verify version, version constraint not provided")
+		c.Ui.Error("Unable to verify version, version constraint not provided")
 		return 1
 	}
 
 	valid, err := c.check(args[0])
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
+		c.Ui.Error(err.Error())
 		return 1
 	}
-	fmt.Printf("%t", valid)
+	c.Ui.Output(fmt.Sprintf("%t", valid))
 	return 0
 }
 

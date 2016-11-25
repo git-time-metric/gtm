@@ -22,6 +22,7 @@ import (
 
 // ReportCmd contains methods for report command
 type ReportCmd struct {
+	Ui cli.Ui
 }
 
 // NewReport create new ReportCmd struct
@@ -95,13 +96,13 @@ func (c ReportCmd) Run(args []string) int {
 	cmdFlags.StringVar(&message, "message", "", "")
 	cmdFlags.StringVar(&tags, "tags", "", "")
 	cmdFlags.BoolVar(&all, "all", false, "")
-	cmdFlags.Usage = func() { fmt.Print(c.Help()) }
+	cmdFlags.Usage = func() { c.Ui.Output(c.Help()) }
 	if err := cmdFlags.Parse(args); err != nil {
 		return 1
 	}
 
 	if !util.StringInSlice([]string{"commits", "timeline-hours", "files", "timeline-commits"}, format) {
-		fmt.Fprintf(os.Stderr, "report --format=%s not valid\n", format)
+		c.Ui.Error(fmt.Sprintf("report --format=%s not valid\n", format))
 		return 1
 	}
 
@@ -126,14 +127,14 @@ func (c ReportCmd) Run(args []string) int {
 		scanner := bufio.NewScanner(os.Stdin)
 		for scanner.Scan() {
 			if !sha1Regex.MatchString(scanner.Text()) {
-				fmt.Fprintf(os.Stderr, invalidSHA1, scanner.Text())
+				c.Ui.Error(fmt.Sprintf("%s %s", invalidSHA1, scanner.Text()))
 				return 1
 			}
 			commits = append(commits, scanner.Text())
 		}
 		curProjPath, err := scm.RootPath()
 		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
+			c.Ui.Error(err.Error())
 			return 1
 		}
 
@@ -142,14 +143,14 @@ func (c ReportCmd) Run(args []string) int {
 	case len(cmdFlags.Args()) > 0:
 		for _, a := range cmdFlags.Args() {
 			if !sha1Regex.MatchString(a) {
-				fmt.Fprintf(os.Stderr, invalidSHA1, a)
+				c.Ui.Error(fmt.Sprintf("%s %s", invalidSHA1, a))
 				return 1
 			}
 			commits = append(commits, a)
 		}
 		curProjPath, err := scm.RootPath()
 		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
+			c.Ui.Error(err.Error())
 			return 1
 		}
 
@@ -158,7 +159,7 @@ func (c ReportCmd) Run(args []string) int {
 	default:
 		index, err := project.NewIndex()
 		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
+			c.Ui.Error(err.Error())
 			return 1
 		}
 
@@ -168,7 +169,7 @@ func (c ReportCmd) Run(args []string) int {
 		}
 		projects, err := index.Get(tagList, all)
 		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
+			c.Ui.Error(err.Error())
 			return 1
 		}
 
@@ -178,7 +179,7 @@ func (c ReportCmd) Run(args []string) int {
 			thisMonth, lastMonth, thisYear, lastYear)
 
 		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
+			c.Ui.Error(err.Error())
 			return 1
 		}
 
@@ -187,7 +188,7 @@ func (c ReportCmd) Run(args []string) int {
 		for _, p := range projects {
 			commits, err = scm.CommitIDs(limiter, p)
 			if err != nil {
-				fmt.Fprintln(os.Stderr, err)
+				c.Ui.Error(err.Error())
 				return 1
 			}
 			projCommits = append(projCommits, report.ProjectCommits{Path: p, Commits: commits})
@@ -216,10 +217,10 @@ func (c ReportCmd) Run(args []string) int {
 	}
 
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
+		c.Ui.Error(err.Error())
 		return 1
 	}
-	fmt.Printf(out)
+	c.Ui.Output(out)
 
 	return 0
 }

@@ -6,7 +6,6 @@ package command
 
 import (
 	"flag"
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -23,6 +22,7 @@ import (
 
 // RecordCmd contains method for record command
 type RecordCmd struct {
+	Ui cli.Ui
 }
 
 // NewRecord return new RecordCmd struct
@@ -52,13 +52,13 @@ func (c RecordCmd) Run(args []string) int {
 	cmdFlags := flag.NewFlagSet("record", flag.ContinueOnError)
 	cmdFlags.BoolVar(&status, "status", false, "")
 	cmdFlags.BoolVar(&terminal, "terminal", false, "")
-	cmdFlags.Usage = func() { fmt.Print(c.Help()) }
+	cmdFlags.Usage = func() { c.Ui.Output(c.Help()) }
 	if err := cmdFlags.Parse(args); err != nil {
 		return 1
 	}
 
 	if !terminal && len(cmdFlags.Args()) == 0 {
-		fmt.Println("Unable to record, file not provided")
+		c.Ui.Error("Unable to record, file not provided")
 		return 1
 	}
 
@@ -76,7 +76,7 @@ func (c RecordCmd) Run(args []string) int {
 
 	if err := event.Record(fileToRecord); err != nil && !(err == project.ErrNotInitialized || err == project.ErrFileNotFound) {
 		if err := project.Log(err); err != nil {
-			fmt.Fprintln(os.Stderr, err)
+			c.Ui.Error(err.Error())
 		}
 		return 1
 	} else if err == nil && status {
@@ -89,7 +89,7 @@ func (c RecordCmd) Run(args []string) int {
 
 		wd, err = os.Getwd()
 		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
+			c.Ui.Error(err.Error())
 			return 1
 		}
 		defer os.Chdir(wd)
@@ -97,15 +97,15 @@ func (c RecordCmd) Run(args []string) int {
 		os.Chdir(filepath.Dir(fileToRecord))
 
 		if commitNote, err = metric.Process(true); err != nil {
-			fmt.Fprintln(os.Stderr, err)
+			c.Ui.Error(err.Error())
 			return 1
 		}
 		out, err = report.Status(commitNote, report.OutputOptions{TotalOnly: true})
 		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
+			c.Ui.Error(err.Error())
 			return 1
 		}
-		fmt.Printf(out)
+		c.Ui.Output(out)
 	}
 
 	return 0

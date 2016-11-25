@@ -6,25 +6,24 @@ package command
 
 import (
 	"flag"
-	"fmt"
-	"os"
 	"strings"
 
 	"github.com/git-time-metric/gtm/metric"
 	"github.com/mitchellh/cli"
 )
 
-// GitCommit struct contain methods for commit command
-type GitCommit struct {
+// CommitCmd struct contain methods for commit command
+type CommitCmd struct {
+	Ui cli.Ui
 }
 
-// NewCommit returns new GitCommit struct
+// NewCommit returns new CommitCmd struct
 func NewCommit() (cli.Command, error) {
-	return GitCommit{}, nil
+	return CommitCmd{}, nil
 }
 
 // Help returns help for commit command
-func (c GitCommit) Help() string {
+func (c CommitCmd) Help() string {
 	helpText := `
 Usage: gtm commit [options]
 
@@ -38,21 +37,20 @@ Options:
 }
 
 // Run executes commit commands with args
-func (c GitCommit) Run(args []string) int {
+func (c CommitCmd) Run(args []string) int {
 
 	var yes bool
 	cmdFlags := flag.NewFlagSet("commit", flag.ContinueOnError)
 	cmdFlags.BoolVar(&yes, "yes", false, "")
-	cmdFlags.Usage = func() { fmt.Print(c.Help()) }
+	cmdFlags.Usage = func() { c.Ui.Output(c.Help()) }
 	if err := cmdFlags.Parse(args); err != nil {
 		return 1
 	}
 
 	confirm := yes
 	if !confirm {
-		var response string
-		fmt.Printf("\nSave time for last commit (y/n)? ")
-		if _, err := fmt.Scanln(&response); err != nil {
+		response, err := c.Ui.Ask("Save time for last commit (y/n)?")
+		if err != nil {
 			return 0
 		}
 		confirm = strings.TrimSpace(strings.ToLower(response)) == "y"
@@ -60,7 +58,7 @@ func (c GitCommit) Run(args []string) int {
 
 	if confirm {
 		if _, err := metric.Process(false); err != nil {
-			fmt.Fprintln(os.Stderr, err)
+			c.Ui.Error(err.Error())
 			return 1
 		}
 	}
@@ -68,6 +66,6 @@ func (c GitCommit) Run(args []string) int {
 }
 
 // Synopsis return help for commit command
-func (c GitCommit) Synopsis() string {
+func (c CommitCmd) Synopsis() string {
 	return "Save pending time with the last commit"
 }

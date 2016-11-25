@@ -6,8 +6,6 @@ package command
 
 import (
 	"flag"
-	"fmt"
-	"os"
 	"strings"
 
 	"github.com/git-time-metric/gtm/project"
@@ -16,6 +14,7 @@ import (
 
 // UninitCmd contains methods for uninit command
 type UninitCmd struct {
+	Ui cli.Ui
 }
 
 // NewUninit returns new UninitCmd struct
@@ -40,8 +39,9 @@ Options:
 // Run executes uninit command with args
 func (c UninitCmd) Run(args []string) int {
 	var yes bool
-	cmdFlags := flag.NewFlagSet("uninit", flag.ExitOnError)
+	cmdFlags := flag.NewFlagSet("uninit", flag.ContinueOnError)
 	cmdFlags.BoolVar(&yes, "yes", false, "")
+	cmdFlags.Usage = func() { c.Ui.Output(c.Help()) }
 	if err := cmdFlags.Parse(args); err != nil {
 		return 1
 	}
@@ -49,10 +49,9 @@ func (c UninitCmd) Run(args []string) int {
 	confirm := yes
 	if !confirm {
 		var response string
-		fmt.Printf("\nRemove GTM tracking for the current git repository (y/n)? ")
-		_, err := fmt.Scanln(&response)
+		response, err := c.Ui.Ask("Remove GTM tracking for the current git repository (y/n)?")
 		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
+			c.Ui.Error(err.Error())
 			return 1
 		}
 		confirm = strings.TrimSpace(strings.ToLower(response)) == "y"
@@ -64,10 +63,10 @@ func (c UninitCmd) Run(args []string) int {
 			err error
 		)
 		if m, err = project.Uninitialize(); err != nil {
-			fmt.Fprintln(os.Stderr, err)
+			c.Ui.Error(err.Error())
 			return 1
 		}
-		fmt.Println(m)
+		c.Ui.Output(m)
 	}
 	return 0
 }

@@ -33,5 +33,4 @@ func TestCheck(t *testing.T) {
 				tc.input, tc.cmd.Version, tc.valid, valid)
 		}
 	}
-
 }

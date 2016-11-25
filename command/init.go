@@ -6,8 +6,6 @@ package command
 
 import (
 	"flag"
-	"fmt"
-	"os"
 	"strings"
 
 	"github.com/git-time-metric/gtm/project"
@@ -18,6 +16,7 @@ import (
 
 // InitCmd contains methods for init command
 type InitCmd struct {
+	Ui cli.Ui
 }
 
 // NewInit returns new InitCmd struct
@@ -51,16 +50,16 @@ func (c InitCmd) Run(args []string) int {
 	cmdFlags.BoolVar(&terminal, "terminal", true, "")
 	cmdFlags.BoolVar(&clearTags, "clear-tags", false, "")
 	cmdFlags.StringVar(&tags, "tags", "", "")
-	cmdFlags.Usage = func() { fmt.Print(c.Help()) }
+	cmdFlags.Usage = func() { c.Ui.Output(c.Help()) }
 	if err := cmdFlags.Parse(args); err != nil {
 		return 1
 	}
 	m, err := project.Initialize(terminal, util.Map(strings.Split(tags, ","), strings.TrimSpace), clearTags)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
+		c.Ui.Error(err.Error())
 		return 1
 	}
-	fmt.Println(m)
+	c.Ui.Output(m + "\n")
 	return 0
 }
 

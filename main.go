@@ -5,7 +5,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/git-time-metric/gtm/command"
@@ -17,23 +16,56 @@ import (
 var Version = "0.0.0"
 
 func main() {
+	ui := &cli.BasicUi{Writer: os.Stdout, Reader: os.Stdin}
 	c := cli.NewCLI("gtm", Version)
 	c.Args = os.Args[1:]
 	c.Commands = map[string]cli.CommandFactory{
-		"init":   command.NewInit,
-		"record": command.NewRecord,
-		"commit": command.NewCommit,
-		"report": command.NewReport,
-		"status": command.NewStatus,
-		"verify": command.NewVerify(Version),
-		"uninit": command.NewUninit,
-		"clean":  command.NewClean,
+		"init": func() (cli.Command, error) {
+			return &command.InitCmd{
+				Ui: ui,
+			}, nil
+		},
+		"record": func() (cli.Command, error) {
+			return &command.RecordCmd{
+				Ui: ui,
+			}, nil
+		},
+		"commit": func() (cli.Command, error) {
+			return &command.CommitCmd{
+				Ui: ui,
+			}, nil
+		},
+		"report": func() (cli.Command, error) {
+			return &command.ReportCmd{
+				Ui: ui,
+			}, nil
+		},
+		"status": func() (cli.Command, error) {
+			return &command.StatusCmd{
+				Ui: ui,
+			}, nil
+		},
+		"verify": func() (cli.Command, error) {
+			return &command.VerifyCmd{
+				Ui: ui,
+			}, nil
+		},
+		"uninit": func() (cli.Command, error) {
+			return &command.UninitCmd{
+				Ui: ui,
+			}, nil
+		},
+		"clean": func() (cli.Command, error) {
+			return &command.CleanCmd{
+				Ui: ui,
+			}, nil
+		},
 	}
 
 	exitStatus, err := c.Run()
 	if err != nil {
 		if err := project.Log(err); err != nil {
-			fmt.Fprintln(os.Stderr, err)
+			ui.Error(err.Error())
 		}
 	}
 

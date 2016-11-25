@@ -6,8 +6,6 @@ package command
 
 import (
 	"flag"
-	"fmt"
-	"os"
 	"strings"
 
 	"github.com/git-time-metric/gtm/project"
@@ -16,6 +14,7 @@ import (
 
 // CleanCmd contains method for clean method
 type CleanCmd struct {
+	Ui cli.Ui
 }
 
 // NewClean returns a new CleanCmd struct
@@ -43,16 +42,15 @@ func (c CleanCmd) Run(args []string) int {
 	var yes bool
 	cmdFlags := flag.NewFlagSet("clean", flag.ContinueOnError)
 	cmdFlags.BoolVar(&yes, "yes", false, "")
-	cmdFlags.Usage = func() { fmt.Print(c.Help()) }
+	cmdFlags.Usage = func() { c.Ui.Output(c.Help()) }
 	if err := cmdFlags.Parse(args); err != nil {
 		return 1
 	}
 
 	confirm := yes
 	if !confirm {
-		var response string
-		fmt.Printf("\nDelete pending time data (y/n)? ")
-		if _, err := fmt.Scanln(&response); err != nil {
+		response, err := c.Ui.Ask("Delete pending time data (y/n)?")
+		if err != nil {
 			return 0
 		}
 		confirm = strings.TrimSpace(strings.ToLower(response)) == "y"
@@ -64,10 +62,10 @@ func (c CleanCmd) Run(args []string) int {
 			err error
 		)
 		if m, err = project.Clean(); err != nil {
-			fmt.Fprintln(os.Stderr, err)
+			c.Ui.Error(err.Error())
 			return 1
 		}
-		fmt.Println(m)
+		c.Ui.Output(m)
 	}
 	return 0
 }
