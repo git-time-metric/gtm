@@ -1,0 +1,5 @@
+[ver:1,total:1260]
+.gtm/terminal.app:1140,1480118400:760,1480122000:380,r
+command/report.go:70,1480122000:70,m
+report/report.go:30,1480122000:30,r
+Makefile:20,1480118400:20,m
