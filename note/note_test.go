@@ -23,12 +23,12 @@ environment/drone/run-tests-cron.sh:700,1460066400:540,1460070000:160,m
 `,
 			CommitNote{
 				Files: []FileDetail{
-					FileDetail{
+					{
 						SourceFile: "environment/drone/run-tests.sh",
 						TimeSpent:  725,
 						Timeline:   map[int64]int{int64(1460066400): 705, int64(1460070000): 20},
 						Status:     "m"},
-					FileDetail{
+					{
 						SourceFile: "environment/drone/run-tests-cron.sh",
 						TimeSpent:  700,
 						Timeline:   map[int64]int{int64(1460066400): 540, int64(1460070000): 160},
@@ -49,17 +49,17 @@ environment/drone/test.go:60,1460070000:60,r
 `,
 			CommitNote{
 				Files: []FileDetail{
-					FileDetail{
+					{
 						SourceFile: "environment/drone/run-tests.sh",
 						TimeSpent:  725,
 						Timeline:   map[int64]int{int64(1460066400): 705, int64(1460070000): 20},
 						Status:     "m"},
-					FileDetail{
+					{
 						SourceFile: "environment/drone/run-tests-cron.sh",
 						TimeSpent:  700,
 						Timeline:   map[int64]int{int64(1460066400): 540, int64(1460070000): 160},
 						Status:     "m"},
-					FileDetail{
+					{
 						SourceFile: "environment/drone/test.go",
 						TimeSpent:  60,
 						Timeline:   map[int64]int{int64(1460070000): 60},

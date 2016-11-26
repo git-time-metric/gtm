@@ -20,21 +20,21 @@ func TestAllocateTime(t *testing.T) {
 			map[string]FileMetric{},
 			map[string]int{filepath.Join("event", "event.go"): 1},
 			map[string]FileMetric{
-				"6f53bc90ba625b5afaac80b422b44f1f609d6367": FileMetric{Updated: true, SourceFile: filepath.Join("event", "event.go"), TimeSpent: 60, Timeline: map[int64]int{int64(1): 60}}},
+				"6f53bc90ba625b5afaac80b422b44f1f609d6367": {Updated: true, SourceFile: filepath.Join("event", "event.go"), TimeSpent: 60, Timeline: map[int64]int{int64(1): 60}}},
 		},
 		{
 			map[string]FileMetric{},
 			map[string]int{filepath.Join("event", "event.go"): 4, filepath.Join("event", "event_test.go"): 2},
 			map[string]FileMetric{
-				"6f53bc90ba625b5afaac80b422b44f1f609d6367": FileMetric{Updated: true, SourceFile: filepath.Join("event", "event.go"), TimeSpent: 40, Timeline: map[int64]int{int64(1): 40}},
-				"e65b42b6bf1eda6349451b063d46134dd7ab9921": FileMetric{Updated: true, SourceFile: filepath.Join("event", "event_test.go"), TimeSpent: 20, Timeline: map[int64]int{int64(1): 20}}},
+				"6f53bc90ba625b5afaac80b422b44f1f609d6367": {Updated: true, SourceFile: filepath.Join("event", "event.go"), TimeSpent: 40, Timeline: map[int64]int{int64(1): 40}},
+				"e65b42b6bf1eda6349451b063d46134dd7ab9921": {Updated: true, SourceFile: filepath.Join("event", "event_test.go"), TimeSpent: 20, Timeline: map[int64]int{int64(1): 20}}},
 		},
 		{
-			map[string]FileMetric{"e65b42b6bf1eda6349451b063d46134dd7ab9921": FileMetric{Updated: true, SourceFile: filepath.Join("event", "event_test.go"), TimeSpent: 60, Timeline: map[int64]int{int64(1): 60}}},
+			map[string]FileMetric{"e65b42b6bf1eda6349451b063d46134dd7ab9921": {Updated: true, SourceFile: filepath.Join("event", "event_test.go"), TimeSpent: 60, Timeline: map[int64]int{int64(1): 60}}},
 			map[string]int{filepath.Join("event", "event.go"): 4, filepath.Join("event", "event_test.go"): 2},
 			map[string]FileMetric{
-				"6f53bc90ba625b5afaac80b422b44f1f609d6367": FileMetric{Updated: true, SourceFile: filepath.Join("event", "event.go"), TimeSpent: 40, Timeline: map[int64]int{int64(1): 40}},
-				"e65b42b6bf1eda6349451b063d46134dd7ab9921": FileMetric{Updated: true, SourceFile: filepath.Join("event", "event_test.go"), TimeSpent: 80, Timeline: map[int64]int{int64(1): 80}}},
+				"6f53bc90ba625b5afaac80b422b44f1f609d6367": {Updated: true, SourceFile: filepath.Join("event", "event.go"), TimeSpent: 40, Timeline: map[int64]int{int64(1): 40}},
+				"e65b42b6bf1eda6349451b063d46134dd7ab9921": {Updated: true, SourceFile: filepath.Join("event", "event_test.go"), TimeSpent: 80, Timeline: map[int64]int{int64(1): 80}}},
 		},
 	}
 
