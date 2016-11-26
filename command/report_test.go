@@ -14,11 +14,6 @@ import (
 func TestReportDefaultOptions(t *testing.T) {
 	repo := util.NewTestRepo(t, false)
 	defer repo.Remove()
-
-	curDir, err := os.Getwd()
-	util.CheckFatal(t, err)
-	defer os.Chdir(curDir)
-
 	os.Chdir(repo.PathIn(""))
 
 	(InitCmd{Ui: new(cli.MockUi)}).Run([]string{})
@@ -46,11 +41,6 @@ func TestReportDefaultOptions(t *testing.T) {
 func TestReportAll(t *testing.T) {
 	repo := util.NewTestRepo(t, false)
 	defer repo.Remove()
-
-	curDir, err := os.Getwd()
-	util.CheckFatal(t, err)
-	defer os.Chdir(curDir)
-
 	os.Chdir(repo.PathIn(""))
 
 	(InitCmd{Ui: new(cli.MockUi)}).Run([]string{})
@@ -78,11 +68,6 @@ func TestReportAll(t *testing.T) {
 func TestReportTimelineHours(t *testing.T) {
 	repo := util.NewTestRepo(t, false)
 	defer repo.Remove()
-
-	curDir, err := os.Getwd()
-	util.CheckFatal(t, err)
-	defer os.Chdir(curDir)
-
 	os.Chdir(repo.PathIn(""))
 
 	(InitCmd{Ui: new(cli.MockUi)}).Run([]string{})
@@ -110,11 +95,6 @@ func TestReportTimelineHours(t *testing.T) {
 func TestReportTimelineCommits(t *testing.T) {
 	repo := util.NewTestRepo(t, false)
 	defer repo.Remove()
-
-	curDir, err := os.Getwd()
-	util.CheckFatal(t, err)
-	defer os.Chdir(curDir)
-
 	os.Chdir(repo.PathIn(""))
 
 	(InitCmd{Ui: new(cli.MockUi)}).Run([]string{})
@@ -142,11 +122,6 @@ func TestReportTimelineCommits(t *testing.T) {
 func TestReportFiles(t *testing.T) {
 	repo := util.NewTestRepo(t, false)
 	defer repo.Remove()
-
-	curDir, err := os.Getwd()
-	util.CheckFatal(t, err)
-	defer os.Chdir(curDir)
-
 	os.Chdir(repo.PathIn(""))
 
 	(InitCmd{Ui: new(cli.MockUi)}).Run([]string{})

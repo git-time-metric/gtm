@@ -13,10 +13,7 @@ func TestCommitDefaultOptions(t *testing.T) {
 	repo := util.NewTestRepo(t, false)
 	defer repo.Remove()
 	repo.Seed()
-
-	repoPath := repo.PathIn("")
-	defer os.Chdir(repoPath)
-	os.Chdir(repoPath)
+	os.Chdir(repo.PathIn(""))
 
 	(InitCmd{Ui: new(cli.MockUi)}).Run([]string{})
 

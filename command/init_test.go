@@ -11,8 +11,7 @@ import (
 
 func TestInitNoGitRepo(t *testing.T) {
 	repo := util.NewTestRepo(t, false)
-	repoPath := repo.PathIn("")
-	os.Chdir(repoPath)
+	os.Chdir(repo.PathIn(""))
 	repo.Remove()
 
 	ui := new(cli.MockUi)
@@ -30,10 +29,7 @@ func TestInitDefaultOptions(t *testing.T) {
 	repo := util.NewTestRepo(t, false)
 	defer repo.Remove()
 	repo.Seed()
-
-	repoPath := repo.PathIn("")
-	defer os.Chdir(repoPath)
-	os.Chdir(repoPath)
+	os.Chdir(repo.PathIn(""))
 
 	ui := new(cli.MockUi)
 	c := InitCmd{Ui: ui}
@@ -62,10 +58,7 @@ func TestInitTerminalFalse(t *testing.T) {
 	repo := util.NewTestRepo(t, false)
 	defer repo.Remove()
 	repo.Seed()
-
-	repoPath := repo.PathIn("")
-	defer os.Chdir(repoPath)
-	os.Chdir(repoPath)
+	os.Chdir(repo.PathIn(""))
 
 	ui := new(cli.MockUi)
 	c := InitCmd{Ui: ui}
@@ -87,10 +80,7 @@ func TestInitTags(t *testing.T) {
 	repo := util.NewTestRepo(t, false)
 	defer repo.Remove()
 	repo.Seed()
-
-	repoPath := repo.PathIn("")
-	defer os.Chdir(repoPath)
-	os.Chdir(repoPath)
+	os.Chdir(repo.PathIn(""))
 
 	ui := new(cli.MockUi)
 	c := InitCmd{Ui: ui}
@@ -112,10 +102,7 @@ func TestClearTags(t *testing.T) {
 	repo := util.NewTestRepo(t, false)
 	defer repo.Remove()
 	repo.Seed()
-
-	repoPath := repo.PathIn("")
-	defer os.Chdir(repoPath)
-	os.Chdir(repoPath)
+	os.Chdir(repo.PathIn(""))
 
 	ui := new(cli.MockUi)
 	c := InitCmd{Ui: ui}
