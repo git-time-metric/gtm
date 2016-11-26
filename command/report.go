@@ -210,10 +210,6 @@ func (c ReportCmd) Run(args []string) int {
 		out, err = report.Timeline(projCommits, options)
 	case "timeline-commits":
 		out, err = report.TimelineCommits(projCommits, options)
-	case "projects":
-		// TODO: project report: full path, tags, terminal, ...
-	case "json":
-	case "csv":
 	}
 
 	if err != nil {

@@ -128,9 +128,6 @@ func Timeline(projects []ProjectCommits, options OutputOptions) (string, error) 
 		return "", err
 	}
 
-	// TODO: option to report on all days and not just days with commits
-	// TODO: calculate average total daily hours
-	// TODO: calculate busiest days of the week
 	b := new(bytes.Buffer)
 	t := template.Must(template.New("Timeline").Funcs(funcMap).Parse(timelineTpl))
 	err = t.Execute(

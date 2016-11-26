@@ -42,7 +42,6 @@ func (n CommitNote) Total() int {
 
 // Marshal converts a commit note to a serialized string
 func Marshal(n CommitNote) string {
-	//TODO: use a text template here instead
 	s := fmt.Sprintf("[ver:%s,total:%d]\n", "1", n.Total())
 	for _, fl := range n.Files {
 		// nomralize file paths to unix convention

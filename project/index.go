@@ -14,8 +14,6 @@ import (
 	"time"
 )
 
-//TODO: write tests
-
 // Index contains list of projects and their locations
 type Index struct {
 	Projects map[string]time.Time
