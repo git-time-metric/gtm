@@ -5,7 +5,6 @@
 package event
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -13,7 +12,6 @@ import (
 	"strings"
 
 	"github.com/git-time-metric/gtm/epoch"
-	"github.com/git-time-metric/gtm/project"
 )
 
 // Record creates an event for a source
@@ -65,10 +63,7 @@ func Process(gtmPath string, interim bool) (map[int64]map[string]int, error) {
 
 		sourcePath, err := readEventFile(eventFilePath)
 		if err != nil {
-			project.Log(fmt.Sprintf("\nRemoving corrupt event file %s, %s\n", eventFilePath, err))
-			if err := os.Remove(eventFilePath); err != nil {
-				project.Log(fmt.Sprintf("\nError removing event file %s, %s\n", eventFilePath, err))
-			}
+			os.Remove(eventFilePath)
 			continue
 		}
 

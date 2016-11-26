@@ -16,7 +16,6 @@ import (
 
 	"github.com/git-time-metric/gtm/epoch"
 	"github.com/git-time-metric/gtm/note"
-	"github.com/git-time-metric/gtm/project"
 	"github.com/git-time-metric/gtm/scm"
 	"github.com/git-time-metric/gtm/util"
 )
@@ -187,10 +186,7 @@ func loadMetrics(gtmPath string) (map[string]FileMetric, error) {
 
 		metricFile, err := readMetricFile(metricFilePath)
 		if err != nil {
-			project.Log(fmt.Sprintf("Removing corrupt metric file %s, %s", metricFilePath, err))
-			if err := os.Remove(metricFilePath); err != nil {
-				project.Log(fmt.Sprintf("Unable to delete corrupt metric file %s, %s", metricFilePath, err))
-			}
+			os.Remove(metricFilePath)
 			continue
 		}
 

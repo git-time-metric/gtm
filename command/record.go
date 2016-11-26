@@ -75,9 +75,6 @@ func (c RecordCmd) Run(args []string) int {
 	}
 
 	if err := event.Record(fileToRecord); err != nil && !(err == project.ErrNotInitialized || err == project.ErrFileNotFound) {
-		if err := project.Log(err); err != nil {
-			c.Ui.Error(err.Error())
-		}
 		return 1
 	} else if err == nil && status {
 		var (

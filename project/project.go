@@ -9,7 +9,6 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -310,23 +309,6 @@ func Paths(wd ...string) (string, string, error) {
 		return "", "", ErrNotInitialized
 	}
 	return repoPath, gtmPath, nil
-}
-
-// Log logs to a gtm log in the GTMDir
-func Log(v ...interface{}) error {
-	_, gtmPath, err := Paths()
-	if err != nil {
-		return err
-	}
-	f, err := os.OpenFile(filepath.Join(gtmPath, "gtm.log"), os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	if err != nil {
-		return fmt.Errorf("error opening log file: %v", err)
-	}
-	defer func() { _ = f.Close() }()
-	log.SetOutput(f)
-
-	log.Println(v)
-	return nil
 }
 
 func removeTags(gtmPath string) error {

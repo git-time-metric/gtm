@@ -8,7 +8,6 @@ import (
 	"os"
 
 	"github.com/git-time-metric/gtm/command"
-	"github.com/git-time-metric/gtm/project"
 	"github.com/mitchellh/cli"
 )
 
@@ -64,9 +63,7 @@ func main() {
 
 	exitStatus, err := c.Run()
 	if err != nil {
-		if err := project.Log(err); err != nil {
-			ui.Error(err.Error())
-		}
+		ui.Error(err.Error())
 	}
 
 	os.Exit(exitStatus)

@@ -34,7 +34,6 @@ func retrieveNotes(projects []ProjectCommits, terminalOff bool) commitNoteDetail
 			var commitNote note.CommitNote
 			commitNote, err = note.UnMarshal(n.Note)
 			if err != nil {
-				project.Log(fmt.Sprintf("Error unmarshalling note \n\n%s \n\n%s", n.Note, err))
 				commitNote = note.CommitNote{}
 			}
 
