@@ -38,6 +38,33 @@ func TestReportDefaultOptions(t *testing.T) {
 	}
 }
 
+func TestReportSummary(t *testing.T) {
+	repo := util.NewTestRepo(t, false)
+	defer repo.Remove()
+	os.Chdir(repo.PathIn(""))
+
+	(InitCmd{Ui: new(cli.MockUi)}).Run([]string{})
+
+	repo.SaveFile("event.go", "event", "")
+	repo.SaveFile("event_test.go", "event", "")
+	repo.SaveFile("1458496803.event", project.GTMDir, filepath.Join("event", "event.go"))
+	repo.SaveFile("1458496811.event", project.GTMDir, filepath.Join("event", "event_test.go"))
+	repo.SaveFile("1458496818.event", project.GTMDir, filepath.Join("event", "event.go"))
+	repo.SaveFile("1458496943.event", project.GTMDir, filepath.Join("event", "event.go"))
+
+	repo.Commit(repo.Stage(filepath.Join("event", "event.go"), filepath.Join("event", "event_test.go")))
+
+	ui := new(cli.MockUi)
+	c := ReportCmd{Ui: ui}
+
+	args := []string{"-format", "summary"}
+	rc := c.Run(args)
+
+	if rc != 0 {
+		t.Errorf("gtm report(%+v), want 0 got %d, %s", args, rc, ui.ErrorWriter.String())
+	}
+}
+
 func TestReportAll(t *testing.T) {
 	repo := util.NewTestRepo(t, false)
 	defer repo.Remove()

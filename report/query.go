@@ -17,8 +17,16 @@ import (
 	"github.com/git-time-metric/gtm/util"
 )
 
-func retrieveNotes(projects []ProjectCommits, terminalOff bool) commitNoteDetails {
+const (
+	defaultDateFormat = "Mon Jan 02 15:04:05 2006 MST"
+)
+
+func retrieveNotes(projects []ProjectCommits, terminalOff bool, dateFormat string) commitNoteDetails {
 	notes := commitNoteDetails{}
+
+	if dateFormat == "" {
+		dateFormat = defaultDateFormat
+	}
 
 	for _, p := range projects {
 		for _, c := range p.Commits {
@@ -29,7 +37,7 @@ func retrieveNotes(projects []ProjectCommits, terminalOff bool) commitNoteDetail
 				continue
 			}
 
-			when := n.When.Format("Mon Jan 02 15:04:05 2006 MST")
+			when := n.When.Format(dateFormat)
 
 			var commitNote note.CommitNote
 			commitNote, err = note.UnMarshal(n.Note)

@@ -5,6 +5,21 @@
 package report
 
 const (
+	commitSummaryTpl string = `
+{{- $boldFormat := .BoldFormat }}
+{{- range $line := .Lines }}
+	{{- if $line.StartGroup }}
+		{{- printf "\n" }}
+		{{- printf $boldFormat $line.Date }}
+	{{- end }}
+	{{- if $line.EndGroup }}
+		{{- FormatDuration $line.Total | printf "\n%14s" }}
+		{{- printf "\n" }}
+	{{- end }}
+	{{- if $line.CommitLine }}
+		{{- FormatDuration $line.Total | printf "\n%14s" }} {{ $line.Subject }} [{{ $line.Project }}]
+	{{- end }}
+{{- end -}}`
 	commitsTpl string = `
 {{ $boldFormat := .BoldFormat }}
 {{- $fullMessage := .FullMessage }}

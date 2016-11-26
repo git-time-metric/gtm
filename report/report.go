@@ -96,12 +96,34 @@ func Status(n note.CommitNote, options OutputOptions, projPath ...string) (strin
 	return b.String(), nil
 }
 
-// Commits returns the commits report
-func Commits(projects []ProjectCommits, options OutputOptions) (string, error) {
-	notes := options.limitNotes(retrieveNotes(projects, options.TerminalOff))
+func CommitSummary(projects []ProjectCommits, options OutputOptions) (string, error) {
+	notes := options.limitNotes(retrieveNotes(projects, options.TerminalOff, "Mon Jan 02"))
+
+	lines := commitSummaryBuilder{}.Build(notes)
 
 	b := new(bytes.Buffer)
-	t := template.Must(template.New("Commits").Funcs(funcMap).Parse(commitsTpl))
+	t := template.Must(template.New("Commits").Funcs(funcMap).Parse(commitSummaryTpl))
+
+	err := t.Execute(
+		b,
+		struct {
+			Lines      []commitSummaryLine
+			BoldFormat string
+		}{
+			lines,
+			setBoldFormat(options.Color)})
+	if err != nil {
+		return "", err
+	}
+	return b.String(), nil
+}
+
+// Commits returns the commits report
+func Commits(projects []ProjectCommits, options OutputOptions) (string, error) {
+	notes := options.limitNotes(retrieveNotes(projects, options.TerminalOff, ""))
+
+	b := new(bytes.Buffer)
+	t := template.Must(template.New("CommitSummary").Funcs(funcMap).Parse(commitsTpl))
 
 	err := t.Execute(
 		b,
@@ -121,7 +143,7 @@ func Commits(projects []ProjectCommits, options OutputOptions) (string, error) {
 
 // Timeline returns the time spent by hour
 func Timeline(projects []ProjectCommits, options OutputOptions) (string, error) {
-	notes := options.limitNotes(retrieveNotes(projects, options.TerminalOff))
+	notes := options.limitNotes(retrieveNotes(projects, options.TerminalOff, ""))
 	timeline, err := notes.timeline()
 
 	if err != nil {
@@ -147,7 +169,7 @@ func Timeline(projects []ProjectCommits, options OutputOptions) (string, error) 
 
 // TimelineCommits returns the number commits by hour
 func TimelineCommits(projects []ProjectCommits, options OutputOptions) (string, error) {
-	notes := options.limitNotes(retrieveNotes(projects, options.TerminalOff))
+	notes := options.limitNotes(retrieveNotes(projects, options.TerminalOff, ""))
 	timeline, err := notes.timelineCommits()
 
 	if err != nil {
@@ -173,7 +195,7 @@ func TimelineCommits(projects []ProjectCommits, options OutputOptions) (string, 
 
 // Files returns the files report
 func Files(projects []ProjectCommits, options OutputOptions) (string, error) {
-	notes := options.limitNotes(retrieveNotes(projects, options.TerminalOff))
+	notes := options.limitNotes(retrieveNotes(projects, options.TerminalOff, ""))
 
 	b := new(bytes.Buffer)
 	t := template.Must(template.New("Files").Funcs(funcMap).Parse(filesTpl))

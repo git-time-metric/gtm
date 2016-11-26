@@ -41,7 +41,7 @@ Options:
 
   Report Formats:
 
-  -format=commits            Specify report format [commits|files|timeline-hours|timeline-commits] (default commits)
+  -format=commits            Specify report format [summary|commits|files|timeline-hours|timeline-commits] (default commits)
   -full-message=false        Include full commit message
   -terminal-off=false        Exclude time spent in terminal (Terminal plug-in is required)
   -color=false               Always output color even if no terminal is detected, i.e 'gtm report -color | less -R'
@@ -101,7 +101,7 @@ func (c ReportCmd) Run(args []string) int {
 		return 1
 	}
 
-	if !util.StringInSlice([]string{"commits", "timeline-hours", "files", "timeline-commits"}, format) {
+	if !util.StringInSlice([]string{"summary", "commits", "timeline-hours", "files", "timeline-commits"}, format) {
 		c.Ui.Error(fmt.Sprintf("report --format=%s not valid\n", format))
 		return 1
 	}
@@ -202,6 +202,8 @@ func (c ReportCmd) Run(args []string) int {
 		Limit:       limit}
 
 	switch format {
+	case "summary":
+		out, err = report.CommitSummary(projCommits, options)
 	case "commits":
 		out, err = report.Commits(projCommits, options)
 	case "files":
