@@ -33,11 +33,16 @@ func TestReportDefaultOptions(t *testing.T) {
 	ui := new(cli.MockUi)
 	c := ReportCmd{Ui: ui}
 
-	args := []string{""}
+	args := []string{"-testing=true"}
 	rc := c.Run(args)
 
 	if rc != 0 {
 		t.Errorf("gtm report(%+v), want 0 got %d, %s", args, rc, ui.ErrorWriter.String())
+	}
+
+	want := "2m 40s  89% [m] event/event.go"
+	if !strings.Contains(ui.OutputWriter.String(), want) {
+		t.Errorf("gtm report(%+v), want %s got %s, %s", args, want, ui.OutputWriter.String(), ui.ErrorWriter.String())
 	}
 }
 
@@ -63,11 +68,16 @@ func TestReportSummary(t *testing.T) {
 	ui := new(cli.MockUi)
 	c := ReportCmd{Ui: ui}
 
-	args := []string{"-format", "summary"}
+	args := []string{"-format", "summary", "-testing=true"}
 	rc := c.Run(args)
 
 	if rc != 0 {
 		t.Errorf("gtm report(%+v), want 0 got %d, %s", args, rc, ui.ErrorWriter.String())
+	}
+
+	want := "3m  0s This is a commit"
+	if !strings.Contains(ui.OutputWriter.String(), want) {
+		t.Errorf("gtm report(%+v), want %s got %s, %s", args, want, ui.OutputWriter.String(), ui.ErrorWriter.String())
 	}
 }
 
@@ -93,6 +103,7 @@ func TestReportAll(t *testing.T) {
 	ui := new(cli.MockUi)
 	c := ReportCmd{Ui: ui}
 
+	// TODO: in order to test output of multi-project reporting, we need the ability to mock the project index
 	args := []string{"-all"}
 	rc := c.Run(args)
 
@@ -123,11 +134,16 @@ func TestReportTimelineHours(t *testing.T) {
 	ui := new(cli.MockUi)
 	c := ReportCmd{Ui: ui}
 
-	args := []string{"-format", "timeline-hours"}
+	args := []string{"-format", "timeline-hours", "-testing=true"}
 	rc := c.Run(args)
 
 	if rc != 0 {
 		t.Errorf("gtm report(%+v), want 0 got %d, %s", args, rc, ui.ErrorWriter.String())
+	}
+
+	want := "Sun Mar 20"
+	if !strings.Contains(ui.OutputWriter.String(), want) {
+		t.Errorf("gtm report(%+v), want %s got %s, %s", args, want, ui.OutputWriter.String(), ui.ErrorWriter.String())
 	}
 }
 
@@ -153,11 +169,16 @@ func TestReportTimelineCommits(t *testing.T) {
 	ui := new(cli.MockUi)
 	c := ReportCmd{Ui: ui}
 
-	args := []string{"-format", "timeline-commits"}
+	args := []string{"-format", "timeline-commits", "-testing=true"}
 	rc := c.Run(args)
 
 	if rc != 0 {
 		t.Errorf("gtm report(%+v), want 0 got %d, %s", args, rc, ui.ErrorWriter.String())
+	}
+
+	want := "Wed Mar 06"
+	if !strings.Contains(ui.OutputWriter.String(), want) {
+		t.Errorf("gtm report(%+v), want %s got %s, %s", args, want, ui.OutputWriter.String(), ui.ErrorWriter.String())
 	}
 }
 
@@ -183,11 +204,16 @@ func TestReportFiles(t *testing.T) {
 	ui := new(cli.MockUi)
 	c := ReportCmd{Ui: ui}
 
-	args := []string{"-format", "files"}
+	args := []string{"-format", "files", "-testing=true"}
 	rc := c.Run(args)
 
 	if rc != 0 {
 		t.Errorf("gtm report(%+v), want 0 got %d, %s", args, rc, ui.ErrorWriter.String())
+	}
+
+	want := "3m  0s"
+	if !strings.Contains(ui.OutputWriter.String(), want) {
+		t.Errorf("gtm report(%+v), want %s got %s, %s", args, want, ui.OutputWriter.String(), ui.ErrorWriter.String())
 	}
 }
 

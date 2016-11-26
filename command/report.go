@@ -45,6 +45,7 @@ Options:
   -full-message=false        Include full commit message
   -terminal-off=false        Exclude time spent in terminal (Terminal plug-in is required)
   -color=false               Always output color even if no terminal is detected, i.e 'gtm report -color | less -R'
+	-testing=false             This is used for automated testing to force default test path
 
   Commit Limiting:
 
@@ -73,7 +74,7 @@ Options:
 // Run executes report command with args
 func (c ReportCmd) Run(args []string) int {
 	var limit int
-	var color, terminalOff, fullMessage bool
+	var color, terminalOff, fullMessage, testing bool
 	var today, yesterday, thisWeek, lastWeek, thisMonth, lastMonth, thisYear, lastYear, all bool
 	var before, after, message, author, tags, format string
 	cmdFlags := flag.NewFlagSet("report", flag.ContinueOnError)
@@ -96,6 +97,7 @@ func (c ReportCmd) Run(args []string) int {
 	cmdFlags.StringVar(&message, "message", "", "")
 	cmdFlags.StringVar(&tags, "tags", "", "")
 	cmdFlags.BoolVar(&all, "all", false, "")
+	cmdFlags.BoolVar(&testing, "testing", false, "")
 	cmdFlags.Usage = func() { c.Ui.Output(c.Help()) }
 	if err := cmdFlags.Parse(args); err != nil {
 		return 1
@@ -123,7 +125,7 @@ func (c ReportCmd) Run(args []string) int {
 	projCommits := []report.ProjectCommits{}
 
 	switch {
-	case !isMinGW && !isatty.IsTerminal(os.Stdin.Fd()):
+	case !testing && !isMinGW && !isatty.IsTerminal(os.Stdin.Fd()):
 		scanner := bufio.NewScanner(os.Stdin)
 		for scanner.Scan() {
 			if !sha1Regex.MatchString(scanner.Text()) {
@@ -140,7 +142,7 @@ func (c ReportCmd) Run(args []string) int {
 
 		projCommits = append(projCommits, report.ProjectCommits{Path: curProjPath, Commits: commits})
 
-	case len(cmdFlags.Args()) > 0:
+	case !testing && len(cmdFlags.Args()) > 0:
 		for _, a := range cmdFlags.Args() {
 			if !sha1Regex.MatchString(a) {
 				c.Ui.Error(fmt.Sprintf("%s %s", invalidSHA1, a))
