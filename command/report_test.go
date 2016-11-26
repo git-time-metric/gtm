@@ -27,6 +27,9 @@ func TestReportDefaultOptions(t *testing.T) {
 
 	repo.Commit(repo.Stage(filepath.Join("event", "event.go"), filepath.Join("event", "event_test.go")))
 
+	// save notes to git repository
+	(CommitCmd{Ui: new(cli.MockUi)}).Run([]string{"-yes"})
+
 	ui := new(cli.MockUi)
 	c := ReportCmd{Ui: ui}
 
@@ -53,6 +56,9 @@ func TestReportSummary(t *testing.T) {
 	repo.SaveFile("1458496943.event", project.GTMDir, filepath.Join("event", "event.go"))
 
 	repo.Commit(repo.Stage(filepath.Join("event", "event.go"), filepath.Join("event", "event_test.go")))
+
+	// save notes to git repository
+	(CommitCmd{Ui: new(cli.MockUi)}).Run([]string{"-yes"})
 
 	ui := new(cli.MockUi)
 	c := ReportCmd{Ui: ui}
@@ -81,6 +87,9 @@ func TestReportAll(t *testing.T) {
 
 	repo.Commit(repo.Stage(filepath.Join("event", "event.go"), filepath.Join("event", "event_test.go")))
 
+	// save notes to git repository
+	(CommitCmd{Ui: new(cli.MockUi)}).Run([]string{"-yes"})
+
 	ui := new(cli.MockUi)
 	c := ReportCmd{Ui: ui}
 
@@ -107,6 +116,9 @@ func TestReportTimelineHours(t *testing.T) {
 	repo.SaveFile("1458496943.event", project.GTMDir, filepath.Join("event", "event.go"))
 
 	repo.Commit(repo.Stage(filepath.Join("event", "event.go"), filepath.Join("event", "event_test.go")))
+
+	// save notes to git repository
+	(CommitCmd{Ui: new(cli.MockUi)}).Run([]string{"-yes"})
 
 	ui := new(cli.MockUi)
 	c := ReportCmd{Ui: ui}
@@ -135,6 +147,9 @@ func TestReportTimelineCommits(t *testing.T) {
 
 	repo.Commit(repo.Stage(filepath.Join("event", "event.go"), filepath.Join("event", "event_test.go")))
 
+	// save notes to git repository
+	(CommitCmd{Ui: new(cli.MockUi)}).Run([]string{"-yes"})
+
 	ui := new(cli.MockUi)
 	c := ReportCmd{Ui: ui}
 
@@ -161,6 +176,9 @@ func TestReportFiles(t *testing.T) {
 	repo.SaveFile("1458496943.event", project.GTMDir, filepath.Join("event", "event.go"))
 
 	repo.Commit(repo.Stage(filepath.Join("event", "event.go"), filepath.Join("event", "event_test.go")))
+
+	// save notes to git repository
+	(CommitCmd{Ui: new(cli.MockUi)}).Run([]string{"-yes"})
 
 	ui := new(cli.MockUi)
 	c := ReportCmd{Ui: ui}
