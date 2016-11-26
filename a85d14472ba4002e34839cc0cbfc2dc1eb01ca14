@@ -1,0 +1,7 @@
+[ver:1,total:780]
+.gtm/terminal.app:270,1480122000:270,r
+command/verify.go:160,1480122000:160,m
+command/clean.go:140,1480122000:140,r
+project/project.go:90,1480122000:90,m
+scm/git.go:60,1480122000:60,m
+command/uninit.go:60,1480122000:60,r
