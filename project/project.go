@@ -327,6 +327,7 @@ func removeTags(gtmPath string) error {
 	return nil
 }
 
+// LoadTags returns the tags for the project in the gtmPath directory
 func LoadTags(gtmPath string) ([]string, error) {
 	tags := []string{}
 	files, err := ioutil.ReadDir(gtmPath)

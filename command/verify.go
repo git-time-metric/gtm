@@ -63,7 +63,7 @@ func (c VerifyCmd) Synopsis() string {
 	return "Check if gtm satisfies a Semantic Version 2.0 constraint"
 }
 
-func (v VerifyCmd) check(constraint string) (bool, error) {
+func (c VerifyCmd) check(constraint string) (bool, error) {
 	// Our version tags can have a 'v' prefix
 	// Strip v prefix if it exists because it's not valid for a Semantic version
 	cleanVersion := v.Version

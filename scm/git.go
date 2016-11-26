@@ -258,6 +258,7 @@ type CommitStats struct {
 	FilesChanged int
 }
 
+// ChangeRatePerHour calculates the rate change per hour
 func (c CommitStats) ChangeRatePerHour(seconds int) float64 {
 	if seconds == 0 {
 		return 0
