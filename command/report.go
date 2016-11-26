@@ -41,7 +41,7 @@ Options:
 
   Report Formats:
 
-  -format="commits"          Specify report format [commits|files|timeline-hours|timeline-commits] (default "commits")
+  -format=commits            Specify report format [commits|files|timeline-hours|timeline-commits] (default commits)
   -full-message=false        Include full commit message
   -terminal-off=false        Exclude time spent in terminal (Terminal plug-in is required)
   -color=false               Always output color even if no terminal is detected, i.e 'gtm report -color | less -R'
@@ -50,7 +50,7 @@ Options:
 
   -n int=1                   Limit output, 0 is no limits, defaults to 1 when no limiting flags otherwise defaults to 0
   -before=""                 Show commits older than a specific date
-  -after string              Show commits more recent than a specific date
+  -after=""                  Show commits more recent than a specific date
   -author=""                 Show commits which contain author substring
   -message=""                Show commits which contain message substring
   -today=false               Show commits for today
