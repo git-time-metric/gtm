@@ -66,7 +66,7 @@ func (c VerifyCmd) Synopsis() string {
 func (c VerifyCmd) check(constraint string) (bool, error) {
 	// Our version tags can have a 'v' prefix
 	// Strip v prefix if it exists because it's not valid for a Semantic version
-	cleanVersion := v.Version
+	cleanVersion := c.Version
 	if strings.HasPrefix(strings.ToLower(cleanVersion), "v") {
 		cleanVersion = cleanVersion[1:]
 	}
@@ -76,10 +76,10 @@ func (c VerifyCmd) check(constraint string) (bool, error) {
 		return false, err
 	}
 
-	c, err := version.NewConstraint(constraint)
+	vc, err := version.NewConstraint(constraint)
 	if err != nil {
 		return false, err
 	}
 
-	return c.Check(ver), nil
+	return vc.Check(ver), nil
 }
