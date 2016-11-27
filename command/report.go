@@ -45,7 +45,7 @@ Options:
   -full-message=false        Include full commit message
   -terminal-off=false        Exclude time spent in terminal (Terminal plug-in is required)
   -color=false               Always output color even if no terminal is detected, i.e 'gtm report -color | less -R'
-	-testing=false             This is used for automated testing to force default test path
+  -testing=false             This is used for automated testing to force default test path
 
   Commit Limiting:
 
