@@ -46,7 +46,8 @@ func main() {
 		},
 		"verify": func() (cli.Command, error) {
 			return &command.VerifyCmd{
-				Ui: ui,
+				Ui:      ui,
+				Version: Version,
 			}, nil
 		},
 		"uninit": func() (cli.Command, error) {

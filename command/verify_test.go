@@ -4,7 +4,12 @@
 
 package command
 
-import "testing"
+import (
+	"bytes"
+	"testing"
+
+	"github.com/mitchellh/cli"
+)
 
 func TestCheck(t *testing.T) {
 	cases := []struct {
@@ -32,5 +37,23 @@ func TestCheck(t *testing.T) {
 			t.Fatalf("input: '%s' Version: %s\nexpected  %t\nactual: %t",
 				tc.input, tc.cmd.Version, tc.valid, valid)
 		}
+	}
+
+}
+
+func TestVerify(t *testing.T) {
+	ui := new(cli.MockUi)
+	c := VerifyCmd{Ui: ui, Version: "1.0.0", ResultWriter: new(bytes.Buffer)}
+
+	args := []string{">= 1.0.0"}
+	rc := c.Run(args)
+
+	if rc != 0 {
+		t.Errorf("gtm verify(%+v), want 0 got %d, %s", args, rc, ui.ErrorWriter.String())
+	}
+
+	want := "true"
+	if want != c.ResultWriter.String() {
+		t.Errorf("gtm verify(%+v), want '%s' got '%s', %s", args, want, ui.OutputWriter.String(), ui.ErrorWriter.String())
 	}
 }

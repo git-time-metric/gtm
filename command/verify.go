@@ -5,8 +5,11 @@
 package command
 
 import (
+	"bytes"
 	"flag"
 	"fmt"
+	"io"
+	"os"
 	"strings"
 
 	"github.com/hashicorp/go-version"
@@ -15,15 +18,9 @@ import (
 
 // VerifyCmd contains CLI commands for verify
 type VerifyCmd struct {
-	Ui      cli.Ui
-	Version string
-}
-
-// NewVerify returns new VerifyCmd struct with version set
-func NewVerify(v string) func() (cli.Command, error) {
-	return func() (cli.Command, error) {
-		return VerifyCmd{Version: v}, nil
-	}
+	Ui           cli.Ui
+	Version      string
+	ResultWriter *bytes.Buffer
 }
 
 // Help returns CLI help for Verify command
@@ -54,7 +51,16 @@ func (c VerifyCmd) Run(args []string) int {
 		c.Ui.Error(err.Error())
 		return 1
 	}
-	c.Ui.Output(fmt.Sprintf("%t", valid))
+
+	// c.Ui.Output adds a newline which is a bad for us here.
+	// Clients calling this method are comparing equal to "true" (without newline)
+	// ResultWriter allows for mocking during testing and defaults to Stdout
+	var writer io.Writer
+	writer = os.Stdout
+	if c.ResultWriter != nil {
+		writer = c.ResultWriter
+	}
+	fmt.Fprintf(writer, "%t", valid)
 	return 0
 }
 
