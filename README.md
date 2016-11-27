@@ -13,6 +13,18 @@ Sat Jul 23 23:51:07 2016 -0500 <b>gtm-vim-plugin</b> Michael Schenk
            20s   1% [r] LICENSE
        30m  0s          <b>gtm-vim-plugin</b> [+10 -6 = 4] [32/hr]</pre>
 
+<pre>$ gtm report -format summary -today
+
+<b>Sat Nov 26</b>
+    1h 36m  0s Fix gtm verify [gtm]
+       57m  0s Validate report test output [gtm]
+        9m  0s Call commit command to save git notes while testing [gtm]
+       17m  0s Fix duplicate % signs [gtm]
+    4h  1m  0s Add commit summary report [gtm]
+       22m  0s gofmt -s clean-up [gtm]
+       18m  0s Clean-up TODOs and dead code [gtm]
+    7h 40m  0s</pre>
+
 <pre>$ gtm report -format timeline-hours -last-week -author Schenk
 
              <b>00.01.02.03.04.05.06.07.08.09.10.11.12.01.02.03.04.05.06.07.08.09.10.11.</b>
