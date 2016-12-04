@@ -5,7 +5,9 @@
 package command
 
 import (
+	"bytes"
 	"flag"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -22,7 +24,16 @@ import (
 
 // RecordCmd contains method for record command
 type RecordCmd struct {
-	Ui cli.Ui
+	Ui  cli.Ui
+	Out *bytes.Buffer
+}
+
+func (c RecordCmd) Output(s string) {
+	if c.Out != nil {
+		fmt.Fprint(c.Out, s)
+	} else {
+		fmt.Fprint(os.Stdout, s)
+	}
 }
 
 // NewRecord return new RecordCmd struct
@@ -102,7 +113,7 @@ func (c RecordCmd) Run(args []string) int {
 			c.Ui.Error(err.Error())
 			return 1
 		}
-		c.Ui.Output(out)
+		c.Output(out)
 	}
 
 	return 0

@@ -43,7 +43,7 @@ func TestCheck(t *testing.T) {
 
 func TestVerify(t *testing.T) {
 	ui := new(cli.MockUi)
-	c := VerifyCmd{Ui: ui, Version: "1.0.0", ResultWriter: new(bytes.Buffer)}
+	c := VerifyCmd{Ui: ui, Version: "1.0.0", Out: new(bytes.Buffer)}
 
 	args := []string{">= 1.0.0"}
 	rc := c.Run(args)
@@ -53,7 +53,7 @@ func TestVerify(t *testing.T) {
 	}
 
 	want := "true"
-	if want != c.ResultWriter.String() {
+	if want != c.Out.String() {
 		t.Errorf("gtm verify(%+v), want '%s' got '%s', %s", args, want, ui.OutputWriter.String(), ui.ErrorWriter.String())
 	}
 }

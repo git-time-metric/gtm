@@ -8,7 +8,6 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
-	"io"
 	"os"
 	"strings"
 
@@ -18,9 +17,17 @@ import (
 
 // VerifyCmd contains CLI commands for verify
 type VerifyCmd struct {
-	Ui           cli.Ui
-	Version      string
-	ResultWriter *bytes.Buffer
+	Ui      cli.Ui
+	Version string
+	Out     *bytes.Buffer
+}
+
+func (c VerifyCmd) Output(s string) {
+	if c.Out != nil {
+		fmt.Fprint(c.Out, s)
+	} else {
+		fmt.Fprint(os.Stdout, s)
+	}
 }
 
 // Help returns CLI help for Verify command
@@ -52,15 +59,7 @@ func (c VerifyCmd) Run(args []string) int {
 		return 1
 	}
 
-	// c.Ui.Output adds a newline which is a bad for us here.
-	// Clients calling this method are comparing equal to "true" (without newline)
-	// ResultWriter allows for mocking during testing and defaults to Stdout
-	var writer io.Writer
-	writer = os.Stdout
-	if c.ResultWriter != nil {
-		writer = c.ResultWriter
-	}
-	fmt.Fprintf(writer, "%t", valid)
+	c.Output(fmt.Sprintf("%t", valid))
 	return 0
 }
 
