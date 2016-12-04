@@ -14,7 +14,7 @@ import (
 	"time"
 
 	"github.com/git-time-metric/git2go"
-	"github.com/jinzhu/now"
+	"github.com/git-time-metric/gtm/util"
 )
 
 // RootPath discovers the base directory for a git repo
@@ -42,6 +42,7 @@ func RootPath(path ...string) (string, error) {
 // CommitLimiter struct filter commits by criteria
 type CommitLimiter struct {
 	Max        int
+	DateRange  util.DateRange
 	Before     time.Time
 	After      time.Time
 	Author     string
@@ -55,14 +56,14 @@ type CommitLimiter struct {
 
 // NewCommitLimiter returns a new initialize CommitLimiter struct
 func NewCommitLimiter(
-	max int, beforeStr, afterStr, author, message string,
+	max int, fromDateStr, toDateStr, author, message string,
 	today, yesterday, thisWeek, lastWeek,
 	thisMonth, lastMonth, thisYear, lastYear bool) (CommitLimiter, error) {
 
 	const dateFormat = "2006-01-02"
 
-	beforeStr = strings.TrimSpace(beforeStr)
-	afterStr = strings.TrimSpace(afterStr)
+	fromDateStr = strings.TrimSpace(fromDateStr)
+	toDateStr = strings.TrimSpace(toDateStr)
 	author = strings.TrimSpace(author)
 	message = strings.TrimSpace(message)
 
@@ -75,101 +76,90 @@ func NewCommitLimiter(
 		}
 		return c
 	}([]bool{
-		beforeStr != "" || afterStr != "",
+		fromDateStr != "" || toDateStr != "",
 		today, yesterday, thisWeek, lastWeek, thisMonth, lastMonth, thisYear, lastYear})
 
 	if cnt > 1 {
 		return CommitLimiter{}, fmt.Errorf("Using multiple temporal flags is not allowed")
 	}
 
-	var err error
-	after := time.Time{}
-	before := time.Time{}
+	var (
+		err       error
+		dateRange util.DateRange
+	)
 
 	switch {
-	case beforeStr != "" || afterStr != "":
-		if beforeStr != "" {
-			before, err = time.Parse(dateFormat, beforeStr)
+	case fromDateStr != "" || toDateStr != "":
+		fromDate := time.Time{}
+		toDate := time.Time{}
+
+		if fromDateStr != "" {
+			fromDate, err = time.Parse(dateFormat, fromDateStr)
 			if err != nil {
 				return CommitLimiter{}, err
 			}
 		}
-		if afterStr != "" {
-			after, err = time.Parse(dateFormat, afterStr)
+		if toDateStr != "" {
+			toDate, err = time.Parse(dateFormat, toDateStr)
 			if err != nil {
 				return CommitLimiter{}, err
 			}
 		}
+		dateRange = util.DateRange{Start: fromDate, End: toDate}
+
 	case today:
-		after = now.EndOfDay().AddDate(0, 0, -1)
+		dateRange = util.TodayRange()
 	case yesterday:
-		before = now.BeginningOfDay()
-		after = now.EndOfDay().AddDate(0, 0, -2)
+		dateRange = util.YesterdayRange()
 	case thisWeek:
-		after = now.EndOfWeek().AddDate(0, 0, -7)
+		dateRange = util.ThisWeekRange()
 	case lastWeek:
-		before = now.BeginningOfWeek()
-		after = now.EndOfWeek().AddDate(0, 0, -14)
+		dateRange = util.LastWeekRange()
 	case thisMonth:
-		after = now.EndOfMonth().AddDate(0, -1, -1)
+		dateRange = util.ThisMonthRange()
 	case lastMonth:
-		before = now.BeginningOfMonth()
-		after = now.EndOfMonth().AddDate(0, -2, 0)
+		dateRange = util.LastMonthRange()
 	case thisYear:
-		after = now.EndOfYear().AddDate(-1, 0, 0)
+		dateRange = util.ThisYearRange()
 	case lastYear:
-		before = now.BeginningOfYear()
-		after = now.EndOfYear().AddDate(-2, 0, 0)
+		dateRange = util.LastYearRange()
 	}
 
 	hasMax := max > 0
-	hasBefore := !before.IsZero()
-	hasAfter := !after.IsZero()
 	hasAuthor := author != ""
 	hasMessage := message != ""
 
-	if hasBefore && hasAfter && before.Before(after) {
-		return CommitLimiter{}, fmt.Errorf("Before %s can not be older than after %s", before, after)
-	}
-
-	if !(hasMax || hasBefore || hasAfter || hasAuthor || hasMessage) {
+	if !(hasMax || dateRange.IsSet() || hasAuthor || hasMessage) {
 		// if no limits set default to max of one result
 		hasMax = true
 		max = 1
 	}
 
 	return CommitLimiter{
+		DateRange:  dateRange,
 		Max:        max,
-		Before:     before,
-		After:      after,
 		Author:     author,
 		Message:    message,
 		HasMax:     hasMax,
-		HasBefore:  hasBefore,
-		HasAfter:   hasAfter,
 		HasAuthor:  hasAuthor,
 		HasMessage: hasMessage,
 	}, nil
 }
 
-func (l CommitLimiter) filter(c *git.Commit, cnt int) (bool, bool, error) {
-	if l.HasMax && l.Max == cnt {
+func (m CommitLimiter) filter(c *git.Commit, cnt int) (bool, bool, error) {
+	if m.HasMax && m.Max == cnt {
 		return false, true, nil
 	}
 
-	if l.HasBefore && !c.Author().When.Before(l.Before) {
+	if m.DateRange.IsSet() && !m.DateRange.Within(c.Author().When) {
 		return false, false, nil
 	}
 
-	if l.HasAfter && !c.Author().When.After(l.After) {
+	if m.HasAuthor && !strings.Contains(c.Author().Name, m.Author) {
 		return false, false, nil
 	}
 
-	if l.HasAuthor && !strings.Contains(c.Author().Name, l.Author) {
-		return false, false, nil
-	}
-
-	if l.HasMessage && !(strings.Contains(c.Summary(), l.Message) || strings.Contains(c.Message(), l.Message)) {
+	if m.HasMessage && !(strings.Contains(c.Summary(), m.Message) || strings.Contains(c.Message(), m.Message)) {
 		return false, false, nil
 	}
 

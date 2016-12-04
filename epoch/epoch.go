@@ -4,7 +4,7 @@
 
 package epoch
 
-import "github.com/git-time-metric/gtm/project"
+import "edgeg.io/shared/util"
 
 // WindowSize is number seconds in an epoch window
 const WindowSize = 60
@@ -19,10 +19,10 @@ func Minute(t int64) int64 {
 
 // MinuteNow returns the epoch minute for the current time
 func MinuteNow() int64 {
-	return Minute(project.Now().Unix())
+	return Minute(util.Now().Unix())
 }
 
 // Now returns the current Unix time
 func Now() int64 {
-	return project.Now().Unix()
+	return util.Now().Unix()
 }

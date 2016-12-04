@@ -14,7 +14,6 @@ import (
 	"runtime"
 	"strings"
 	"text/template"
-	"time"
 
 	"github.com/git-time-metric/gtm/scm"
 	isatty "github.com/mattn/go-isatty"
@@ -73,10 +72,6 @@ The following items have been removed.
 {{end -}}
 {{ print ".gitignore:" | printf "%17s" }} {{ .GitIgnore }}
 `
-
-// Now is the func used for system time within gtm
-// This allows for manipulating system time during testing
-var Now = func() time.Time { return time.Now() }
 
 // Initialize initializes a git repo for time tracking
 func Initialize(terminal bool, tags []string, clearTags bool) (string, error) {

@@ -50,8 +50,8 @@ Options:
   Commit Limiting:
 
   -n int=1                   Limit output, 0 is no limits, defaults to 1 when no limiting flags otherwise defaults to 0
-  -before=""                 Show commits older than a specific date
-  -after=""                  Show commits more recent than a specific date
+  -from-date=yyyy-mm-dd      Show commits starting from this date  
+  -to-date=yyyy-mm-dd        Show commits thru the end of this date
   -author=""                 Show commits which contain author substring
   -message=""                Show commits which contain message substring
   -today=false               Show commits for today
@@ -76,15 +76,15 @@ func (c ReportCmd) Run(args []string) int {
 	var limit int
 	var color, terminalOff, fullMessage, testing bool
 	var today, yesterday, thisWeek, lastWeek, thisMonth, lastMonth, thisYear, lastYear, all bool
-	var before, after, message, author, tags, format string
+	var fromDate, toDate, message, author, tags, format string
 	cmdFlags := flag.NewFlagSet("report", flag.ContinueOnError)
 	cmdFlags.BoolVar(&color, "color", false, "")
 	cmdFlags.BoolVar(&terminalOff, "terminal-off", false, "")
 	cmdFlags.StringVar(&format, "format", "commits", "")
 	cmdFlags.IntVar(&limit, "n", 0, "")
 	cmdFlags.BoolVar(&fullMessage, "full-message", false, "")
-	cmdFlags.StringVar(&before, "before", "", "")
-	cmdFlags.StringVar(&after, "after", "", "")
+	cmdFlags.StringVar(&fromDate, "from-date", "", "")
+	cmdFlags.StringVar(&toDate, "to-date", "", "")
 	cmdFlags.BoolVar(&today, "today", false, "")
 	cmdFlags.BoolVar(&yesterday, "yesterday", false, "")
 	cmdFlags.BoolVar(&thisWeek, "this-week", false, "")
@@ -176,7 +176,7 @@ func (c ReportCmd) Run(args []string) int {
 		}
 
 		limiter, err := scm.NewCommitLimiter(
-			limit, before, after, author, message,
+			limit, fromDate, toDate, author, message,
 			today, yesterday, thisWeek, lastWeek,
 			thisMonth, lastMonth, thisYear, lastYear)
 
