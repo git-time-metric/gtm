@@ -13,6 +13,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/git-time-metric/gtm/util"
 )
 
 func TestInitialize(t *testing.T) {
@@ -259,7 +261,7 @@ func TestClean(t *testing.T) {
 		}
 	}
 
-	_, err = Clean()
+	_, err = Clean(util.AfterNow(0))
 
 	files, err := ioutil.ReadDir(gtmPath)
 	if err != nil {

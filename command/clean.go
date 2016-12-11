@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/git-time-metric/gtm/project"
+	"github.com/git-time-metric/gtm/util"
 	"github.com/mitchellh/cli"
 )
 
@@ -32,6 +33,7 @@ Usage: gtm clean [options]
 Options:
 
   -yes                       Delete time data without asking for confirmation.
+  -days=0                    Delete starting from n days in the past
 `
 	return strings.TrimSpace(helpText)
 }
@@ -40,8 +42,10 @@ Options:
 func (c CleanCmd) Run(args []string) int {
 
 	var yes bool
+	var days int
 	cmdFlags := flag.NewFlagSet("clean", flag.ContinueOnError)
 	cmdFlags.BoolVar(&yes, "yes", false, "")
+	cmdFlags.IntVar(&days, "days", 0, "")
 	cmdFlags.Usage = func() { c.Ui.Output(c.Help()) }
 	if err := cmdFlags.Parse(args); err != nil {
 		return 1
@@ -61,7 +65,8 @@ func (c CleanCmd) Run(args []string) int {
 			m   string
 			err error
 		)
-		if m, err = project.Clean(); err != nil {
+
+		if m, err = project.Clean(util.AfterNow(days)); err != nil {
 			c.Ui.Error(err.Error())
 			return 1
 		}

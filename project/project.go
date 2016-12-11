@@ -16,6 +16,7 @@ import (
 	"text/template"
 
 	"github.com/git-time-metric/gtm/scm"
+	"github.com/git-time-metric/gtm/util"
 	isatty "github.com/mattn/go-isatty"
 )
 
@@ -249,7 +250,7 @@ func Uninitialize() (string, error) {
 }
 
 //Clean removes any event or metrics files from project in the current working directory
-func Clean() (string, error) {
+func Clean(dr util.DateRange) (string, error) {
 	wd, err := os.Getwd()
 	if err != nil {
 		return "", err
@@ -274,6 +275,9 @@ func Clean() (string, error) {
 	for _, f := range files {
 		if !strings.HasSuffix(f.Name(), ".event") &&
 			!strings.HasSuffix(f.Name(), ".metric") {
+			continue
+		}
+		if !dr.Within(f.ModTime()) {
 			continue
 		}
 		if err := os.Remove(filepath.Join(gtmPath, f.Name())); err != nil {

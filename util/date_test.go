@@ -122,3 +122,100 @@ func TestTodayRange(t *testing.T) {
 		}
 	}
 }
+
+func TestAfterNow(t *testing.T) {
+	tm, err := time.Parse("2006-Jan-02", "2015-Jul-01")
+	if err != nil {
+		t.Fatal(err)
+	}
+	saveNow := Now
+	defer func() { Now = saveNow }()
+	Now = func() time.Time { return tm }
+
+	dt, err := time.Parse("2006-Jan-02", "2015-Jun-30")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	dr := AfterNow(0)
+	if !dr.Within(dt) {
+		t.Errorf("AfterNow(0) %s is not within date range %+v", dt, dr)
+	}
+
+	dr = AfterNow(1)
+	if !dr.Within(dt) {
+		t.Errorf("AfterNow(1) %s is not within date range %+v", dt, dr)
+	}
+
+	dr = AfterNow(2)
+	if dr.Within(dt) {
+		t.Errorf("AfterNow(2) %s is within date range %+v", dt, dr)
+	}
+
+}
+
+func TestStartOnlyRange(t *testing.T) {
+	tm, err := time.Parse("2006-Jan-02", "2015-Jul-01")
+	if err != nil {
+		t.Fatal(err)
+	}
+	dr := DateRange{Start: tm}
+
+	testDate, err := time.Parse("2006-Jan-02", "2015-Jul-01")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !dr.Within(testDate) {
+		t.Errorf("dr.Within(%s) not within %+v", testDate, dr)
+	}
+
+	testDate, err = time.Parse("2006-Jan-02", "2015-Jul-02")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !dr.Within(testDate) {
+		t.Errorf("dr.Within(%s) not within %+v", testDate, dr)
+	}
+
+	testDate, err = time.Parse("2006-Jan-02", "2015-Jun-02")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if dr.Within(testDate) {
+		t.Errorf("dr.Within(%s) within %+v", testDate, dr)
+	}
+}
+
+func TestEndOnlyRange(t *testing.T) {
+	tm, err := time.Parse("2006-Jan-02", "2015-Jul-01")
+	if err != nil {
+		t.Fatal(err)
+	}
+	dr := DateRange{End: tm}
+
+	testDate, err := time.Parse("2006-Jan-02", "2015-Jul-01")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !dr.Within(testDate) {
+		t.Errorf("dr.Within(%s) not within %+v", testDate, dr)
+	}
+
+	testDate, err = time.Parse("2006-Jan-02", "2015-Jun-30")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !dr.Within(testDate) {
+		t.Errorf("dr.Within(%s) not within %+v", testDate, dr)
+	}
+
+	testDate, err = time.Parse("2006-Jan-02", "2015-Jul-02")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if dr.Within(testDate) {
+		t.Errorf("dr.Within(%s) within %+v", testDate, dr)
+	}
+}

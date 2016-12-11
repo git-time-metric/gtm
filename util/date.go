@@ -42,6 +42,11 @@ func (r DateRange) Within(t time.Time) bool {
 
 }
 
+func AfterNow(n int) DateRange {
+	end := now.New(Now()).EndOfDay().AddDate(0, 0, -n)
+	return DateRange{End: end}
+}
+
 func TodayRange() DateRange {
 	now := now.New(Now())
 
