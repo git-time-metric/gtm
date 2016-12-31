@@ -15,19 +15,23 @@ import (
 // This allows for manipulating system time during testing
 var Now = func() time.Time { return time.Now() }
 
+// DataRange creates predefined date ranges and validates if dates are within the range
 type DateRange struct {
 	Start time.Time
 	End   time.Time
 }
 
+// IsSet returns true if the date range has a starting and/or ending date
 func (d DateRange) IsSet() bool {
 	return !d.Start.IsZero() || !d.End.IsZero()
 }
 
+// String returns a date range as a string
 func (d DateRange) String() string {
 	return fmt.Sprintf("%s - %s", d.Start.Format(time.UnixDate), d.End.Format(time.UnixDate))
 }
 
+// Within determines if a date is within the date range
 func (r DateRange) Within(t time.Time) bool {
 	switch {
 	case !r.Start.IsZero() && !r.End.IsZero():
@@ -42,11 +46,13 @@ func (r DateRange) Within(t time.Time) bool {
 
 }
 
+// AfterNow returns a date range ending n days in the past
 func AfterNow(n int) DateRange {
 	end := now.New(Now()).EndOfDay().AddDate(0, 0, -n)
 	return DateRange{End: end}
 }
 
+// TodayRange returns a date range for today
 func TodayRange() DateRange {
 	now := now.New(Now())
 
@@ -56,6 +62,7 @@ func TodayRange() DateRange {
 	return DateRange{Start: start, End: end}
 }
 
+// YesterdayRange returns a date range for yesterday
 func YesterdayRange() DateRange {
 	now := now.New(Now())
 
@@ -65,6 +72,7 @@ func YesterdayRange() DateRange {
 	return DateRange{Start: start, End: end}
 }
 
+// ThisWeekRange returns a date range for this week
 func ThisWeekRange() DateRange {
 	now := now.New(Now())
 
@@ -74,6 +82,7 @@ func ThisWeekRange() DateRange {
 	return DateRange{End: end, Start: start}
 }
 
+// LastWeekRange returns a date for last week
 func LastWeekRange() DateRange {
 	now := now.New(Now())
 
@@ -83,6 +92,7 @@ func LastWeekRange() DateRange {
 	return DateRange{End: end, Start: start}
 }
 
+// ThisMonthRange returns a date range for this month
 func ThisMonthRange() DateRange {
 	now := now.New(Now())
 
@@ -92,6 +102,7 @@ func ThisMonthRange() DateRange {
 	return DateRange{End: end, Start: start}
 }
 
+// LastMonthRange returns a date range for last month
 func LastMonthRange() DateRange {
 	now := now.New(Now())
 
@@ -101,6 +112,7 @@ func LastMonthRange() DateRange {
 	return DateRange{End: end, Start: start}
 }
 
+// ThisYearRange returns a date range for this year
 func ThisYearRange() DateRange {
 	now := now.New(Now())
 
@@ -110,6 +122,7 @@ func ThisYearRange() DateRange {
 	return DateRange{End: end, Start: start}
 }
 
+// LastYearRange returns a date range for last year
 func LastYearRange() DateRange {
 	now := now.New(Now())
 

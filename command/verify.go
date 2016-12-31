@@ -22,7 +22,7 @@ type VerifyCmd struct {
 	Out     *bytes.Buffer
 }
 
-func (c VerifyCmd) Output(s string) {
+func (c VerifyCmd) output(s string) {
 	if c.Out != nil {
 		fmt.Fprint(c.Out, s)
 	} else {
@@ -59,7 +59,7 @@ func (c VerifyCmd) Run(args []string) int {
 		return 1
 	}
 
-	c.Output(fmt.Sprintf("%t", valid))
+	c.output(fmt.Sprintf("%t", valid))
 	return 0
 }
 

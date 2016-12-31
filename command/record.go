@@ -28,7 +28,7 @@ type RecordCmd struct {
 	Out *bytes.Buffer
 }
 
-func (c RecordCmd) Output(s string) {
+func (c RecordCmd) output(s string) {
 	if c.Out != nil {
 		fmt.Fprint(c.Out, s)
 	} else {
@@ -113,7 +113,7 @@ func (c RecordCmd) Run(args []string) int {
 			c.Ui.Error(err.Error())
 			return 1
 		}
-		c.Output(out)
+		c.output(out)
 	}
 
 	return 0

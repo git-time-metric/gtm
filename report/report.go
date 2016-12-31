@@ -73,7 +73,7 @@ func Status(n note.CommitNote, options OutputOptions, projPath ...string) (strin
 
 	b := new(bytes.Buffer)
 	t := template.Must(template.New("Status").Funcs(funcMap).Parse(statusTpl))
-	cf := ColorFormater{color: options.Color}
+	cf := colorFormater{color: options.Color}
 	err := t.Execute(
 		b,
 		struct {
@@ -86,7 +86,7 @@ func Status(n note.CommitNote, options OutputOptions, projPath ...string) (strin
 			projPath,
 			projName,
 			commitNoteDetail{Note: n},
-			cf.White(true),
+			cf.white(true),
 			tags,
 		})
 
@@ -107,7 +107,7 @@ func CommitSummary(projects []ProjectCommits, options OutputOptions) (string, er
 
 	b := new(bytes.Buffer)
 	t := template.Must(template.New("Commits").Funcs(funcMap).Parse(commitSummaryTpl))
-	cf := ColorFormater{color: options.Color}
+	cf := colorFormater{color: options.Color}
 	err := t.Execute(
 		b,
 		struct {
@@ -116,8 +116,8 @@ func CommitSummary(projects []ProjectCommits, options OutputOptions) (string, er
 			GreenFormat string
 		}{
 			lines,
-			cf.White(true),
-			cf.Green(false),
+			cf.white(true),
+			cf.green(false),
 		})
 	if err != nil {
 		return "", err
@@ -134,7 +134,7 @@ func Commits(projects []ProjectCommits, options OutputOptions) (string, error) {
 
 	b := new(bytes.Buffer)
 	t := template.Must(template.New("CommitSummary").Funcs(funcMap).Parse(commitsTpl))
-	cf := ColorFormater{color: options.Color}
+	cf := colorFormater{color: options.Color}
 	err := t.Execute(
 		b,
 		struct {
@@ -145,8 +145,8 @@ func Commits(projects []ProjectCommits, options OutputOptions) (string, error) {
 		}{
 			options.FullMessage,
 			notes,
-			cf.White(true),
-			cf.Green(false),
+			cf.white(true),
+			cf.green(false),
 		})
 	if err != nil {
 		return "", err
@@ -169,7 +169,7 @@ func Timeline(projects []ProjectCommits, options OutputOptions) (string, error) 
 
 	b := new(bytes.Buffer)
 	t := template.Must(template.New("Timeline").Funcs(funcMap).Parse(timelineTpl))
-	cf := ColorFormater{color: options.Color}
+	cf := colorFormater{color: options.Color}
 	err = t.Execute(
 		b,
 		struct {
@@ -178,8 +178,8 @@ func Timeline(projects []ProjectCommits, options OutputOptions) (string, error) 
 			GreenFormat string
 		}{
 			timeline,
-			cf.White(true),
-			cf.Green(false),
+			cf.white(true),
+			cf.green(false),
 		})
 	if err != nil {
 		return "", err
@@ -202,7 +202,7 @@ func TimelineCommits(projects []ProjectCommits, options OutputOptions) (string, 
 
 	b := new(bytes.Buffer)
 	t := template.Must(template.New("Timeline").Funcs(funcMap).Parse(timelineCommitTpl))
-	cf := ColorFormater{color: options.Color}
+	cf := colorFormater{color: options.Color}
 	err = t.Execute(
 		b,
 		struct {
@@ -211,8 +211,8 @@ func TimelineCommits(projects []ProjectCommits, options OutputOptions) (string, 
 			GreenFormat string
 		}{
 			timeline,
-			cf.White(true),
-			cf.Green(false),
+			cf.white(true),
+			cf.green(false),
 		})
 	if err != nil {
 		return "", err
@@ -244,31 +244,31 @@ func Files(projects []ProjectCommits, options OutputOptions) (string, error) {
 
 }
 
-type ColorFormater struct {
+type colorFormater struct {
 	color bool
 }
 
-func (c ColorFormater) HasColor() bool {
+func (c colorFormater) hasColor() bool {
 	return (c.color || isatty.IsTerminal(os.Stdout.Fd())) && runtime.GOOS != "windows"
 }
 
-func (c ColorFormater) White(bold bool) string {
+func (c colorFormater) white(bold bool) string {
 	var attrBold int
 	if bold {
 		attrBold = 1
 	}
-	if c.HasColor() {
+	if c.hasColor() {
 		return fmt.Sprintf("\033[%d;%dm%%s\033[0m", attrBold, 97)
 	}
 	return "%s"
 }
 
-func (c ColorFormater) Green(bold bool) string {
+func (c colorFormater) green(bold bool) string {
 	var attrBold int
 	if bold {
 		attrBold = 1
 	}
-	if c.HasColor() {
+	if c.hasColor() {
 		return fmt.Sprintf("\033[%d;%dm%%s\033[0m", attrBold, 32)
 	}
 	return "%s"
