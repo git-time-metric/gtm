@@ -7,6 +7,7 @@ package report
 const (
 	commitSummaryTpl string = `
 {{- $boldFormat := .BoldFormat }}
+{{- $greenFormat := .GreenFormat }}
 {{- range $line := .Lines }}
 	{{- if $line.StartGroup }}
 		{{- printf "\n" }}
@@ -17,15 +18,16 @@ const (
 		{{- printf "\n" }}
 	{{- end }}
 	{{- if $line.CommitLine }}
-		{{- FormatDuration $line.Total | printf "\n%14s" }} {{ $line.Subject }} [{{ $line.Project }}]
+		{{- FormatDuration $line.Total | printf "\n%14s" }} {{ printf $greenFormat $line.Subject }} [{{ $line.Project }}]
 	{{- end }}
 {{- end -}}`
 	commitsTpl string = `
 {{ $boldFormat := .BoldFormat }}
+{{ $greenFormat := .GreenFormat }}
 {{- $fullMessage := .FullMessage }}
 {{- range $note := .Notes }}
 	{{- $total := .Note.Total }}
-	{{- printf $boldFormat $note.Hash }} {{ printf $boldFormat $note.Subject }}{{- printf "\n" }}
+	{{- printf $boldFormat $note.Hash }} {{ printf $greenFormat $note.Subject }}{{- printf "\n" }}
 	{{- $note.Date }} {{ printf $boldFormat $note.Project }} {{ $note.Author }}{{- printf "\n" }}
 	{{- if $fullMessage}}{{- if $note.Message }}{{- printf "\n"}}{{- $note.Message }}{{- printf "\n"}}{{end}}{{end}}
 	{{- range $i, $f := .Note.Files }}
@@ -60,11 +62,12 @@ const (
 	// TODO: determine left padding based on size of total duration
 	timelineTpl string = `
 {{- $boldFormat := .BoldFormat }}
+{{- $greenFormat := .GreenFormat }}
 {{- $maxSecondsInHour := .Timeline.HourMaxSeconds }}
 {{printf $boldFormat "             00.01.02.03.04.05.06.07.08.09.10.11.12.01.02.03.04.05.06.07.08.09.10.11." }}
 {{printf $boldFormat "             ------------------------------------------------------------------------"}}
 {{ range $_, $entry := .Timeline }}
-{{- printf $boldFormat $entry.Day }} | {{ range $_, $h := .Hours }}{{ Blocks $h $maxSecondsInHour }}{{ end }} | {{ LeftPad2Len $entry.Duration " " 13 | printf $boldFormat }}
+{{- printf $boldFormat $entry.Day }} | {{ range $_, $h := .Hours }}{{ Blocks $h $maxSecondsInHour | printf $greenFormat }}{{ end }} | {{ LeftPad2Len $entry.Duration " " 13 | printf $boldFormat }}
 {{printf $boldFormat "             ------------------------------------------------------------------------"}}
 {{ end }}
 {{- if len .Timeline }}
@@ -73,11 +76,12 @@ const (
 
 	timelineCommitTpl string = `
 {{- $boldFormat := .BoldFormat }}
+{{- $greenFormat := .GreenFormat }}
 {{- $maxCommitsInHour := .Timeline.HourMaxCommits}}
 {{printf $boldFormat "             00.01.02.03.04.05.06.07.08.09.10.11.12.01.02.03.04.05.06.07.08.09.10.11." }}
 {{printf $boldFormat "             ------------------------------------------------------------------------"}}
 {{ range $_, $entry := .Timeline }}
-{{- printf $boldFormat $entry.Day }} | {{ range $_, $c := .Commits }}{{ Blocks $c $maxCommitsInHour }}{{ end }} | {{ printf "%4d" $entry.Total | printf $boldFormat }}
+{{- printf $boldFormat $entry.Day }} | {{ range $_, $c := .Commits }}{{ Blocks $c $maxCommitsInHour | printf $greenFormat }}{{ end }} | {{ printf "%4d" $entry.Total | printf $boldFormat }}
 {{printf $boldFormat "             ------------------------------------------------------------------------"}}
 {{ end }}
 {{- if len .Timeline }}

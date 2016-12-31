@@ -44,13 +44,13 @@ Options:
   -format=commits            Specify report format [summary|commits|files|timeline-hours|timeline-commits] (default commits)
   -full-message=false        Include full commit message
   -terminal-off=false        Exclude time spent in terminal (Terminal plug-in is required)
-  -color=false               Always output color even if no terminal is detected, i.e 'gtm report -color | less -R'
+  -force-color=false         Always output color even if no terminal is detected, i.e 'gtm report -color | less -R'
   -testing=false             This is used for automated testing to force default test path
 
   Commit Limiting:
 
   -n int=1                   Limit output, 0 is no limits, defaults to 1 when no limiting flags otherwise defaults to 0
-  -from-date=yyyy-mm-dd      Show commits starting from this date  
+  -from-date=yyyy-mm-dd      Show commits starting from this date
   -to-date=yyyy-mm-dd        Show commits thru the end of this date
   -author=""                 Show commits which contain author substring
   -message=""                Show commits which contain message substring
@@ -62,7 +62,7 @@ Options:
   -last-month=false          Show commits for last month
   -this-year=false           Show commits for this year
   -last-year=false           Show commits for last year
-  
+
   Multi-Project Reporting:
 
   -tags=""                   Project tags to report on, i.e --tags tag1,tag2
@@ -78,7 +78,7 @@ func (c ReportCmd) Run(args []string) int {
 	var today, yesterday, thisWeek, lastWeek, thisMonth, lastMonth, thisYear, lastYear, all bool
 	var fromDate, toDate, message, author, tags, format string
 	cmdFlags := flag.NewFlagSet("report", flag.ContinueOnError)
-	cmdFlags.BoolVar(&color, "color", false, "")
+	cmdFlags.BoolVar(&color, "force-color", false, "")
 	cmdFlags.BoolVar(&terminalOff, "terminal-off", false, "")
 	cmdFlags.StringVar(&format, "format", "commits", "")
 	cmdFlags.IntVar(&limit, "n", 0, "")
