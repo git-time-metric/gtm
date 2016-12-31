@@ -98,6 +98,9 @@ func Status(n note.CommitNote, options OutputOptions, projPath ...string) (strin
 
 func CommitSummary(projects []ProjectCommits, options OutputOptions) (string, error) {
 	notes := options.limitNotes(retrieveNotes(projects, options.TerminalOff, "Mon Jan 02"))
+	if len(notes) == 0 {
+		return "", nil
+	}
 
 	lines := commitSummaryBuilder{}.Build(notes)
 
@@ -121,6 +124,9 @@ func CommitSummary(projects []ProjectCommits, options OutputOptions) (string, er
 // Commits returns the commits report
 func Commits(projects []ProjectCommits, options OutputOptions) (string, error) {
 	notes := options.limitNotes(retrieveNotes(projects, options.TerminalOff, ""))
+	if len(notes) == 0 {
+		return "", nil
+	}
 
 	b := new(bytes.Buffer)
 	t := template.Must(template.New("CommitSummary").Funcs(funcMap).Parse(commitsTpl))
@@ -144,6 +150,10 @@ func Commits(projects []ProjectCommits, options OutputOptions) (string, error) {
 // Timeline returns the time spent by hour
 func Timeline(projects []ProjectCommits, options OutputOptions) (string, error) {
 	notes := options.limitNotes(retrieveNotes(projects, options.TerminalOff, ""))
+	if len(notes) == 0 {
+		return "", nil
+	}
+
 	timeline, err := notes.timeline()
 
 	if err != nil {
@@ -170,6 +180,10 @@ func Timeline(projects []ProjectCommits, options OutputOptions) (string, error) 
 // TimelineCommits returns the number commits by hour
 func TimelineCommits(projects []ProjectCommits, options OutputOptions) (string, error) {
 	notes := options.limitNotes(retrieveNotes(projects, options.TerminalOff, ""))
+	if len(notes) == 0 {
+		return "", nil
+	}
+
 	timeline, err := notes.timelineCommits()
 
 	if err != nil {
@@ -196,6 +210,9 @@ func TimelineCommits(projects []ProjectCommits, options OutputOptions) (string, 
 // Files returns the files report
 func Files(projects []ProjectCommits, options OutputOptions) (string, error) {
 	notes := options.limitNotes(retrieveNotes(projects, options.TerminalOff, ""))
+	if len(notes) == 0 {
+		return "", nil
+	}
 
 	b := new(bytes.Buffer)
 	t := template.Must(template.New("Files").Funcs(funcMap).Parse(filesTpl))
