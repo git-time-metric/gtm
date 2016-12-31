@@ -15,7 +15,7 @@ import (
 // This allows for manipulating system time during testing
 var Now = func() time.Time { return time.Now() }
 
-// DataRange creates predefined date ranges and validates if dates are within the range
+// DateRange creates predefined date ranges and validates if dates are within the range
 type DateRange struct {
 	Start time.Time
 	End   time.Time
@@ -32,14 +32,14 @@ func (d DateRange) String() string {
 }
 
 // Within determines if a date is within the date range
-func (r DateRange) Within(t time.Time) bool {
+func (d DateRange) Within(t time.Time) bool {
 	switch {
-	case !r.Start.IsZero() && !r.End.IsZero():
-		return t.Equal(r.Start) || t.Equal(r.End) || (t.After(r.Start) && t.Before(r.End))
-	case !r.Start.IsZero():
-		return t.Equal(r.Start) || t.After(r.Start)
-	case !r.End.IsZero():
-		return t.Equal(r.End) || t.Before(r.End)
+	case !d.Start.IsZero() && !d.End.IsZero():
+		return t.Equal(d.Start) || t.Equal(d.End) || (t.After(d.Start) && t.Before(d.End))
+	case !d.Start.IsZero():
+		return t.Equal(d.Start) || t.After(d.Start)
+	case !d.End.IsZero():
+		return t.Equal(d.End) || t.Before(d.End)
 	default:
 		return false
 	}
