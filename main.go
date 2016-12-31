@@ -15,7 +15,7 @@ import (
 var Version = "0.0.0"
 
 func main() {
-	ui := &cli.BasicUi{Writer: os.Stdout, Reader: os.Stdin}
+	ui := &cli.ColoredUi{ErrorColor: cli.UiColorRed, Ui: &cli.BasicUi{Writer: os.Stdout, Reader: os.Stdin}}
 	c := cli.NewCLI("gtm", Version)
 	c.Args = os.Args[1:]
 	c.Commands = map[string]cli.CommandFactory{
