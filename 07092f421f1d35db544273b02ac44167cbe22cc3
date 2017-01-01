@@ -1,0 +1,5 @@
+[ver:1,total:720]
+.gtm/terminal.app:570,1483282800:570,r
+.git/COMMIT_EDITMSG:60,1483282800:60,r
+appveyor.yml:60,1483282800:60,r
+script/appveyor-build.sh:30,1483282800:30,r
