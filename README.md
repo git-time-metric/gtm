@@ -2,44 +2,14 @@
 # <div align="center">Git Time Metric</div>
 ### Seamless time tracking for all your Git projects
 
-<pre>$ gtm report -today -author Schenk
+##### $ gtm report -last-month 
+<div><img src="https://cloud.githubusercontent.com/assets/630550/21582250/8a03f9dc-d015-11e6-8f77-548ef7314bf7.png"></div>
 
-8104a33 <b>Improve error handling and informing user</b>
-Sat Jul 23 23:51:07 2016 -0500 <b>gtm-vim-plugin</b> Michael Schenk
+##### $ gtm report -last-month -format summary
+<div><img src="https://cloud.githubusercontent.com/assets/630550/21582252/8f85b738-d015-11e6-8c70-beed7e7b3254.png"></div>
 
-       24m 10s  81% [m] plugin/gtm.vim
-        4m 30s  15% [d] vim.log
-        1m  0s   3% [r] .git/COMMIT_EDITMSG
-           20s   1% [r] LICENSE
-       30m  0s          <b>gtm-vim-plugin</b> [+10 -6 = 4] [32/hr]</pre>
-
-<pre>$ gtm report -format summary -today
-
-<b>Sat Nov 26</b>
-    1h 36m  0s Fix gtm verify [gtm]
-       57m  0s Validate report test output [gtm]
-        9m  0s Call commit command to save git notes while testing [gtm]
-       17m  0s Fix duplicate % signs [gtm]
-    4h  1m  0s Add commit summary report [gtm]
-       22m  0s gofmt -s clean-up [gtm]
-       18m  0s Clean-up TODOs and dead code [gtm]
-    7h 40m  0s</pre>
-
-<pre>$ gtm report -format timeline-hours -last-week -author Schenk
-
-             <b>00.01.02.03.04.05.06.07.08.09.10.11.12.01.02.03.04.05.06.07.08.09.10.11.</b>
-             ------------------------------------------------------------------------
-<b>Sat Oct 08</b> |                                                          ▃▃▃             |       <b>17m  0s</b>
-             ------------------------------------------------------------------------
-<b>Sun Oct 09</b> |                      ▁▁▁   █████████▃▃▃██████▂▂▂   ▂▂▂                   |    <b>5h 33m  0s</b>
-             ------------------------------------------------------------------------
-<b>Tue Oct 11</b> |                                                       ▂▂▂         ▂▂▂    |       <b>16m  0s</b>
-             ------------------------------------------------------------------------
-<b>Fri Oct 14</b> |                                     ▂▂▂                                  |       <b>13m  0s</b>
-             ------------------------------------------------------------------------
-<b>Sat Oct 15</b> |                            ███▇▇▇███▇▇▇███▁▁▁▇▇▇▂▂▂▁▁▁▃▃▃▆▆▆███▇▇▇       |    <b>8h 11m  0s</b>
-             ------------------------------------------------------------------------
-                                                                                          <b>14h 30m  0s</b> </pre>
+##### $ gtm report -last-month -format timeline-hours
+<div><img src="https://cloud.githubusercontent.com/assets/630550/21582253/91f6226e-d015-11e6-897c-6042111e6a6a.png"></div> </br>
 
 GTM is automatic, seamless and lightweight.  There is no need to remember to start and stop timers.  It runs on occasion to capture activity triggered by your editor.  The time metrics are stored locally with the git repository as [Git notes](https://git-scm.com/docs/git-notes) and can be pushed to the remote repository. 
 
