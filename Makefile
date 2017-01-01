@@ -1,5 +1,5 @@
 BINARY=gtm
-VERSION=v1.2.3-beta
+VERSION=v1.2.5-beta
 
 LDFLAGS=-ldflags "-X main.Version=${VERSION}"
 
@@ -8,7 +8,7 @@ build:
 
 test:
 	go test $$(go list ./... | grep -v vendor)
-	 
+
 vet:
 	go vet $$(go list ./... | grep -v vendor)
 
