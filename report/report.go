@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"runtime"
 	"strings"
 	"text/template"
 
@@ -250,7 +249,7 @@ type colorFormater struct {
 }
 
 func (c colorFormater) hasColor() bool {
-	return (c.color || isatty.IsTerminal(os.Stdout.Fd())) && runtime.GOOS != "windows"
+	return (c.color || isatty.IsTerminal(os.Stdout.Fd()))
 }
 
 func (c colorFormater) white(bold bool) string {
@@ -259,7 +258,7 @@ func (c colorFormater) white(bold bool) string {
 		attrBold = 1
 	}
 	if c.hasColor() {
-		return fmt.Sprintf("\033[%d;%dm%%s\033[0m", attrBold, 97)
+		return fmt.Sprintf("\x1b[%d;%dm%%s\x1b[0m", attrBold, 97)
 	}
 	return "%s"
 }
@@ -270,7 +269,7 @@ func (c colorFormater) green(bold bool) string {
 		attrBold = 1
 	}
 	if c.hasColor() {
-		return fmt.Sprintf("\033[%d;%dm%%s\033[0m", attrBold, 32)
+		return fmt.Sprintf("\x1b[%d;%dm%%s\x1b[0m", attrBold, 32)
 	}
 	return "%s"
 }
