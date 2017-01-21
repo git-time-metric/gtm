@@ -21,5 +21,5 @@ if [[ "${APPVEYOR_REPO_TAG}" = true ]]; then
 else
     timestamp=$(date +%s)
     go build -v -ldflags "-X main.Version=developer-build-$timestamp"
-    tar -zcf "gtm.developer-build-$timestamp.windows.tar.gz gtm.exe"
+    tar -zcf "gtm.developer-build-$timestamp.windows.tar.gz" gtm.exe
 fi
