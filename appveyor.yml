@@ -17,6 +17,9 @@ artifacts:
   - path: gtm.$(appveyor_repo_tag_name).windows.tar.gz
     name: gtm.zip
 
+  - path: 'gtm.developer-build-*.windows.tar.gz'
+    name: gtm-developer.tar.gz
+
 deploy:
   description: ''
   provider: GitHub
