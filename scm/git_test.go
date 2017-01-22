@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -340,7 +341,12 @@ func TestSetGitHooks(t *testing.T) {
 	defer repo.Remove()
 
 	repoPath := repo.PathIn("")
-	hooks := map[string]string{"post-commit": "gtm commit --yes"}
+	hooks := map[string]GitHook{
+		"post-commit": {
+			Exe:     "gtm",
+			Command: "gtm commit --yes",
+			RE:      regexp.MustCompile(`(?s)[/,:,a-z,A-Z,0-9,$,-,_,=, ]*gtm\s+commit\s+--yes\.*`)},
+	}
 
 	// test when hook exists
 	err := ioutil.WriteFile(path.Join(repoPath, ".git", "hooks", "post-commit"), []byte{}, 0755)
@@ -357,8 +363,8 @@ func TestSetGitHooks(t *testing.T) {
 		t.Fatalf("SetHooks(hooks) expect error nil, got %s", err)
 	}
 	output := string(b)
-	if !strings.Contains(output, hooks["post-commit"]) {
-		t.Errorf("SetHooks(hooks) expected post-commit to contain %s, got %s", hooks["post-commit"], output)
+	if !strings.Contains(output, hooks["post-commit"].Command) {
+		t.Errorf("SetHooks(hooks) expected post-commit to contain %s, got %s", hooks["post-commit"].Command, output)
 	}
 
 	// test if hook doesn't exist
@@ -376,8 +382,8 @@ func TestSetGitHooks(t *testing.T) {
 		t.Fatalf("SetHooks(hooks) expect error nil, got %s", err)
 	}
 	output = string(b)
-	if !strings.Contains(output, hooks["post-commit"]) {
-		t.Errorf("SetHooks(hooks) expected post-commit to contain %s, got %s", hooks["post-commit"], output)
+	if !strings.Contains(output, hooks["post-commit"].Command) {
+		t.Errorf("SetHooks(hooks) expected post-commit to contain %s, got %s", hooks["post-commit"].Command, output)
 	}
 
 	// test if hooks folder doesn't exist
@@ -395,8 +401,8 @@ func TestSetGitHooks(t *testing.T) {
 		t.Fatalf("SetHooks(hooks) expect error nil, got %s", err)
 	}
 	output = string(b)
-	if !strings.Contains(output, hooks["post-commit"]) {
-		t.Errorf("SetHooks(hooks) expected post-commit to contain %s, got %s", hooks["post-commit"], output)
+	if !strings.Contains(output, hooks["post-commit"].Command) {
+		t.Errorf("SetHooks(hooks) expected post-commit to contain %s, got %s", hooks["post-commit"].Command, output)
 	}
 
 }

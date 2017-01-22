@@ -60,8 +60,8 @@ func TestInitialize(t *testing.T) {
 		if b, err = ioutil.ReadFile(fp); err != nil {
 			t.Fatalf("Initialize(), want error nil, got %s", err)
 		}
-		if !strings.Contains(string(b), command+"\n") {
-			t.Errorf("Initialize(), want %s got %s", command, string(b))
+		if !strings.Contains(string(b), command.Command) {
+			t.Errorf("Initialize(), want %s got %s", command.Command, string(b))
 		}
 	}
 
@@ -109,8 +109,8 @@ func TestInitialize(t *testing.T) {
 		if b, err = ioutil.ReadFile(fp); err != nil {
 			t.Fatalf("Initialize(true), want error nil, got %s", err)
 		}
-		if !strings.Contains(string(b), command+"\n") {
-			t.Errorf("Initialize(true), want %s got %s", command, string(b))
+		if !strings.Contains(string(b), command.Command) {
+			t.Errorf("Initialize(true), want %s got %s", command.Command, string(b))
 		}
 	}
 
@@ -187,8 +187,8 @@ func TestUninitialize(t *testing.T) {
 		if b, err = ioutil.ReadFile(fp); err != nil {
 			t.Fatalf("Uninitialize(), want error nil, got %s", err)
 		}
-		if strings.Contains(string(b), command+"\n") {
-			t.Errorf("Uinitialize(), do not want %s got %s", command, string(b))
+		if strings.Contains(string(b), command.Command+"\n") {
+			t.Errorf("Uinitialize(), do not want %s got %s", command.Command, string(b))
 		}
 	}
 
