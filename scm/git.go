@@ -575,15 +575,18 @@ func (g GitHook) getCommandPath() string {
 	defer os.Chdir(wd)
 	os.Chdir(string(filepath.Separator))
 
-	p, err := exec.LookPath(g.getExe())
+	p, err := exec.LookPath(g.getExeForOS())
 	if err != nil {
 		return g.Command
 	}
-
-	return strings.Replace(g.Command, "gtm", filepath.ToSlash(p), 1)
+	if runtime.GOOS == "windows" {
+		// put "" around file path
+		return strings.Replace(g.Command, g.Exe, fmt.Sprintf("\"%s\"", p), 1)
+	}
+	return strings.Replace(g.Command, g.Exe, p, 1)
 }
 
-func (g GitHook) getExe() string {
+func (g GitHook) getExeForOS() string {
 	if runtime.GOOS == "windows" {
 		return fmt.Sprintf("gtm.%s", "exe")
 	}

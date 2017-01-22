@@ -34,7 +34,7 @@ var (
 		"post-commit": {
 			Exe:     "gtm",
 			Command: "gtm commit --yes",
-			RE:      regexp.MustCompile(`(?s)[/,:,a-z,A-Z,0-9,$,-,_,=, ]*gtm\s+commit\s+--yes\.*`)},
+			RE:      regexp.MustCompile(`(?s)[/,:,a-z,A-Z,0-9,$,-,_,=, ]*gtm(.exe|)\s+commit\s+--yes\.*`)},
 	}
 	// GitConfig is map of git configuration settings
 	GitConfig = map[string]string{
