@@ -680,7 +680,11 @@ func RemoveHooks(hooks map[string]GitHook, wd ...string) error {
 		output := string(b)
 
 		if hook.RE.MatchString(output) {
-			output := strings.Replace(hook.RE.ReplaceAllString(output, ""), "\n\n", "\n", 1)
+			output := hook.RE.ReplaceAllString(output, "")
+			i := strings.LastIndexAny(output, "\n")
+			if i > -1 {
+				output = output[0:i]
+			}
 			if err = ioutil.WriteFile(fp, []byte(output), 0755); err != nil {
 				return err
 			}
