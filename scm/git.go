@@ -9,7 +9,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"regexp"
+	"runtime"
 	"strings"
 	"time"
 
@@ -556,10 +559,44 @@ func ConfigRemove(settings map[string]string, wd ...string) error {
 	return nil
 }
 
+// GitHook is the Command with options to be added/removed from a git hook
+// Exe is the executable file name for Linux/MacOS
+// RE is the regex to match on for the command
+type GitHook struct {
+	Exe     string
+	Command string
+	RE      *regexp.Regexp
+}
+
+func (g GitHook) getCommandPath() string {
+	// save current dir &  change to root
+	// to guarantee we get the full path
+	wd, err := os.Getwd()
+	defer os.Chdir(wd)
+	os.Chdir(string(filepath.Separator))
+
+	p, err := exec.LookPath(g.getExeForOS())
+	if err != nil {
+		return g.Command
+	}
+	if runtime.GOOS == "windows" {
+		// put "" around file path
+		return strings.Replace(g.Command, g.Exe, fmt.Sprintf("\"%s\"", p), 1)
+	}
+	return strings.Replace(g.Command, g.Exe, p, 1)
+}
+
+func (g GitHook) getExeForOS() string {
+	if runtime.GOOS == "windows" {
+		return fmt.Sprintf("gtm.%s", "exe")
+	}
+	return g.Exe
+}
+
 // SetHooks creates git hooks
-func SetHooks(hooks map[string]string, wd ...string) error {
+func SetHooks(hooks map[string]GitHook, wd ...string) error {
 	const shebang = "#!/bin/sh"
-	for hook, command := range hooks {
+	for ghfile, hook := range hooks {
 		var (
 			p   string
 			err error
@@ -573,7 +610,7 @@ func SetHooks(hooks map[string]string, wd ...string) error {
 				return err
 			}
 		}
-		fp := filepath.Join(p, ".git", "hooks", hook)
+		fp := filepath.Join(p, ".git", "hooks", ghfile)
 		hooksDir := filepath.Join(p, ".git", "hooks")
 
 		var output string
@@ -596,8 +633,10 @@ func SetHooks(hooks map[string]string, wd ...string) error {
 			output = fmt.Sprintf("%s\n%s", shebang, output)
 		}
 
-		if !strings.Contains(output, command) {
-			output = fmt.Sprintf("%s\n%s\n", output, command)
+		if hook.RE.MatchString(output) {
+			output = hook.RE.ReplaceAllString(output, fmt.Sprintf("%s", hook.getCommandPath()))
+		} else {
+			output = fmt.Sprintf("%s\n%s", output, hook.getCommandPath())
 		}
 
 		if err = ioutil.WriteFile(fp, []byte(output), 0755); err != nil {
@@ -613,8 +652,8 @@ func SetHooks(hooks map[string]string, wd ...string) error {
 }
 
 // RemoveHooks remove matching git hook commands
-func RemoveHooks(hooks map[string]string, wd ...string) error {
-	for hook, command := range hooks {
+func RemoveHooks(hooks map[string]GitHook, wd ...string) error {
+	for ghfile, hook := range hooks {
 		var (
 			p   string
 			err error
@@ -628,7 +667,7 @@ func RemoveHooks(hooks map[string]string, wd ...string) error {
 				return err
 			}
 		}
-		fp := filepath.Join(p, ".git", "hooks", hook)
+		fp := filepath.Join(p, ".git", "hooks", ghfile)
 
 		if _, err := os.Stat(fp); os.IsNotExist(err) {
 			continue
@@ -640,8 +679,12 @@ func RemoveHooks(hooks map[string]string, wd ...string) error {
 		}
 		output := string(b)
 
-		if strings.Contains(output, command) {
-			output = strings.Replace(output, command, "", -1)
+		if hook.RE.MatchString(output) {
+			output := hook.RE.ReplaceAllString(output, "")
+			i := strings.LastIndexAny(output, "\n")
+			if i > -1 {
+				output = output[0:i]
+			}
 			if err = ioutil.WriteFile(fp, []byte(output), 0755); err != nil {
 				return err
 			}

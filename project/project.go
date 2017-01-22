@@ -11,6 +11,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"strings"
 	"text/template"
@@ -29,8 +30,12 @@ var (
 
 var (
 	// GitHooks is map of hooks to apply to the git repo
-	GitHooks = map[string]string{
-		"post-commit": "gtm commit --yes"}
+	GitHooks = map[string]scm.GitHook{
+		"post-commit": {
+			Exe:     "gtm",
+			Command: "gtm commit --yes",
+			RE:      regexp.MustCompile(`(?s)[/,\\,:,a-z,A-Z,0-9,$,-,_,=,(,),",., ]*gtm(.exe"|)\s+commit\s+--yes\.*`)},
+	}
 	// GitConfig is map of git configuration settings
 	GitConfig = map[string]string{
 		"alias.pushgtm":    "push origin refs/notes/gtm-data",
@@ -51,7 +56,7 @@ const initMsgTpl string = `
 {{print "Git Time Metric initialized for " (.ProjectPath) | printf (.HeaderFormat) }}
 
 {{ range $hook, $command := .GitHooks -}}
-	{{- $hook | printf "%16s" }}: {{ $command }}
+	{{- $hook | printf "%16s" }}: {{ $command.Command }}
 {{ end -}}
 {{ range $key, $val := .GitConfig -}}
 	{{- $key | printf "%16s" }}: {{ $val }}
@@ -66,7 +71,7 @@ const removeMsgTpl string = `
 The following items have been removed.
 
 {{ range $hook, $command := .GitHooks -}}
-	{{- $hook | printf "%16s" }}: {{ $command }}
+	{{- $hook | printf "%16s" }}: {{ $command.Command }}
 {{ end -}}
 {{ range $key, $val := .GitConfig -}}
 	{{- $key | printf "%16s" }}: {{ $val }}
@@ -148,7 +153,7 @@ func Initialize(terminal bool, tags []string, clearTags bool) (string, error) {
 			Tags         string
 			HeaderFormat string
 			ProjectPath  string
-			GitHooks     map[string]string
+			GitHooks     map[string]scm.GitHook
 			GitConfig    map[string]string
 			GitIgnore    string
 			Terminal     bool
@@ -221,7 +226,7 @@ func Uninitialize() (string, error) {
 		struct {
 			HeaderFormat string
 			ProjectPath  string
-			GitHooks     map[string]string
+			GitHooks     map[string]scm.GitHook
 			GitConfig    map[string]string
 			GitIgnore    string
 		}{
