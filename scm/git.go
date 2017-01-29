@@ -581,9 +581,9 @@ func (g GitHook) getCommandPath() string {
 	}
 	if runtime.GOOS == "windows" {
 		// put "" around file path
-		return strings.Replace(g.Command, g.Exe, fmt.Sprintf("\"%s\"", p), 1)
+		return strings.Replace(g.Command, g.Exe, fmt.Sprintf("%s || \"%s\"", g.Command, p), 1)
 	}
-	return strings.Replace(g.Command, g.Exe, p, 1)
+	return strings.Replace(g.Command, g.Exe, fmt.Sprintf("%s || %s", g.Command, p), 1)
 }
 
 func (g GitHook) getExeForOS() string {
