@@ -33,6 +33,7 @@ Usage: gtm clean [options]
 Options:
 
   -yes                       Delete time data without asking for confirmation.
+  -terminal-only             Only delete terminal time data
   -days=0                    Delete starting from n days in the past
 `
 	return strings.TrimSpace(helpText)
@@ -40,11 +41,11 @@ Options:
 
 // Run executes clean command with args
 func (c CleanCmd) Run(args []string) int {
-
-	var yes bool
+	var yes, terminalOnly bool
 	var days int
 	cmdFlags := flag.NewFlagSet("clean", flag.ContinueOnError)
 	cmdFlags.BoolVar(&yes, "yes", false, "")
+	cmdFlags.BoolVar(&terminalOnly, "terminal-only", false, "")
 	cmdFlags.IntVar(&days, "days", 0, "")
 	cmdFlags.Usage = func() { c.Ui.Output(c.Help()) }
 	if err := cmdFlags.Parse(args); err != nil {
@@ -66,7 +67,7 @@ func (c CleanCmd) Run(args []string) int {
 			err error
 		)
 
-		if m, err = project.Clean(util.AfterNow(days)); err != nil {
+		if m, err = project.Clean(util.AfterNow(days), terminalOnly); err != nil {
 			c.Ui.Error(err.Error())
 			return 1
 		}

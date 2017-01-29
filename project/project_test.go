@@ -260,14 +260,29 @@ func TestClean(t *testing.T) {
 			t.Errorf("Want error nil got %s", err)
 		}
 	}
+	// write a terminal event file
+	if err := ioutil.WriteFile(filepath.Join(gtmPath, "t.event"), []byte("terminal.app"), 0644); err != nil {
+		t.Errorf("Want error nil got %s", err)
+	}
 
-	_, err = Clean(util.AfterNow(0))
-
+	// lets only delete terminal events
+	_, err = Clean(util.AfterNow(0), true)
 	files, err := ioutil.ReadDir(gtmPath)
 	if err != nil {
 		t.Fatalf("Want error nil got %s", err)
 	}
+	for _, f := range files {
+		if !(f.Name() == "a.txt" || f.Name() == "a.event" || f.Name() == "b.event") {
+			t.Errorf("Clean(), want only a.txt, a.event and b.event got %s", f.Name())
+		}
+	}
 
+	// lets clean all events
+	_, err = Clean(util.AfterNow(0), false)
+	files, err = ioutil.ReadDir(gtmPath)
+	if err != nil {
+		t.Fatalf("Want error nil got %s", err)
+	}
 	for _, f := range files {
 		if f.Name() != "a.txt" {
 			t.Errorf("Clean(), want only a.txt got %s", f.Name())

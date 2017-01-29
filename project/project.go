@@ -255,7 +255,7 @@ func Uninitialize() (string, error) {
 }
 
 //Clean removes any event or metrics files from project in the current working directory
-func Clean(dr util.DateRange) (string, error) {
+func Clean(dr util.DateRange, terminalOnly bool) (string, error) {
 	wd, err := os.Getwd()
 	if err != nil {
 		return "", err
@@ -285,7 +285,17 @@ func Clean(dr util.DateRange) (string, error) {
 		if !dr.Within(f.ModTime()) {
 			continue
 		}
-		if err := os.Remove(filepath.Join(gtmPath, f.Name())); err != nil {
+		fp := filepath.Join(gtmPath, f.Name())
+		if terminalOnly && strings.HasSuffix(f.Name(), ".event") {
+			b, err := ioutil.ReadFile(fp)
+			if err != nil {
+				return "", err
+			}
+			if !strings.Contains(string(b), "terminal.app") {
+				continue
+			}
+		}
+		if err := os.Remove(fp); err != nil {
 			return "", err
 		}
 	}
