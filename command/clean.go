@@ -62,16 +62,10 @@ func (c CleanCmd) Run(args []string) int {
 	}
 
 	if confirm {
-		var (
-			m   string
-			err error
-		)
-
-		if m, err = project.Clean(util.AfterNow(days), terminalOnly); err != nil {
+		if err := project.Clean(util.AfterNow(days), terminalOnly); err != nil {
 			c.Ui.Error(err.Error())
 			return 1
 		}
-		c.Ui.Output(m)
 	}
 	return 0
 }

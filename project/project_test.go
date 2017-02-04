@@ -266,7 +266,7 @@ func TestClean(t *testing.T) {
 	}
 
 	// lets only delete terminal events
-	_, err = Clean(util.AfterNow(0), true)
+	err = Clean(util.AfterNow(0), true)
 	files, err := ioutil.ReadDir(gtmPath)
 	if err != nil {
 		t.Fatalf("Want error nil got %s", err)
@@ -278,7 +278,7 @@ func TestClean(t *testing.T) {
 	}
 
 	// lets clean all events
-	_, err = Clean(util.AfterNow(0), false)
+	err = Clean(util.AfterNow(0), false)
 	files, err = ioutil.ReadDir(gtmPath)
 	if err != nil {
 		t.Fatalf("Want error nil got %s", err)
