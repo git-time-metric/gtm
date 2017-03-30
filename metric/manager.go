@@ -5,15 +5,19 @@
 package metric
 
 import (
+	"time"
+
 	"github.com/git-time-metric/gtm/event"
 	"github.com/git-time-metric/gtm/note"
 	"github.com/git-time-metric/gtm/project"
 	"github.com/git-time-metric/gtm/scm"
+	"github.com/git-time-metric/gtm/util"
 )
 
 // Process events for last git commit and save time spent as a git note
 // If interim is true, process events for the current working and staged files
 func Process(interim bool, projPath ...string) (note.CommitNote, error) {
+	defer util.TimeTrack(time.Now(), "metric.Process")
 
 	rootPath, gtmPath, err := project.Paths(projPath...)
 	if err != nil {

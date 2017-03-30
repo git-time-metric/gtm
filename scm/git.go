@@ -22,6 +22,7 @@ import (
 
 // RootPath discovers the base directory for a git repo
 func RootPath(path ...string) (string, error) {
+	defer util.TimeTrack(time.Now(), "git.RootPath")
 	var (
 		wd  string
 		p   string
@@ -35,6 +36,8 @@ func RootPath(path ...string) (string, error) {
 			return "", err
 		}
 	}
+	//TODO: benchmark the call to git.Discover
+	//TODO: optionally print result with -debug flag
 	p, err = git.Discover(wd, false, []string{})
 	if err != nil {
 		return "", err

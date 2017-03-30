@@ -7,6 +7,7 @@ package util
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -16,6 +17,16 @@ import (
 
 	"github.com/git-time-metric/git2go"
 )
+
+var TimeTrackEnable = false
+
+//TimeTrack is used for profiling execution time
+func TimeTrack(start time.Time, name string) {
+	if TimeTrackEnable {
+		elapsed := time.Since(start)
+		log.Printf("%s took %s", name, elapsed)
+	}
+}
 
 // TestRepo represents a test git repo used in testing
 type TestRepo struct {

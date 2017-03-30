@@ -12,6 +12,7 @@ import (
 	"runtime"
 	"strings"
 	"text/template"
+	"time"
 
 	"github.com/git-time-metric/gtm/note"
 	"github.com/git-time-metric/gtm/project"
@@ -52,6 +53,8 @@ func (o OutputOptions) limitNotes(notes commitNoteDetails) commitNoteDetails {
 
 // Status returns the status report
 func Status(n note.CommitNote, options OutputOptions, projPath ...string) (string, error) {
+	defer util.TimeTrack(time.Now(), "report.Status")
+
 	if options.TerminalOff {
 		n = n.FilterOutTerminal()
 	}

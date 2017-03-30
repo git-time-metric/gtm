@@ -7,6 +7,7 @@ package command
 import (
 	"flag"
 	"strings"
+	"time"
 
 	"github.com/git-time-metric/gtm/metric"
 	"github.com/git-time-metric/gtm/note"
@@ -50,7 +51,7 @@ Options:
 
 // Run executes status command with args
 func (c StatusCmd) Run(args []string) int {
-	var color, terminalOff, totalOnly, all bool
+	var color, terminalOff, totalOnly, all, profile bool
 	var tags string
 	cmdFlags := flag.NewFlagSet("status", flag.ContinueOnError)
 	cmdFlags.BoolVar(&color, "color", false, "Always output color even if no terminal is detected. Use this with pagers i.e 'less -R' or 'more -R'")
@@ -58,10 +59,13 @@ func (c StatusCmd) Run(args []string) int {
 	cmdFlags.BoolVar(&totalOnly, "total-only", false, "Only display total time")
 	cmdFlags.StringVar(&tags, "tags", "", "Project tags to show status on")
 	cmdFlags.BoolVar(&all, "all", false, "Show status for all projects")
+	cmdFlags.BoolVar(&profile, "profile", false, "Enable profiling")
 	cmdFlags.Usage = func() { c.Ui.Output(c.Help()) }
 	if err := cmdFlags.Parse(args); err != nil {
 		return 1
 	}
+	util.TimeTrackEnable = profile
+	defer util.TimeTrack(time.Now(), "status.Run")
 
 	if totalOnly && (all || tags != "") {
 		c.Ui.Error("\n-tags and -all options not allowed with -total-only\n")
