@@ -15,6 +15,7 @@ import (
 	"runtime"
 	"strings"
 	"text/template"
+	"time"
 
 	"github.com/git-time-metric/gtm/scm"
 	"github.com/git-time-metric/gtm/util"
@@ -306,6 +307,8 @@ func Stash() error {
 
 // Paths returns the root git repo and gtm paths
 func Paths(wd ...string) (string, string, error) {
+	util.TimeTrack(time.Now(), "project.Paths")
+
 	var (
 		repoPath string
 		err      error

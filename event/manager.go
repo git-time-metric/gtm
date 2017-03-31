@@ -10,8 +10,10 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/git-time-metric/gtm/epoch"
+	"github.com/git-time-metric/gtm/util"
 )
 
 // Record creates an event for a source
@@ -31,6 +33,8 @@ func Record(file string) error {
 // Process scans the gtmPath for event files and processes them.
 // If interim is true, event files are not purged.
 func Process(gtmPath string, interim bool) (map[int64]map[string]int, error) {
+	util.TimeTrack(time.Now(), "event.Process")
+
 	events := make(map[int64]map[string]int, 0)
 
 	files, err := ioutil.ReadDir(gtmPath)
