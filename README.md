@@ -1,5 +1,6 @@
 <div align="center"><img src="https://cloud.githubusercontent.com/assets/630550/19619834/43c460dc-9835-11e6-8652-1c8fff91cf02.png" alt="GTM Logo" height="115" width="275"></div>
-# <div align="center">Git Time Metric</div>
+<div align="center"><font size=16><bold>Git Time Metric</bold></font></div>
+
 ### Seamless time tracking for all your Git projects
 
 ##### $ gtm report -last-month 
