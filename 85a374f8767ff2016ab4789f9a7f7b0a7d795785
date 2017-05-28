@@ -1,0 +1,6 @@
+[ver:1,total:480]
+script/git2go-init.sh:210,1496001600:210,r
+.travis.yml:130,1496001600:130,m
+Makefile:80,1496001600:80,r
+script/appveyor-build.sh:30,1496001600:30,m
+.gtm/terminal.app:30,1496001600:30,r
