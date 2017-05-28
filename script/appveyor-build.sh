@@ -29,7 +29,7 @@ go get -d ./...
 go test --tags static $(go list ./... | grep -v vendor)
 if [[ "${APPVEYOR_REPO_TAG}" = true ]]; then
     go build --tags static -v -ldflags "-X main.Version=${APPVEYOR_REPO_TAG_NAME}"
-    tar -zcf "gtm.${APPVEYOR_REPO_TAG_NAME}.windows.tar.gz gtm.exe"
+    tar -zcf "gtm.${APPVEYOR_REPO_TAG_NAME}.windows.tar.gz" gtm.exe
 else
     timestamp=$(date +%s)
     go build --tags static -v -ldflags "-X main.Version=developer-build-${timestamp}"
