@@ -16,8 +16,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/git-time-metric/git2go"
 	"github.com/git-time-metric/gtm/util"
+	"github.com/libgit2/git2go"
 )
 
 // RootPath discovers the base directory for a git repo
