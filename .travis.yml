@@ -8,7 +8,7 @@ go:
   - 1.8
 
 before_install:
-  - go get -d github.com/git-time-metric/git2go
+  - git clone https://github.com/git-time-metric/git2go.git $GOPATH/src/github.com/git-time-metric/git2go
   - cd $GOPATH/src/github.com/git-time-metric/git2go
   - git checkout next
   - git submodule update --init

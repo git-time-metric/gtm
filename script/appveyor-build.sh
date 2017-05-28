@@ -5,7 +5,7 @@ export PATH=/c/msys64/mingw64/bin:/c/msys64/usr/bin:/c/Go/bin:/c/gopath/go/bin:$
 export GOROOT=/c/Go/
 export GOPATH=/c/gopath
 
-go get -d github.com/git-time-metric/git2go
+git clone https://github.com/git-time-metric/git2go.git $GOPATH/src/github.com/git-time-metric/git2go
 cd /c/gopath/src/github.com/git-time-metric/git2go
 git checkout next
 git submodule update --init
