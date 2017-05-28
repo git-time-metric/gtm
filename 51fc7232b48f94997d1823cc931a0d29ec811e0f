@@ -1,0 +1,5 @@
+[ver:1,total:420]
+script/appveyor-build.sh:300,1495998000:300,m
+.gtm/terminal.app:60,1495998000:60,r
+appveyor.yml:40,1495998000:40,r
+script/git2go-init.sh:20,1495998000:20,m
