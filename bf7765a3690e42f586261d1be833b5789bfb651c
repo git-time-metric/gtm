@@ -1,0 +1,4 @@
+[ver:1,total:720]
+script/appveyor-build.sh:450,1495994400:450,m
+.travis.yml:240,1495994400:240,m
+.gtm/terminal.app:30,1495994400:30,r
