@@ -8,22 +8,19 @@ go:
   - 1.8
 
 before_install:
-  - git clone https://github.com/git-time-metric/git2go.git $GOPATH/src/github.com/git-time-metric/git2go
-  - cd $GOPATH/src/github.com/git-time-metric/git2go
-  - git checkout next
-  - git submodule update --init
-  - sudo apt-get remove libssl-dev || true
-  - make install
-  - cd $TRAVIS_BUILD_DIR
+  - $GOPATH/src/github.com/git-time-metric/gtm/script/git2go-init.sh
+  - cd $GOPATH/src/github.com/libgit2/git2go
+  - make install-static
+  - go get github.com/mattn/goveralls
 
 before_deploy:
-  - go build -v -ldflags "-X main.Version=${TRAVIS_TAG}"
+  - go build -v --tags static -ldflags "-X main.Version=${TRAVIS_TAG}"
   - tar -zcf gtm.${TRAVIS_TAG}.${TRAVIS_OS_NAME}.tar.gz gtm
 
 script:
-  - go get github.com/mattn/goveralls
-  - go get -t -v ./...
-  - $HOME/gopath/bin/goveralls -service=travis-ci
+  - cd $TRAVIS_BUILD_DIR
+  - go get -d ./...
+  - $HOME/gopath/bin/goveralls -flags=--tags=static -service=travis-ci
 
 deploy:
   provider: releases
