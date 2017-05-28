@@ -1,0 +1,4 @@
+[ver:1,total:300]
+script/appveyor-build.sh:180,1495983600:180,m
+scm/git.go:60,1495983600:60,r
+.gtm/terminal.app:60,1495983600:60,r
