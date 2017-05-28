@@ -11,8 +11,7 @@ before_install:
   - go get -d github.com/git-time-metric/git2go
   - cd $GOPATH/src/github.com/git-time-metric/git2go
   - git checkout next
-  - git submodule init
-  - git submodule update
+  - git submodule update --init
   - sudo apt-get remove libssl-dev || true
   - make install
   - cd $TRAVIS_BUILD_DIR
