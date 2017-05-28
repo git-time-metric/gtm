@@ -1,0 +1,6 @@
+[ver:1,total:360]
+.gtm/terminal.app:250,1496008800:250,r
+scm/git.go:50,1496008800:50,r
+util/test.go:30,1496008800:30,m
+main.go:20,1496008800:20,r
+vendor/github.com/mitchellh/cli/ui_colored.go:10,1496008800:10,r
