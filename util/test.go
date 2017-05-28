@@ -15,7 +15,7 @@ import (
 	"testing"
 	"time"
 
-	git "github.com/libgit2/git2go"
+	"github.com/libgit2/git2go"
 )
 
 var TimeTrackEnable = false
