@@ -18,6 +18,14 @@
 			"notests": true
 		},
 		{
+			"importpath": "github.com/hako/durafmt",
+			"repository": "https://github.com/hako/durafmt",
+			"vcs": "git",
+			"revision": "83a6d8dc879e5db09185e352561da4326f443de6",
+			"branch": "master",
+			"notests": true
+		},
+		{
 			"importpath": "github.com/hashicorp/go-version",
 			"repository": "https://github.com/hashicorp/go-version",
 			"vcs": "git",

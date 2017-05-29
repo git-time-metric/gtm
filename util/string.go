@@ -9,6 +9,8 @@ import (
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/hako/durafmt"
 )
 
 // Percent returns a values percent of the total
@@ -38,6 +40,14 @@ func FormatDuration(secs int) string {
 //DurationStr returns seconds as a duration string, i.e. 9h10m30s
 func DurationStr(secs int) string {
 	return (time.Duration(secs) * time.Second).String()
+}
+
+func DurationStrLong(secs int) string {
+	d, err := durafmt.ParseString(DurationStr(secs))
+	if err != nil {
+		return ""
+	}
+	return d.String()
 }
 
 // https://github.com/DaddyOh/golang-samples/blob/master/pad.go

@@ -122,6 +122,44 @@ func TestRecordFileWithStatus(t *testing.T) {
 	}
 }
 
+func TestRecordFileWithStatusLongDuration(t *testing.T) {
+	repo := util.NewTestRepo(t, false)
+	defer repo.Remove()
+	repo.Seed()
+	repoPath := repo.PathIn("")
+	os.Chdir(repoPath)
+
+	(InitCmd{Ui: new(cli.MockUi)}).Run([]string{})
+
+	ui := new(cli.MockUi)
+	c := RecordCmd{Ui: ui, Out: new(bytes.Buffer)}
+
+	args := []string{"-status", "-long-duration", filepath.Join(repoPath, "README")}
+	rc := c.Run(args)
+
+	if rc != 0 {
+		t.Errorf("gtm record(%+v), want 0 got %d, %s", args, rc, ui.ErrorWriter)
+	}
+
+	if c.Out.String() != "1 minute" {
+		t.Errorf("gtm record(%+v), want '1 minutes' got %s", args, c.Out.String())
+	}
+
+	files, err := ioutil.ReadDir(filepath.Join(repoPath, ".gtm"))
+	if err != nil {
+		t.Fatalf("gtm record(%+v), want error nil got  %s", args, err)
+	}
+	cnt := 1
+	for _, f := range files {
+		if filepath.Base(f.Name()) == ".event" {
+			cnt++
+		}
+	}
+	if cnt != 1 {
+		t.Errorf("gtm record(%+v), want 1 event file got %d, %s", args, cnt, ui.ErrorWriter.String())
+	}
+}
+
 func TestRecordTerminal(t *testing.T) {
 	repo := util.NewTestRepo(t, false)
 	defer repo.Remove()

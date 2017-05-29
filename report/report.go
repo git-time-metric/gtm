@@ -36,11 +36,12 @@ type ProjectCommits struct {
 
 // OutputOptions contains cli options for reporting
 type OutputOptions struct {
-	TotalOnly   bool
-	FullMessage bool
-	TerminalOff bool
-	Color       bool
-	Limit       int
+	TotalOnly    bool
+	LongDuration bool
+	FullMessage  bool
+	TerminalOff  bool
+	Color        bool
+	Limit        int
 }
 
 func (o OutputOptions) limitNotes(notes commitNoteDetails) commitNoteDetails {
@@ -60,6 +61,9 @@ func Status(n note.CommitNote, options OutputOptions, projPath ...string) (strin
 	}
 
 	if options.TotalOnly {
+		if options.LongDuration {
+			return util.DurationStrLong(n.Total()), nil
+		}
 		return util.DurationStr(n.Total()), nil
 	}
 

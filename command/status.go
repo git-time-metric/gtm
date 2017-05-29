@@ -42,6 +42,8 @@ Options:
 
   -total-only=false          Only display total pending time
 
+  -long-duration             If total-only, display total pending time in long duration format
+
   -tags=""                   Project tags to report status for, i.e --tags tag1,tag2
 
   -all=false                 Show status for all projects
@@ -51,12 +53,13 @@ Options:
 
 // Run executes status command with args
 func (c StatusCmd) Run(args []string) int {
-	var color, terminalOff, totalOnly, all, profile bool
+	var color, terminalOff, totalOnly, all, profile, longDuration bool
 	var tags string
 	cmdFlags := flag.NewFlagSet("status", flag.ContinueOnError)
 	cmdFlags.BoolVar(&color, "color", false, "Always output color even if no terminal is detected. Use this with pagers i.e 'less -R' or 'more -R'")
 	cmdFlags.BoolVar(&terminalOff, "terminal-off", false, "Exclude time spent in terminal (Terminal plugin is required)")
 	cmdFlags.BoolVar(&totalOnly, "total-only", false, "Only display total time")
+	cmdFlags.BoolVar(&longDuration, "long-duration", false, "Display total time in long duration format")
 	cmdFlags.StringVar(&tags, "tags", "", "Project tags to show status on")
 	cmdFlags.BoolVar(&all, "all", false, "Show status for all projects")
 	cmdFlags.BoolVar(&profile, "profile", false, "Enable profiling")
@@ -96,9 +99,10 @@ func (c StatusCmd) Run(args []string) int {
 	}
 
 	options := report.OutputOptions{
-		TotalOnly:   totalOnly,
-		TerminalOff: terminalOff,
-		Color:       color}
+		TotalOnly:    totalOnly,
+		LongDuration: longDuration,
+		TerminalOff:  terminalOff,
+		Color:        color}
 
 	for _, projPath := range projects {
 		if commitNote, err = metric.Process(true, projPath); err != nil {

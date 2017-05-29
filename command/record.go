@@ -53,16 +53,19 @@ Options:
   -terminal=false            Record a terminal event.
 
   -status=false              Return total time recorded for event.
+
+  -long-duration=false       Return total time recorded in long duration format
 `
 	return strings.TrimSpace(helpText)
 }
 
 // Run executes record command with args
 func (c RecordCmd) Run(args []string) int {
-	var status, terminal bool
+	var status, terminal, longDuration bool
 	cmdFlags := flag.NewFlagSet("record", flag.ContinueOnError)
 	cmdFlags.BoolVar(&status, "status", false, "")
 	cmdFlags.BoolVar(&terminal, "terminal", false, "")
+	cmdFlags.BoolVar(&longDuration, "long-duration", false, "")
 	cmdFlags.Usage = func() { c.Ui.Output(c.Help()) }
 	if err := cmdFlags.Parse(args); err != nil {
 		return 1
@@ -108,7 +111,7 @@ func (c RecordCmd) Run(args []string) int {
 			c.Ui.Error(err.Error())
 			return 1
 		}
-		out, err = report.Status(commitNote, report.OutputOptions{TotalOnly: true})
+		out, err = report.Status(commitNote, report.OutputOptions{TotalOnly: true, LongDuration: longDuration})
 		if err != nil {
 			c.Ui.Error(err.Error())
 			return 1

@@ -62,10 +62,10 @@ func main() {
 		},
 	}
 
-	exitStatus, err := c.Run()
+	exitStatu, err := c.Run()
 	if err != nil {
 		ui.Error(err.Error())
 	}
 
-	os.Exit(exitStatus)
+	os.Exit(exitStatu)
 }

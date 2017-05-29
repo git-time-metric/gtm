@@ -28,6 +28,25 @@ func TestStatusDefaultOptions(t *testing.T) {
 	}
 }
 
+func TestStatusTotalOnly(t *testing.T) {
+	repo := util.NewTestRepo(t, false)
+	defer repo.Remove()
+	repo.Seed()
+	os.Chdir(repo.PathIn(""))
+
+	(InitCmd{Ui: new(cli.MockUi)}).Run([]string{})
+
+	ui := new(cli.MockUi)
+	c := StatusCmd{Ui: ui}
+
+	args := []string{"-total-only", "-long-duration"}
+	rc := c.Run(args)
+
+	if rc != 0 {
+		t.Errorf("gtm status(%+v), want 0 got %d, %s", args, rc, ui.ErrorWriter.String())
+	}
+}
+
 func TestStatusInvalidOption(t *testing.T) {
 	ui := new(cli.MockUi)
 	c := StatusCmd{Ui: ui}
