@@ -1,5 +1,5 @@
 BINARY=gtm
-VERSION=v1.2.9-dev
+VERSION=gtm-dev-$(shell date +'%Y.%m.%d-%H:%M:%S')
 
 LDFLAGS=-ldflags "-X main.Version=${VERSION}"
 
@@ -20,7 +20,7 @@ install-git2go:
 	cd ${GOPATH}/src/github.com/libgit2/git2go && make install-static
 
 install:
-	go install --tags static  ${LDFLAGS}
+	go install --tags static ${LDFLAGS}
 
 clean:
 	go clean
