@@ -1,0 +1,12 @@
+[ver:1,total:1080]
+.gtm/terminal.app:560,1480111200:540,1480114800:20,r
+command/commit_test.go:227,1480111200:227,m
+command/record_test.go:131,1480111200:116,1480114800:15,m
+command/report_test.go:30,1480114800:30,m
+project/project_test.go:30,1480111200:30,r
+command/verify_test.go:20,1480114800:20,r
+command/uninit_test.go:20,1480114800:20,m
+command/init_test.go:20,1480111200:20,r
+util/test.go:15,1480111200:15,r
+command/status_test.go:15,1480114800:15,m
+.git/index:12,1480111200:12,r

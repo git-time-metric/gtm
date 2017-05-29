@@ -1,0 +1,5 @@
+[ver:1,total:540]
+README.md:240,1467507600:180,1467511200:60,m
+vendor/golang.org/x/sys/unix/LICENSE:180,1467504000:180,r
+command/status.go:60,1467500400:60,r
+appveyor.yml:60,1467507600:60,r

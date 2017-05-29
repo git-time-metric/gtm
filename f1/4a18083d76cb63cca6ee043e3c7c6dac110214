@@ -1,0 +1,4 @@
+[ver:1,total:780]
+.travis.yml:420,1466798400:360,1466802000:60,m
+appveyor.yml:210,1466791200:210,r
+script/appveyor-build.sh:150,1466791200:150,r

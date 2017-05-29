@@ -1,0 +1,8 @@
+[ver:1,total:1320]
+scm/git.go:390,1464562800:150,1464573600:240,m
+note/note.go:360,1464562800:360,m
+event/event.go:200,1464577200:200,r
+metric/manager.go:180,1464562800:180,r
+main.go:90,1464562800:30,1464573600:60,r
+command/record.go:80,1464577200:80,r
+event/manager.go:20,1464577200:20,r

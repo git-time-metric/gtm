@@ -1,0 +1,4 @@
+[ver:1,total:420]
+.gtm/terminal.app:320,1480114800:320,r
+command/clean_test.go:80,1480114800:80,m
+command/report_test.go:20,1480114800:20,r

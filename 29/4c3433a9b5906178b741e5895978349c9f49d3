@@ -1,0 +1,9 @@
+[ver:1,total:960]
+vendor/github.com/libgit2/git2go/Makefile:220,1465581600:220,r
+.gitignore:180,1465578000:180,r
+vendor/github.com/libgit2/git2go/config.go:180,1465581600:180,r
+vendor/github.com/libgit2/git2go/script/build-libgit2-static.sh:140,1465581600:140,r
+vendor/github.com/libgit2/git2go/script/install-libgit2.sh:80,1465581600:80,r
+vendor/github.com/libgit2/git2go/README.md:80,1465581600:80,r
+vendor/manifest:60,1465588800:60,m
+vendor/github.com/libgit2/git2go/script/with-static.sh:20,1465581600:20,r

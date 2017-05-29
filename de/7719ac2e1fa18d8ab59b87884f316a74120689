@@ -1,0 +1,12 @@
+[ver:1,total:3420]
+project/project_test.go:1370,1485709200:1370,m
+project/project.go:580,1485709200:580,m
+command/clean.go:330,1485709200:330,m
+command/clean_test.go:310,1485709200:310,m
+.travis.yml:240,1485298800:240,r
+README.md:180,1485302400:180,r
+Makefile:150,1485709200:150,m
+.git/hooks/post-commit:120,1485712800:120,r
+main.go:60,1485709200:60,r
+.git/COMMIT_EDITMSG:60,1485712800:60,r
+.git/index:20,1485709200:20,r

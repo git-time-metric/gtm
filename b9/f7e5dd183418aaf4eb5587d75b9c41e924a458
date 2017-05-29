@@ -1,0 +1,6 @@
+[ver:1,total:1020]
+command/report_test.go:578,1480114800:578,m
+.gtm/terminal.app:270,1480114800:270,r
+metric/manager_test.go:100,1480114800:100,r
+util/test.go:42,1480114800:42,r
+command/report.go:30,1480114800:30,r

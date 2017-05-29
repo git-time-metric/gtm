@@ -1,0 +1,9 @@
+[ver:1,total:3840]
+.gtm/terminal.app:2800,1475456400:180,1475863200:1410,1475964000:1080,1475967600:130,r
+README.md:590,1475967600:590,m
+scm/git.go:270,1475863200:270,r
+command/status.go:75,1475964000:75,r
+command/report.go:45,1475964000:45,r
+metric/manager.go:30,1475964000:30,r
+report/report.go:15,1475964000:15,r
+project/project.go:15,1475964000:15,r

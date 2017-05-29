@@ -1,0 +1,9 @@
+[ver:1,total:1380]
+project/project.go:415,1486224000:205,1486227600:210,m
+.gtm/terminal.app:337,1486224000:20,1486227600:317,r
+command/clean.go:330,1486224000:295,1486227600:35,m
+command/stash.go:160,1486224000:80,1486227600:80,d
+command/report.go:50,1486227600:50,r
+project/project_test.go:48,1486227600:48,m
+main.go:20,1486227600:20,r
+report/report.go:20,1486227600:20,r

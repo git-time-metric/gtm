@@ -1,0 +1,13 @@
+[ver:1,total:5760]
+.gtm/terminal.app:2137,1480197600:470,1480201200:1405,1480204800:262,r
+command/verify.go:2073,1480197600:160,1480201200:944,1480204800:969,m
+command/verify_test.go:783,1480197600:286,1480201200:330,1480204800:167,m
+vendor/github.com/mitchellh/cli/ui.go:188,1480201200:56,1480204800:132,r
+main.go:155,1480201200:155,m
+metric/metric.go:150,1480197600:150,r
+vendor/github.com/mitchellh/cli/ui_mock.go:90,1480204800:90,r
+command/clean_test.go:74,1480197600:74,r
+.git/index:45,1480201200:45,r
+Makefile:30,1480201200:30,r
+vendor/github.com/hashicorp/go-version/version.go:20,1480201200:20,r
+vendor/github.com/hashicorp/go-version/constraint.go:15,1480201200:15,r

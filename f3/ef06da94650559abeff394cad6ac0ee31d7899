@@ -1,0 +1,10 @@
+[ver:1,total:1560]
+.gtm/terminal.app:785,1478041200:785,r
+command/status.go:266,1478041200:266,m
+metric/manager.go:199,1478041200:199,m
+metric/metric.go:108,1478041200:108,m
+report/report.go:66,1478041200:66,r
+command/report.go:55,1478041200:55,r
+Makefile:50,1478041200:50,m
+.git/index:23,1478041200:23,r
+scm/git.go:8,1478041200:8,r

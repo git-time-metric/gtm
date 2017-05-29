@@ -1,0 +1,7 @@
+[ver:1,total:2040]
+.gtm/terminal.app:825,1476039600:825,r
+report/report.go:590,1476039600:590,m
+command/report.go:370,1476039600:370,m
+command/record.go:150,1476039600:150,m
+command/status.go:70,1476039600:70,m
+report/query.go:35,1476039600:35,m

@@ -1,0 +1,9 @@
+[ver:1,total:2040]
+.gtm/terminal.app:930,1476554400:930,r
+project/index.go:440,1476554400:440,m
+Makefile:405,1476554400:405,m
+note/note.go:75,1476554400:75,m
+project/project_test.go:70,1476554400:70,r
+project/project.go:60,1476554400:60,r
+metric/metric.go:30,1476554400:30,m
+vendor/golang.org/x/sys/unix/zsysnum_solaris_amd64.go:30,1476554400:30,r

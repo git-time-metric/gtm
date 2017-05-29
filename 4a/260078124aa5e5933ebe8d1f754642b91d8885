@@ -1,0 +1,5 @@
+[ver:1,total:660]
+.gtm/terminal.app:320,1480114800:320,r
+command/report_test.go:280,1480114800:280,m
+command/commit_test.go:30,1480114800:30,r
+command/record_test.go:30,1480114800:30,r

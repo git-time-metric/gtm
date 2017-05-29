@@ -1,0 +1,8 @@
+[ver:1,total:1080]
+.gtm/terminal.app:800,1480122000:180,1480168800:240,1480172400:380,r
+Makefile:90,1480172400:90,m
+report/report.go:80,1480172400:80,m
+command/report.go:30,1480172400:30,m
+note/note.go:30,1480172400:30,m
+project/index.go:30,1480172400:30,m
+report/timeline.go:20,1480172400:20,r
