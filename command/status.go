@@ -6,6 +6,7 @@ package command
 
 import (
 	"flag"
+	"fmt"
 	"strings"
 	"time"
 
@@ -117,7 +118,12 @@ func (c StatusCmd) Run(args []string) int {
 		out += o
 	}
 
-	c.Ui.Output(out)
+	if totalOnly {
+		// plain output, no ansi escape sequences
+		fmt.Print(out)
+	} else {
+		c.Ui.Output(out)
+	}
 	return 0
 }
 
