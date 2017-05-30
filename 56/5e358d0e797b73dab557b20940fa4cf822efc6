@@ -1,0 +1,7 @@
+[ver:1,total:1320]
+.gtm/terminal.app:930,1475967600:630,1475971200:300,r
+main.go:150,1475967600:150,r
+command/report.go:105,1475971200:105,m
+command/status.go:55,1475971200:55,r
+metric/manager.go:50,1475971200:50,r
+report/report.go:30,1475971200:30,r

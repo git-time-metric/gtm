@@ -1,0 +1,7 @@
+[ver:1,total:3420]
+command/report_test.go:1990,1480194000:430,1480197600:1560,m
+.gtm/terminal.app:610,1480194000:310,1480197600:300,r
+command/report.go:460,1480194000:325,1480197600:135,m
+report/report.go:330,1480194000:60,1480197600:270,r
+vendor/github.com/mattn/go-isatty/isatty_bsd.go:15,1480194000:15,r
+project/index.go:15,1480197600:15,r

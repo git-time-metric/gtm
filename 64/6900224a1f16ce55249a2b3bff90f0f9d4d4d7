@@ -1,0 +1,5 @@
+[ver:1,total:660]
+script/build-libgit2-static.sh:320,1467140400:320,r
+.travis.yml:200,1467140400:200,m
+appveyor.yml:70,1467140400:70,r
+script/appveyor-build.sh:70,1467140400:70,r

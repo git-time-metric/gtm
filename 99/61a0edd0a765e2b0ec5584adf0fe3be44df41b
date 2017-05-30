@@ -1,0 +1,11 @@
+[ver:1,total:4380]
+event/manager2_test.go:1955,1465930800:204,1465934400:1751,d
+metric/manager2_test.go:1050,1465930800:1050,d
+event/manager_test.go:847,1465930800:388,1465934400:459,m
+util/test.go:181,1465930800:174,1465934400:7,m
+.git/index:122,1465934400:122,r
+metric/manager_test.go:121,1465930800:84,1465934400:37,m
+metric/manager.go:60,1465930800:60,r
+scm/git.go:27,1465930800:20,1465934400:7,m
+project/project.go:10,1465934400:10,r
+scm/git_test.go:7,1465934400:7,m

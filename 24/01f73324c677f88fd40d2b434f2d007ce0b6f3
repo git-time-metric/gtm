@@ -1,0 +1,6 @@
+[ver:1,total:360]
+.travis.yml:180,1466874000:180,r
+README.md:60,1466874000:60,m
+.git/COMMIT_EDITMSG:60,1466874000:60,r
+appveyor.yml:30,1466874000:30,r
+script/appveyor-build.sh:30,1466874000:30,r

@@ -1,0 +1,9 @@
+[ver:1,total:720]
+command/status.go:255,1496095200:255,m
+.git/hooks/prepare-commit-msg:140,1496095200:140,r
+.gtm/terminal.app:130,1496095200:130,r
+.git/COMMIT_EDITMSG:120,1496095200:120,r
+util/date.go:20,1496095200:20,r
+util/string.go:20,1496095200:20,r
+report/report.go:20,1496095200:20,r
+main.go:15,1496095200:15,r

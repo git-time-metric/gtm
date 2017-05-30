@@ -1,0 +1,5 @@
+[ver:1,total:780]
+.gtm/terminal.app:440,1478041200:380,1478354400:60,r
+README.md:300,1478354400:300,m
+command/clean.go:20,1478041200:20,r
+command/status.go:20,1478041200:20,r

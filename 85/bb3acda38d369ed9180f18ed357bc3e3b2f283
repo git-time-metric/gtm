@@ -1,0 +1,12 @@
+[ver:1,total:3900]
+main.go:1060,1465603200:1060,r
+scm/git.go:660,1465650000:180,1465653600:460,1465657200:20,r
+scm/git_test.go:600,1465650000:420,1465653600:20,1465657200:160,r
+vendor/github.com/libgit2/git2go/Makefile:520,1465592400:180,1465653600:340,d
+command/report.go:300,1465624800:300,r
+vendor/github.com/libgit2/git2go/script/build-libgit2-static.sh:210,1465592400:180,1465653600:30,d
+command/record.go:160,1465603200:160,r
+vendor/github.com/libgit2/git2go/script/with-static.sh:140,1465653600:140,d
+.git/COMMIT_EDITMSG:120,1465657200:120,r
+vendor/github.com/libgit2/git2go/script/check-MakeGitError-thread-lock.go:90,1465653600:90,d
+command/status.go:40,1465603200:40,r

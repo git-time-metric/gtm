@@ -1,0 +1,14 @@
+[ver:1,total:3480]
+.gtm/terminal.app:2900,1473559200:300,1473562800:480,1473886800:540,1474048800:540,1474146000:980,1474149600:60,r
+README.md:390,1474146000:390,m
+Makefile:60,1474146000:60,r
+command/verify_test.go:40,1474146000:40,r
+main.go:30,1474146000:30,r
+command/record.go:12,1474146000:12,r
+command/init.go:12,1474146000:12,r
+command/commit.go:6,1474146000:6,r
+command/report.go:6,1474146000:6,r
+command/clean.go:6,1474146000:6,r
+command/uninit.go:6,1474146000:6,r
+command/verify.go:6,1474146000:6,r
+command/status.go:6,1474146000:6,r

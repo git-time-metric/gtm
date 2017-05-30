@@ -1,0 +1,8 @@
+[ver:1,total:480]
+.gtm/terminal.app:210,1480118400:210,r
+main.go:104,1480118400:104,m
+event/manager.go:50,1480118400:50,m
+project/project.go:50,1480118400:50,m
+command/record.go:39,1480118400:39,m
+report/query.go:15,1480118400:15,m
+metric/metric.go:12,1480118400:12,m

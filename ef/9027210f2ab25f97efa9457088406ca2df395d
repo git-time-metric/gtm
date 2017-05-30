@@ -1,0 +1,5 @@
+[ver:1,total:240]
+appveyor.yml:192,1466791200:192,m
+script/appveyor-build.sh:24,1466791200:24,m
+.git/index:12,1466791200:12,r
+project/project_test.go:12,1466791200:12,r

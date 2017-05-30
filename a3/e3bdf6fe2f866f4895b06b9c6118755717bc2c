@@ -1,0 +1,6 @@
+[ver:1,total:240]
+command/status.go:110,1463342400:110,m
+command/report.go:50,1463342400:50,r
+report/report.go:40,1463342400:40,r
+command/init.go:20,1463342400:20,r
+command/record.go:20,1463342400:20,r

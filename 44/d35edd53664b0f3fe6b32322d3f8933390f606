@@ -1,0 +1,12 @@
+[ver:1,total:5400]
+command/report.go:3830,1469390400:750,1469394000:1120,1469397600:1960,m
+report/report.go:584,1469394000:450,1469397600:134,m
+script/appveyor-build.sh:270,1469390400:270,r
+project/project.go:244,1469394000:60,1469397600:184,m
+.git/COMMIT_EDITMSG:120,1469397600:120,r
+appveyor.yml:120,1469390400:120,r
+.git/index:117,1469394000:30,1469397600:87,r
+main.go:35,1469397600:35,r
+vendor/github.com/mattn/go-isatty/isatty_bsd.go:30,1469394000:30,r
+vendor/github.com/mattn/go-isatty/isatty_windows.go:30,1469394000:30,r
+vendor/github.com/mattn/go-isatty/doc.go:20,1469394000:20,r

@@ -1,0 +1,10 @@
+[ver:1,total:1500]
+script/build-libgit2-static.sh:330,1467496800:180,1467500400:150,d
+scm/git.go:300,1467471600:180,1467496800:120,m
+vendor/manifest:180,1467496800:180,r
+appveyor.yml:180,1467205200:180,r
+vim.log:180,1467468000:180,d
+util/test.go:150,1467496800:150,m
+script/appveyor-build.sh:120,1467500400:120,m
+scm/git_test.go:30,1467496800:30,r
+.travis.yml:30,1467500400:30,r

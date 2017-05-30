@@ -1,0 +1,13 @@
+[ver:1,total:1140]
+.gtm/terminal.app:710,1479672000:710,r
+command/clean.go:96,1479672000:96,m
+command/commit.go:60,1479672000:60,m
+command/uninit.go:60,1479672000:60,m
+scm/git.go:40,1479672000:40,m
+command/init.go:40,1479672000:40,m
+util/test.go:30,1479672000:30,m
+.git/index:24,1479672000:24,r
+command/record.go:20,1479672000:20,m
+command/verify.go:20,1479672000:20,m
+main.go:20,1479672000:20,m
+project/index.go:20,1479672000:20,m

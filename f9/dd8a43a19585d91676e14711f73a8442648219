@@ -1,0 +1,5 @@
+[ver:1,total:960]
+.gtm/terminal.app:480,1476039600:480,r
+command/init.go:400,1476039600:400,m
+command/report.go:60,1476039600:60,m
+util/string.go:20,1476039600:20,m

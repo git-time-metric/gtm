@@ -1,0 +1,7 @@
+[ver:1,total:360]
+util/test.go:145,1466791200:145,m
+.git/index:97,1466791200:97,r
+script/appveyor-build.sh:38,1466791200:38,m
+appveyor.yml:30,1466791200:30,m
+project/project_test.go:30,1466791200:30,r
+scm/git_test.go:20,1466791200:20,r

@@ -1,0 +1,6 @@
+[ver:1,total:1440]
+util/date.go:740,1483221600:740,m
+.gtm/terminal.app:350,1483221600:350,r
+report/report.go:210,1483221600:210,m
+command/record.go:120,1483221600:120,m
+command/verify.go:20,1483221600:20,m
