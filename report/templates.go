@@ -34,7 +34,7 @@ const (
 		{{- if $f.IsTerminal }}
 			{{- FormatDuration $f.TimeSpent | printf "\n%14s" }} {{ Percent $f.TimeSpent $total | printf "%3.0f"}}% [{{ $f.Status }}] Terminal
 		{{- else }}
-			{{- FormatDuration $f.TimeSpent | printf "\n%14s" }} {{ Percent $f.TimeSpent $total | printf "%3.0f"}}% [{{ $f.Status }}] {{$f.SourceFile}}
+			{{- FormatDuration $f.TimeSpent | printf "\n%14s" }} {{ Percent $f.TimeSpent $total | printf "%3.0f"}}% [{{ $f.Status }}] {{$f.ShortenSourceFile 40}}
 		{{- end }}
 	{{- end }}
 	{{- if len .Note.Files }}
@@ -52,7 +52,7 @@ const (
 	{{- if $f.IsTerminal }}
 		{{- FormatDuration $f.TimeSpent | printf "%14s" }} {{ Percent $f.TimeSpent $total | printf "%3.0f"}}% [{{ $f.Status }}] Terminal
 	{{- else }}
-		{{- FormatDuration $f.TimeSpent | printf "%14s" }} {{ Percent $f.TimeSpent $total | printf "%3.0f"}}% [{{ $f.Status }}] {{$f.SourceFile}}
+		{{- FormatDuration $f.TimeSpent | printf "%14s" }} {{ Percent $f.TimeSpent $total | printf "%3.0f"}}% [{{ $f.Status }}] {{$f.ShortenSourceFile 40}}
 	{{- end }}
 {{ end }}
 {{- if len .Note.Files }}
