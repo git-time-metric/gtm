@@ -1,7 +1,7 @@
 #!/bin/sh
 set -ex
 
-COMMIT_HASH=f439cc93e95cd4d837e3875e11c31400c66b1612
+COMMIT_HASH=v26
 PROJPATH="$GOPATH/src/github.com/libgit2/git2go"
 [ ! -f "$GOPATH/src/github.com/libgit2/git2go/.git/config" ] && git clone https://github.com/libgit2/git2go.git $PROJPATH
 cd $PROJPATH
