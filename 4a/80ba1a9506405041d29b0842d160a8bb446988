@@ -1,0 +1,5 @@
+[ver:1,total:1200]
+.gtm/terminal.app:1050,1512342000:780,1523109600:270,r
+.travis.yml:60,1523109600:60,m
+script/git2go-init.sh:60,1523109600:60,m
+script/appveyor-build.sh:30,1523109600:30,r
