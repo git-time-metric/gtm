@@ -21,7 +21,7 @@ before_deploy:
 script:
   - cd $TRAVIS_BUILD_DIR
   - go get -d ./...
-  - $HOME/gopath/bin/goveralls -flags=--tags=static -service=travis-ci
+  - $HOME/gopath/bin/goveralls -v -flags=--tags=static -service=travis-ci
 
 deploy:
   provider: releases
