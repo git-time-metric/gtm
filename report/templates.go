@@ -21,6 +21,11 @@ const (
 		{{- FormatDuration $line.Total | printf "\n%14s" }} {{ printf $greenFormat $line.Subject }} [{{ $line.Project }}]
 	{{- end }}
 {{- end -}}`
+	projectTotalsTpl string = `
+{{- $boldFormat := .BoldFormat }}
+{{- range $project, $total := .Projects }}
+	{{- FormatDuration $total | printf "\n%14s" }} {{ printf $boldFormat $project }}
+{{- end -}}`
 	commitsTpl string = `
 {{ $boldFormat := .BoldFormat }}
 {{ $greenFormat := .GreenFormat }}

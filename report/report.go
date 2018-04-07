@@ -133,6 +133,38 @@ func CommitSummary(projects []ProjectCommits, options OutputOptions) (string, er
 	return b.String(), nil
 }
 
+// ProjectSummary returns the commit summary report
+func ProjectSummary(projects []ProjectCommits, options OutputOptions) (string, error) {
+	notes := options.limitNotes(retrieveNotes(projects, options.TerminalOff, "Mon Jan 02"))
+	if len(notes) == 0 {
+		return "", nil
+	}
+
+	projectTotals := map[string]int{}
+	for _, n := range notes {
+		projectTotals[n.Project] += n.Note.Total()
+	}
+
+	b := new(bytes.Buffer)
+	t := template.Must(template.New("ProjectSummary").Funcs(funcMap).Parse(projectTotalsTpl))
+	cf := colorFormater{color: options.Color}
+	err := t.Execute(
+		b,
+		struct {
+			Projects    map[string]int
+			BoldFormat  string
+			GreenFormat string
+		}{
+			projectTotals,
+			cf.white(true),
+			cf.green(false),
+		})
+	if err != nil {
+		return "", err
+	}
+	return b.String(), nil
+}
+
 // Commits returns the commits report
 func Commits(projects []ProjectCommits, options OutputOptions) (string, error) {
 	notes := options.limitNotes(retrieveNotes(projects, options.TerminalOff, ""))

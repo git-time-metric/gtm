@@ -41,7 +41,7 @@ Options:
 
   Report Formats:
 
-  -format=commits            Specify report format [summary|commits|files|timeline-hours|timeline-commits] (default commits)
+  -format=commits            Specify report format [summary|project|commits|files|timeline-hours|timeline-commits] (default commits)
   -full-message=false        Include full commit message
   -terminal-off=false        Exclude time spent in terminal (Terminal plug-in is required)
   -force-color=false         Always output color even if no terminal is detected, i.e 'gtm report -color | less -R'
@@ -103,7 +103,7 @@ func (c ReportCmd) Run(args []string) int {
 		return 1
 	}
 
-	if !util.StringInSlice([]string{"summary", "commits", "timeline-hours", "files", "timeline-commits"}, format) {
+	if !util.StringInSlice([]string{"summary", "commits", "timeline-hours", "files", "timeline-commits", "project"}, format) {
 		c.Ui.Error(fmt.Sprintf("report --format=%s not valid\n", format))
 		return 1
 	}
@@ -175,6 +175,12 @@ func (c ReportCmd) Run(args []string) int {
 			return 1
 		}
 
+		// hack, if project format we want all commits for the project
+		if format == "project" && limit == 0 {
+			// set max to absurdly high value for number of possible commits
+			limit = 2147483647
+		}
+
 		limiter, err := scm.NewCommitLimiter(
 			limit, fromDate, toDate, author, message,
 			today, yesterday, thisWeek, lastWeek,
@@ -204,6 +210,8 @@ func (c ReportCmd) Run(args []string) int {
 		Limit:       limit}
 
 	switch format {
+	case "project":
+		out, err = report.ProjectSummary(projCommits, options)
 	case "summary":
 		out, err = report.CommitSummary(projCommits, options)
 	case "commits":
