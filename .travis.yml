@@ -5,7 +5,7 @@ os:
   - osx
 
 go:
-  - 1.10
+  - 1.9
 
 before_install:
   - if [ "${TRAVIS_OS_NAME}" == "linux" ]; then sudo apt-get install -y curl libcurl3 libcurl3-gnutls libcurl4-gnutls-dev; fi
