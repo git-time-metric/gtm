@@ -17,7 +17,7 @@ cmake -DTHREADSAFE=ON \
       -DCMAKE_BUILD_TYPE="RelWithDebInfo" \
       -DCMAKE_INSTALL_PREFIX=../install \
       -DWINHTTP=OFF \
-      -DUSE_BUNDLED_ZLIB=OFF \
+      -DUSE_BUNDLED_ZLIB=ON \
       -G "MSYS Makefiles" \
       .. &&
 
