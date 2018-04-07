@@ -18,6 +18,8 @@ cmake -DTHREADSAFE=ON \
       -DCMAKE_INSTALL_PREFIX=../install \
       -DWINHTTP=OFF \
       -DUSE_BUNDLED_ZLIB=ON \
+      -DUSE_HTTPS=OFF \
+      -DUSE_SSH=OFF \
       -G "MSYS Makefiles" \
       .. &&
 
