@@ -18,6 +18,22 @@
 			"notests": true
 		},
 		{
+			"importpath": "github.com/briandowns/spinner",
+			"repository": "https://github.com/briandowns/spinner",
+			"vcs": "git",
+			"revision": "b3ed21e9d3b2af92b077f7d21edd80599b8fb97f",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/fatih/color",
+			"repository": "https://github.com/fatih/color",
+			"vcs": "git",
+			"revision": "507f6050b8568533fb3f5504de8e5205fa62a114",
+			"branch": "master",
+			"notests": true
+		},
+		{
 			"importpath": "github.com/hako/durafmt",
 			"repository": "https://github.com/hako/durafmt",
 			"vcs": "git",

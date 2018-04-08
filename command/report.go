@@ -11,7 +11,9 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"time"
 
+	"github.com/briandowns/spinner"
 	"github.com/git-time-metric/gtm/project"
 	"github.com/git-time-metric/gtm/report"
 	"github.com/git-time-metric/gtm/scm"
@@ -209,6 +211,9 @@ func (c ReportCmd) Run(args []string) int {
 		Color:       color,
 		Limit:       limit}
 
+	s := spinner.New(spinner.CharSets[9], 100*time.Millisecond)
+	s.Start()
+
 	switch format {
 	case "project":
 		out, err = report.ProjectSummary(projCommits, options)
@@ -223,6 +228,8 @@ func (c ReportCmd) Run(args []string) int {
 	case "timeline-commits":
 		out, err = report.TimelineCommits(projCommits, options)
 	}
+
+	s.Stop()
 
 	if err != nil {
 		c.Ui.Error(err.Error())
