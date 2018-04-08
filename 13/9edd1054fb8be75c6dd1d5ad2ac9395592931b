@@ -1,0 +1,7 @@
+[ver:1,total:1680]
+.gtm/terminal.app:800,1523221200:360,1523224800:440,r
+report/report.go:455,1523224800:455,r
+command/report.go:350,1523224800:350,m
+vendor/manifest:30,1523224800:30,m
+report/query.go:30,1523224800:30,r
+.git/index:15,1523224800:15,r
