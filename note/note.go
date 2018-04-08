@@ -163,11 +163,16 @@ type FileDetail struct {
 }
 
 func (f *FileDetail) ShortenSourceFile(n int) string {
-	x := len(f.SourceFile) - n
+	x := len(f.SourceFile) - n - 1
 	if x <= 0 {
 		return f.SourceFile
 	}
-	return fmt.Sprintf("..%s", f.SourceFile[x:])
+
+	idx := strings.Index(f.SourceFile, string(filepath.Separator))
+	if idx >= 0 {
+		x = idx
+	}
+	return fmt.Sprintf("...%s", f.SourceFile[x:])
 }
 
 // SortEpochs returns timeline keys sorted by epoch
