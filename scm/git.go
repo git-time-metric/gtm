@@ -264,6 +264,8 @@ func (c CommitStats) ChangeRatePerHour(seconds int) float64 {
 
 // DiffParentCommit compares commit to it's parent and returns their stats
 func DiffParentCommit(childCommit *git.Commit) (CommitStats, error) {
+	defer util.TimeTrack(time.Now(), "DiffParentCommit")
+
 	childTree, err := childCommit.Tree()
 	if err != nil {
 		return CommitStats{}, err
@@ -447,7 +449,7 @@ type CommitNote struct {
 }
 
 // ReadNote returns a commit note for the SHA1 commit id
-func ReadNote(commitID string, nameSpace string, wd ...string) (CommitNote, error) {
+func ReadNote(commitID string, nameSpace string, calcStats bool, wd ...string) (CommitNote, error) {
 	var (
 		err    error
 		repo   *git.Repository
@@ -493,10 +495,12 @@ func ReadNote(commitID string, nameSpace string, wd ...string) (CommitNote, erro
 		noteTxt = n.Message()
 	}
 
-	// TODO: should we make this optional for performance reasons?
-	stats, err := DiffParentCommit(commit)
-	if err != nil {
-		return CommitNote{}, err
+	stats := CommitStats{}
+	if calcStats {
+		stats, err = DiffParentCommit(commit)
+		if err != nil {
+			return CommitNote{}, err
+		}
 	}
 
 	return CommitNote{

@@ -126,7 +126,7 @@ func TestNote(t *testing.T) {
 		t.Errorf("HeadCommit error, %s", err)
 	}
 
-	note, err := ReadNote(commit.ID, "gtm-data", repoPath)
+	note, err := ReadNote(commit.ID, "gtm-data", true, repoPath)
 	if err != nil {
 		t.Errorf("ReadNote error, %s", err)
 	}
@@ -153,7 +153,7 @@ func TestNote(t *testing.T) {
 		t.Errorf("HeadCommit error, %s", err)
 	}
 
-	note, err = ReadNote(commit.ID, "gtm-data")
+	note, err = ReadNote(commit.ID, "gtm-data", true)
 	if err != nil {
 		t.Errorf("ReadNote error, %s", err)
 	}

@@ -21,7 +21,7 @@ const (
 	defaultDateFormat = "Mon Jan 02 15:04:05 2006 MST"
 )
 
-func retrieveNotes(projects []ProjectCommits, terminalOff bool, dateFormat string) commitNoteDetails {
+func retrieveNotes(projects []ProjectCommits, terminalOff, calcStats bool, dateFormat string) commitNoteDetails {
 	notes := commitNoteDetails{}
 
 	if dateFormat == "" {
@@ -31,7 +31,7 @@ func retrieveNotes(projects []ProjectCommits, terminalOff bool, dateFormat strin
 	for _, p := range projects {
 		for _, c := range p.Commits {
 
-			n, err := scm.ReadNote(c, project.NoteNameSpace, p.Path)
+			n, err := scm.ReadNote(c, project.NoteNameSpace, calcStats, p.Path)
 			if err != nil {
 				notes = append(notes, commitNoteDetail{})
 				continue

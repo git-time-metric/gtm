@@ -40,7 +40,7 @@ func TestFullCommit(t *testing.T) {
 		t.Fatalf("Process(false) - test full commit, want error nil, got %s", err)
 	}
 
-	n, err := scm.ReadNote(commitID.String(), "gtm-data")
+	n, err := scm.ReadNote(commitID.String(), "gtm-data", true)
 	util.CheckFatal(t, err)
 
 	want := []string{`total:180.*`, `event.go:160.*,m`, `event_test.go:20.*,m`}
@@ -83,7 +83,7 @@ func TestPartialCommit(t *testing.T) {
 		t.Fatalf("Process(false) - test full commit, want error nil, got %s", err)
 	}
 
-	n, err := scm.ReadNote(commitID.String(), "gtm-data")
+	n, err := scm.ReadNote(commitID.String(), "gtm-data", true)
 	util.CheckFatal(t, err)
 
 	want := []string{`total:180`, `event_test.go:20.*,m`, `event.go:160.*,r`}
@@ -121,7 +121,7 @@ func TestInterim(t *testing.T) {
 		t.Fatalf("Process(false) - test full commit, want error nil, got %s", err)
 	}
 
-	n, err := scm.ReadNote(commitID.String(), "gtm-data")
+	n, err := scm.ReadNote(commitID.String(), "gtm-data", true)
 	util.CheckFatal(t, err)
 
 	if n.Note != "" {
