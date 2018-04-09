@@ -168,9 +168,9 @@ func (f *FileDetail) ShortenSourceFile(n int) string {
 		return f.SourceFile
 	}
 
-	idx := strings.Index(f.SourceFile, string(filepath.Separator))
+	idx := strings.Index(f.SourceFile[x:], string(filepath.Separator))
 	if idx >= 0 {
-		x = idx
+		x = x + idx
 	}
 	return fmt.Sprintf("...%s", f.SourceFile[x:])
 }
