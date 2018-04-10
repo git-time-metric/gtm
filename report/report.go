@@ -133,7 +133,7 @@ func CommitSummary(projects []ProjectCommits, options OutputOptions) (string, er
 	return b.String(), nil
 }
 
-// ProjectSummary returns the commit summary report
+// ProjectSummary returns the project summary report
 func ProjectSummary(projects []ProjectCommits, options OutputOptions) (string, error) {
 	notes := options.limitNotes(retrieveNotes(projects, options.TerminalOff, false, "Mon Jan 02"))
 	if len(notes) == 0 {
