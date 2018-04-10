@@ -1,0 +1,9 @@
+[ver:1,total:660]
+.gtm/terminal.app:305,1523293200:210,1523401200:95,r
+command/report_test.go:137,1523401200:137,m
+note/note.go:90,1523293200:90,r
+project/project.go:40,1523401200:40,r
+report/report.go:24,1523401200:24,m
+report/templates.go:24,1523401200:24,r
+command/record.go:20,1523401200:20,r
+command/report.go:20,1523401200:20,r
