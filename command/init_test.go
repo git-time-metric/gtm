@@ -42,32 +42,9 @@ func TestInitDefaultOptions(t *testing.T) {
   alias.fetchgtm: fetch origin refs/notes/gtm-data:refs/notes/gtm-data
    alias.pushgtm: push origin refs/notes/gtm-data
 notes.rewriteref: refs/notes/gtm-data
-        terminal: true
       .gitignore: /.gtm/
             tags:
 `
-	if rc != 0 {
-		t.Errorf("gtm init(%+v), want 0 got %d", args, rc)
-	}
-	if !strings.Contains(strings.TrimSpace(ui.OutputWriter.String()), strings.TrimSpace(want)) {
-		t.Errorf("gtm init(%+v), want %s got %s", args, want, ui.OutputWriter.String())
-	}
-}
-
-func TestInitTerminalFalse(t *testing.T) {
-	repo := util.NewTestRepo(t, false)
-	defer repo.Remove()
-	repo.Seed()
-	os.Chdir(repo.PathIn(""))
-
-	ui := new(cli.MockUi)
-	c := InitCmd{Ui: ui}
-
-	args := []string{"-terminal=false"}
-	rc := c.Run(args)
-
-	want := "terminal: false"
-
 	if rc != 0 {
 		t.Errorf("gtm init(%+v), want 0 got %d", args, rc)
 	}

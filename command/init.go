@@ -29,11 +29,9 @@ func (c InitCmd) Help() string {
 	helpText := `
 Usage: gtm init [options]
 
-  Initialize a git repository for time tracking. 
+  Initialize a git repository for time tracking.
 
 Options:
-
-  -terminal=true             Enable time tracking for terminal (requires Terminal plug-in).
 
   -tags=tag1,tag2            Add tags to projects, multiple calls appends tags.
 
@@ -44,17 +42,16 @@ Options:
 
 // Run executes init command with args
 func (c InitCmd) Run(args []string) int {
-	var terminal, clearTags bool
+	var clearTags bool
 	var tags string
 	cmdFlags := flag.NewFlagSet("init", flag.ContinueOnError)
-	cmdFlags.BoolVar(&terminal, "terminal", true, "")
 	cmdFlags.BoolVar(&clearTags, "clear-tags", false, "")
 	cmdFlags.StringVar(&tags, "tags", "", "")
 	cmdFlags.Usage = func() { c.Ui.Output(c.Help()) }
 	if err := cmdFlags.Parse(args); err != nil {
 		return 1
 	}
-	m, err := project.Initialize(terminal, util.Map(strings.Split(tags, ","), strings.TrimSpace), clearTags)
+	m, err := project.Initialize(util.Map(strings.Split(tags, ","), strings.TrimSpace), clearTags)
 	if err != nil {
 		c.Ui.Error(err.Error())
 		return 1

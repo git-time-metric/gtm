@@ -62,7 +62,6 @@ const initMsgTpl string = `
 {{ range $key, $val := .GitConfig -}}
 	{{- $key | printf "%16s" }}: {{ $val }}
 {{end -}}
-{{ print "terminal:" | printf "%17s" }} {{ .Terminal }}
 {{ print ".gitignore:" | printf "%17s" }} {{ .GitIgnore }}
 {{ print "tags:" | printf "%17s" }} {{.Tags }}
 `
@@ -81,7 +80,7 @@ The following items have been removed.
 `
 
 // Initialize initializes a git repo for time tracking
-func Initialize(terminal bool, tags []string, clearTags bool) (string, error) {
+func Initialize(tags []string, clearTags bool) (string, error) {
 	wd, err := os.Getwd()
 	if err != nil {
 		return "", err
@@ -121,15 +120,6 @@ func Initialize(terminal bool, tags []string, clearTags bool) (string, error) {
 		return "", err
 	}
 
-	// if terminal {
-	// 	if err := ioutil.WriteFile(filepath.Join(gtmPath, "terminal.app"), []byte(""), 0644); err != nil {
-	// 		return "", err
-	// 	}
-	// } else {
-	// 	// file may not exist, ignore error
-	// 	os.Remove(filepath.Join(gtmPath, "terminal.app"))
-	// }
-
 	if err := scm.SetHooks(GitHooks, projRoot); err != nil {
 		return "", err
 	}
@@ -157,7 +147,6 @@ func Initialize(terminal bool, tags []string, clearTags bool) (string, error) {
 			GitHooks     map[string]scm.GitHook
 			GitConfig    map[string]string
 			GitIgnore    string
-			Terminal     bool
 		}{
 			strings.Join(tags, " "),
 			headerFormat,
@@ -165,7 +154,6 @@ func Initialize(terminal bool, tags []string, clearTags bool) (string, error) {
 			GitHooks,
 			GitConfig,
 			GitIgnore,
-			terminal,
 		})
 
 	if err != nil {

@@ -60,10 +60,6 @@ Options:
 	return strings.TrimSpace(helpText)
 }
 
-// TODO: refactor how terminal events are recorded and reported on
-
-// TODO: update to support application events tracking
-
 // Run executes record command with args
 func (c RecordCmd) Run(args []string) int {
 	var status, terminal, longDuration bool

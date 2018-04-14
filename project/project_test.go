@@ -44,7 +44,7 @@ func TestInitialize(t *testing.T) {
 		t.Fatalf("Unable to initialize git repo, %s", string(b))
 	}
 
-	s, err := Initialize(false, []string{}, false)
+	s, err := Initialize([]string{}, false)
 	if err != nil {
 		t.Errorf("Initialize(), want error nil got error %s", err)
 	}
@@ -93,7 +93,7 @@ func TestInitialize(t *testing.T) {
 	}
 
 	// let's reinitialize with terminal tracking enabled
-	s, err = Initialize(true, []string{}, false)
+	s, err = Initialize([]string{}, false)
 	if err != nil {
 		t.Errorf("Initialize(true), want error nil got error %s", err)
 	}
@@ -136,10 +136,6 @@ func TestInitialize(t *testing.T) {
 	if !strings.Contains(string(b), GitIgnore+"\n") {
 		t.Errorf("Initialize(true), want %s got %s", GitIgnore, string(b))
 	}
-	// fp = filepath.Join(rootPath, ".gtm", "terminal.app")
-	// if _, err := os.Stat(fp); os.IsNotExist(err) {
-	// 	t.Errorf("Initialize(true), want file terminal.app, got %s", err)
-	// }
 }
 
 func TestUninitialize(t *testing.T) {
@@ -169,7 +165,7 @@ func TestUninitialize(t *testing.T) {
 		t.Fatalf("Unable to initialize git repo, %s", string(b))
 	}
 
-	s, err := Initialize(false, []string{}, false)
+	s, err := Initialize([]string{}, false)
 	if err != nil {
 		t.Fatalf("Want error nil got error %s", err)
 	}
@@ -244,7 +240,7 @@ func TestClean(t *testing.T) {
 		t.Fatalf("Unable to initialize git repo, %s", string(b))
 	}
 
-	_, err = Initialize(false, []string{}, false)
+	_, err = Initialize([]string{}, false)
 	if err != nil {
 		t.Fatalf("Want error nil got error %s", err)
 	}
