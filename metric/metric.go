@@ -324,7 +324,7 @@ func buildCommitNote(
 		}
 		flsModified = append(
 			flsModified,
-			note.FileDetail{SourceFile: fm.SourceFile, TimeSpent: fm.TimeSpent, Timeline: fm.Timeline, Status: status})
+			note.NewFileDetail(fm.SourceFile, fm.TimeSpent, fm.Timeline, status))
 	}
 
 	flsReadonly := []note.FileDetail{}
@@ -336,7 +336,7 @@ func buildCommitNote(
 		}
 		flsReadonly = append(
 			flsReadonly,
-			note.FileDetail{SourceFile: fm.SourceFile, TimeSpent: fm.TimeSpent, Timeline: fm.Timeline, Status: status})
+			note.NewFileDetail(fm.SourceFile, fm.TimeSpent, fm.Timeline, status))
 	}
 	fls := append(flsModified, flsReadonly...)
 	sort.Sort(sort.Reverse(note.FileByTime(fls)))

@@ -36,11 +36,7 @@ const (
 	{{- $note.Date }} {{ printf $boldFormat $note.Project }} {{ $note.Author }}{{- printf "\n" }}
 	{{- if $fullMessage}}{{- if $note.Message }}{{- printf "\n"}}{{- $note.Message }}{{- printf "\n"}}{{end}}{{end}}
 	{{- range $i, $f := .Note.Files }}
-		{{- if $f.IsTerminal }}
-			{{- FormatDuration $f.TimeSpent | printf "\n%14s" }} {{ Percent $f.TimeSpent $total | printf "%3.0f"}}% [{{ $f.Status }}] Terminal
-		{{- else }}
 			{{- FormatDuration $f.TimeSpent | printf "\n%14s" }} {{ Percent $f.TimeSpent $total | printf "%3.0f"}}% [{{ $f.Status }}] {{$f.ShortenSourceFile 100}}
-		{{- end }}
 	{{- end }}
 	{{- if len .Note.Files }}
 	{{- FormatDuration $total | printf "\n%14s" }}          {{ printf $boldFormat $note.Project }} [{{$note.LineAdd}} {{$note.LineDel}} = {{$note.LineDiff}}] [{{$note.ChangeRate}}/hr]{{ printf "\n\n" }}
@@ -54,11 +50,7 @@ const (
 {{- if .Note.Files }}{{ printf "\n"}}{{end}}
 {{- $total := .Note.Total }}
 {{- range $i, $f := .Note.Files }}
-	{{- if $f.IsTerminal }}
-		{{- FormatDuration $f.TimeSpent | printf "%14s" }} {{ Percent $f.TimeSpent $total | printf "%3.0f"}}% [{{ $f.Status }}] Terminal
-	{{- else }}
 		{{- FormatDuration $f.TimeSpent | printf "%14s" }} {{ Percent $f.TimeSpent $total | printf "%3.0f"}}% [{{ $f.Status }}] {{$f.ShortenSourceFile 100}}
-	{{- end }}
 {{ end }}
 {{- if len .Note.Files }}
 	{{- FormatDuration .Note.Total | printf "%14s" }}          {{ printf $boldFormat .ProjectName }} {{ if .Tags }}[{{ .Tags }}]{{ end }}
@@ -97,11 +89,7 @@ const (
 	filesTpl string = `
 {{- $total := .Files.Total }}
 {{ range $i, $f := .Files }}
-	{{- if $f.IsTerminal }}
-		{{- $f.Duration | printf "%14s" }} {{ Percent $f.Seconds $total | printf "%3.0f"}}%  Terminal
-	{{- else }}
-		{{- $f.Duration | printf "%14s" }} {{ Percent $f.Seconds $total | printf "%3.0f"}}%  {{ $f.Filename }}
-	{{- end }}
+	{{- $f.Duration | printf "%14s" }} {{ Percent $f.Seconds $total | printf "%3.0f"}}%  {{ $f.FileName }}
 {{ end }}
 {{- if len .Files }}
 	{{- .Files.Duration | printf "%14s" }}

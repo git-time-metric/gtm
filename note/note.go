@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/git-time-metric/gtm/event"
 	"github.com/git-time-metric/gtm/util"
 )
 
@@ -45,7 +46,7 @@ func Marshal(n CommitNote) string {
 	s := fmt.Sprintf("[ver:%s,total:%d]\n", "1", n.Total())
 	for _, fl := range n.Files {
 		// nomralize file paths to unix convention
-		s += fmt.Sprintf("%s:%d,", filepath.ToSlash(fl.SourceFile), fl.TimeSpent)
+		s += fmt.Sprintf("%s:%d,", filepath.ToSlash(fl.SourceFile()), fl.TimeSpent)
 		for _, e := range fl.SortEpochs() {
 			s += fmt.Sprintf("%d:%d,", e, fl.Timeline[e])
 		}
@@ -123,7 +124,7 @@ func UnMarshal(s string) (CommitNote, error) {
 			// for example, this can happen when rewriting commits with git commit --amend
 			found := false
 			for idx := range files {
-				if files[idx].SourceFile == filePath {
+				if files[idx].SourceFile() == filePath {
 					for epoch, secs := range fileTimeline {
 						files[idx].TimeSpent += secs
 						files[idx].Timeline[epoch] += secs
@@ -140,7 +141,7 @@ func UnMarshal(s string) (CommitNote, error) {
 			if !found {
 				files = append(files,
 					FileDetail{
-						SourceFile: filePath,
+						sourceFile: filePath,
 						TimeSpent:  fileTotal,
 						Timeline:   fileTimeline,
 						Status:     fileStatus})
@@ -156,23 +157,27 @@ func UnMarshal(s string) (CommitNote, error) {
 
 // FileDetail contains a source file's time metrics
 type FileDetail struct {
-	SourceFile string
+	sourceFile string
 	TimeSpent  int
 	Timeline   map[int64]int
 	Status     string
 }
 
+func NewFileDetail(sourceFile string, timeSpent int, timeline map[int64]int, status string) FileDetail {
+	return FileDetail{sourceFile: sourceFile, TimeSpent: timeSpent, Timeline: timeline, Status: status}
+}
+
 func (f *FileDetail) ShortenSourceFile(n int) string {
-	x := len(f.SourceFile) - n - 1
+	x := len(f.SourceFile()) - n - 1
 	if x <= 0 {
-		return f.SourceFile
+		return f.SourceFile()
 	}
 
-	idx := strings.Index(f.SourceFile[x:], string(filepath.Separator))
+	idx := strings.Index(f.SourceFile()[x:], string(filepath.Separator))
 	if idx >= 0 {
 		x = x + idx
 	}
-	return fmt.Sprintf("...%s", f.SourceFile[x:])
+	return fmt.Sprintf("...%s", f.SourceFile()[x:])
 }
 
 // SortEpochs returns timeline keys sorted by epoch
@@ -187,7 +192,16 @@ func (f *FileDetail) SortEpochs() []int64 {
 
 // IsTerminal returns true if file is terminal
 func (f *FileDetail) IsTerminal() bool {
-	return f.SourceFile == ".gtm/terminal.app"
+	a := event.NewApplicationFromPath(f.SourceFile())
+	return a.IsTerminal()
+}
+
+func (f *FileDetail) SourceFile() string {
+	a := event.NewApplicationFromPath(f.sourceFile)
+	if a.IsApplication() {
+		return a.Name()
+	}
+	return f.sourceFile
 }
 
 // FileByTime is list of FileDetails

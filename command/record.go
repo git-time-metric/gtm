@@ -17,7 +17,6 @@ import (
 	"github.com/git-time-metric/gtm/note"
 	"github.com/git-time-metric/gtm/project"
 	"github.com/git-time-metric/gtm/report"
-	"github.com/git-time-metric/gtm/scm"
 
 	"github.com/mitchellh/cli"
 )
@@ -52,6 +51,8 @@ Options:
 
   -terminal=false            Record a terminal event.
 
+  -app=""                    Record an application event.
+
   -status=false              Return total time recorded for event.
 
   -long-duration=false       Return total time recorded in long duration format
@@ -59,32 +60,46 @@ Options:
 	return strings.TrimSpace(helpText)
 }
 
+// TODO: refactor how terminal events are recorded and reported on
+
+// TODO: update to support application events tracking
+
 // Run executes record command with args
 func (c RecordCmd) Run(args []string) int {
 	var status, terminal, longDuration bool
+	var application string
 	cmdFlags := flag.NewFlagSet("record", flag.ContinueOnError)
 	cmdFlags.BoolVar(&status, "status", false, "")
 	cmdFlags.BoolVar(&terminal, "terminal", false, "")
 	cmdFlags.BoolVar(&longDuration, "long-duration", false, "")
+	cmdFlags.StringVar(&application, "app", "", "")
 	cmdFlags.Usage = func() { c.Ui.Output(c.Help()) }
 	if err := cmdFlags.Parse(args); err != nil {
 		return 1
 	}
 
-	if !terminal && len(cmdFlags.Args()) == 0 {
+	if !terminal && application == "" && len(cmdFlags.Args()) == 0 {
 		c.Ui.Error("Unable to record, file not provided")
 		return 1
 	}
 
 	fileToRecord := ""
-	if terminal {
-		projPath, err := scm.RootPath()
+	switch {
+	case terminal:
+		a, err := event.NewTerminalApplication()
 		if err != nil {
 			// if not found, ignore error
 			return 0
 		}
-		fileToRecord = filepath.Join(projPath, ".gtm", "terminal.app")
-	} else {
+		fileToRecord = a.Path()
+	case application != "":
+		a, err := event.NewApplicationFromName(application)
+		if err != nil {
+			// if not found, ignore error
+			return 0
+		}
+		fileToRecord = a.Path()
+	default:
 		fileToRecord = cmdFlags.Args()[0]
 	}
 

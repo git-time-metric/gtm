@@ -121,14 +121,14 @@ func Initialize(terminal bool, tags []string, clearTags bool) (string, error) {
 		return "", err
 	}
 
-	if terminal {
-		if err := ioutil.WriteFile(filepath.Join(gtmPath, "terminal.app"), []byte(""), 0644); err != nil {
-			return "", err
-		}
-	} else {
-		// file may not exist, ignore error
-		os.Remove(filepath.Join(gtmPath, "terminal.app"))
-	}
+	// if terminal {
+	// 	if err := ioutil.WriteFile(filepath.Join(gtmPath, "terminal.app"), []byte(""), 0644); err != nil {
+	// 		return "", err
+	// 	}
+	// } else {
+	// 	// file may not exist, ignore error
+	// 	os.Remove(filepath.Join(gtmPath, "terminal.app"))
+	// }
 
 	if err := scm.SetHooks(GitHooks, projRoot); err != nil {
 		return "", err

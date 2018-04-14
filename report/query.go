@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/git-time-metric/gtm/event"
 	"github.com/git-time-metric/gtm/note"
 	"github.com/git-time-metric/gtm/project"
 	"github.com/git-time-metric/gtm/scm"
@@ -111,11 +112,11 @@ func (c commitNoteDetails) files() fileEntries {
 	filesMap := map[string]fileEntry{}
 	for _, n := range c {
 		for _, f := range n.Note.Files {
-			if entry, ok := filesMap[f.SourceFile]; !ok {
-				filesMap[f.SourceFile] = fileEntry{Filename: f.SourceFile, Seconds: f.TimeSpent}
+			if entry, ok := filesMap[f.SourceFile()]; !ok {
+				filesMap[f.SourceFile()] = fileEntry{fileName: f.SourceFile(), Seconds: f.TimeSpent}
 			} else {
 				entry.add(f.TimeSpent)
-				filesMap[f.SourceFile] = entry
+				filesMap[f.SourceFile()] = entry
 			}
 		}
 	}
@@ -147,7 +148,7 @@ func (f fileEntries) Total() int {
 }
 
 type fileEntry struct {
-	Filename string
+	fileName string
 	Seconds  int
 }
 
@@ -159,6 +160,24 @@ func (f *fileEntry) Duration() string {
 	return util.FormatDuration(f.Seconds)
 }
 
+func (f *fileEntry) Application() event.Application {
+	return event.NewApplicationFromPath(f.fileName)
+}
+
 func (f *fileEntry) IsTerminal() bool {
-	return f.Filename == ".gtm/terminal.app"
+	a := f.Application()
+	return a.IsTerminal()
+}
+
+func (f *fileEntry) IsApplication() bool {
+	a := f.Application()
+	return a.IsApplication()
+}
+
+func (f *fileEntry) FileName() string {
+	a := f.Application()
+	if a.IsApplication() {
+		return a.Name()
+	}
+	return f.fileName
 }

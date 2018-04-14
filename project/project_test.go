@@ -136,10 +136,10 @@ func TestInitialize(t *testing.T) {
 	if !strings.Contains(string(b), GitIgnore+"\n") {
 		t.Errorf("Initialize(true), want %s got %s", GitIgnore, string(b))
 	}
-	fp = filepath.Join(rootPath, ".gtm", "terminal.app")
-	if _, err := os.Stat(fp); os.IsNotExist(err) {
-		t.Errorf("Initialize(true), want file terminal.app, got %s", err)
-	}
+	// fp = filepath.Join(rootPath, ".gtm", "terminal.app")
+	// if _, err := os.Stat(fp); os.IsNotExist(err) {
+	// 	t.Errorf("Initialize(true), want file terminal.app, got %s", err)
+	// }
 }
 
 func TestUninitialize(t *testing.T) {
