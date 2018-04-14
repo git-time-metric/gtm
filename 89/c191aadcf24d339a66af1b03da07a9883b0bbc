@@ -1,0 +1,13 @@
+[ver:1,total:780]
+Terminal:185,1523743200:185,r
+project/project.go:175,1523743200:175,m
+command/init.go:105,1523743200:105,m
+event/app.go:80,1523743200:80,r
+command/record.go:50,1523743200:50,m
+project/project_test.go:50,1523743200:50,m
+command/init_test.go:45,1523743200:45,m
+event/manager_test.go:40,1523743200:40,m
+project/index.go:20,1523743200:20,r
+Google Chrome:10,1523743200:10,r
+.git/index:10,1523743200:10,r
+main.go:10,1523743200:10,r
