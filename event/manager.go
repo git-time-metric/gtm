@@ -13,11 +13,12 @@ import (
 	"time"
 
 	"github.com/git-time-metric/gtm/epoch"
+	"github.com/git-time-metric/gtm/project"
 	"github.com/git-time-metric/gtm/util"
 )
 
 // Record creates an event for a source
-func Record(file string) error {
+func Record(file string, applicationEvent bool) error {
 	sourcePath, gtmPath, err := pathFromSource(file)
 	if err != nil {
 		return err
@@ -27,13 +28,18 @@ func Record(file string) error {
 		return err
 	}
 
+	// if application event, do not update project access
+	if !applicationEvent {
+		project.LogActive(strings.TrimSuffix(gtmPath, gtmDirectory))
+	}
+
 	return nil
 }
 
 // Process scans the gtmPath for event files and processes them.
 // If interim is true, event files are not purged.
 func Process(gtmPath string, interim bool) (map[int64]map[string]int, error) {
-	util.TimeTrack(time.Now(), "event.Process")
+	defer util.TimeTrack(time.Now(), "event.Process")
 
 	events := make(map[int64]map[string]int, 0)
 

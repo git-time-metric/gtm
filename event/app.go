@@ -6,8 +6,10 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/git-time-metric/gtm/scm"
+	"github.com/git-time-metric/gtm/util"
 )
 
 const (
@@ -44,6 +46,8 @@ func NewApplicationFromPath(path string) Application {
 }
 
 func (a *Application) setFilePathFromName() error {
+	defer util.TimeTrack(time.Now(), "event.setFilePathFromName")
+
 	projPath, err := scm.RootPath()
 	if err != nil {
 		return err

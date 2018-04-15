@@ -6,8 +6,10 @@ package main
 
 import (
 	"os"
+	"strings"
 
 	"github.com/git-time-metric/gtm/command"
+	"github.com/git-time-metric/gtm/util"
 	"github.com/mitchellh/cli"
 )
 
@@ -15,6 +17,10 @@ import (
 var Version = "0.0.0"
 
 func main() {
+	if strings.TrimSpace(os.Getenv("GTM_PROFILE")) == "1" {
+		util.TimeTrackEnable = true
+	}
+
 	ui := &cli.ColoredUi{ErrorColor: cli.UiColorRed, Ui: &cli.BasicUi{Writer: os.Stdout, Reader: os.Stdin}}
 	c := cli.NewCLI("gtm", Version)
 	c.Args = os.Args[1:]

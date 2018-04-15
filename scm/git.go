@@ -23,6 +23,7 @@ import (
 // RootPath discovers the base directory for a git repo
 func RootPath(path ...string) (string, error) {
 	defer util.TimeTrack(time.Now(), "scm.RootPath")
+
 	var (
 		wd  string
 		p   string
@@ -399,7 +400,7 @@ func HeadCommit(wd ...string) (Commit, error) {
 
 // CreateNote creates a git note associated with the head commit
 func CreateNote(noteTxt string, nameSpace string, wd ...string) error {
-	util.TimeTrack(time.Now(), "scm.CreateNote")
+	defer util.TimeTrack(time.Now(), "scm.CreateNote")
 
 	var (
 		repo *git.Repository
@@ -786,6 +787,8 @@ func IgnoreRemove(ignore string, wd ...string) error {
 }
 
 func openRepository(wd ...string) (*git.Repository, error) {
+	defer util.TimeTrack(time.Now(), "scm.openRepository")
+
 	var (
 		p   string
 		err error
@@ -840,7 +843,7 @@ type Status struct {
 
 // NewStatus create a Status struct for a git repo
 func NewStatus(wd ...string) (Status, error) {
-	util.TimeTrack(time.Now(), "scm.NewStatus")
+	defer util.TimeTrack(time.Now(), "scm.NewStatus")
 
 	var (
 		repo *git.Repository

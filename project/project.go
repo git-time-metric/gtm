@@ -295,7 +295,7 @@ func Stash() error {
 
 // Paths returns the root git repo and gtm paths
 func Paths(wd ...string) (string, string, error) {
-	util.TimeTrack(time.Now(), "project.Paths")
+	defer util.TimeTrack(time.Now(), "project.Paths")
 
 	var (
 		repoPath string

@@ -11,12 +11,14 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/git-time-metric/gtm/event"
 	"github.com/git-time-metric/gtm/metric"
 	"github.com/git-time-metric/gtm/note"
 	"github.com/git-time-metric/gtm/project"
 	"github.com/git-time-metric/gtm/report"
+	"github.com/git-time-metric/gtm/util"
 
 	"github.com/mitchellh/cli"
 )
@@ -62,6 +64,8 @@ Options:
 
 // Run executes record command with args
 func (c RecordCmd) Run(args []string) int {
+	defer util.TimeTrack(time.Now(), "command.Record")
+
 	var status, terminal, longDuration bool
 	var application string
 	cmdFlags := flag.NewFlagSet("record", flag.ContinueOnError)
@@ -79,7 +83,15 @@ func (c RecordCmd) Run(args []string) int {
 		return 1
 	}
 
+	// TODO: test performance of turning of status for record
+	// Checking status on record is expensive, +40ms with and +2ms without
+	// Default terminal plugin to not check status on record
+
+	// status = false
+
 	fileToRecord := ""
+	applicationEvent := application != ""
+
 	switch {
 	case terminal:
 		a, err := event.NewTerminalApplication()
@@ -88,18 +100,38 @@ func (c RecordCmd) Run(args []string) int {
 			return 0
 		}
 		fileToRecord = a.Path()
-	case application != "":
-		a, err := event.NewApplicationFromName(application)
-		if err != nil {
-			// if not found, ignore error
+
+	case applicationEvent:
+		p := project.GetActive()
+		if p == "" {
 			return 0
 		}
+
+		x, err := os.Getwd()
+		if err != nil {
+			c.Ui.Error(err.Error())
+			return 1
+		}
+		defer os.Chdir(x)
+
+		err = os.Chdir(p)
+		if err != nil {
+			c.Ui.Error(err.Error())
+			return 1
+		}
+
+		a, err := event.NewApplicationFromName(application)
+		if err != nil {
+			c.Ui.Error(err.Error())
+			return 1
+		}
 		fileToRecord = a.Path()
+
 	default:
 		fileToRecord = cmdFlags.Args()[0]
 	}
 
-	if err := event.Record(fileToRecord); err != nil && !(err == project.ErrNotInitialized || err == project.ErrFileNotFound) {
+	if err := event.Record(fileToRecord, applicationEvent); err != nil && !(err == project.ErrNotInitialized || err == project.ErrFileNotFound) {
 		return 1
 	} else if err == nil && status {
 		var (

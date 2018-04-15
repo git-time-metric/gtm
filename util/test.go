@@ -24,7 +24,7 @@ var TimeTrackEnable = false
 func TimeTrack(start time.Time, name string) {
 	if TimeTrackEnable {
 		elapsed := time.Since(start)
-		log.Printf("%s took %s", name, elapsed)
+		log.Printf("%s  %s", name, elapsed)
 	}
 }
 

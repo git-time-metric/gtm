@@ -49,7 +49,7 @@ func writeEventFile(sourcePath, gtmPath string) error {
 }
 
 func readEventFile(filePath string) (string, error) {
-	util.TimeTrack(time.Now(), "event.readEventFile")
+	defer util.TimeTrack(time.Now(), "event.readEventFile")
 	b, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		return "", err
@@ -58,7 +58,7 @@ func readEventFile(filePath string) (string, error) {
 }
 
 func removeFiles(files []string) error {
-	util.TimeTrack(time.Now(), "event.removeFiles")
+	defer util.TimeTrack(time.Now(), "event.removeFiles")
 
 	for _, file := range files {
 		if err := os.Remove(file); err != nil {

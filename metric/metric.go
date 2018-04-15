@@ -28,7 +28,7 @@ func getFileID(filePath string) string {
 
 // allocateTime calculates access time for each file within an epoch window
 func allocateTime(ep int64, metricMap map[string]FileMetric, eventMap map[string]int) error {
-	util.TimeTrack(time.Now(), "metric.allocateTime")
+	defer util.TimeTrack(time.Now(), "metric.allocateTime")
 
 	total := 0
 	for file := range eventMap {
@@ -173,7 +173,7 @@ func unMarshalFileMetric(b []byte, filePath string) (FileMetric, error) {
 
 // loadMetrics scans the gtmPath for metric files and loads them
 func loadMetrics(gtmPath string) (map[string]FileMetric, error) {
-	util.TimeTrack(time.Now(), "metric.loadMetrics")
+	defer util.TimeTrack(time.Now(), "metric.loadMetrics")
 
 	files, err := ioutil.ReadDir(gtmPath)
 	if err != nil {
@@ -208,7 +208,7 @@ func saveAndPurgeMetrics(
 	commitMap map[string]FileMetric,
 	readonlyMap map[string]FileMetric) error {
 
-	util.TimeTrack(time.Now(), "metric.saveAndPurgeMetrics")
+	defer util.TimeTrack(time.Now(), "metric.saveAndPurgeMetrics")
 
 	for fileID, fm := range metricMap {
 		_, inCommitMap := commitMap[fileID]
@@ -233,7 +233,7 @@ func saveAndPurgeMetrics(
 
 // readMetric reads and returns the unmarshalled metric file
 func readMetricFile(filePath string) (FileMetric, error) {
-	util.TimeTrack(time.Now(), "metric.readMetricFile")
+	defer util.TimeTrack(time.Now(), "metric.readMetricFile")
 
 	b, err := ioutil.ReadFile(filePath)
 	if err != nil {
@@ -271,7 +271,7 @@ func removeMetricFile(gtmPath, fileID string) error {
 // Files that are in the head commit are added to write commit map.
 // Files that are are not in the commit map and are readonly are added to the read-only commit map.
 func buildCommitMaps(metricMap map[string]FileMetric) (map[string]FileMetric, map[string]FileMetric, error) {
-	util.TimeTrack(time.Now(), "metric.buildCommitMaps")
+	defer util.TimeTrack(time.Now(), "metric.buildCommitMaps")
 
 	commitMap := map[string]FileMetric{}
 	readonlyMap := map[string]FileMetric{}
@@ -312,7 +312,7 @@ func buildCommitNote(
 	commitMap map[string]FileMetric,
 	readonlyMap map[string]FileMetric) (note.CommitNote, error) {
 
-	util.TimeTrack(time.Now(), "metric.buildCommitNote")
+	defer util.TimeTrack(time.Now(), "metric.buildCommitNote")
 
 	flsModified := []note.FileDetail{}
 
@@ -347,7 +347,7 @@ func buildCommitNote(
 // buildInterimCommitMaps creates the write and read-only commit maps
 // Write and read-only files maps are built based on an algorithm and not a git commit
 func buildInterimCommitMaps(metricMap map[string]FileMetric, projPath ...string) (map[string]FileMetric, map[string]FileMetric, error) {
-	util.TimeTrack(time.Now(), "metric.buildInterimCommitMaps")
+	defer util.TimeTrack(time.Now(), "metric.buildInterimCommitMaps")
 
 	commitMap := map[string]FileMetric{}
 	readonlyMap := map[string]FileMetric{}

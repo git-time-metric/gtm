@@ -14,6 +14,10 @@ import (
 	"time"
 )
 
+const (
+	gtmHomeDir = ".git-time-metric"
+)
+
 // Index contains list of projects and their locations
 type Index struct {
 	Projects map[string]time.Time
@@ -94,7 +98,7 @@ func (i *Index) path() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join(u.HomeDir, ".git-time-metric", "project.json"), nil
+	return filepath.Join(u.HomeDir, gtmHomeDir, "project.json"), nil
 }
 
 func (i *Index) load() error {
