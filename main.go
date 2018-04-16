@@ -40,6 +40,11 @@ func main() {
 				Ui: ui,
 			}, nil
 		},
+		"monitor": func() (cli.Command, error) {
+			return &command.MonitorCmd{
+				Ui: ui,
+			}, nil
+		},
 		"report": func() (cli.Command, error) {
 			return &command.ReportCmd{
 				Ui: ui,

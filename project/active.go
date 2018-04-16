@@ -7,6 +7,7 @@ package project
 import (
 	"fmt"
 	"io/ioutil"
+	"os"
 	"os/user"
 	"path/filepath"
 	"strconv"
@@ -47,6 +48,11 @@ func GetActive() string {
 
 	parts := strings.Split(string(b), ",")
 	if len(parts) != 2 {
+		return ""
+	}
+
+	// does the project path exist
+	if _, err := os.Stat(parts[0]); os.IsNotExist(err) {
 		return ""
 	}
 

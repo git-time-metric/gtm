@@ -6,6 +6,7 @@ package event
 
 import (
 	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -31,6 +32,8 @@ func Record(file string, applicationEvent bool) error {
 	// if application event, do not update project access
 	if !applicationEvent {
 		project.LogActive(strings.TrimSuffix(gtmPath, gtmDirectory))
+	} else {
+		log.Printf("record %s in %s\n", sourcePath, gtmPath)
 	}
 
 	return nil
