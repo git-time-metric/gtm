@@ -1,0 +1,7 @@
+[ver:1,total:600]
+.travis.yml:270,1524157200:240,1524160800:30,r
+Terminal:230,1524160800:230,r
+script/git2go-init.sh:60,1524157200:60,r
+.git/index:20,1524160800:20,r
+command/monitor.go:10,1524160800:10,m
+epoch/epoch.go:10,1524160800:10,m
