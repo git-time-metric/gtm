@@ -30,6 +30,9 @@ Usage: gtm monitor
 	return strings.TrimSpace(helpText)
 }
 
+// TODO: name and regex
+// i.e.  "Research": `.*googelchrome.*|.*safari.*|.*firefox.*`
+
 var (
 	appFilter = map[string]bool{
 		"googlechrome": true,
@@ -73,7 +76,7 @@ func (c MonitorCmd) Run(args []string) int {
 			continue
 		}
 		prevApp = app
-		nextUpdate = epoch.Now() + 60
+		nextUpdate = epoch.Now() + 30
 
 		if _, found := appFilter[normalize(app)]; !found {
 			log.Printf("skipped %s\n", app)

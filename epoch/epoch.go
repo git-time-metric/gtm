@@ -9,11 +9,11 @@ import "github.com/git-time-metric/gtm/util"
 // WindowSize is number seconds in an epoch window
 const WindowSize = 60
 
-// IdleTimeout is the number of seconds to record idle events
+// IdleTimeout seconds to record idle editor events
 var IdleTimeout int64 = 120
 
-// IdleProjectTimeout is the number of seconds to allow recording application monitoring events
-var IdleProjectTimeout int64 = 3600
+// IdleProjectTimeout seconds to recording application events without any editor events
+var IdleProjectTimeout int64 = 600
 
 // Minute rounds epoch seconds down to the nearst epoch minute
 func Minute(t int64) int64 {
