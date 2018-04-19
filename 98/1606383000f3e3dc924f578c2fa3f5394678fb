@@ -1,0 +1,6 @@
+[ver:1,total:1200]
+Terminal:885,1524088800:600,1524092400:180,1524157200:105,r
+event/app.go:180,1524088800:180,d
+.travis.yml:85,1524157200:85,m
+script/git2go-init.sh:35,1524157200:35,r
+script/appveyor-build.sh:15,1524157200:15,r
