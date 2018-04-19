@@ -9,7 +9,6 @@ go:
 
 before_install:
   - if [ "${TRAVIS_OS_NAME}" == "linux" ]; then sudo apt-get install -y curl libcurl3 libcurl3-gnutls libcurl4-gnutls-dev; fi
-  - sudo apt-get remove libssl-dev || true
   - $GOPATH/src/github.com/git-time-metric/gtm/script/git2go-init.sh
   - cd $GOPATH/src/github.com/libgit2/git2go
   - make install-static
