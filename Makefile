@@ -17,7 +17,7 @@ fmt:
 
 install-git2go:
 	./script/git2go-init.sh
-	cd ${GOPATH}/src/github.com/libgit2/git2go && make install-static
+	./script/build-libgit2-osx.sh
 
 install:
 	go install --tags static ${LDFLAGS}
