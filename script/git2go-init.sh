@@ -1,5 +1,8 @@
-#!/bin/sh
+#!/bin/bash
+
 set -ex
+
+pushd ${PWD}
 
 COMMIT_HASH=v27
 PROJPATH="$GOPATH/src/github.com/libgit2/git2go"
@@ -7,6 +10,5 @@ PROJPATH="$GOPATH/src/github.com/libgit2/git2go"
 cd $PROJPATH
 git checkout -qf $COMMIT_HASH
 git submodule update --init
-# sed -i -- 's/ZLIB_FOUND/FALSE/g' $PROJPATH/vendor/libgit2/CMakeLists.txt
-# sed -i -- 's/OPENSSL_FOUND/FALSE/g' $PROJPATH/vendor/libgit2/CMakeLists.txt
-# sed -i -- 's/USE_SSH.*"Link with libssh to enable SSH support".*ON/USE_SSH  "Link with libssh to enable SSH support"  OFF/g' $PROJPATH/vendor/libgit2/CMakeLists.txt
+
+popd

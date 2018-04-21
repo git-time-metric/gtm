@@ -1,4 +1,5 @@
-#!/bin/sh
+#!/bin/bash
+
 set -ex
 
 export PATH=/c/msys64/mingw64/bin:/c/msys64/usr/bin:/c/Go/bin:/c/gopath/go/bin:$PATH
@@ -20,6 +21,7 @@ cmake -DTHREADSAFE=ON \
       -DUSE_BUNDLED_ZLIB=ON \
       -DUSE_HTTPS=OFF \
       -DUSE_SSH=OFF \
+      -DCURL=OFF \
       -G "MSYS Makefiles" \
       .. &&
 
