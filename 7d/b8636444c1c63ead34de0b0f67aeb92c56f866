@@ -1,0 +1,6 @@
+[ver:1,total:720]
+script/build-libgit2-linux.sh:302,1524326400:302,m
+Terminal:262,1524326400:262,r
+.git/index:59,1524326400:59,r
+script/build-libgit2-osx.sh:50,1524326400:50,m
+script/appveyor-build.sh:47,1524326400:47,m
