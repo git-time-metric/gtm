@@ -1,0 +1,7 @@
+[ver:1,total:480]
+Terminal:297,1524326400:297,r
+script/git2go-init.sh:87,1524326400:87,m
+script/appveyor-build.sh:27,1524326400:27,m
+script/build-libgit2-linux.sh:27,1524326400:27,m
+script/build-libgit2-osx.sh:27,1524326400:27,m
+Makefile:15,1524326400:15,r
