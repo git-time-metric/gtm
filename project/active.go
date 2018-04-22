@@ -21,7 +21,7 @@ var (
 	logFile = "active-project.txt"
 )
 
-func LogActive(path string) error {
+func SetActive(path string) error {
 	logPath, err := activeProjectLog()
 	if err != nil {
 		return err

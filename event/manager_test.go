@@ -28,19 +28,19 @@ func TestRecord(t *testing.T) {
 
 	repo.SaveFile("event.go", "event", "")
 	sourceFile := filepath.Join(repo.PathIn(""), "event", "event.go")
-	if err = Record(sourceFile, false); err != project.ErrNotInitialized {
+	if err = Record(sourceFile); err != project.ErrNotInitialized {
 		t.Errorf("Record(%s), want error %s, got error %s", sourceFile, project.ErrNotInitialized, err)
 	}
 
 	project.Initialize([]string{}, false)
 
 	sourceFile = filepath.Join(repo.PathIn(""), "doesnotexist.go")
-	if err = Record(sourceFile, false); err != project.ErrFileNotFound {
+	if err = Record(sourceFile); err != project.ErrFileNotFound {
 		t.Errorf("Record(%s), want error %s, got %s", sourceFile, project.ErrFileNotFound, err)
 	}
 
 	sourceFile = filepath.Join(repo.PathIn(""), "event", "event.go")
-	if err = Record(sourceFile, false); err != nil {
+	if err = Record(sourceFile); err != nil {
 		t.Errorf("Record(%s), want error nil, got %s", sourceFile, err)
 	}
 

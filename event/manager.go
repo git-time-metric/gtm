@@ -6,7 +6,6 @@ package event
 
 import (
 	"io/ioutil"
-	"log"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -19,7 +18,7 @@ import (
 )
 
 // Record creates an event for a source
-func Record(file string, applicationEvent bool) error {
+func Record(file string) error {
 	sourcePath, gtmPath, err := pathFromSource(file)
 	if err != nil {
 		return err
@@ -29,12 +28,7 @@ func Record(file string, applicationEvent bool) error {
 		return err
 	}
 
-	// if application event, do not update project access
-	if !applicationEvent {
-		project.LogActive(strings.TrimSuffix(gtmPath, gtmDirectory))
-	} else {
-		log.Printf("record %s in %s\n", sourcePath, gtmPath)
-	}
+	project.SetActive(strings.TrimSuffix(gtmPath, gtmDirectory))
 
 	return nil
 }

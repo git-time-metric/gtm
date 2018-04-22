@@ -1,7 +1,6 @@
 // Copyright 2016 Michael Schenk. All rights reserved.
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
-
 package command
 
 import (
@@ -89,77 +88,72 @@ func (c RecordCmd) Run(args []string) int {
 
 	// status = false
 
-	fileToRecord := ""
-	applicationEvent := application != ""
+	outputStatus := func(path string) int {
+		if status {
+			var (
+				err        error
+				commitNote note.CommitNote
+				out        string
+				wd         string
+			)
+
+			wd, err = os.Getwd()
+			if err != nil {
+				c.Ui.Error(err.Error())
+				return 1
+			}
+			defer os.Chdir(wd)
+
+			os.Chdir(filepath.Dir(path))
+
+			if commitNote, err = metric.Process(true); err != nil {
+				c.Ui.Error(err.Error())
+				return 1
+			}
+			out, err = report.Status(commitNote, report.OutputOptions{TotalOnly: true, LongDuration: longDuration})
+			if err != nil {
+				c.Ui.Error(err.Error())
+				return 1
+			}
+			c.output(out)
+		}
+		return 0
+	}
 
 	switch {
 	case terminal:
+		// terminal plugin
 		a, err := event.NewTerminalApplication()
 		if err != nil {
-			// if not found, ignore error
-			return 0
-		}
-		fileToRecord = a.Path()
-
-	case applicationEvent:
-		p := project.GetActive()
-		if p == "" {
-			return 0
-		}
-
-		x, err := os.Getwd()
-		if err != nil {
 			c.Ui.Error(err.Error())
 			return 1
 		}
-		defer os.Chdir(x)
-
-		err = os.Chdir(p)
-		if err != nil {
+		// we want terminal events to update the active project
+		// we do this by using event.Record() instead a.Record()
+		if err := event.Record(a.Path()); err != nil {
 			c.Ui.Error(err.Error())
 			return 1
 		}
+		return outputStatus(a.Path())
 
+	case application != "":
 		a, err := event.NewApplicationFromName(application)
 		if err != nil {
 			c.Ui.Error(err.Error())
 			return 1
 		}
-		fileToRecord = a.Path()
+		if err := a.Record(); err != nil {
+			c.Ui.Error(err.Error())
+			return 1
+		}
+		return outputStatus(a.Path())
 
 	default:
-		fileToRecord = cmdFlags.Args()[0]
-	}
-
-	if err := event.Record(fileToRecord, applicationEvent); err != nil && !(err == project.ErrNotInitialized || err == project.ErrFileNotFound) {
-		return 1
-	} else if err == nil && status {
-		var (
-			err        error
-			commitNote note.CommitNote
-			out        string
-			wd         string
-		)
-
-		wd, err = os.Getwd()
-		if err != nil {
-			c.Ui.Error(err.Error())
+		err := event.Record(cmdFlags.Args()[0])
+		if err != nil && !(err == project.ErrNotInitialized || err == project.ErrFileNotFound) {
 			return 1
 		}
-		defer os.Chdir(wd)
-
-		os.Chdir(filepath.Dir(fileToRecord))
-
-		if commitNote, err = metric.Process(true); err != nil {
-			c.Ui.Error(err.Error())
-			return 1
-		}
-		out, err = report.Status(commitNote, report.OutputOptions{TotalOnly: true, LongDuration: longDuration})
-		if err != nil {
-			c.Ui.Error(err.Error())
-			return 1
-		}
-		c.output(out)
+		return outputStatus(cmdFlags.Args()[0])
 	}
 
 	return 0
