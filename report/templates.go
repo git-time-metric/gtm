@@ -101,10 +101,17 @@ const (
 
 	// TODO: determine left padding based on total hours
 	filesTpl string = `
-{{- $total := .Files.Total }}
-{{ range $i, $f := .Files }}
-	{{- $f.Duration | printf "%14s" }} {{ Percent $f.Seconds $total | printf "%3.0f"}}%  {{ $f.FileName }}
-{{ end }}
+{{ $total := .Files.Total }}
+{{- range $i, $f := .Files }}
+	{{- if .IsApplication }}
+		{{- $f.Duration | printf "%14s" }} {{ Percent $f.Seconds $total | printf "%3.0f"}}%  {{ $f.FileName }} {{ printf "\n" }}
+	{{- end }}
+{{- end }}
+{{- range $i, $f := .Files }}
+	{{- if not .IsApplication }}
+		{{- $f.Duration | printf "%14s" }} {{ Percent $f.Seconds $total | printf "%3.0f"}}%  {{ $f.FileName }} {{ printf "\n" }}
+	{{- end }}
+{{- end }}
 {{- if len .Files }}
 	{{- .Files.Duration | printf "%14s" }}
 {{ end }}`
