@@ -1,6 +1,7 @@
 package event
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -17,6 +18,10 @@ const (
 	applicationExt = "app"
 	gtmDirectory   = ".gtm"
 	terminalName   = "Terminal"
+)
+
+var (
+	ErrRepositoryNotFound = errors.New("could not find git repository")
 )
 
 type Application struct {
@@ -80,7 +85,7 @@ func (a *Application) setFilePathFromName() error {
 
 	projPath, err := scm.RootPath()
 	if err != nil {
-		return err
+		return ErrRepositoryNotFound
 	}
 	a.path = filepath.Join(projPath, gtmDirectory, fmt.Sprintf("%s.%s", normalizeAppName(a.name), applicationExt))
 	return nil

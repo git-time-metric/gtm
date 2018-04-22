@@ -89,14 +89,14 @@ func (c RecordCmd) Run(args []string) int {
 	// status = false
 
 	outputStatus := func(path string) int {
-		if status {
-			var (
-				err        error
-				commitNote note.CommitNote
-				out        string
-				wd         string
-			)
+		var (
+			err        error
+			commitNote note.CommitNote
+			out        string
+			wd         string
+		)
 
+		if status {
 			wd, err = os.Getwd()
 			if err != nil {
 				c.Ui.Error(err.Error())
@@ -117,6 +117,7 @@ func (c RecordCmd) Run(args []string) int {
 			}
 			c.output(out)
 		}
+
 		return 0
 	}
 
@@ -125,14 +126,23 @@ func (c RecordCmd) Run(args []string) int {
 		// terminal plugin
 		a, err := event.NewTerminalApplication()
 		if err != nil {
-			c.Ui.Error(err.Error())
-			return 1
+			if !(err == event.ErrRepositoryNotFound) {
+				c.Ui.Error(err.Error())
+				return 1
+			}
+			// ignore error, we are not within a git repo directory
+			return 0
 		}
+
 		// we want terminal events to update the active project
-		// we do this by using event.Record() instead a.Record()
+		// we do this by using event.Record() instead of a.Record()
 		if err := event.Record(a.Path()); err != nil {
-			c.Ui.Error(err.Error())
-			return 1
+			if !(err == project.ErrNotInitialized) {
+				c.Ui.Error(err.Error())
+				return 1
+			}
+			// ignore error, git repo is not initialized
+			return 0
 		}
 		return outputStatus(a.Path())
 
@@ -142,6 +152,7 @@ func (c RecordCmd) Run(args []string) int {
 			c.Ui.Error(err.Error())
 			return 1
 		}
+
 		if err := a.Record(); err != nil {
 			c.Ui.Error(err.Error())
 			return 1
@@ -150,13 +161,15 @@ func (c RecordCmd) Run(args []string) int {
 
 	default:
 		err := event.Record(cmdFlags.Args()[0])
-		if err != nil && !(err == project.ErrNotInitialized || err == project.ErrFileNotFound) {
-			return 1
+		if err != nil {
+			if !(err == project.ErrNotInitialized || err == project.ErrFileNotFound) {
+				return 1
+			}
+			// ignore error, git repo is not initialized or file was deleted
+			return 0
 		}
 		return outputStatus(cmdFlags.Args()[0])
 	}
-
-	return 0
 }
 
 // Synopsis returns help
