@@ -36,7 +36,14 @@ const (
 	{{- $note.Date }} {{ printf $boldFormat $note.Project }} {{ $note.Author }}{{- printf "\n" }}
 	{{- if $fullMessage}}{{- if $note.Message }}{{- printf "\n"}}{{- $note.Message }}{{- printf "\n"}}{{end}}{{end}}
 	{{- range $i, $f := .Note.Files }}
-			{{- FormatDuration $f.TimeSpent | printf "\n%14s" }} {{ Percent $f.TimeSpent $total | printf "%3.0f"}}% [{{ $f.Status }}] {{$f.ShortenSourceFile 100}}
+			{{- if .IsApplication }}
+				{{- FormatDuration $f.TimeSpent | printf "\n%14s" }} {{ Percent $f.TimeSpent $total | printf "%3.0f"}}% [{{ $f.Status }}] {{$f.ShortenSourceFile 100}}
+			{{- end }}
+	{{- end }}
+	{{- range $i, $f := .Note.Files }}
+			{{- if not .IsApplication }}
+				{{- FormatDuration $f.TimeSpent | printf "\n%14s" }} {{ Percent $f.TimeSpent $total | printf "%3.0f"}}% [{{ $f.Status }}] {{$f.ShortenSourceFile 100}}
+			{{- end }}
 	{{- end }}
 	{{- if len .Note.Files }}
 	{{- FormatDuration $total | printf "\n%14s" }}          {{ printf $boldFormat $note.Project }} [{{$note.LineAdd}} {{$note.LineDel}} = {{$note.LineDiff}}] [{{$note.ChangeRate}}/hr]{{ printf "\n\n" }}
@@ -50,8 +57,15 @@ const (
 {{- if .Note.Files }}{{ printf "\n"}}{{end}}
 {{- $total := .Note.Total }}
 {{- range $i, $f := .Note.Files }}
-		{{- FormatDuration $f.TimeSpent | printf "%14s" }} {{ Percent $f.TimeSpent $total | printf "%3.0f"}}% [{{ $f.Status }}] {{$f.ShortenSourceFile 100}}
-{{ end }}
+		{{- if .IsApplication}}
+			{{- FormatDuration $f.TimeSpent | printf "%14s" }} {{ Percent $f.TimeSpent $total | printf "%3.0f"}}% {{$f.ShortenSourceFile 100}} {{ printf "\n"}}
+		{{- end}}
+{{- end}}
+{{- range $i, $f := .Note.Files }}
+		{{- if not .IsApplication }}
+			{{- FormatDuration $f.TimeSpent | printf "%14s" }} {{ Percent $f.TimeSpent $total | printf "%3.0f"}}% [{{ $f.Status }}] {{$f.ShortenSourceFile 100}} {{ printf "\n" }}
+		{{- end}}
+{{- end }}
 {{- if len .Note.Files }}
 	{{- FormatDuration .Note.Total | printf "%14s" }}          {{ printf $boldFormat .ProjectName }} {{ if .Tags }}[{{ .Tags }}]{{ end }}
 {{ end }}`

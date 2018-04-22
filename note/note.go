@@ -192,8 +192,13 @@ func (f *FileDetail) SortEpochs() []int64 {
 
 // IsTerminal returns true if file is terminal
 func (f *FileDetail) IsTerminal() bool {
-	a := event.NewApplicationFromPath(f.SourceFile())
+	a := event.NewApplicationFromPath(f.sourceFile)
 	return a.IsTerminal()
+}
+
+func (f *FileDetail) IsApplication() bool {
+	a := event.NewApplicationFromPath(f.sourceFile)
+	return a.IsApplication()
 }
 
 func (f *FileDetail) SourceFile() string {
