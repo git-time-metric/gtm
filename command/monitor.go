@@ -2,6 +2,7 @@ package command
 
 import (
 	"errors"
+	"flag"
 	"strings"
 
 	"github.com/git-time-metric/gtm/event"
@@ -21,21 +22,39 @@ func NewMonitor() (cli.Command, error) {
 // Help returns help for monitor command
 func (c MonitorCmd) Help() string {
 	helpText := `
-Usage: gtm monitor
+Usage: gtm monitor [options]
+
+  Record file or terminal events.
+
+Options:
+
+  -apps=""     list of applications to only monitor, i.e "safari,firefox,slack"
 `
 	return strings.TrimSpace(helpText)
 }
 
 // Run executes commit commands with args
 func (c MonitorCmd) Run(args []string) int {
+	var apps string
+	cmdFlags := flag.NewFlagSet("monitor", flag.ContinueOnError)
+	cmdFlags.StringVar(&apps, "apps", "", "")
+	cmdFlags.Usage = func() { c.Ui.Output(c.Help()) }
+	if err := cmdFlags.Parse(args); err != nil {
+		return 1
+	}
+
+	applist := []string{}
+	if strings.TrimSpace(apps) != "" {
+		applist = strings.Split(apps, ",")
+	}
+
 	m := event.NewAppMonitor(
 		func(app string) error {
 			if (RecordCmd{}).Run([]string{"-app", app}) > 1 {
 				return errors.New("error recording")
 			}
 			return nil
-		},
-		[]string{"Google Chrome"},
+		}, applist,
 	)
 
 	if err := m.Run(); err != nil {

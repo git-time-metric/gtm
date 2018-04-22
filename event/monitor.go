@@ -21,7 +21,7 @@ type AppMonitor struct {
 func NewAppMonitor(recordFunc func(app string) error, appsToMonitor []string) AppMonitor {
 	apps := map[string]bool{}
 	for _, x := range appsToMonitor {
-		apps[normalizeAppName(x)] = true
+		apps[normalizeAppName(strings.TrimSpace(x))] = true
 	}
 	return AppMonitor{RecordFunc: recordFunc, Applications: apps}
 }
