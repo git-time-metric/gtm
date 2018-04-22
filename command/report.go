@@ -46,6 +46,7 @@ Options:
   -format=commits            Specify report format [summary|project|commits|files|timeline-hours|timeline-commits] (default commits)
   -full-message=false        Include full commit message
   -terminal-off=false        Exclude time spent in terminal (Terminal plug-in is required)
+  -application-off=false     Exclude time spent in applications (application events collected via "gtm monitor")
   -force-color=false         Always output color even if no terminal is detected, i.e 'gtm report -color | less -R'
   -testing=false             This is used for automated testing to force default test path
 
@@ -76,12 +77,13 @@ Options:
 // Run executes report command with args
 func (c ReportCmd) Run(args []string) int {
 	var limit int
-	var color, terminalOff, fullMessage, testing bool
+	var color, terminalOff, applicationOff, fullMessage, testing bool
 	var today, yesterday, thisWeek, lastWeek, thisMonth, lastMonth, thisYear, lastYear, all bool
 	var fromDate, toDate, message, author, tags, format string
 	cmdFlags := flag.NewFlagSet("report", flag.ContinueOnError)
 	cmdFlags.BoolVar(&color, "force-color", false, "")
 	cmdFlags.BoolVar(&terminalOff, "terminal-off", false, "")
+	cmdFlags.BoolVar(&applicationOff, "application-off", false, "")
 	cmdFlags.StringVar(&format, "format", "commits", "")
 	cmdFlags.IntVar(&limit, "n", 0, "")
 	cmdFlags.BoolVar(&fullMessage, "full-message", false, "")
@@ -206,10 +208,11 @@ func (c ReportCmd) Run(args []string) int {
 	}
 
 	options := report.OutputOptions{
-		FullMessage: fullMessage,
-		TerminalOff: terminalOff,
-		Color:       color,
-		Limit:       limit}
+		FullMessage:    fullMessage,
+		TerminalOff:    terminalOff,
+		ApplicationOff: applicationOff,
+		Color:          color,
+		Limit:          limit}
 
 	s := spinner.New(spinner.CharSets[9], 100*time.Millisecond)
 	s.Start()

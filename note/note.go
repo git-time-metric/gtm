@@ -32,6 +32,16 @@ func (n CommitNote) FilterOutTerminal() CommitNote {
 	return CommitNote{Files: fds}
 }
 
+func (n CommitNote) FilterOutApplications() CommitNote {
+	fds := []FileDetail{}
+	for _, f := range n.Files {
+		if !f.IsApplication() {
+			fds = append(fds, f)
+		}
+	}
+	return CommitNote{Files: fds}
+}
+
 // Total returns the total time for a commit note
 func (n CommitNote) Total() int {
 	total := 0

@@ -22,7 +22,7 @@ const (
 	defaultDateFormat = "Mon Jan 02 15:04:05 2006 MST"
 )
 
-func retrieveNotes(projects []ProjectCommits, terminalOff, calcStats bool, dateFormat string) commitNoteDetails {
+func retrieveNotes(projects []ProjectCommits, terminalOff, applicationOff, calcStats bool, dateFormat string) commitNoteDetails {
 	notes := commitNoteDetails{}
 
 	if dateFormat == "" {
@@ -46,7 +46,9 @@ func retrieveNotes(projects []ProjectCommits, terminalOff, calcStats bool, dateF
 				commitNote = note.CommitNote{}
 			}
 
-			if terminalOff {
+			if applicationOff {
+				commitNote = commitNote.FilterOutApplications()
+			} else if terminalOff {
 				commitNote = commitNote.FilterOutTerminal()
 			}
 
