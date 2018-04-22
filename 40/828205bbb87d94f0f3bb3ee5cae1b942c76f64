@@ -1,0 +1,11 @@
+[ver:1,total:2160]
+command/monitor.go:694,1524420000:130,1524423600:564,m
+event/monitor.go:537,1524420000:447,1524423600:90,m
+.gtm/terminal.app:351,1524420000:113,1524423600:238,r
+command/record.go:170,1524420000:155,1524423600:15,r
+event/app.go:170,1524420000:170,r
+.gtm/google-chrome.app:63,1524423600:63,r
+.gtm/iterm2.app:56,1524423600:56,r
+.gtm/slack.app:54,1524423600:54,r
+.git/index:35,1524420000:35,r
+report/templates.go:30,1524420000:30,r
