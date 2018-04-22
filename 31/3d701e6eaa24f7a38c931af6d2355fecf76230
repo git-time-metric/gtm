@@ -1,0 +1,11 @@
+[ver:1,total:3600]
+command/record.go:2356,1524412800:1416,1524416400:940,m
+.gtm/terminal.app:646,1524409200:180,1524412800:376,1524416400:90,r
+event/app.go:211,1524412800:176,1524416400:35,m
+scm/git.go:99,1524412800:99,r
+project/project.go:94,1524412800:79,1524416400:15,r
+main.go:65,1524412800:65,r
+event/event.go:62,1524412800:62,r
+event/manager.go:30,1524412800:30,r
+vendor/github.com/mitchellh/cli/ui.go:22,1524412800:22,r
+command/monitor.go:15,1524412800:15,r
