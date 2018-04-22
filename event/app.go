@@ -57,17 +57,7 @@ func (a *Application) Record() error {
 		return nil
 	}
 
-	x, err := os.Getwd()
-	if err != nil {
-		return err
-	}
-	defer os.Chdir(x)
-
-	err = os.Chdir(p)
-	if err != nil {
-		return nil
-	}
-
+	// it's assumed we are already within the git repo's directory
 	sourcePath, gtmPath, err := pathFromSource(a.path)
 	if err != nil {
 		return err

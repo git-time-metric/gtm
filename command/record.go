@@ -147,6 +147,25 @@ func (c RecordCmd) Run(args []string) int {
 		return outputStatus(a.Path())
 
 	case application != "":
+		p := project.GetActive()
+		if p == "" {
+			// if blank there is no currently active project
+			return 0
+		}
+
+		x, err := os.Getwd()
+		if err != nil {
+			c.Ui.Error(err.Error())
+			return 1
+		}
+		defer os.Chdir(x)
+
+		err = os.Chdir(p)
+		if err != nil {
+			c.Ui.Error(err.Error())
+			return 1
+		}
+
 		a, err := event.NewApplicationFromName(application)
 		if err != nil {
 			c.Ui.Error(err.Error())

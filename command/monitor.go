@@ -3,6 +3,7 @@ package command
 import (
 	"errors"
 	"flag"
+	"os"
 	"strings"
 
 	"github.com/git-time-metric/gtm/event"
@@ -50,7 +51,7 @@ func (c MonitorCmd) Run(args []string) int {
 
 	m := event.NewAppMonitor(
 		func(app string) error {
-			if (RecordCmd{}).Run([]string{"-app", app}) > 1 {
+			if (RecordCmd{Ui: &cli.ColoredUi{ErrorColor: cli.UiColorRed, Ui: &cli.BasicUi{Writer: os.Stdout, Reader: os.Stdin}}}).Run([]string{"-app", app}) > 1 {
 				return errors.New("error recording")
 			}
 			return nil
