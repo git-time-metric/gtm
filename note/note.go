@@ -201,11 +201,12 @@ func (f *FileDetail) IsApplication() bool {
 	return a.IsApplication()
 }
 
-func (f *FileDetail) SourceFile() string {
+func (f *FileDetail) AppName() string {
 	a := event.NewApplicationFromPath(f.sourceFile)
-	if a.IsApplication() {
-		return a.Name()
-	}
+	return a.Name()
+}
+
+func (f *FileDetail) SourceFile() string {
 	return f.sourceFile
 }
 

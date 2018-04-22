@@ -37,7 +37,7 @@ const (
 	{{- if $fullMessage}}{{- if $note.Message }}{{- printf "\n"}}{{- $note.Message }}{{- printf "\n"}}{{end}}{{end}}
 	{{- range $i, $f := .Note.Files }}
 			{{- if .IsApplication }}
-				{{- FormatDuration $f.TimeSpent | printf "\n%14s" }} {{ Percent $f.TimeSpent $total | printf "%3.0f"}}% [{{ $f.Status }}] {{$f.ShortenSourceFile 100}}
+				{{- FormatDuration $f.TimeSpent | printf "\n%14s" }} {{ Percent $f.TimeSpent $total | printf "%3.0f"}}% [{{ $f.Status }}] {{ $f.AppName }}
 			{{- end }}
 	{{- end }}
 	{{- range $i, $f := .Note.Files }}
@@ -58,7 +58,7 @@ const (
 {{- $total := .Note.Total }}
 {{- range $i, $f := .Note.Files }}
 		{{- if .IsApplication}}
-			{{- FormatDuration $f.TimeSpent | printf "%14s" }} {{ Percent $f.TimeSpent $total | printf "%3.0f"}}% {{$f.ShortenSourceFile 100}} {{ printf "\n"}}
+			{{- FormatDuration $f.TimeSpent | printf "%14s" }} {{ Percent $f.TimeSpent $total | printf "%3.0f"}}% {{ $f.AppName }} {{ printf "\n"}}
 		{{- end}}
 {{- end}}
 {{- range $i, $f := .Note.Files }}
