@@ -34,6 +34,14 @@
 			"notests": true
 		},
 		{
+			"importpath": "github.com/go-vgo/robotgo",
+			"repository": "https://github.com/go-vgo/robotgo",
+			"vcs": "git",
+			"revision": "35215c9e70e02d6115b41c40a7dc4bc2e12bc367",
+			"branch": "master",
+			"notests": true
+		},
+		{
 			"importpath": "github.com/hako/durafmt",
 			"repository": "https://github.com/hako/durafmt",
 			"vcs": "git",
@@ -74,6 +82,14 @@
 			"notests": true
 		},
 		{
+			"importpath": "github.com/mitchellh/go-ps",
+			"repository": "https://github.com/mitchellh/go-ps",
+			"vcs": "git",
+			"revision": "4fdf99ab29366514c69ccccddab5dc58b8d84062",
+			"branch": "master",
+			"notests": true
+		},
+		{
 			"importpath": "golang.org/x/crypto/ssh/terminal",
 			"repository": "https://go.googlesource.com/crypto",
 			"vcs": "git",
@@ -89,6 +105,15 @@
 			"revision": "a55a76086885b80f79961eacb876ebd8caf3868d",
 			"branch": "master",
 			"path": "/unix",
+			"notests": true
+		},
+		{
+			"importpath": "golang.org/x/sys/windows",
+			"repository": "https://go.googlesource.com/sys",
+			"vcs": "git",
+			"revision": "79b0c6888797020a994db17c8510466c72fe75d9",
+			"branch": "master",
+			"path": "windows",
 			"notests": true
 		}
 	]
