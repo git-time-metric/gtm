@@ -1,6 +1,6 @@
 version: "{build}"
 
-os: Visual Studio 2015
+os: Visual Studio 2017
 
 clone_folder: c:\gopath\src\github.com\git-time-metric\gtm
 
