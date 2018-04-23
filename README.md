@@ -3,7 +3,7 @@
 
 ### Seamless time tracking for all your Git projects
 
-##### $ gtm report -last-month 
+##### $ gtm report -last-month
 <div><img src="https://cloud.githubusercontent.com/assets/630550/21582250/8a03f9dc-d015-11e6-8f77-548ef7314bf7.png"></div>
 
 ##### $ gtm report -last-month -format summary
@@ -12,7 +12,7 @@
 ##### $ gtm report -last-month -format timeline-hours
 <div><img src="https://cloud.githubusercontent.com/assets/630550/21582253/91f6226e-d015-11e6-897c-6042111e6a6a.png"></div> </br>
 
-GTM is automatic, seamless and lightweight.  There is no need to remember to start and stop timers.  It runs on occasion to capture activity triggered by your editor.  The time metrics are stored locally with the git repository as [Git notes](https://git-scm.com/docs/git-notes) and can be pushed to the remote repository. 
+GTM is automatic, seamless and lightweight.  There is no need to remember to start and stop timers.  It runs on occasion to capture activity triggered by your editor.  The time metrics are stored locally with the git repository as [Git notes](https://git-scm.com/docs/git-notes) and can be pushed to the remote repository.
 
 ### <div align="center">Plugins</div>
 
@@ -85,7 +85,7 @@ Check your progress with `gtm status`.
        20m 40s  53% [m] plugin/gtm.vim
        18m  5s  46% [r] Terminal
            15s   1% [m] .gitignore
-       39m  0s          <b>gtm-vim-plugin</b> </pre> 
+       39m  0s          <b>gtm-vim-plugin</b> </pre>
 
 ### Commit your work
 
@@ -98,7 +98,7 @@ Fri Sep 09 20:45:03 2016 -0500 <b>gtm-vim-plugin</b> Michael Schenk
        20m 40s  53% [m] plugin/gtm.vim
        18m  5s  46% [r] Terminal
            15s   1% [m] .gitignore
-       39m  0s          <b>gtm-vim-plugin</b> </pre> 
+       39m  0s          <b>gtm-vim-plugin</b> </pre>
 
 ### Optionally save time in the remote Git repository
 
@@ -117,7 +117,7 @@ For help from the command line type `gtm --help` and `gtm <subcommand> --help`.
 For additional help please consult the [Wiki](https://github.com/git-time-metric/gtm/wiki).
 
 # Contributing
-[![Build Status](https://travis-ci.org/git-time-metric/gtm.svg?branch=develop)](https://travis-ci.org/git-time-metric/gtm) [![Build status](https://ci.appveyor.com/api/projects/status/gj6tvm8njgwj0hqi?svg=true)](https://ci.appveyor.com/project/mschenk42/gtm) [![Coverage Status](https://coveralls.io/repos/github/git-time-metric/gtm/badge.svg)](https://coveralls.io/github/git-time-metric/gtm) [![Go Report Card](https://goreportcard.com/badge/github.com/git-time-metric/gtm)](https://goreportcard.com/report/github.com/git-time-metric/gtm) [![Stories in Ready](https://badge.waffle.io/git-time-metric/gtm.png?label=ready&title=Ready)](https://waffle.io/git-time-metric/gtm)
+[![Build Status](https://travis-ci.org/git-time-metric/gtm.svg?branch=develop)](https://travis-ci.org/git-time-metric/gtm) [![Build status](https://ci.appveyor.com/api/projects/status/gj6tvm8njgwj0hqi/branch/master?svg=true)](https://ci.appveyor.com/project/mschenk42/gtm) [![Coverage Status](https://coveralls.io/repos/github/git-time-metric/gtm/badge.svg)](https://coveralls.io/github/git-time-metric/gtm) [![Go Report Card](https://goreportcard.com/badge/github.com/git-time-metric/gtm)](https://goreportcard.com/report/github.com/git-time-metric/gtm) [![Stories in Ready](https://badge.waffle.io/git-time-metric/gtm.png?label=ready&title=Ready)](https://waffle.io/git-time-metric/gtm)
 
 If you find a bug or have an idea for a new feature please feel free to file new issues and submits PRs.  In particular if there isn't a plugin for your favorite editor, go ahead and create one!
 

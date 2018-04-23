@@ -8,13 +8,17 @@ os:
 go:
   - "1.10"
 
+addons:
+   apt:
+      packages:
+      - libx11-dev xorg-dev
+      - libxtst-dev libpng++-dev
+      - xcb libxcb-xkb-dev x11-xkb-utils libx11-xcb-dev libxkbcommon-x11-dev
+      - libxkbcommon-dev
+      - xsel
+      - xclip
+
 before_install:
-  - sudo apt-get install libx11-dev xorg-dev -y
-  - sudo apt-get install libxtst-dev libpng++-dev -y
-  - sudo apt-get install xcb libxcb-xkb-dev x11-xkb-utils libx11-xcb-dev libxkbcommon-x11-dev -y
-  - sudo apt-get install libxkbcommon-dev -y
-  - sudo apt-get install xsel -y
-  - sudo apt-get install xclip -y
   - $GOPATH/src/github.com/git-time-metric/gtm/script/git2go-init.sh
   - $GOPATH/src/github.com/git-time-metric/gtm/script/build-libgit2-${TRAVIS_OS_NAME}.sh
   - go get github.com/mattn/goveralls
