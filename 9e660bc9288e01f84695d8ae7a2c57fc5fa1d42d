@@ -1,0 +1,7 @@
+[ver:1,total:600]
+.gtm/google-chrome.app:390,1524452400:390,r
+.gtm/slack.app:60,1524452400:60,r
+.travis.yml:50,1524452400:50,m
+.gtm/terminal.app:50,1524452400:50,r
+script/build-libgit2-linux.sh:30,1524452400:30,r
+appveyor.yml:20,1524452400:20,m
