@@ -1,0 +1,9 @@
+[ver:1,total:660]
+.gtm/google-chrome.app:276,1524456000:276,r
+vendor/github.com/go-vgo/robotgo/base/xdisplay_c.h:105,1524456000:105,r
+.gtm/terminal.app:90,1524456000:90,r
+vendor/github.com/go-vgo/robotgo/base/xdisplay.h:60,1524456000:60,r
+.travis.yml:39,1524456000:39,m
+vendor/github.com/go-vgo/robotgo/bitmap/bitmap_class.h:30,1524456000:30,r
+vendor/github.com/go-vgo/robotgo/base/base64.h:30,1524456000:30,r
+vendor/github.com/go-vgo/robotgo/base/png_io.h:30,1524456000:30,r
