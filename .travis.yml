@@ -27,6 +27,11 @@ before_deploy:
   - go build -v --tags static -ldflags "-X main.Version=${TRAVIS_TAG}"
   - tar -zcf gtm.${TRAVIS_TAG}.${TRAVIS_OS_NAME}.tar.gz gtm
 
+before_script:
+  - "export DISPLAY=:99.0"
+  - "sh -e /etc/init.d/xvfb start"
+  - sleep 3 # give xvfb some time to start
+
 script:
   - go get -d ./...
   - $HOME/gopath/bin/goveralls -v -flags=--tags=static -service=travis-ci
