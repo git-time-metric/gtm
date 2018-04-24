@@ -34,10 +34,10 @@
 			"notests": true
 		},
 		{
-			"importpath": "github.com/go-vgo/robotgo",
-			"repository": "https://github.com/go-vgo/robotgo",
+			"importpath": "github.com/git-time-metric/robotgo",
+			"repository": "https://github.com/git-time-metric/robotgo",
 			"vcs": "git",
-			"revision": "35215c9e70e02d6115b41c40a7dc4bc2e12bc367",
+			"revision": "71d135abd2b4f0b5e39bc2efada06f0483fabddb",
 			"branch": "master",
 			"notests": true
 		},

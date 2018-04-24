@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -150,8 +151,10 @@ func (c RecordCmd) Run(args []string) int {
 		p := project.GetActive()
 		if p == "" {
 			// if blank there is no currently active project
+			log.Println("no active project found")
 			return 0
 		}
+		log.Printf("active project %s\n", p)
 
 		x, err := os.Getwd()
 		if err != nil {
@@ -176,6 +179,8 @@ func (c RecordCmd) Run(args []string) int {
 			c.Ui.Error(err.Error())
 			return 1
 		}
+		log.Printf("recorded %s\n", a.Path())
+
 		return outputStatus(a.Path())
 
 	default:

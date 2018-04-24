@@ -43,7 +43,7 @@ package robotgo
 #include "mouse/goMouse.h"
 #include "key/goKey.h"
 #include "bitmap/goBitmap.h"
-#include "event/goEvent.h"
+// #include "event/goEvent.h"
 #include "window/goWindow.h"
 */
 import "C"
@@ -1195,84 +1195,84 @@ func GetImgSize(imgPath string) (int, int) {
 |_______|   \__/     |_______||__| \__|     |__|
 */
 
-// AddEvent add event listener,
-//
-// parameters for the string type,
-// the keyboard corresponding key parameters,
-//
-// mouse arguments: mleft, mright, wheelDown, wheelUp,
-// wheelLeft, wheelRight.
-func AddEvent(aeve string) int {
-	keycode := Map{
-		"f1":  "59",
-		"f2":  "60",
-		"f3":  "61",
-		"f4":  "62",
-		"f5":  "63",
-		"f6":  "64",
-		"f7":  "65",
-		"f8":  "66",
-		"f9":  "67",
-		"f10": "68",
-		"f11": "69",
-		"f12": "70",
-		// more
-		"esc":     "11",
-		"tab":     "15",
-		"ctrl":    "29",
-		"control": "29",
-		"alt":     "56",
-		"space":   "57",
-		"shift":   "42",
-		"enter":   "28",
-		"command": "3675",
-	}
+//// AddEvent add event listener,
+////
+//// parameters for the string type,
+//// the keyboard corresponding key parameters,
+////
+//// mouse arguments: mleft, mright, wheelDown, wheelUp,
+//// wheelLeft, wheelRight.
+//func AddEvent(aeve string) int {
+//	keycode := Map{
+//		"f1":  "59",
+//		"f2":  "60",
+//		"f3":  "61",
+//		"f4":  "62",
+//		"f5":  "63",
+//		"f6":  "64",
+//		"f7":  "65",
+//		"f8":  "66",
+//		"f9":  "67",
+//		"f10": "68",
+//		"f11": "69",
+//		"f12": "70",
+//		// more
+//		"esc":     "11",
+//		"tab":     "15",
+//		"ctrl":    "29",
+//		"control": "29",
+//		"alt":     "56",
+//		"space":   "57",
+//		"shift":   "42",
+//		"enter":   "28",
+//		"command": "3675",
+//	}
 
-	var (
-		cs   *C.char
-		keve string
-		mArr = []string{"mleft", "mright", "wheelDown",
-			"wheelUp", "wheelLeft", "wheelRight"}
-		mouseBool bool
-	)
+//	var (
+//		cs   *C.char
+//		keve string
+//		mArr = []string{"mleft", "mright", "wheelDown",
+//			"wheelUp", "wheelLeft", "wheelRight"}
+//		mouseBool bool
+//	)
 
-	for i := 0; i < len(mArr); i++ {
-		if aeve == mArr[i] {
-			mouseBool = true
-		}
-	}
+//	for i := 0; i < len(mArr); i++ {
+//		if aeve == mArr[i] {
+//			mouseBool = true
+//		}
+//	}
 
-	if len(aeve) > 1 && !mouseBool {
-		keve = keycode[aeve].(string)
-		cs = C.CString(keve)
-	} else {
-		cs = C.CString(aeve)
-	}
+//	if len(aeve) > 1 && !mouseBool {
+//		keve = keycode[aeve].(string)
+//		cs = C.CString(keve)
+//	} else {
+//		cs = C.CString(aeve)
+//	}
 
-	// cs := C.CString(aeve)
-	eve := C.add_event(cs)
-	// fmt.Println("event@@", eve)
-	geve := int(eve)
-	defer C.free(unsafe.Pointer(cs))
+//	// cs := C.CString(aeve)
+//	eve := C.add_event(cs)
+//	// fmt.Println("event@@", eve)
+//	geve := int(eve)
+//	defer C.free(unsafe.Pointer(cs))
 
-	return geve
-}
+//	return geve
+//}
 
-// StopEvent stop event listener
-func StopEvent() {
-	C.stop_event()
-}
+//// StopEvent stop event listener
+//func StopEvent() {
+//	C.stop_event()
+//}
 
-// LEvent add event listener, Wno-deprecated
-// func LEvent(aeve string) int {
-// 	cs := C.CString(aeve)
-// 	eve := C.add_event(cs)
-// 	// fmt.Println("event@@", eve)
-// 	geve := int(eve)
-// 	defer C.free(unsafe.Pointer(cs))
+//// LEvent add event listener, Wno-deprecated
+//// func LEvent(aeve string) int {
+//// 	cs := C.CString(aeve)
+//// 	eve := C.add_event(cs)
+//// 	// fmt.Println("event@@", eve)
+//// 	geve := int(eve)
+//// 	defer C.free(unsafe.Pointer(cs))
 
-// 	return geve
-// }
+//// 	return geve
+//// }
 
 /*
 ____    __    ____  __  .__   __.  _______   ______   ____    __    ____

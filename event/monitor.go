@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/git-time-metric/gtm/epoch"
-	"github.com/go-vgo/robotgo"
+	"github.com/git-time-metric/robotgo"
 	ps "github.com/mitchellh/go-ps"
 )
 
@@ -77,7 +77,6 @@ func (m *AppMonitor) Run() error {
 		if err := m.RecordFunc(app); err != nil {
 			return err
 		}
-		log.Printf("recorded %s\n", normalizedAppNameToTitle(app))
 	}
 }
 
