@@ -9,12 +9,7 @@ install:
   - echo %GOPATH%
   - go version
   - go env
-
-environment:
-  global:
-    CC: gcc.exe
-  matrix:
-    - PATH: C:\msys64\mingw64\bin\;C:\Program Files (x86)\NSIS\;%PATH%
+  - pacman -Sy mingw-w64-x86_64-libpng
 
 build_script:
   - c:\msys64\usr\bin\bash -lc "GOPATH=/c/gopath GOROOT=/c/Go/ /c/gopath/src/github.com/git-time-metric/gtm/script/git2go-init.sh"
