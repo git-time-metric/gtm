@@ -14,12 +14,7 @@ environment:
   global:
     CC: gcc.exe
   matrix:
-    - GOARCH: amd64
-      GETH_ARCH: amd64
-      MSYS2_ARCH: x86_64
-      MSYS2_BITS: 64
-      MSYSTEM: MINGW64
-      PATH: C:\msys64\mingw64\bin\;C:\Program Files (x86)\NSIS\;%PATH%
+    - PATH: C:\msys64\mingw64\bin\;C:\Program Files (x86)\NSIS\;%PATH%
 
 build_script:
   - c:\msys64\usr\bin\bash -lc "GOPATH=/c/gopath GOROOT=/c/Go/ /c/gopath/src/github.com/git-time-metric/gtm/script/git2go-init.sh"
