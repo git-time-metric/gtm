@@ -27,7 +27,7 @@ package robotgo
 	#cgo darwin CFLAGS: -x objective-c  -Wno-deprecated-declarations
 	#cgo darwin LDFLAGS: -framework Cocoa -framework OpenGL -framework IOKit
 	#cgo darwin LDFLAGS: -framework Carbon -framework CoreFoundation
-	#cgo darwin LDFLAGS:-L${SRCDIR}/cdeps/mac -lpng -lz
+	#cgo darwin LDFLAGS:-L${SRCDIR}/cdeps/mac -lz
 //#elif defined(USE_X11)
 	// Drop -std=c11
 	#cgo linux CFLAGS: -I/usr/src
@@ -36,13 +36,13 @@ package robotgo
 //#endif
 	// #cgo windows LDFLAGS: -lgdi32 -luser32 -lpng -lz
 	#cgo windows LDFLAGS: -lgdi32 -luser32
-	#cgo windows,amd64 LDFLAGS: -L${SRCDIR}/cdeps/win64 -lpng -lz
-	#cgo windows,386 LDFLAGS: -L${SRCDIR}/cdeps/win32 -lpng -lz
+	#cgo windows,amd64 LDFLAGS: -L${SRCDIR}/cdeps/win64 -lz
+	#cgo windows,386 LDFLAGS: -L${SRCDIR}/cdeps/win32 -lz
 // #include <AppKit/NSEvent.h>
 #include "screen/goScreen.h"
 #include "mouse/goMouse.h"
 #include "key/goKey.h"
-#include "bitmap/goBitmap.h"
+// #include "bitmap/goBitmap.h"
 // #include "event/goEvent.h"
 #include "window/goWindow.h"
 */
@@ -50,7 +50,7 @@ import "C"
 
 import (
 	// "fmt"
-	"image"
+
 	"os"
 	"reflect"
 	"runtime"
@@ -62,7 +62,6 @@ import (
 
 	"github.com/go-vgo/robotgo/clipboard"
 	"github.com/shirou/gopsutil/process"
-	"github.com/vcaesar/imgo"
 )
 
 const (
@@ -245,17 +244,17 @@ func CaptureScreen(args ...int) C.MMBitmapRef {
 }
 
 // GoCaptureScreen capture the screen and return bitmap(go struct)
-func GoCaptureScreen(args ...int) Bitmap {
-	var bit C.MMBitmapRef
+// func GoCaptureScreen(args ...int) Bitmap {
+// 	var bit C.MMBitmapRef
 
-	if len(args) > 3 {
-		bit = CaptureScreen(args[0], args[1], args[2], args[3])
-	} else {
-		bit = CaptureScreen()
-	}
+// 	if len(args) > 3 {
+// 		bit = CaptureScreen(args[0], args[1], args[2], args[3])
+// 	} else {
+// 		bit = CaptureScreen()
+// 	}
 
-	return ToBitmap(bit)
-}
+// 	return ToBitmap(bit)
+// }
 
 // BCaptureScreen capture the screen and return bitmap(go struct),
 // Wno-deprecated
@@ -298,23 +297,23 @@ func GoCaptureScreen(args ...int) Bitmap {
 // }
 
 // SaveCapture capture screen and save
-func SaveCapture(spath string, args ...int) {
-	var bit C.MMBitmapRef
-	if len(args) > 3 {
-		var (
-			x = args[0]
-			y = args[1]
-			w = args[2]
-			h = args[3]
-		)
+// func SaveCapture(spath string, args ...int) {
+// 	var bit C.MMBitmapRef
+// 	if len(args) > 3 {
+// 		var (
+// 			x = args[0]
+// 			y = args[1]
+// 			w = args[2]
+// 			h = args[3]
+// 		)
 
-		bit = CaptureScreen(x, y, w, h)
-	} else {
-		bit = CaptureScreen()
-	}
+// 		bit = CaptureScreen(x, y, w, h)
+// 	} else {
+// 		bit = CaptureScreen()
+// 	}
 
-	SaveBitmap(bit, spath)
-}
+// 	SaveBitmap(bit, spath)
+// }
 
 /*
 .___  ___.   ______    __    __       _______. _______
@@ -797,249 +796,249 @@ func SetKeyboardDelay(delay int) {
 |______/  |__|     |__|     |__|  |__| /__/     \__\ | _|
 */
 
-// ToBitmap trans C.MMBitmapRef to Bitmap
-func ToBitmap(bit C.MMBitmapRef) Bitmap {
-	bitmap := Bitmap{
-		ImageBuffer:   (*uint8)(bit.imageBuffer),
-		Width:         int(bit.width),
-		Height:        int(bit.height),
-		Bytewidth:     int(bit.bytewidth),
-		BitsPerPixel:  uint8(bit.bitsPerPixel),
-		BytesPerPixel: uint8(bit.bytesPerPixel),
-	}
+//// ToBitmap trans C.MMBitmapRef to Bitmap
+//func ToBitmap(bit C.MMBitmapRef) Bitmap {
+//	bitmap := Bitmap{
+//		ImageBuffer:   (*uint8)(bit.imageBuffer),
+//		Width:         int(bit.width),
+//		Height:        int(bit.height),
+//		Bytewidth:     int(bit.bytewidth),
+//		BitsPerPixel:  uint8(bit.bitsPerPixel),
+//		BytesPerPixel: uint8(bit.bytesPerPixel),
+//	}
 
-	return bitmap
-}
+//	return bitmap
+//}
 
-// ToMMBitmapRef trans CBitmap to C.MMBitmapRef
-func ToMMBitmapRef(bit CBitmap) C.MMBitmapRef {
-	return C.MMBitmapRef(bit)
-}
+//// ToMMBitmapRef trans CBitmap to C.MMBitmapRef
+//func ToMMBitmapRef(bit CBitmap) C.MMBitmapRef {
+//	return C.MMBitmapRef(bit)
+//}
 
-// TostringBitmap tostring bitmap to string
-func TostringBitmap(bit C.MMBitmapRef) string {
-	strBit := C.tostring_bitmap(bit)
-	return C.GoString(strBit)
-}
+//// TostringBitmap tostring bitmap to string
+//func TostringBitmap(bit C.MMBitmapRef) string {
+//	strBit := C.tostring_bitmap(bit)
+//	return C.GoString(strBit)
+//}
 
-// TocharBitmap tostring bitmap to C.char
-func TocharBitmap(bit C.MMBitmapRef) *C.char {
-	strBit := C.tostring_bitmap(bit)
-	return strBit
-}
+//// TocharBitmap tostring bitmap to C.char
+//func TocharBitmap(bit C.MMBitmapRef) *C.char {
+//	strBit := C.tostring_bitmap(bit)
+//	return strBit
+//}
 
-func internalFindBitmap(bit, sbit C.MMBitmapRef, tolerance float64) (int, int) {
-	pos := C.find_bitmap(bit, sbit, C.float(tolerance))
-	// fmt.Println("pos----", pos)
-	return int(pos.x), int(pos.y)
-}
+//func internalFindBitmap(bit, sbit C.MMBitmapRef, tolerance float64) (int, int) {
+//	pos := C.find_bitmap(bit, sbit, C.float(tolerance))
+//	// fmt.Println("pos----", pos)
+//	return int(pos.x), int(pos.y)
+//}
 
-// FindBitmap find the bitmap
-//
-//	robotgo.FindBitmap(bitmap, subbitamp C.MMBitmapRef, tolerance float64)
-//
-func FindBitmap(args ...interface{}) (int, int) {
-	var (
-		bit       C.MMBitmapRef
-		sbit      C.MMBitmapRef
-		tolerance float64
-	)
+//// FindBitmap find the bitmap
+////
+////	robotgo.FindBitmap(bitmap, subbitamp C.MMBitmapRef, tolerance float64)
+////
+//func FindBitmap(args ...interface{}) (int, int) {
+//	var (
+//		bit       C.MMBitmapRef
+//		sbit      C.MMBitmapRef
+//		tolerance float64
+//	)
 
-	bit = args[0].(C.MMBitmapRef)
+//	bit = args[0].(C.MMBitmapRef)
 
-	if len(args) > 1 {
-		sbit = args[1].(C.MMBitmapRef)
-	} else {
-		sbit = CaptureScreen()
-	}
+//	if len(args) > 1 {
+//		sbit = args[1].(C.MMBitmapRef)
+//	} else {
+//		sbit = CaptureScreen()
+//	}
 
-	if len(args) > 2 {
-		tolerance = args[2].(float64)
-	} else {
-		tolerance = 0.5
-	}
+//	if len(args) > 2 {
+//		tolerance = args[2].(float64)
+//	} else {
+//		tolerance = 0.5
+//	}
 
-	return internalFindBitmap(bit, sbit, tolerance)
-}
+//	return internalFindBitmap(bit, sbit, tolerance)
+//}
 
-// FindPic finding the image by path
-//
-//	robotgo.FindPic(path string, subbitamp C.MMBitmapRef, tolerance float64)
-//
-func FindPic(path string, args ...interface{}) (int, int) {
-	var (
-		sbit      C.MMBitmapRef
-		tolerance float64
-	)
+//// FindPic finding the image by path
+////
+////	robotgo.FindPic(path string, subbitamp C.MMBitmapRef, tolerance float64)
+////
+//func FindPic(path string, args ...interface{}) (int, int) {
+//	var (
+//		sbit      C.MMBitmapRef
+//		tolerance float64
+//	)
 
-	openbit := OpenBitmap(path)
+//	openbit := OpenBitmap(path)
 
-	if len(args) > 0 {
-		sbit = args[0].(C.MMBitmapRef)
-	} else {
-		sbit = CaptureScreen()
-	}
+//	if len(args) > 0 {
+//		sbit = args[0].(C.MMBitmapRef)
+//	} else {
+//		sbit = CaptureScreen()
+//	}
 
-	if len(args) > 1 {
-		tolerance = args[1].(float64)
-	} else {
-		tolerance = 0.5
-	}
+//	if len(args) > 1 {
+//		tolerance = args[1].(float64)
+//	} else {
+//		tolerance = 0.5
+//	}
 
-	fx, fy := internalFindBitmap(openbit, sbit, tolerance)
+//	fx, fy := internalFindBitmap(openbit, sbit, tolerance)
 
-	return fx, fy
-}
+//	return fx, fy
+//}
 
-// FindEveryBitmap find the every bitmap
-func FindEveryBitmap(args ...interface{}) (int, int) {
-	var (
-		bit       C.MMBitmapRef
-		sbit      C.MMBitmapRef
-		tolerance C.float
-		lpos      C.MMPoint
-	)
+//// FindEveryBitmap find the every bitmap
+//func FindEveryBitmap(args ...interface{}) (int, int) {
+//	var (
+//		bit       C.MMBitmapRef
+//		sbit      C.MMBitmapRef
+//		tolerance C.float
+//		lpos      C.MMPoint
+//	)
 
-	bit = args[0].(C.MMBitmapRef)
-	if len(args) > 1 {
-		sbit = args[1].(C.MMBitmapRef)
-	} else {
-		sbit = CaptureScreen()
-	}
+//	bit = args[0].(C.MMBitmapRef)
+//	if len(args) > 1 {
+//		sbit = args[1].(C.MMBitmapRef)
+//	} else {
+//		sbit = CaptureScreen()
+//	}
 
-	if len(args) > 2 {
-		tolerance = C.float(args[2].(float64))
-	} else {
-		tolerance = 0.5
-	}
+//	if len(args) > 2 {
+//		tolerance = C.float(args[2].(float64))
+//	} else {
+//		tolerance = 0.5
+//	}
 
-	if len(args) > 3 {
-		lpos.x = C.size_t(args[3].(int))
-		lpos.y = 0
-	} else {
-		lpos.x = 0
-		lpos.y = 0
-	}
+//	if len(args) > 3 {
+//		lpos.x = C.size_t(args[3].(int))
+//		lpos.y = 0
+//	} else {
+//		lpos.x = 0
+//		lpos.y = 0
+//	}
 
-	if len(args) > 4 {
-		lpos.x = C.size_t(args[3].(int))
-		lpos.y = C.size_t(args[4].(int))
-	}
+//	if len(args) > 4 {
+//		lpos.x = C.size_t(args[3].(int))
+//		lpos.y = C.size_t(args[4].(int))
+//	}
 
-	pos := C.find_every_bitmap(bit, sbit, tolerance, &lpos)
-	// fmt.Println("pos----", pos)
-	return int(pos.x), int(pos.y)
-}
+//	pos := C.find_every_bitmap(bit, sbit, tolerance, &lpos)
+//	// fmt.Println("pos----", pos)
+//	return int(pos.x), int(pos.y)
+//}
 
-// CountBitmap count of the bitmap
-func CountBitmap(bitmap C.MMBitmapRef, sbit C.MMBitmapRef, args ...float32) int {
-	var tolerance C.float
-	if len(args) > 0 {
-		tolerance = C.float(args[0])
-	} else {
-		tolerance = 0.5
-	}
+//// CountBitmap count of the bitmap
+//func CountBitmap(bitmap C.MMBitmapRef, sbit C.MMBitmapRef, args ...float32) int {
+//	var tolerance C.float
+//	if len(args) > 0 {
+//		tolerance = C.float(args[0])
+//	} else {
+//		tolerance = 0.5
+//	}
 
-	count := C.count_of_bitmap(bitmap, sbit, tolerance)
-	return int(count)
-}
+//	count := C.count_of_bitmap(bitmap, sbit, tolerance)
+//	return int(count)
+//}
 
-// FindBit find the bitmap, Wno-deprecated
-func FindBit(args ...interface{}) (int, int) {
-	var bit C.MMBitmapRef
-	bit = args[0].(C.MMBitmapRef)
+//// FindBit find the bitmap, Wno-deprecated
+//func FindBit(args ...interface{}) (int, int) {
+//	var bit C.MMBitmapRef
+//	bit = args[0].(C.MMBitmapRef)
 
-	var rect C.MMRect
-	Try(func() {
-		rect.origin.x = C.size_t(args[1].(int))
-		rect.origin.y = C.size_t(args[2].(int))
-		rect.size.width = C.size_t(args[3].(int))
-		rect.size.height = C.size_t(args[4].(int))
-	}, func(e interface{}) {
-		// fmt.Println("err:::", e)
-		// rect.origin.x = x
-		// rect.origin.y = y
-		// rect.size.width = w
-		// rect.size.height = h
-	})
+//	var rect C.MMRect
+//	Try(func() {
+//		rect.origin.x = C.size_t(args[1].(int))
+//		rect.origin.y = C.size_t(args[2].(int))
+//		rect.size.width = C.size_t(args[3].(int))
+//		rect.size.height = C.size_t(args[4].(int))
+//	}, func(e interface{}) {
+//		// fmt.Println("err:::", e)
+//		// rect.origin.x = x
+//		// rect.origin.y = y
+//		// rect.size.width = w
+//		// rect.size.height = h
+//	})
 
-	pos := C.aFindBitmap(bit, rect)
-	// fmt.Println("pos----", pos)
-	return int(pos.x), int(pos.y)
-}
+//	pos := C.aFindBitmap(bit, rect)
+//	// fmt.Println("pos----", pos)
+//	return int(pos.x), int(pos.y)
+//}
 
-// BitmapClick find the bitmap and click
-func BitmapClick(bitmap C.MMBitmapRef, args ...interface{}) {
-	x, y := FindBitmap(bitmap)
-	MovesClick(x, y, args)
-}
+//// BitmapClick find the bitmap and click
+//func BitmapClick(bitmap C.MMBitmapRef, args ...interface{}) {
+//	x, y := FindBitmap(bitmap)
+//	MovesClick(x, y, args)
+//}
 
-// PointInBounds bitmap point in bounds
-func PointInBounds(bitmap C.MMBitmapRef, x, y int) bool {
-	var point C.MMPoint
-	point.x = C.size_t(x)
-	point.y = C.size_t(y)
-	cbool := C.point_in_bounds(bitmap, point)
+//// PointInBounds bitmap point in bounds
+//func PointInBounds(bitmap C.MMBitmapRef, x, y int) bool {
+//	var point C.MMPoint
+//	point.x = C.size_t(x)
+//	point.y = C.size_t(y)
+//	cbool := C.point_in_bounds(bitmap, point)
 
-	return bool(cbool)
-}
+//	return bool(cbool)
+//}
 
-// OpenBitmap open the bitmap
-func OpenBitmap(args ...interface{}) C.MMBitmapRef {
-	path := C.CString(args[0].(string))
-	var mtype C.uint16_t
+//// OpenBitmap open the bitmap
+//func OpenBitmap(args ...interface{}) C.MMBitmapRef {
+//	path := C.CString(args[0].(string))
+//	var mtype C.uint16_t
 
-	Try(func() {
-		mtype = C.uint16_t(args[1].(int))
-	}, func(e interface{}) {
-		// fmt.Println("err:::", e)
-		mtype = 1
-	})
+//	Try(func() {
+//		mtype = C.uint16_t(args[1].(int))
+//	}, func(e interface{}) {
+//		// fmt.Println("err:::", e)
+//		mtype = 1
+//	})
 
-	bit := C.bitmap_open(path, mtype)
-	defer C.free(unsafe.Pointer(path))
-	// fmt.Println("opening...", bit)
-	return bit
-	// defer C.free(unsafe.Pointer(path))
-}
+//	bit := C.bitmap_open(path, mtype)
+//	defer C.free(unsafe.Pointer(path))
+//	// fmt.Println("opening...", bit)
+//	return bit
+//	// defer C.free(unsafe.Pointer(path))
+//}
 
-// DecodeImg decode the image to image.Image and return
-func DecodeImg(path string) (image.Image, string, error) {
-	return imgo.DecodeFile(path)
-}
+//// DecodeImg decode the image to image.Image and return
+//func DecodeImg(path string) (image.Image, string, error) {
+//	return imgo.DecodeFile(path)
+//}
 
-// OpenImg open the image return []byte
-func OpenImg(path string) []byte {
-	return imgo.ImgToBytes(path)
-}
+//// OpenImg open the image return []byte
+//func OpenImg(path string) []byte {
+//	return imgo.ImgToBytes(path)
+//}
 
-// BitmapStr bitmap from string
-func BitmapStr(str string) C.MMBitmapRef {
-	cs := C.CString(str)
-	bit := C.bitmap_from_string(cs)
-	defer C.free(unsafe.Pointer(cs))
+//// BitmapStr bitmap from string
+//func BitmapStr(str string) C.MMBitmapRef {
+//	cs := C.CString(str)
+//	bit := C.bitmap_from_string(cs)
+//	defer C.free(unsafe.Pointer(cs))
 
-	return bit
-}
+//	return bit
+//}
 
-// SaveBitmap save the bitmap
-func SaveBitmap(args ...interface{}) string {
-	var mtype C.uint16_t
-	Try(func() {
-		mtype = C.uint16_t(args[2].(int))
-	}, func(e interface{}) {
-		// fmt.Println("err:::", e)
-		mtype = 1
-	})
+//// SaveBitmap save the bitmap
+//func SaveBitmap(args ...interface{}) string {
+//	var mtype C.uint16_t
+//	Try(func() {
+//		mtype = C.uint16_t(args[2].(int))
+//	}, func(e interface{}) {
+//		// fmt.Println("err:::", e)
+//		mtype = 1
+//	})
 
-	path := C.CString(args[1].(string))
-	savebit := C.bitmap_save(args[0].(C.MMBitmapRef), path, mtype)
-	// fmt.Println("saved...", savebit)
-	// return bit
-	defer C.free(unsafe.Pointer(path))
+//	path := C.CString(args[1].(string))
+//	savebit := C.bitmap_save(args[0].(C.MMBitmapRef), path, mtype)
+//	// fmt.Println("saved...", savebit)
+//	// return bit
+//	defer C.free(unsafe.Pointer(path))
 
-	return C.GoString(savebit)
-}
+//	return C.GoString(savebit)
+//}
 
 // func SaveBitmap(bit C.MMBitmapRef, gpath string, mtype C.MMImageType) {
 // 	path := C.CString(gpath)
@@ -1050,141 +1049,141 @@ func SaveBitmap(args ...interface{}) string {
 // }
 
 // GetPortion get bitmap portion
-func GetPortion(bit C.MMBitmapRef, x, y, w, h int) C.MMBitmapRef {
-	var rect C.MMRect
-	rect.origin.x = C.size_t(x)
-	rect.origin.y = C.size_t(y)
-	rect.size.width = C.size_t(w)
-	rect.size.height = C.size_t(h)
+// func GetPortion(bit C.MMBitmapRef, x, y, w, h int) C.MMBitmapRef {
+// 	var rect C.MMRect
+// 	rect.origin.x = C.size_t(x)
+// 	rect.origin.y = C.size_t(y)
+// 	rect.size.width = C.size_t(w)
+// 	rect.size.height = C.size_t(h)
 
-	pos := C.get_portion(bit, rect)
-	return pos
-}
+// 	pos := C.get_portion(bit, rect)
+// 	return pos
+// }
 
-// Convert convert bitmap
-func Convert(args ...interface{}) {
-	var mtype int
-	Try(func() {
-		mtype = args[2].(int)
-	}, func(e interface{}) {
-		// fmt.Println("err:::", e)
-		mtype = 1
-	})
+// // Convert convert bitmap
+// func Convert(args ...interface{}) {
+// 	var mtype int
+// 	Try(func() {
+// 		mtype = args[2].(int)
+// 	}, func(e interface{}) {
+// 		// fmt.Println("err:::", e)
+// 		mtype = 1
+// 	})
 
-	// C.CString()
-	opath := args[0].(string)
-	spath := args[1].(string)
-	bitmap := OpenBitmap(opath)
-	// fmt.Println("a----", bit_map)
-	SaveBitmap(bitmap, spath, mtype)
-}
+// 	// C.CString()
+// 	opath := args[0].(string)
+// 	spath := args[1].(string)
+// 	bitmap := OpenBitmap(opath)
+// 	// fmt.Println("a----", bit_map)
+// 	SaveBitmap(bitmap, spath, mtype)
+// }
 
-// FreeBitmap free and dealloc bitmap
-func FreeBitmap(bitmap C.MMBitmapRef) {
-	// C.destroyMMBitmap(bitmap)
-	C.bitmap_dealloc(bitmap)
-}
+// // FreeBitmap free and dealloc bitmap
+// func FreeBitmap(bitmap C.MMBitmapRef) {
+// 	// C.destroyMMBitmap(bitmap)
+// 	C.bitmap_dealloc(bitmap)
+// }
 
-// ReadBitmap returns false and sets error if |bitmap| is NULL
-func ReadBitmap(bitmap C.MMBitmapRef) bool {
-	abool := C.bitmap_ready(bitmap)
-	gbool := bool(abool)
-	return gbool
-}
+// // ReadBitmap returns false and sets error if |bitmap| is NULL
+// func ReadBitmap(bitmap C.MMBitmapRef) bool {
+// 	abool := C.bitmap_ready(bitmap)
+// 	gbool := bool(abool)
+// 	return gbool
+// }
 
-// CopyBitpb copy bitmap to pasteboard
-func CopyBitpb(bitmap C.MMBitmapRef) bool {
-	abool := C.bitmap_copy_to_pboard(bitmap)
-	gbool := bool(abool)
-	return gbool
-}
+// // CopyBitpb copy bitmap to pasteboard
+// func CopyBitpb(bitmap C.MMBitmapRef) bool {
+// 	abool := C.bitmap_copy_to_pboard(bitmap)
+// 	gbool := bool(abool)
+// 	return gbool
+// }
 
-// DeepCopyBit deep copy bitmap
-func DeepCopyBit(bitmap C.MMBitmapRef) C.MMBitmapRef {
-	bit := C.bitmap_deepcopy(bitmap)
-	return bit
-}
+// // DeepCopyBit deep copy bitmap
+// func DeepCopyBit(bitmap C.MMBitmapRef) C.MMBitmapRef {
+// 	bit := C.bitmap_deepcopy(bitmap)
+// 	return bit
+// }
 
-// GetColor get bitmap color
-func GetColor(bitmap C.MMBitmapRef, x, y int) C.MMRGBHex {
-	color := C.bitmap_get_color(bitmap, C.size_t(x), C.size_t(y))
+// // GetColor get bitmap color
+// func GetColor(bitmap C.MMBitmapRef, x, y int) C.MMRGBHex {
+// 	color := C.bitmap_get_color(bitmap, C.size_t(x), C.size_t(y))
 
-	return color
-}
+// 	return color
+// }
 
-// FindColor find bitmap color
-func FindColor(bitmap C.MMBitmapRef, color CHex, args ...float32) (int, int) {
-	var tolerance C.float
+// // FindColor find bitmap color
+// func FindColor(bitmap C.MMBitmapRef, color CHex, args ...float32) (int, int) {
+// 	var tolerance C.float
 
-	if len(args) > 0 {
-		tolerance = C.float(args[0])
-	} else {
-		tolerance = 0.5
-	}
+// 	if len(args) > 0 {
+// 		tolerance = C.float(args[0])
+// 	} else {
+// 		tolerance = 0.5
+// 	}
 
-	pos := C.bitmap_find_color(bitmap, C.MMRGBHex(color), tolerance)
-	x := int(pos.x)
-	y := int(pos.y)
+// 	pos := C.bitmap_find_color(bitmap, C.MMRGBHex(color), tolerance)
+// 	x := int(pos.x)
+// 	y := int(pos.y)
 
-	return x, y
-}
+// 	return x, y
+// }
 
-// FindColorCS findcolor by CaptureScreen
-func FindColorCS(x, y, w, h int, color CHex, args ...float32) (int, int) {
-	var tolerance float32
+// // FindColorCS findcolor by CaptureScreen
+// func FindColorCS(x, y, w, h int, color CHex, args ...float32) (int, int) {
+// 	var tolerance float32
 
-	if len(args) > 0 {
-		tolerance = args[0]
-	} else {
-		tolerance = 0.5
-	}
+// 	if len(args) > 0 {
+// 		tolerance = args[0]
+// 	} else {
+// 		tolerance = 0.5
+// 	}
 
-	bitmap := CaptureScreen(x, y, w, h)
-	rx, ry := FindColor(bitmap, color, tolerance)
-	return rx, ry
-}
+// 	bitmap := CaptureScreen(x, y, w, h)
+// 	rx, ry := FindColor(bitmap, color, tolerance)
+// 	return rx, ry
+// }
 
-// CountColor count bitmap color
-func CountColor(bitmap C.MMBitmapRef, color CHex, args ...float32) int {
-	var tolerance C.float
+// // CountColor count bitmap color
+// func CountColor(bitmap C.MMBitmapRef, color CHex, args ...float32) int {
+// 	var tolerance C.float
 
-	if len(args) > 0 {
-		tolerance = C.float(args[0])
-	} else {
-		tolerance = 0.5
-	}
+// 	if len(args) > 0 {
+// 		tolerance = C.float(args[0])
+// 	} else {
+// 		tolerance = 0.5
+// 	}
 
-	count := C.bitmap_count_of_color(bitmap, C.MMRGBHex(color), tolerance)
+// 	count := C.bitmap_count_of_color(bitmap, C.MMRGBHex(color), tolerance)
 
-	return int(count)
-}
+// 	return int(count)
+// }
 
-// CountColorCS count bitmap color by CaptureScreen
-func CountColorCS(x, y, w, h int, color CHex, args ...float32) int {
-	var tolerance float32
+// // CountColorCS count bitmap color by CaptureScreen
+// func CountColorCS(x, y, w, h int, color CHex, args ...float32) int {
+// 	var tolerance float32
 
-	if len(args) > 0 {
-		tolerance = args[0]
-	} else {
-		tolerance = 0.5
-	}
+// 	if len(args) > 0 {
+// 		tolerance = args[0]
+// 	} else {
+// 		tolerance = 0.5
+// 	}
 
-	bitmap := CaptureScreen(x, y, w, h)
-	rx := CountColor(bitmap, color, tolerance)
+// 	bitmap := CaptureScreen(x, y, w, h)
+// 	rx := CountColor(bitmap, color, tolerance)
 
-	return rx
-}
+// 	return rx
+// }
 
-// GetImgSize get the image size
-func GetImgSize(imgPath string) (int, int) {
-	bitmap := OpenBitmap(imgPath)
-	gbit := ToBitmap(bitmap)
+// // GetImgSize get the image size
+// func GetImgSize(imgPath string) (int, int) {
+// 	bitmap := OpenBitmap(imgPath)
+// 	gbit := ToBitmap(bitmap)
 
-	w := gbit.Width / 2
-	h := gbit.Height / 2
+// 	w := gbit.Width / 2
+// 	h := gbit.Height / 2
 
-	return w, h
-}
+// 	return w, h
+// }
 
 /*
  ___________    ____  _______ .__   __. .___________.
