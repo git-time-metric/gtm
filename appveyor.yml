@@ -5,11 +5,14 @@ os: Visual Studio 2017
 clone_folder: c:\gopath\src\github.com\git-time-metric\gtm
 
 install:
+  - SET PATH=C:\msys64\mingw64\bin;C:\msys64\usr\bin;%PATH%
+  - SET PKG_CONFIG_PATH=C:\msys64\mingw64\lib\pkgconfig
+  - SET XDG_DATA_DIRS=C:\msys64\mingw64\share
+  - appveyor-retry pacman -Sy -q --noconfirm mingw-w64-x86_64-libpng
   - echo %PATH%
   - echo %GOPATH%
   - go version
   - go env
-  - pacman -Sy mingw-w64-x86_64-libpng
 
 build_script:
   - c:\msys64\usr\bin\bash -lc "GOPATH=/c/gopath GOROOT=/c/Go/ /c/gopath/src/github.com/git-time-metric/gtm/script/git2go-init.sh"
