@@ -63,8 +63,6 @@ func (m *AppMonitor) Run() error {
 		}
 		app = normalizeAppName(x.Executable())
 
-		log.Printf("watching process id %d application %s\n", pid, app)
-
 		if app == prevApp && time.Unix(epoch.Now(), 0).Before(time.Unix(nextUpdate, 0)) {
 			continue
 		}
@@ -75,6 +73,8 @@ func (m *AppMonitor) Run() error {
 			log.Printf("skipped %s\n", normalizedAppNameToTitle(app))
 			continue
 		}
+
+		log.Printf("watching process id %d application %s\n", pid, app)
 
 		if err := m.RecordFunc(app); err != nil {
 			return err
