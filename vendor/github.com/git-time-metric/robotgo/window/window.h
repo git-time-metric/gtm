@@ -136,7 +136,7 @@ void aWindow();
 			// Reinstate old handler
 			XSetErrorHandler(mOld);
 
-            XCloseDisplay(rDisplay)
+            XCloseDisplay(rDisplay);
 		}
 
 	// Definitions
@@ -716,7 +716,7 @@ MData GetActive(void){
 			// Set and return the foreground window
 			result.XWin = (Window)window;
 
-            XCloseDisplay(rDisplay)
+            XCloseDisplay(rDisplay);
 
 			return result;
 		}
@@ -730,7 +730,7 @@ MData GetActive(void){
 	// Return foreground window
 	result.XWin = window;
 
-    XCloseDisplay(rDisplay)
+    XCloseDisplay(rDisplay);
 
 	return result;
 
