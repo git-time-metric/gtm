@@ -37,7 +37,7 @@
 			"importpath": "github.com/git-time-metric/robotgo",
 			"repository": "https://github.com/git-time-metric/robotgo",
 			"vcs": "git",
-			"revision": "fedc8516ba7c83f7e7fda64294dff14cf0a81251",
+			"revision": "84fe8786c3e1818f08ea6471bbd3d743c18c583f",
 			"branch": "master",
 			"notests": true
 		},

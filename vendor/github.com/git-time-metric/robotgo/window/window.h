@@ -724,6 +724,9 @@ MData GetActive(void){
 
 	// Return foreground window
 	result.XWin = window;
+
+    XCloseDisplay(rDisplay)
+
 	return result;
 
 #elif defined(IS_WINDOWS)
