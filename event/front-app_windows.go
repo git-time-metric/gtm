@@ -6,7 +6,7 @@ import (
 )
 
 func getFrontApp() (string, error) {
-	hwnd := w32.GetWindowForeground()
+	hwnd := w32.GetForegroundWindow()
 	_, pid := w32.GetWindowThreadProcessId(hwnd)
 	p, err := ps.FindProcess(pid)
 	if err != nil {
