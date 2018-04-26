@@ -34,6 +34,14 @@
 			"notests": true
 		},
 		{
+			"importpath": "github.com/git-time-metric/w32",
+			"repository": "https://github.com/git-time-metric/w32",
+			"vcs": "git",
+			"revision": "bb4de0191aa41b5507caa14b0650cdbddcd9280b",
+			"branch": "master",
+			"notests": true
+		},
+		{
 			"importpath": "github.com/hako/durafmt",
 			"repository": "https://github.com/hako/durafmt",
 			"vcs": "git",
