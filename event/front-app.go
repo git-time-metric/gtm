@@ -67,5 +67,5 @@ func getFrontApp() (string, error) {
 
 		return p.Executable(), nil
 	}
-	return "", errors.New(fmt.Sprintf("% not supported", runtime.GOOS))
+	return "", errors.New(fmt.Sprintf("%s not supported", runtime.GOOS))
 }
