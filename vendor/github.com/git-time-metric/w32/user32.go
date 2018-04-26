@@ -34,7 +34,7 @@ var (
 	procPostMessage                   = moduser32.NewProc("PostMessageW")
 	procWaitMessage                   = moduser32.NewProc("WaitMessage")
 	procSetWindowText                 = moduser32.NewProc("SetWindowTextW")
-	procGetWindowForeground           = moduser32.NewProc("GetWindowForeground")
+	procGetForegroundWindow           = moduser32.NewProc("GetForegroundWindow")
 	procGetWindowTextLength           = moduser32.NewProc("GetWindowTextLengthW")
 	procGetWindowText                 = moduser32.NewProc("GetWindowTextW")
 	procGetWindowRect                 = moduser32.NewProc("GetWindowRect")
@@ -453,8 +453,8 @@ func ReleaseCapture() bool {
 	return ret != 0
 }
 
-func GetWindowForeground() HWND {
-	ret, _, _ := procGetWindowForeground.Call()
+func GetForegroundWindow() HWND {
+	ret, _, _ := procGetForegroundWindow.Call()
 	return HWND(ret)
 }
 
