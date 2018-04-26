@@ -2,12 +2,11 @@ package event
 
 import (
 	"log"
+	"os/exec"
 	"strings"
 	"time"
 
 	"github.com/git-time-metric/gtm/epoch"
-	"github.com/git-time-metric/robotgo"
-	ps "github.com/mitchellh/go-ps"
 )
 
 var (
@@ -33,35 +32,27 @@ func (m *AppMonitor) Run() error {
 		nextUpdate   = epoch.Now()
 	)
 
-	// cmd, err := exec.LookPath("osascript")
-	// if err != nil {
-	// 	return err
-	// }
+	cmd, err := exec.LookPath("osascript")
+	if err != nil {
+		return err
+	}
 
 	for {
 		time.Sleep(time.Second * 1)
 
-		// x := exec.Command(
-		// 	cmd,
-		// 	`-e`, `tell application "System Events"`,
-		// 	`-e`, `set frontApp to name of first application process whose frontmost is true`,
-		// 	`-e`, `end tell`,
-		// )
+		x := exec.Command(
+			cmd,
+			`-e`, `tell application "System Events"`,
+			`-e`, `set frontApp to name of first application process whose frontmost is true`,
+			`-e`, `end tell`,
+		)
 
-		// o, err := x.CombinedOutput()
-		// if err != nil {
-		// 	return err
-		// }
-
-		// app = normalizeAppName(strings.Replace(string(o), "\n", "", -1))
-
-		pid := robotgo.GetPID()
-		x, err := ps.FindProcess(pid)
-		if err != nil || x == nil {
-			log.Printf("error finding process for pid %d\n", pid)
-			continue
+		o, err := x.CombinedOutput()
+		if err != nil {
+			return err
 		}
-		app = normalizeAppName(x.Executable())
+
+		app = normalizeAppName(strings.Replace(string(o), "\n", "", -1))
 
 		if app == prevApp && time.Unix(epoch.Now(), 0).Before(time.Unix(nextUpdate, 0)) {
 			continue
@@ -74,11 +65,10 @@ func (m *AppMonitor) Run() error {
 			continue
 		}
 
-		log.Printf("watching process id %d application %s\n", pid, app)
-
 		if err := m.RecordFunc(app); err != nil {
 			return err
 		}
+		log.Printf("recorded %s\n", normalizedAppNameToTitle(app))
 	}
 }
 
