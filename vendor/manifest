@@ -74,6 +74,14 @@
 			"notests": true
 		},
 		{
+			"importpath": "github.com/mitchellh/go-ps",
+			"repository": "https://github.com/mitchellh/go-ps",
+			"vcs": "git",
+			"revision": "4fdf99ab29366514c69ccccddab5dc58b8d84062",
+			"branch": "master",
+			"notests": true
+		},
+		{
 			"importpath": "golang.org/x/crypto/ssh/terminal",
 			"repository": "https://go.googlesource.com/crypto",
 			"vcs": "git",
