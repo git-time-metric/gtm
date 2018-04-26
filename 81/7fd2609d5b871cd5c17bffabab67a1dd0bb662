@@ -1,0 +1,9 @@
+[ver:1,total:660]
+.gtm/google-chrome.app:225,1524776400:225,r
+.gtm/slack.app:90,1524776400:90,r
+event/app.go:90,1524776400:90,r
+event/front-app_linux.go:75,1524776400:75,r
+event/front-app_darwin.go:70,1524776400:70,m
+event/monitor.go:55,1524776400:55,m
+event/front-app_windows.go:35,1524776400:35,r
+.gtm/terminal.app:20,1524776400:20,r
