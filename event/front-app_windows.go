@@ -3,7 +3,7 @@ package event
 import (
 	"errors"
 
-	"github.com/AllenDang/w32"
+	"github.com/git-time-metric/w32"
 	ps "github.com/mitchellh/go-ps"
 )
 
