@@ -37,5 +37,5 @@ func getFrontApp() (string, error) {
 		return "", err
 	}
 
-	return normalizeAppName(strings.Replace(string(o), "\n", "", -1)), nil
+	return strings.Replace(string(o), "\n", "", -1), nil
 }

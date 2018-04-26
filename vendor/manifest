@@ -37,7 +37,7 @@
 			"importpath": "github.com/git-time-metric/w32",
 			"repository": "https://github.com/git-time-metric/w32",
 			"vcs": "git",
-			"revision": "bb4de0191aa41b5507caa14b0650cdbddcd9280b",
+			"revision": "f0fece019f23661c4f7fb19d9b6b142db080ec90",
 			"branch": "master",
 			"notests": true
 		},

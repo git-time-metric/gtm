@@ -39,6 +39,7 @@ func (m *AppMonitor) Run() error {
 		if err != nil {
 			return err
 		}
+		app = normalizeAppName(app)
 
 		if app == prevApp && time.Unix(epoch.Now(), 0).Before(time.Unix(nextUpdate, 0)) {
 			continue
