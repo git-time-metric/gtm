@@ -453,9 +453,9 @@ func ReleaseCapture() bool {
 	return ret != 0
 }
 
-func GetWindowForeground() HANDLE {
+func GetWindowForeground() HWND {
 	ret, _, _ := procGetWindowForeground.Call()
-	return HANDLE(ret)
+	return HWND(ret)
 }
 
 func GetWindowThreadProcessId(hwnd HWND) (HANDLE, int) {
