@@ -2,8 +2,6 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// +build windows
-
 package w32
 
 import (
@@ -15,15 +13,18 @@ var (
 	modgdi32 = syscall.NewLazyDLL("gdi32.dll")
 
 	procGetDeviceCaps             = modgdi32.NewProc("GetDeviceCaps")
+	procGetCurrentObject          = modgdi32.NewProc("GetCurrentObject")
 	procDeleteObject              = modgdi32.NewProc("DeleteObject")
 	procCreateFontIndirect        = modgdi32.NewProc("CreateFontIndirectW")
 	procAbortDoc                  = modgdi32.NewProc("AbortDoc")
 	procBitBlt                    = modgdi32.NewProc("BitBlt")
+	procPatBlt                    = modgdi32.NewProc("PatBlt")
 	procCloseEnhMetaFile          = modgdi32.NewProc("CloseEnhMetaFile")
 	procCopyEnhMetaFile           = modgdi32.NewProc("CopyEnhMetaFileW")
 	procCreateBrushIndirect       = modgdi32.NewProc("CreateBrushIndirect")
 	procCreateCompatibleDC        = modgdi32.NewProc("CreateCompatibleDC")
 	procCreateDC                  = modgdi32.NewProc("CreateDCW")
+	procCreateCompatibleBitmap    = modgdi32.NewProc("CreateCompatibleBitmap")
 	procCreateDIBSection          = modgdi32.NewProc("CreateDIBSection")
 	procCreateEnhMetaFile         = modgdi32.NewProc("CreateEnhMetaFileW")
 	procCreateIC                  = modgdi32.NewProc("CreateICW")
@@ -71,6 +72,14 @@ func GetDeviceCaps(hdc HDC, index int) int {
 	return int(ret)
 }
 
+func GetCurrentObject(hdc HDC, uObjectType uint32) HGDIOBJ {
+	ret, _, _ := procGetCurrentObject.Call(
+		uintptr(hdc),
+		uintptr(uObjectType))
+
+	return HGDIOBJ(ret)
+}
+
 func DeleteObject(hObject HGDIOBJ) bool {
 	ret, _, _ := procDeleteObject.Call(
 		uintptr(hObject))
@@ -106,6 +115,20 @@ func BitBlt(hdcDest HDC, nXDest, nYDest, nWidth, nHeight int, hdcSrc HDC, nXSrc,
 
 	if ret == 0 {
 		panic("BitBlt failed")
+	}
+}
+
+func PatBlt(hdc HDC, nXLeft, nYLeft, nWidth, nHeight int, dwRop uint) {
+	ret, _, _ := procPatBlt.Call(
+		uintptr(hdc),
+		uintptr(nXLeft),
+		uintptr(nYLeft),
+		uintptr(nWidth),
+		uintptr(nHeight),
+		uintptr(dwRop))
+
+	if ret == 0 {
+		panic("PatBlt failed")
 	}
 }
 
@@ -150,6 +173,15 @@ func CreateDC(lpszDriver, lpszDevice, lpszOutput *uint16, lpInitData *DEVMODE) H
 		uintptr(unsafe.Pointer(lpInitData)))
 
 	return HDC(ret)
+}
+
+func CreateCompatibleBitmap(hdc HDC, width, height uint) HBITMAP {
+	ret, _, _ := procCreateCompatibleBitmap.Call(
+		uintptr(hdc),
+		uintptr(width),
+		uintptr(height))
+
+	return HBITMAP(ret)
 }
 
 func CreateDIBSection(hdc HDC, pbmi *BITMAPINFO, iUsage uint, ppvBits *unsafe.Pointer, hSection HANDLE, dwOffset uint) HBITMAP {

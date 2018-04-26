@@ -2,8 +2,6 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// +build windows
-
 package w32
 
 import (
@@ -14,37 +12,43 @@ import (
 var (
 	modkernel32 = syscall.NewLazyDLL("kernel32.dll")
 
-	procGetModuleHandle            = modkernel32.NewProc("GetModuleHandleW")
-	procMulDiv                     = modkernel32.NewProc("MulDiv")
-	procGetConsoleWindow           = modkernel32.NewProc("GetConsoleWindow")
-	procGetCurrentThread           = modkernel32.NewProc("GetCurrentThread")
-	procGetLogicalDrives           = modkernel32.NewProc("GetLogicalDrives")
-	procGetUserDefaultLCID         = modkernel32.NewProc("GetUserDefaultLCID")
-	procLstrlen                    = modkernel32.NewProc("lstrlenW")
-	procLstrcpy                    = modkernel32.NewProc("lstrcpyW")
-	procGlobalAlloc                = modkernel32.NewProc("GlobalAlloc")
-	procGlobalFree                 = modkernel32.NewProc("GlobalFree")
-	procGlobalLock                 = modkernel32.NewProc("GlobalLock")
-	procGlobalUnlock               = modkernel32.NewProc("GlobalUnlock")
-	procMoveMemory                 = modkernel32.NewProc("RtlMoveMemory")
-	procFindResource               = modkernel32.NewProc("FindResourceW")
-	procSizeofResource             = modkernel32.NewProc("SizeofResource")
-	procLockResource               = modkernel32.NewProc("LockResource")
-	procLoadResource               = modkernel32.NewProc("LoadResource")
-	procGetLastError               = modkernel32.NewProc("GetLastError")
-	procOpenProcess                = modkernel32.NewProc("OpenProcess")
-	procTerminateProcess           = modkernel32.NewProc("TerminateProcess")
+	procGetModuleHandle    = modkernel32.NewProc("GetModuleHandleW")
+	procMulDiv             = modkernel32.NewProc("MulDiv")
+	procGetConsoleWindow   = modkernel32.NewProc("GetConsoleWindow")
+	procGetCurrentThread   = modkernel32.NewProc("GetCurrentThread")
+	procGetLogicalDrives   = modkernel32.NewProc("GetLogicalDrives")
+	procGetUserDefaultLCID = modkernel32.NewProc("GetUserDefaultLCID")
+	procLstrlen            = modkernel32.NewProc("lstrlenW")
+	procLstrcpy            = modkernel32.NewProc("lstrcpyW")
+	procGlobalAlloc        = modkernel32.NewProc("GlobalAlloc")
+	procGlobalFree         = modkernel32.NewProc("GlobalFree")
+	procGlobalLock         = modkernel32.NewProc("GlobalLock")
+	procGlobalUnlock       = modkernel32.NewProc("GlobalUnlock")
+	procMoveMemory         = modkernel32.NewProc("RtlMoveMemory")
+	procFindResource       = modkernel32.NewProc("FindResourceW")
+	procSizeofResource     = modkernel32.NewProc("SizeofResource")
+	procLockResource       = modkernel32.NewProc("LockResource")
+	procLoadResource       = modkernel32.NewProc("LoadResource")
+	procGetLastError       = modkernel32.NewProc("GetLastError")
+	// procOpenProcess                = modkernel32.NewProc("OpenProcess")
+	// procTerminateProcess           = modkernel32.NewProc("TerminateProcess")
 	procCloseHandle                = modkernel32.NewProc("CloseHandle")
 	procCreateToolhelp32Snapshot   = modkernel32.NewProc("CreateToolhelp32Snapshot")
 	procModule32First              = modkernel32.NewProc("Module32FirstW")
 	procModule32Next               = modkernel32.NewProc("Module32NextW")
-	procProcess32First             = modkernel32.NewProc("Process32FirstW")
-	procProcess32Next              = modkernel32.NewProc("Process32NextW")
 	procGetSystemTimes             = modkernel32.NewProc("GetSystemTimes")
 	procGetConsoleScreenBufferInfo = modkernel32.NewProc("GetConsoleScreenBufferInfo")
 	procSetConsoleTextAttribute    = modkernel32.NewProc("SetConsoleTextAttribute")
 	procGetDiskFreeSpaceEx         = modkernel32.NewProc("GetDiskFreeSpaceExW")
 	procGetProcessTimes            = modkernel32.NewProc("GetProcessTimes")
+	procSetSystemTime              = modkernel32.NewProc("SetSystemTime")
+	procGetSystemTime              = modkernel32.NewProc("GetSystemTime")
+	procVirtualAllocEx             = modkernel32.NewProc("VirtualAllocEx")
+	procVirtualFreeEx              = modkernel32.NewProc("VirtualFreeEx")
+	procWriteProcessMemory         = modkernel32.NewProc("WriteProcessMemory")
+	procReadProcessMemory          = modkernel32.NewProc("ReadProcessMemory")
+	procQueryPerformanceCounter    = modkernel32.NewProc("QueryPerformanceCounter")
+	procQueryPerformanceFrequency  = modkernel32.NewProc("QueryPerformanceFrequency")
 )
 
 func GetModuleHandle(modulename string) HINSTANCE {
@@ -198,25 +202,25 @@ func GetLastError() uint32 {
 	return uint32(ret)
 }
 
-func OpenProcess(desiredAccess uint32, inheritHandle bool, processId uint32) HANDLE {
-	inherit := 0
-	if inheritHandle {
-		inherit = 1
-	}
+// func OpenProcess(desiredAccess uint32, inheritHandle bool, processId uint32) HANDLE {
+// 	inherit := 0
+// 	if inheritHandle {
+// 		inherit = 1
+// 	}
 
-	ret, _, _ := procOpenProcess.Call(
-		uintptr(desiredAccess),
-		uintptr(inherit),
-		uintptr(processId))
-	return HANDLE(ret)
-}
+// 	ret, _, _ := procOpenProcess.Call(
+// 		uintptr(desiredAccess),
+// 		uintptr(inherit),
+// 		uintptr(processId))
+// 	return HANDLE(ret)
+// }
 
-func TerminateProcess(hProcess HANDLE, uExitCode uint) bool {
-	ret, _, _ := procTerminateProcess.Call(
-		uintptr(hProcess),
-		uintptr(uExitCode))
-	return ret != 0
-}
+// func TerminateProcess(hProcess HANDLE, uExitCode uint) bool {
+// 	ret, _, _ := procTerminateProcess.Call(
+// 		uintptr(hProcess),
+// 		uintptr(uExitCode))
+// 	return ret != 0
+// }
 
 func CloseHandle(object HANDLE) bool {
 	ret, _, _ := procCloseHandle.Call(
@@ -251,21 +255,7 @@ func Module32Next(snapshot HANDLE, me *MODULEENTRY32) bool {
 
 	return ret != 0
 }
-func Process32First(snapshot HANDLE, pe *PROCESSENTRY32) bool {
-	ret, _, _ := procProcess32First.Call(
-		uintptr(snapshot),
-		uintptr(unsafe.Pointer(pe)))
 
-	return ret != 0
-}
-
-func Process32Next(snapshot HANDLE, pe *PROCESSENTRY32) bool {
-	ret, _, _ := procProcess32Next.Call(
-		uintptr(snapshot),
-		uintptr(unsafe.Pointer(pe)))
-
-	return ret != 0
-}
 func GetSystemTimes(lpIdleTime, lpKernelTime, lpUserTime *FILETIME) bool {
 	ret, _, _ := procGetSystemTimes.Call(
 		uintptr(unsafe.Pointer(lpIdleTime)),
@@ -313,4 +303,86 @@ func GetDiskFreeSpaceEx(dirName string) (r bool,
 		uintptr(unsafe.Pointer(&totalNumberOfFreeBytes)))
 	return ret != 0,
 		freeBytesAvailable, totalNumberOfBytes, totalNumberOfFreeBytes
+}
+
+func GetSystemTime() *SYSTEMTIME {
+	var time SYSTEMTIME
+	procGetSystemTime.Call(
+		uintptr(unsafe.Pointer(&time)))
+	return &time
+}
+
+func SetSystemTime(time *SYSTEMTIME) bool {
+	ret, _, _ := procSetSystemTime.Call(
+		uintptr(unsafe.Pointer(time)))
+	return ret != 0
+}
+
+func VirtualAllocEx(hProcess HANDLE, lpAddress, dwSize uintptr, flAllocationType, flProtect uint32) uintptr {
+	ret, _, _ := procVirtualAllocEx.Call(
+		uintptr(hProcess),
+		lpAddress,
+		dwSize,
+		uintptr(flAllocationType),
+		uintptr(flProtect),
+	)
+
+	return ret
+}
+
+func VirtualFreeEx(hProcess HANDLE, lpAddress, dwSize uintptr, dwFreeType uint32) bool {
+	ret, _, _ := procVirtualFreeEx.Call(
+		uintptr(hProcess),
+		lpAddress,
+		dwSize,
+		uintptr(dwFreeType),
+	)
+
+	return ret != 0
+}
+
+func WriteProcessMemory(hProcess HANDLE, lpBaseAddress, lpBuffer, nSize uintptr) (int, bool) {
+	var nBytesWritten int
+	ret, _, _ := procWriteProcessMemory.Call(
+		uintptr(hProcess),
+		lpBaseAddress,
+		lpBuffer,
+		nSize,
+		uintptr(unsafe.Pointer(&nBytesWritten)),
+	)
+
+	return nBytesWritten, ret != 0
+}
+
+func ReadProcessMemory(hProcess HANDLE, lpBaseAddress, nSize uintptr) (lpBuffer []uint16, lpNumberOfBytesRead int, ok bool) {
+
+	var nBytesRead int
+	buf := make([]uint16, nSize)
+	ret, _, _ := procReadProcessMemory.Call(
+		uintptr(hProcess),
+		lpBaseAddress,
+		uintptr(unsafe.Pointer(&buf[0])),
+		nSize,
+		uintptr(unsafe.Pointer(&nBytesRead)),
+	)
+
+	return buf, nBytesRead, ret != 0
+}
+
+func QueryPerformanceCounter() uint64 {
+	result := uint64(0)
+	procQueryPerformanceCounter.Call(
+		uintptr(unsafe.Pointer(&result)),
+	)
+
+	return result
+}
+
+func QueryPerformanceFrequency() uint64 {
+	result := uint64(0)
+	procQueryPerformanceFrequency.Call(
+		uintptr(unsafe.Pointer(&result)),
+	)
+
+	return result
 }

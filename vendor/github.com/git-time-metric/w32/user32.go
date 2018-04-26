@@ -2,11 +2,12 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// +build windows
-
 package w32
 
 import (
+	// #include <wtypes.h>
+	// #include <winable.h>
+	"C"
 	"fmt"
 	"syscall"
 	"unsafe"
@@ -31,6 +32,7 @@ var (
 	procTranslateMessage              = moduser32.NewProc("TranslateMessage")
 	procDispatchMessage               = moduser32.NewProc("DispatchMessageW")
 	procSendMessage                   = moduser32.NewProc("SendMessageW")
+	procSendMessageTimeout            = moduser32.NewProc("SendMessageTimeout")
 	procPostMessage                   = moduser32.NewProc("PostMessageW")
 	procWaitMessage                   = moduser32.NewProc("WaitMessage")
 	procSetWindowText                 = moduser32.NewProc("SetWindowTextW")
@@ -112,6 +114,16 @@ var (
 	procEnumDisplaySettingsEx         = moduser32.NewProc("EnumDisplaySettingsExW")
 	procChangeDisplaySettingsEx       = moduser32.NewProc("ChangeDisplaySettingsExW")
 	procSendInput                     = moduser32.NewProc("SendInput")
+	procSetWindowsHookEx              = moduser32.NewProc("SetWindowsHookExW")
+	procUnhookWindowsHookEx           = moduser32.NewProc("UnhookWindowsHookEx")
+	procCallNextHookEx                = moduser32.NewProc("CallNextHookEx")
+	procSetForegroundWindow           = moduser32.NewProc("SetForegroundWindow")
+	procFindWindowW                   = moduser32.NewProc("FindWindowW")
+	procFindWindowExW                 = moduser32.NewProc("FindWindowExW")
+	procGetClassName                  = moduser32.NewProc("GetClassNameW")
+	procEnumChildWindows              = moduser32.NewProc("EnumChildWindows")
+	procSetTimer                      = moduser32.NewProc("SetTimer")
+	procKillTimer                     = moduser32.NewProc("KillTimer")
 )
 
 func RegisterClassEx(wndClassEx *WNDCLASSEX) ATOM {
@@ -135,6 +147,23 @@ func LoadCursor(instance HINSTANCE, cursorName *uint16) HCURSOR {
 
 	return HCURSOR(ret)
 
+}
+
+func GetClassNameW(hwnd HWND) string {
+	buf := make([]uint16, 255)
+	procGetClassName.Call(
+		uintptr(hwnd),
+		uintptr(unsafe.Pointer(&buf[0])),
+		uintptr(255))
+
+	return syscall.UTF16ToString(buf)
+}
+
+func SetForegroundWindow(hwnd HWND) bool {
+	ret, _, _ := procSetForegroundWindow.Call(
+		uintptr(hwnd))
+
+	return ret != 0
 }
 
 func ShowWindow(hwnd HWND, cmdshow int) bool {
@@ -170,6 +199,34 @@ func CreateWindowEx(exStyle uint, className, windowName *uint16,
 		uintptr(param))
 
 	return HWND(ret)
+}
+
+func FindWindowExW(hwndParent, hwndChildAfter HWND, className, windowName *uint16) HWND {
+	ret, _, _ := procFindWindowExW.Call(
+		uintptr(hwndParent),
+		uintptr(hwndChildAfter),
+		uintptr(unsafe.Pointer(className)),
+		uintptr(unsafe.Pointer(windowName)))
+
+	return HWND(ret)
+}
+
+func FindWindowW(className, windowName *uint16) HWND {
+	ret, _, _ := procFindWindowW.Call(
+		uintptr(unsafe.Pointer(className)),
+		uintptr(unsafe.Pointer(windowName)))
+
+	return HWND(ret)
+}
+
+func EnumChildWindows(hWndParent HWND, lpEnumFunc WNDENUMPROC, lParam LPARAM) bool {
+	ret, _, _ := procEnumChildWindows.Call(
+		uintptr(hWndParent),
+		uintptr(syscall.NewCallback(lpEnumFunc)),
+		uintptr(lParam),
+	)
+
+	return ret != 0
 }
 
 func AdjustWindowRectEx(rect *RECT, style uint, menu bool, exStyle uint) bool {
@@ -255,6 +312,18 @@ func SendMessage(hwnd HWND, msg uint32, wParam, lParam uintptr) uintptr {
 		uintptr(msg),
 		wParam,
 		lParam)
+
+	return ret
+}
+
+func SendMessageTimeout(hwnd HWND, msg uint32, wParam, lParam uintptr, fuFlags, uTimeout uint32) uintptr {
+	ret, _, _ := procSendMessageTimeout.Call(
+		uintptr(hwnd),
+		uintptr(msg),
+		wParam,
+		lParam,
+		uintptr(fuFlags),
+		uintptr(uTimeout))
 
 	return ret
 }
@@ -925,7 +994,6 @@ func ChangeDisplaySettingsEx(szDeviceName *uint16, devMode *DEVMODE, hwnd HWND, 
 	return int32(ret)
 }
 
-/* remove to build without cgo
 func SendInput(inputs []INPUT) uint32 {
 	var validInputs []C.INPUT
 
@@ -953,4 +1021,48 @@ func SendInput(inputs []INPUT) uint32 {
 	)
 	return uint32(ret)
 }
-*/
+
+func SetWindowsHookEx(idHook int, lpfn HOOKPROC, hMod HINSTANCE, dwThreadId DWORD) HHOOK {
+	ret, _, _ := procSetWindowsHookEx.Call(
+		uintptr(idHook),
+		uintptr(syscall.NewCallback(lpfn)),
+		uintptr(hMod),
+		uintptr(dwThreadId),
+	)
+	return HHOOK(ret)
+}
+
+func UnhookWindowsHookEx(hhk HHOOK) bool {
+	ret, _, _ := procUnhookWindowsHookEx.Call(
+		uintptr(hhk),
+	)
+	return ret != 0
+}
+
+func CallNextHookEx(hhk HHOOK, nCode int, wParam WPARAM, lParam LPARAM) LRESULT {
+	ret, _, _ := procCallNextHookEx.Call(
+		uintptr(hhk),
+		uintptr(nCode),
+		uintptr(wParam),
+		uintptr(lParam),
+	)
+	return LRESULT(ret)
+}
+
+func SetTimer(hwnd HWND, nIDEvent uint32, uElapse uint32, lpTimerProc uintptr) uintptr {
+	ret, _, _ := procSetTimer.Call(
+		uintptr(hwnd),
+		uintptr(nIDEvent),
+		uintptr(uElapse),
+		lpTimerProc,
+	)
+	return ret
+}
+
+func KillTimer(hwnd HWND, nIDEvent uint32) bool {
+	ret, _, _ := procKillTimer.Call(
+		uintptr(hwnd),
+		uintptr(nIDEvent),
+	)
+	return ret != 0
+}

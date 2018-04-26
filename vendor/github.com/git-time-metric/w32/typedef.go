@@ -180,6 +180,7 @@ type (
 	BOOL            int32
 	COLORREF        uint32
 	DWM_FRAME_COUNT uint64
+	DWORD           uint32
 	HACCEL          HANDLE
 	HANDLE          uintptr
 	HBITMAP         HANDLE
@@ -193,6 +194,7 @@ type (
 	HGDIOBJ         HANDLE
 	HGLOBAL         HANDLE
 	HGLRC           HANDLE
+	HHOOK           HANDLE
 	HICON           HANDLE
 	HIMAGELIST      HANDLE
 	HINSTANCE       HANDLE
@@ -207,9 +209,14 @@ type (
 	HRSRC           HANDLE
 	HTHUMBNAIL      HANDLE
 	HWND            HANDLE
+	LPARAM          uintptr
 	LPCVOID         unsafe.Pointer
+	LRESULT         uintptr
 	PVOID           unsafe.Pointer
 	QPC_TIME        uint64
+	ULONG_PTR       uintptr
+	WPARAM          uintptr
+	TRACEHANDLE     uintptr
 )
 
 // http://msdn.microsoft.com/en-us/library/windows/desktop/dd162805.aspx
@@ -625,49 +632,6 @@ type PAINTSTRUCT struct {
 	RgbReserved [32]byte
 }
 
-// http://msdn.microsoft.com/en-us/library/windows/desktop/aa363646.aspx
-type EVENTLOGRECORD struct {
-	Length              uint32
-	Reserved            uint32
-	RecordNumber        uint32
-	TimeGenerated       uint32
-	TimeWritten         uint32
-	EventID             uint32
-	EventType           uint16
-	NumStrings          uint16
-	EventCategory       uint16
-	ReservedFlags       uint16
-	ClosingRecordNumber uint32
-	StringOffset        uint32
-	UserSidLength       uint32
-	UserSidOffset       uint32
-	DataLength          uint32
-	DataOffset          uint32
-}
-
-// http://msdn.microsoft.com/en-us/library/windows/desktop/ms685996.aspx
-type SERVICE_STATUS struct {
-	DwServiceType             uint32
-	DwCurrentState            uint32
-	DwControlsAccepted        uint32
-	DwWin32ExitCode           uint32
-	DwServiceSpecificExitCode uint32
-	DwCheckPoint              uint32
-	DwWaitHint                uint32
-}
-type PROCESSENTRY32 struct {
-	DwSize              uint32
-	CntUsage            uint32
-	Th32ProcessID       uint32
-	Th32DefaultHeapID   uintptr
-	Th32ModuleID        uint32
-	CntThreads          uint32
-	Th32ParentProcessID uint32
-	PcPriClassBase      int32
-	DwFlags             uint32
-	SzExeFile           [MAX_PATH]uint16
-}
-
 // http://msdn.microsoft.com/en-us/library/windows/desktop/ms684225.aspx
 type MODULEENTRY32 struct {
 	Size         uint32
@@ -899,3 +863,29 @@ type HardwareInput struct {
 	typ uint32
 	hi  HARDWAREINPUT
 }
+
+// http://msdn.microsoft.com/en-us/library/windows/desktop/ms724950(v=vs.85).aspx
+type SYSTEMTIME struct {
+	Year         uint16
+	Month        uint16
+	DayOfWeek    uint16
+	Day          uint16
+	Hour         uint16
+	Minute       uint16
+	Second       uint16
+	Milliseconds uint16
+}
+
+// http://msdn.microsoft.com/en-us/library/windows/desktop/ms644967(v=vs.85).aspx
+type KBDLLHOOKSTRUCT struct {
+	VkCode      DWORD
+	ScanCode    DWORD
+	Flags       DWORD
+	Time        DWORD
+	DwExtraInfo ULONG_PTR
+}
+
+type HOOKPROC func(int, WPARAM, LPARAM) LRESULT
+
+// https://msdn.microsoft.com/en-us/library/windows/desktop/ms633498(v=vs.85).aspx
+type WNDENUMPROC func(HWND, LPARAM) LRESULT
