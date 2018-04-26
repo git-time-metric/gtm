@@ -27,13 +27,13 @@ func getCommandPath(x string) (string, error) {
 }
 
 func getFrontApp() (string, error) {
-	c, err := getCommandPath("osascript")
-	if err != nil {
-		return "", err
-	}
-
 	switch runtime.GOOS {
 	case "darwin":
+		c, err := getCommandPath("osascript")
+		if err != nil {
+			return "", err
+		}
+
 		x := exec.Command(c,
 			`-e`, `tell application "System Events"`,
 			`-e`, `set frontApp to name of first application process whose frontmost is true`,
@@ -48,6 +48,11 @@ func getFrontApp() (string, error) {
 		return normalizeAppName(strings.Replace(string(o), "\n", "", -1)), nil
 
 	case "linux":
+		c, err := getCommandPath("xdotool")
+		if err != nil {
+			return "", err
+		}
+
 		x := exec.Command(c, "getwindowfocus", "getwindowpid")
 
 		o, err := x.CombinedOutput()
