@@ -453,7 +453,7 @@ func ReleaseCapture() bool {
 	return ret != 0
 }
 
-func GetWindowForeground(hwnd HWND) HANDLE {
+func GetWindowForeground() HANDLE {
 	ret, _, _ := procGetWindowForeground.Call()
 	return HANDLE(ret)
 }
