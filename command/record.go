@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -152,6 +153,7 @@ func (c RecordCmd) Run(args []string) int {
 			// if blank there is no currently active project
 			return 0
 		}
+		log.Printf("active project %s\n", p)
 
 		x, err := os.Getwd()
 		if err != nil {

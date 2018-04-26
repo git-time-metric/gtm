@@ -2,7 +2,6 @@ package event
 
 import (
 	"log"
-	"os/exec"
 	"strings"
 	"time"
 
@@ -32,27 +31,14 @@ func (m *AppMonitor) Run() error {
 		nextUpdate   = epoch.Now()
 	)
 
-	cmd, err := exec.LookPath("osascript")
-	if err != nil {
-		return err
-	}
-
 	for {
 		time.Sleep(time.Second * 1)
 
-		x := exec.Command(
-			cmd,
-			`-e`, `tell application "System Events"`,
-			`-e`, `set frontApp to name of first application process whose frontmost is true`,
-			`-e`, `end tell`,
-		)
-
-		o, err := x.CombinedOutput()
+		var err error
+		app, err = getFrontApp()
 		if err != nil {
 			return err
 		}
-
-		app = normalizeAppName(strings.Replace(string(o), "\n", "", -1))
 
 		if app == prevApp && time.Unix(epoch.Now(), 0).Before(time.Unix(nextUpdate, 0)) {
 			continue
