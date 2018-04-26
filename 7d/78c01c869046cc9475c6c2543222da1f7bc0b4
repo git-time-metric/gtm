@@ -1,0 +1,9 @@
+[ver:1,total:600]
+event/front-app_windows.go:217,1524776400:7,1524780000:210,m
+.gtm/google-chrome.app:185,1524776400:185,r
+.gtm/terminal.app:70,1524776400:40,1524780000:30,r
+event/monitor.go:67,1524776400:67,r
+.gtm/slack.app:40,1524776400:40,r
+event/app.go:7,1524776400:7,r
+event/front-app_darwin.go:7,1524776400:7,r
+event/front-app_linux.go:7,1524776400:7,r
