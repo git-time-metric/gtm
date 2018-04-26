@@ -1,0 +1,14 @@
+[ver:1,total:5520]
+.gtm/google-chrome.app:1993,1524715200:540,1524718800:390,1524762000:270,1524765600:456,1524776400:337,r
+event/front-app_windows.go:1505,1524762000:390,1524765600:412,1524776400:703,m
+.gtm/terminal.app:762,1524715200:120,1524718800:90,1524747600:180,1524762000:55,1524776400:317,r
+event/front-app.go:672,1524762000:360,1524776400:312,d
+.gtm/slack.app:300,1524762000:45,1524765600:212,1524776400:43,r
+vendor/github.com/mitchellh/go-ps/process_windows.go:110,1524762000:90,1524776400:20,r
+event/front-app_darwin.go:64,1524776400:64,m
+event/monitor.go:35,1524762000:20,1524776400:15,r
+event/front-app_linux.go:29,1524776400:29,m
+vendor/github.com/mitchellh/go-ps/process.go:15,1524762000:15,r
+vendor/github.com/mitchellh/go-ps/process_darwin.go:15,1524762000:15,r
+event/fron-app_darwin.go:10,1524776400:10,d
+.gtm/firefox.app:10,1524776400:10,r
