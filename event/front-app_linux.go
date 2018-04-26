@@ -1,4 +1,4 @@
-package epoch
+package event
 
 import (
 	"os/exec"
