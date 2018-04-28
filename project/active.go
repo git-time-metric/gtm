@@ -18,30 +18,38 @@ import (
 )
 
 var (
-	logFile = "active-project.txt"
+	registryFilename = "registry.txt"
 )
 
+// TODO: when should we activate a new project? Always or only when
+// the previous active project was been idle for a period of time?
+
 func SetActive(path string) error {
-	logPath, err := activeProjectLog()
+	x := GetActive()
+	if x != "" && x != path {
+		// project has changed but not idle timed out yet
+		return nil
+	}
+
+	f, err := registry()
 	if err != nil {
 		return err
 	}
 
 	if err := ioutil.WriteFile(
-		logPath,
-		[]byte(fmt.Sprintf("%s,%d", path, epoch.Now())), 0644); err != nil {
+		f, []byte(fmt.Sprintf("%s,%d", path, epoch.Now())), 0644); err != nil {
 		return err
 	}
 	return nil
 }
 
 func GetActive() string {
-	logPath, err := activeProjectLog()
+	f, err := registry()
 	if err != nil {
 		return ""
 	}
 
-	b, err := ioutil.ReadFile(logPath)
+	b, err := ioutil.ReadFile(f)
 	if err != nil {
 		return ""
 	}
@@ -68,15 +76,13 @@ func isActive(timeUpdated string) bool {
 	if err != nil {
 		return false
 	}
-
 	return time.Unix(epoch.Now(), 0).Before(time.Unix(x+epoch.IdleProjectTimeout, 0))
 }
 
-func activeProjectLog() (string, error) {
+func registry() (string, error) {
 	u, err := user.Current()
 	if err != nil {
 		return "", err
 	}
-
-	return filepath.Join(filepath.Join(u.HomeDir, gtmHomeDir), logFile), nil
+	return filepath.Join(filepath.Join(u.HomeDir, gtmHomeDir), registryFilename), nil
 }

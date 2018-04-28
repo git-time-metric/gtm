@@ -28,7 +28,7 @@ func Record(file string) error {
 		return err
 	}
 
-	project.SetActive(strings.TrimSuffix(gtmPath, project.GTMDir))
+	project.SetActive(gtmPath)
 
 	return nil
 }

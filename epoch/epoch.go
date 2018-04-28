@@ -13,7 +13,7 @@ const WindowSize = 60
 var IdleTimeout int64 = 120
 
 // IdleProjectTimeout seconds to recording application events without any editor events
-var IdleProjectTimeout int64 = 600
+var IdleProjectTimeout int64 = 300
 
 // Minute rounds epoch seconds down to the nearst epoch minute
 func Minute(t int64) int64 {
