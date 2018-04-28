@@ -127,7 +127,7 @@ func (c RecordCmd) Run(args []string) int {
 		// terminal plugin
 		a, err := event.NewTerminalApplication()
 		if err != nil {
-			if !(err == event.ErrRepositoryNotFound) {
+			if !(err == project.ErrNotInitialized || err == project.ErrFileNotFound) {
 				c.Ui.Error(err.Error())
 				return 1
 			}

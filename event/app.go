@@ -1,7 +1,6 @@
 package event
 
 import (
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -10,7 +9,6 @@ import (
 	"time"
 
 	"github.com/git-time-metric/gtm/project"
-	"github.com/git-time-metric/gtm/scm"
 	"github.com/git-time-metric/gtm/util"
 )
 
@@ -18,10 +16,6 @@ const (
 	applicationExt = "app"
 	gtmDirectory   = ".gtm"
 	terminalName   = "Terminal"
-)
-
-var (
-	ErrRepositoryNotFound = errors.New("could not find git repository")
 )
 
 type Application struct {
@@ -73,11 +67,11 @@ func (a *Application) Record() error {
 func (a *Application) setFilePathFromName() error {
 	defer util.TimeTrack(time.Now(), "event.setFilePathFromName")
 
-	projPath, err := scm.RootPath()
+	_, gtmPath, err := project.Paths()
 	if err != nil {
-		return ErrRepositoryNotFound
+		return err
 	}
-	a.path = filepath.Join(projPath, gtmDirectory, fmt.Sprintf("%s.%s", normalizeAppName(a.name), applicationExt))
+	a.path = filepath.Join(gtmPath, fmt.Sprintf("%s.%s", normalizeAppName(a.name), applicationExt))
 	return nil
 }
 

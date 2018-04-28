@@ -22,6 +22,12 @@ install-git2go:
 install:
 	go install --tags static ${LDFLAGS}
 
+update-service:
+	sudo cp gtm /usr/local/bin/.
+	launchctl stop ~/Library/LaunchAgents/com.git-time-metric.gtm.plist; true
+	launchctl unload ~/Library/LaunchAgents/com.git-time-metric.gtm.plist; true
+	launchctl load ~/Library/LaunchAgents/com.git-time-metric.gtm.plist
+
 clean:
 	go clean
 

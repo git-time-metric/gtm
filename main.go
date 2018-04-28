@@ -5,6 +5,7 @@
 package main
 
 import (
+	"log"
 	"os"
 	"strings"
 
@@ -17,6 +18,7 @@ import (
 var Version = "0.0.0"
 
 func main() {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	if strings.TrimSpace(os.Getenv("GTM_PROFILE")) == "1" {
 		util.TimeTrackEnable = true
 	}
