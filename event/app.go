@@ -14,7 +14,6 @@ import (
 
 const (
 	applicationExt = "app"
-	gtmDirectory   = ".gtm"
 	terminalName   = "Terminal"
 )
 
