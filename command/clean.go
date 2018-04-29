@@ -6,8 +6,10 @@ package command
 
 import (
 	"flag"
+	"os"
 	"strings"
 
+	"github.com/git-time-metric/gtm/event"
 	"github.com/git-time-metric/gtm/project"
 	"github.com/git-time-metric/gtm/util"
 	"github.com/mitchellh/cli"
@@ -33,20 +35,26 @@ Usage: gtm clean [options]
 Options:
 
   -yes                       Delete time data without asking for confirmation.
-  -terminal-only             Only delete terminal time data
+  -application=true          Remove application time
+  -editor=true               Remove editor time
+  -terminal=true             Remove terminal time
   -days=0                    Delete starting from n days in the past
+  -all=false                 Clean all projects
 `
 	return strings.TrimSpace(helpText)
 }
 
 // Run executes clean command with args
 func (c CleanCmd) Run(args []string) int {
-	var yes, terminalOnly bool
+	var yes, terminal, application, editor, all bool
 	var days int
 	cmdFlags := flag.NewFlagSet("clean", flag.ContinueOnError)
 	cmdFlags.BoolVar(&yes, "yes", false, "")
-	cmdFlags.BoolVar(&terminalOnly, "terminal-only", false, "")
+	cmdFlags.BoolVar(&application, "application", true, "")
+	cmdFlags.BoolVar(&editor, "editor", true, "")
+	cmdFlags.BoolVar(&terminal, "terminal", true, "")
 	cmdFlags.IntVar(&days, "days", 0, "")
+	cmdFlags.BoolVar(&all, "all", false, "")
 	cmdFlags.Usage = func() { c.Ui.Output(c.Help()) }
 	if err := cmdFlags.Parse(args); err != nil {
 		return 1
@@ -62,7 +70,36 @@ func (c CleanCmd) Run(args []string) int {
 	}
 
 	if confirm {
-		if err := project.Clean(util.AfterNow(days), terminalOnly); err != nil {
+		if all {
+			index, err := project.NewIndex()
+			if err != nil {
+				c.Ui.Error(err.Error())
+				return 1
+			}
+			projects, err := index.Get([]string{}, all)
+			if err != nil {
+				c.Ui.Error(err.Error())
+				return 1
+			}
+			for _, p := range projects {
+				if err := func() error {
+					d, err := os.Getwd()
+					if err != nil {
+						return err
+					}
+					defer os.Chdir(d)
+					os.Chdir(p)
+					err = event.Clean(util.AfterNow(days), application, editor, terminal)
+					return err
+				}(); err != nil {
+					c.Ui.Error(err.Error())
+					return 1
+				}
+			}
+			return 0
+		}
+
+		if err := event.Clean(util.AfterNow(days), application, editor, terminal); err != nil {
 			c.Ui.Error(err.Error())
 			return 1
 		}

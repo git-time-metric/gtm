@@ -39,7 +39,7 @@ func TestTerminalOnly(t *testing.T) {
 	ui := new(cli.MockUi)
 	c := CleanCmd{Ui: ui}
 
-	args := []string{"-terminal-only", "-yes"}
+	args := []string{"-terminal", "-application=false", "-editor=false", "-yes"}
 	rc := c.Run(args)
 
 	if rc != 0 {

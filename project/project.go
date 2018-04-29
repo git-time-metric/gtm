@@ -243,52 +243,6 @@ func Uninitialize() (string, error) {
 	return b.String(), nil
 }
 
-//Clean removes any event or metrics files from project in the current working directory
-func Clean(dr util.DateRange, terminalOnly bool) error {
-	wd, err := os.Getwd()
-	if err != nil {
-		return err
-	}
-
-	projRoot, err := scm.RootPath(wd)
-	if err != nil {
-		return fmt.Errorf("Unable to clean, Git repository not found in %s", projRoot)
-	}
-
-	gtmPath := filepath.Join(projRoot, GTMDir)
-	if _, err := os.Stat(gtmPath); os.IsNotExist(err) {
-		return fmt.Errorf("Unable to clean GTM data, %s directory not found", gtmPath)
-	}
-
-	files, err := ioutil.ReadDir(gtmPath)
-	if err != nil {
-		return err
-	}
-	for _, f := range files {
-		if !strings.HasSuffix(f.Name(), ".event") &&
-			!strings.HasSuffix(f.Name(), ".metric") {
-			continue
-		}
-		if !dr.Within(f.ModTime()) {
-			continue
-		}
-		fp := filepath.Join(gtmPath, f.Name())
-		if terminalOnly && strings.HasSuffix(f.Name(), ".event") {
-			b, err := ioutil.ReadFile(fp)
-			if err != nil {
-				return err
-			}
-			if !strings.Contains(string(b), "terminal.app") {
-				continue
-			}
-		}
-		if err := os.Remove(fp); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
 func Stash() error {
 	return nil
 }
