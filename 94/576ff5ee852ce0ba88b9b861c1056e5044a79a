@@ -1,0 +1,10 @@
+[ver:1,total:1440]
+.gtm/terminal.app:420,1525140000:255,1525143600:165,r
+.gtm/slack.app:315,1525140000:315,r
+.gtm/google-chrome.app:180,1525140000:180,r
+project/active.go:150,1525140000:150,r
+command/record_test.go:120,1525140000:30,1525143600:90,r
+event/app.go:110,1525143600:110,m
+command/record.go:100,1525143600:100,r
+.gtm/firefox.app:30,1525140000:30,r
+.git/index:15,1525143600:15,r
