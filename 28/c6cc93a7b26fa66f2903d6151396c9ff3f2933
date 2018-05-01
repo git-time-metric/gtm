@@ -1,0 +1,13 @@
+[ver:1,total:3300]
+command/clean.go:966,1525042800:966,r
+.gtm/terminal.app:937,1525042800:697,1525140000:240,r
+.gtm/google-chrome.app:585,1525042800:360,1525140000:225,r
+.gtm/slack.app:375,1525140000:375,r
+epoch/epoch.go:115,1525140000:115,m
+command/record.go:106,1525140000:106,m
+event/clean.go:65,1525042800:65,r
+event/app.go:62,1525140000:62,m
+event/manager.go:35,1525140000:35,r
+project/project.go:27,1525140000:27,r
+event/event.go:15,1525140000:15,r
+.git/index:12,1525042800:12,r
