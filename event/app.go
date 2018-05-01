@@ -44,12 +44,6 @@ func NewApplicationFromPath(path string) Application {
 }
 
 func (a *Application) Record() error {
-	p := project.GetActive()
-	if p == "" {
-		// if blank there is no currently active project
-		return nil
-	}
-
 	// it's assumed we are already within the git repo's directory
 	sourcePath, gtmPath, err := pathFromSource(a.path)
 	if err != nil {
