@@ -135,9 +135,7 @@ func (c RecordCmd) Run(args []string) int {
 			return 0
 		}
 
-		// we want terminal events to update the active project
-		// we do this by using event.Record() instead of a.Record()
-		if err := event.Record(a.Path()); err != nil {
+		if err := a.Record(); err != nil {
 			if !(err == project.ErrNotInitialized) {
 				c.Ui.Error(err.Error())
 				return 1

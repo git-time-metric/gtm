@@ -12,7 +12,7 @@ const WindowSize = 60
 // IdleTimeout seconds to record idle editor events
 var IdleTimeout int64 = 120
 
-// IdleProjectTimeout seconds to recording application events without any editor events
+// IdleProjectTimeout seconds to record application events without any editor events
 var IdleProjectTimeout int64 = 300
 
 // Minute rounds epoch seconds down to the nearst epoch minute

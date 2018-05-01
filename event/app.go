@@ -60,6 +60,10 @@ func (a *Application) Record() error {
 		return err
 	}
 
+	if a.IsTerminal() {
+		project.SetActive(gtmPath)
+	}
+
 	return nil
 }
 
