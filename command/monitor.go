@@ -3,6 +3,7 @@ package command
 import (
 	"errors"
 	"flag"
+	"log"
 	"os"
 	"strings"
 
@@ -58,10 +59,12 @@ func (c MonitorCmd) Run(args []string) int {
 		}, applist,
 	)
 
+	log.Print("starting application monitor")
 	if err := m.Run(); err != nil {
 		c.Ui.Error(err.Error())
 		return 1
 	}
+	log.Print("stopping application monitor")
 	return 0
 }
 
