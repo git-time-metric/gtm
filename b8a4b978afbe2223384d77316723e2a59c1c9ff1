@@ -1,0 +1,10 @@
+[ver:1,total:2460]
+.gtm/google-chrome.app:1080,1525388400:840,1525392000:150,1525474800:90,r
+.gtm/terminal.app:680,1525388400:260,1525392000:60,1525474800:360,r
+.gtm/slack.app:340,1525388400:100,1525392000:210,1525474800:30,r
+command/monitor.go:156,1525474800:156,m
+event/monitor.go:102,1525474800:102,m
+.gtm/safari.app:50,1525388400:50,r
+main.go:30,1525474800:30,r
+vendor/github.com/mitchellh/cli/ui.go:12,1525474800:12,r
+.git/refs/notes/origin/gtm-data:10,1525388400:10,r
