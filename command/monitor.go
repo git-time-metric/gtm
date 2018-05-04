@@ -61,6 +61,7 @@ func (c MonitorCmd) Run(args []string) int {
 
 	log.Print("starting application monitor")
 	if err := m.Run(); err != nil {
+		log.Printf("monitor exiting, %s", err)
 		c.Ui.Error(err.Error())
 		return 1
 	}

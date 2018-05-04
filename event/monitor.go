@@ -32,7 +32,7 @@ func (m *AppMonitor) Run() error {
 	)
 
 	for {
-		time.Sleep(time.Second * 1)
+		time.Sleep(time.Second * 5)
 
 		var err error
 		app, err = getFrontApp()
