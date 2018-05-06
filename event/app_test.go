@@ -113,8 +113,9 @@ func TestAppRecord(t *testing.T) {
 		t.Errorf("want error nil got erro %s", err)
 	}
 
-	if string(b) != ".gtm/google-chrome.app" {
-		t.Errorf("want .gtm/google-chrome.app for event file contents got %s", string(b))
+	wantPath := filepath.Join(".gtm", "google-chrome.app")
+	if string(b) != wantPath {
+		t.Errorf("want %s for event file contents got %s", wantPath, string(b))
 	}
 
 }
@@ -157,8 +158,9 @@ func TestTerminalRecord(t *testing.T) {
 		t.Errorf("want error nil got erro %s", err)
 	}
 
-	if string(b) != ".gtm/terminal.app" {
-		t.Errorf("want .gtm/terminal.app for event file contents got %s", string(b))
+	wantPath := filepath.Join(".gtm", "terminal.app")
+	if string(b) != wantPath {
+		t.Errorf("want %s for event file contents got %s", wantPath, string(b))
 	}
 
 }
