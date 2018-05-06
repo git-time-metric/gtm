@@ -144,9 +144,13 @@ func (t TestRepo) SaveFile(filename, subdir, content string) {
 }
 
 // CheckFatal raises a fatal error if error is not nil
-func CheckFatal(t *testing.T, err error) {
+func CheckFatal(t *testing.T, err error, cleanup ...func()) {
 	if err == nil {
 		return
+	}
+
+	if len(cleanup) == 1 {
+		defer cleanup[0]()
 	}
 
 	// The failure happens at wherever we were called, not here

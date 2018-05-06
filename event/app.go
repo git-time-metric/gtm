@@ -38,6 +38,8 @@ func NewTerminalApplication() (Application, error) {
 }
 
 func NewApplicationFromPath(path string) Application {
+	//TODO: should we create file path if not exist?
+	//TODO: should we return an error if file path not exist?
 	a := Application{path: path}
 	a.setNameFromFilePath()
 	return a

@@ -24,7 +24,7 @@ var (
 // TODO: when should we activate a new project? Always or only when
 // the previous active project was been idle for a period of time?
 
-func SetActive(path string) error {
+var SetActive = func(path string) error {
 	x := GetActive()
 	if x != "" && x != path {
 		// project has changed but not idle timed out yet
@@ -43,7 +43,7 @@ func SetActive(path string) error {
 	return nil
 }
 
-func GetActive() string {
+var GetActive = func() string {
 	f, err := registry()
 	if err != nil {
 		return ""
