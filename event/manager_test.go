@@ -21,8 +21,11 @@ func TestRecord(t *testing.T) {
 	defer repo.Remove()
 
 	curDir, err := os.Getwd()
-	util.CheckFatal(t, err)
-	defer os.Chdir(curDir)
+	// when running test Getwd fails for the Linux Travis build
+	// seems fine to not reset directory if that happens
+	if err == nil {
+		defer os.Chdir(curDir)
+	}
 
 	os.Chdir(repo.PathIn(""))
 
@@ -69,8 +72,11 @@ func TestProcess(t *testing.T) {
 	defer repo.Remove()
 
 	curDir, err := os.Getwd()
-	util.CheckFatal(t, err)
-	defer os.Chdir(curDir)
+	// when running test Getwd fails for the Linux Travis build
+	// seems fine to not reset directory if that happens
+	if err == nil {
+		defer os.Chdir(curDir)
+	}
 
 	os.Chdir(repo.PathIn(""))
 
