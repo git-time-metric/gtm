@@ -27,19 +27,19 @@ func NewAppMonitor(recordFunc func(app string) error, appsToMonitor []string) Ap
 
 func (m *AppMonitor) Run() error {
 	var (
-		app, prevApp string
-		nextUpdate   = epoch.Now()
+		app, frontApp, prevApp string
+		nextUpdate             = epoch.Now()
 	)
 
 	for {
 		time.Sleep(time.Second * 5)
 
 		var err error
-		app, err = getFrontApp()
+		frontApp, err = getFrontApp()
 		if err != nil {
 			return err
 		}
-		app = normalizeAppName(app)
+		app = normalizeAppName(frontApp)
 
 		if app == prevApp && time.Unix(epoch.Now(), 0).Before(time.Unix(nextUpdate, 0)) {
 			continue
@@ -48,11 +48,11 @@ func (m *AppMonitor) Run() error {
 		nextUpdate = epoch.Now() + int64(updateInterval)
 
 		if !m.Watching(app) {
-			log.Printf("skipped %s\n", normalizedAppNameToTitle(app))
+			log.Printf("skipped %s\n", frontApp)
 			continue
 		}
 
-		if err := m.RecordFunc(app); err != nil {
+		if err := m.RecordFunc(frontApp); err != nil {
 			return err
 		}
 	}
