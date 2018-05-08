@@ -1,0 +1,6 @@
+[ver:1,total:420]
+event/monitor.go:150,1525748400:150,m
+.gtm/slack.app:120,1525748400:120,r
+.gtm/terminal.app:90,1525748400:90,r
+.gtm/google-chrome.app:30,1525748400:30,r
+command/record.go:30,1525748400:30,r
