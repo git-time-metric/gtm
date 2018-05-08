@@ -55,7 +55,6 @@ func (m *AppMonitor) Run() error {
 		if err := m.RecordFunc(app); err != nil {
 			return err
 		}
-		log.Printf("recorded %s\n", normalizedAppNameToTitle(app))
 	}
 }
 

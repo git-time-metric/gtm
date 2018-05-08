@@ -176,6 +176,7 @@ func (c RecordCmd) Run(args []string) int {
 			c.Ui.Error(err.Error())
 			return 1
 		}
+		log.Printf("recorded %s\n", a.Name())
 		return outputStatus(a.Path())
 
 	default:
