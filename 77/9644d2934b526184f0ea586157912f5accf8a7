@@ -1,0 +1,12 @@
+[ver:1,total:1140]
+event/app.go:388,1525748400:388,r
+.gtm/terminal.app:224,1525748400:224,r
+command/record.go:178,1525748400:178,r
+event/monitor.go:110,1525748400:110,r
+event/app_test.go:60,1525748400:60,m
+.gtm/google-chrome.app:50,1525748400:50,r
+.gtm/slack.app:50,1525748400:50,r
+command/monitor.go:36,1525748400:36,r
+appveyor.yml:20,1525748400:20,r
+.git/index:12,1525748400:12,r
+event/manager_test.go:12,1525748400:12,r
