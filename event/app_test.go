@@ -63,7 +63,7 @@ func TestNewApplicationFromPath(t *testing.T) {
 	}
 
 	if a.name != "Google Chrome" {
-		t.Errorf("want name test got %s\n", a.Name())
+		t.Errorf("want name 'Google Chrome' got %s\n", a.Name())
 	}
 
 }
