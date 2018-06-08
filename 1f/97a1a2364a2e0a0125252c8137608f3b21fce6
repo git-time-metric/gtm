@@ -1,0 +1,11 @@
+[ver:1,total:1920]
+project/active_test.go:964,1528491600:964,m
+project/active.go:286,1528491600:286,m
+.gtm/google-chrome.app:210,1528491600:210,r
+.gtm/firefox.app:180,1528491600:180,r
+.gtm/terminal.app:122,1528491600:122,r
+event/manager.go:50,1528491600:50,m
+command/record.go:39,1528491600:39,m
+event/app.go:35,1528491600:35,m
+main.go:24,1528491600:24,r
+event/app_test.go:10,1528491600:10,r
