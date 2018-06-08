@@ -28,7 +28,9 @@ func Record(file string) error {
 		return err
 	}
 
-	project.SetActive(gtmPath)
+	if err := project.SetActive(gtmPath); err != nil {
+		return err
+	}
 
 	return nil
 }

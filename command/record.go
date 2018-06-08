@@ -146,7 +146,11 @@ func (c RecordCmd) Run(args []string) int {
 		return outputStatus(a.Path())
 
 	case application != "":
-		p := project.GetActive()
+		p, err := project.GetActive()
+		if err != nil {
+			c.Ui.Error(err.Error())
+			return 1
+		}
 		if p == "" {
 			// if blank there is no currently active project
 			return 0

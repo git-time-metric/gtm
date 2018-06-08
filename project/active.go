@@ -23,8 +23,7 @@ var SetActive = func(path string) error {
 	a := active{path: path, lastUpdated: epoch.Now()}
 	err := a.marshal()
 	if err != nil {
-		// FIXME: do not eat error
-		return nil
+		return err
 	}
 	return nil
 }
@@ -32,23 +31,22 @@ var SetActive = func(path string) error {
 // GetActive returns the current active project's path.
 // If not project is active an empty string is returned.
 // A package level func variable is used for ease of testing.
-var GetActive = func() string {
+var GetActive = func() (string, error) {
 	a := active{}
 	err := a.unmarshal()
 	if err != nil {
-		// FIXME: do not eat error
-		return ""
+		return "", err
 	}
 
 	if !a.pathExists() {
-		return ""
+		return "", nil
 	}
 
 	if !time.Unix(epoch.Now(), 0).Before(
 		time.Unix(a.lastUpdated+epoch.IdleProjectTimeout, 0)) {
-		return ""
+		return "", nil
 	}
-	return a.path
+	return a.path, nil
 }
 
 type active struct {

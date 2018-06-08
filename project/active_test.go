@@ -17,29 +17,60 @@ func TestActiveProject(t *testing.T) {
 	}
 	defer os.Remove(d)
 
-	SetActive(d)
-	p := GetActive()
+	if err := SetActive(d); err != nil {
+		t.Errorf("want error nil got error %s", err)
+	}
+	p, err := GetActive()
+	if err != nil {
+		t.Errorf("want error nil got error %s", err)
+	}
 	if p != d {
-		t.Errorf("want project directory %s got %s", d, p)
+		t.Errorf("want project directory '%s' got '%s'", d, p)
 	}
 
-	SetActive("/path/does/not/exist")
-	p = GetActive()
-	if p != "" {
-		t.Errorf("want project directory '' got %s", p)
+}
+
+func TestInactiveProject(t *testing.T) {
+	d, err := ioutil.TempDir("", "")
+	if err != nil {
+		t.Errorf("want error nil got error %s", err)
+	}
+	defer os.Remove(d)
+
+	if err := SetActive(d); err != nil {
+		t.Errorf("want error nil got error %s", err)
+	}
+	p, err := GetActive()
+	if err != nil {
+		t.Errorf("want error nil got error %s", err)
+	}
+	if p != d {
+		t.Errorf("want project directory '%s' got '%s'", d, p)
 	}
 
-	SetActive(d)
 	saveNow := util.Now
 	defer func() { util.Now = saveNow }()
-	util.Now = func() time.Time { return time.Now().Add(time.Duration(epoch.IdleProjectTimeout) - 10*time.Second) }
-	p = GetActive()
-	if p != d {
-		t.Errorf("want project directory %s got %s", d, p)
-	}
 	util.Now = func() time.Time { return time.Now().Add(time.Duration(epoch.IdleProjectTimeout) * time.Second) }
-	p = GetActive()
+
+	p, err = GetActive()
+	if err != nil {
+		t.Errorf("want error nil got error %s", err)
+	}
 	if p != "" {
-		t.Errorf("want project directory '' got %s", p)
+		t.Errorf("want project directory '' got '%s'", p)
+	}
+
+}
+
+func TestInvalidPath(t *testing.T) {
+	if err := SetActive("/path/does/not/exist"); err != nil {
+		t.Errorf("want error nil got error %s", err)
+	}
+	p, err := GetActive()
+	if err != nil {
+		t.Errorf("want error nil got error %s", err)
+	}
+	if p != "" {
+		t.Errorf("want project directory '' got '%s'", p)
 	}
 }

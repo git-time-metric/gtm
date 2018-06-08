@@ -57,7 +57,9 @@ func (a *Application) Record() error {
 	}
 
 	if a.IsTerminal() {
-		project.SetActive(gtmPath)
+		if err := project.SetActive(gtmPath); err != nil {
+			return err
+		}
 	}
 
 	return nil
