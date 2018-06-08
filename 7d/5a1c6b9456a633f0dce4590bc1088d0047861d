@@ -1,0 +1,10 @@
+[ver:1,total:1800]
+project/active.go:763,1528495200:553,1528498800:210,m
+.gtm/firefox.app:620,1528495200:620,r
+project/active_test.go:97,1528495200:97,r
+project/index.go:95,1528495200:80,1528498800:15,r
+project/project.go:85,1528495200:70,1528498800:15,r
+.gtm/terminal.app:80,1528495200:20,1528498800:60,r
+metric/metric.go:24,1528495200:24,r
+event/manager.go:24,1528495200:24,r
+event/event.go:12,1528495200:12,r
