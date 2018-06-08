@@ -61,7 +61,19 @@ var ActiveSerializationPath = func() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join(u.HomeDir, gtmHomeDir, "active-project.txt"), nil
+
+	d := filepath.Join(u.HomeDir, gtmHomeDir)
+
+	// FIXME: handle this when initializing a project
+	// don't do this in multiple locations, currently we are
+	if _, err := os.Stat(filepath.Dir(d)); os.IsNotExist(err) {
+		// TODO: is 0700 the right permissions to grant ?
+		if err := os.MkdirAll(filepath.Dir(d), 0700); err != nil {
+			return "", err
+		}
+	}
+
+	return filepath.Join(d, "active-project.txt"), nil
 }
 
 func (a *active) pathExists() bool {
