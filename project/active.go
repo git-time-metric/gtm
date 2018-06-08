@@ -61,7 +61,7 @@ var ActiveSerializationPath = func() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join(filepath.Join(u.HomeDir, gtmHomeDir), "active-project.txt"), nil
+	return filepath.Join(u.HomeDir, gtmHomeDir, "active-project.txt"), nil
 }
 
 func (a *active) pathExists() bool {
