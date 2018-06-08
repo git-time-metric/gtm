@@ -17,72 +17,97 @@ import (
 	"github.com/git-time-metric/gtm/epoch"
 )
 
-var (
-	registryFilename = "registry.txt"
-)
-
-// TODO: when should we activate a new project? Always or only when
-// the previous active project was been idle for a period of time?
-
+// SetActive records a project's path as active
+// A package level func variable is used for ease of testing.
 var SetActive = func(path string) error {
-	x := GetActive()
-	if x != "" && x != path {
-		// project has changed but not idle timed out yet
+	a := active{path: path, lastUpdated: epoch.Now()}
+	err := a.marshal()
+	if err != nil {
+		// FIXME: do not eat error
 		return nil
 	}
+	return nil
+}
 
-	f, err := registry()
+// GetActive returns the current active project's path.
+// If not project is active an empty string is returned.
+// A package level func variable is used for ease of testing.
+var GetActive = func() string {
+	a := active{}
+	err := a.unmarshal()
+	if err != nil {
+		// FIXME: do not eat error
+		return ""
+	}
+
+	if !a.pathExists() {
+		return ""
+	}
+
+	if !time.Unix(epoch.Now(), 0).Before(
+		time.Unix(a.lastUpdated+epoch.IdleProjectTimeout, 0)) {
+		return ""
+	}
+	return a.path
+}
+
+type active struct {
+	path        string
+	lastUpdated int64
+}
+
+// ActiveSerializationPath returns the path to serialize the active project to.
+// A package level func variable is used for ease of testing.
+var ActiveSerializationPath = func() (string, error) {
+	u, err := user.Current()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(filepath.Join(u.HomeDir, gtmHomeDir), "active-project.txt"), nil
+}
+
+func (a *active) pathExists() bool {
+	if _, err := os.Stat(a.path); os.IsNotExist(err) {
+		return false
+	}
+	return true
+}
+
+func (a *active) marshal() error {
+	f, err := ActiveSerializationPath()
 	if err != nil {
 		return err
 	}
 
 	if err := ioutil.WriteFile(
-		f, []byte(fmt.Sprintf("%s,%d", path, epoch.Now())), 0644); err != nil {
+		f, []byte(fmt.Sprintf("%s,%d", a.path, a.lastUpdated)), 0644); err != nil {
 		return err
 	}
 	return nil
 }
 
-var GetActive = func() string {
-	f, err := registry()
+func (a *active) unmarshal() error {
+	f, err := ActiveSerializationPath()
 	if err != nil {
-		return ""
+		return err
 	}
 
 	b, err := ioutil.ReadFile(f)
 	if err != nil {
-		return ""
+		return err
 	}
 
 	parts := strings.Split(string(b), ",")
 	if len(parts) != 2 {
-		return ""
+		return err
 	}
 
-	// does the project path exist
-	if _, err := os.Stat(parts[0]); os.IsNotExist(err) {
-		return ""
-	}
+	a.path = parts[0]
 
-	if !isActive(parts[1]) {
-		return ""
-	}
-
-	return parts[0]
-}
-
-func isActive(timeUpdated string) bool {
-	x, err := strconv.ParseInt(timeUpdated, 10, 64)
+	a.lastUpdated, err = strconv.ParseInt(parts[1], 10, 64)
 	if err != nil {
-		return false
+		return err
 	}
-	return time.Unix(epoch.Now(), 0).Before(time.Unix(x+epoch.IdleProjectTimeout, 0))
-}
 
-func registry() (string, error) {
-	u, err := user.Current()
-	if err != nil {
-		return "", err
-	}
-	return filepath.Join(filepath.Join(u.HomeDir, gtmHomeDir), registryFilename), nil
+	return nil
 }

@@ -18,6 +18,7 @@ import (
 	"github.com/libgit2/git2go"
 )
 
+// TimeTrackEnable turns on and off profiling
 var TimeTrackEnable = false
 
 //TimeTrack is used for profiling execution time
