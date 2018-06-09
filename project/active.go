@@ -66,9 +66,9 @@ var ActiveSerializationPath = func() (string, error) {
 
 	// FIXME: handle this when initializing a project
 	// don't do this in multiple locations, currently we are
-	if _, err := os.Stat(filepath.Dir(d)); os.IsNotExist(err) {
+	if _, err := os.Stat(d); os.IsNotExist(err) {
 		// TODO: is 0700 the right permissions to grant ?
-		if err := os.MkdirAll(filepath.Dir(d), 0700); err != nil {
+		if err := os.MkdirAll(d, 0700); err != nil {
 			return "", err
 		}
 	}
