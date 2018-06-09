@@ -1,0 +1,7 @@
+[ver:1,total:1200]
+.gtm/firefox.app:535,1528578000:445,1528581600:90,r
+project/active.go:330,1528578000:240,1528581600:90,m
+project/index.go:195,1528578000:15,1528581600:180,r
+.gtm/terminal.app:60,1528581600:60,r
+event/manager.go:40,1528578000:40,r
+event/event.go:40,1528578000:40,r
