@@ -90,7 +90,7 @@ func (a *active) marshal() error {
 	}
 
 	if err := ioutil.WriteFile(
-		f, []byte(fmt.Sprintf("%s,%d", a.path, a.lastUpdated)), 0644); err != nil {
+		f, []byte(fmt.Sprintf("%s,%d\n", a.path, a.lastUpdated)), 0644); err != nil {
 		return err
 	}
 	return nil
@@ -107,7 +107,7 @@ func (a *active) unmarshal() error {
 		return err
 	}
 
-	parts := strings.Split(string(b), ",")
+	parts := strings.Split(strings.Replace(string(b), "\n", "", -1), ",")
 	if len(parts) != 2 {
 		return err
 	}
