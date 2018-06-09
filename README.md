@@ -3,7 +3,7 @@
 
 ### Seamless time tracking for all your Git projects
 
-##### $ gtm report -last-month 
+##### $ gtm report -last-month
 <div><img src="https://cloud.githubusercontent.com/assets/630550/21582250/8a03f9dc-d015-11e6-8f77-548ef7314bf7.png"></div>
 
 ##### $ gtm report -last-month -format summary
@@ -12,7 +12,7 @@
 ##### $ gtm report -last-month -format timeline-hours
 <div><img src="https://cloud.githubusercontent.com/assets/630550/21582253/91f6226e-d015-11e6-897c-6042111e6a6a.png"></div> </br>
 
-GTM is automatic, seamless and lightweight.  There is no need to remember to start and stop timers.  It runs on occasion to capture activity triggered by your editor.  The time metrics are stored locally with the git repository as [Git notes](https://git-scm.com/docs/git-notes) and can be pushed to the remote repository. 
+GTM is automatic, seamless and lightweight.  There is no need to remember to start and stop timers.  It runs on occasion to capture activity triggered by your editor.  The time metrics are stored locally with the git repository as [Git notes](https://git-scm.com/docs/git-notes) and can be pushed to the remote repository.
 
 ### <div align="center">Plugins</div>
 
@@ -38,6 +38,7 @@ Simply install a plugin for your favorite editor and the GTM command line utilit
 **Mac OS X**
 
 The simplest way to install is to use [Homebrew](http://brew.sh)
+
 ```
 brew tap git-time-metric/gtm
 brew install gtm
@@ -46,6 +47,15 @@ brew install gtm
 **Windows**
 
 - Download and run the Windows installer from [here](https://github.com/git-time-metric/gtm/releases/latest)
+
+**Linux**
+
+The simplest way to install is to use [Linuxbrew](http://linuxbrew.sh/)
+
+```
+brew tap git-time-metric/gtm
+brew install gtmlinux
+```
 
 **Manually install for Linux, OSX or Windows**
 
@@ -85,7 +95,7 @@ Check your progress with `gtm status`.
        20m 40s  53% [m] plugin/gtm.vim
        18m  5s  46% [r] Terminal
            15s   1% [m] .gitignore
-       39m  0s          <b>gtm-vim-plugin</b> </pre> 
+       39m  0s          <b>gtm-vim-plugin</b> </pre>
 
 ### Commit your work
 
@@ -98,7 +108,7 @@ Fri Sep 09 20:45:03 2016 -0500 <b>gtm-vim-plugin</b> Michael Schenk
        20m 40s  53% [m] plugin/gtm.vim
        18m  5s  46% [r] Terminal
            15s   1% [m] .gitignore
-       39m  0s          <b>gtm-vim-plugin</b> </pre> 
+       39m  0s          <b>gtm-vim-plugin</b> </pre>
 
 ### Optionally save time in the remote Git repository
 
