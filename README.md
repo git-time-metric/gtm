@@ -54,7 +54,7 @@ The simplest way to install is to use [Linuxbrew](http://linuxbrew.sh/)
 
 ```
 brew tap git-time-metric/gtm
-brew install gtmlinux
+brew install gtm
 ```
 
 **Manually install for Linux, OSX or Windows**
