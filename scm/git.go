@@ -28,6 +28,7 @@ func RootPath(path ...string) (string, error) {
 		p   string
 		err error
 	)
+
 	if len(path) > 0 {
 		wd = path[0]
 	} else {
@@ -36,13 +37,19 @@ func RootPath(path ...string) (string, error) {
 			return "", err
 		}
 	}
-	//TODO: benchmark the call to git.Discover
-	//TODO: optionally print result with -debug flag
+
 	p, err = git.Discover(wd, false, []string{})
 	if err != nil {
 		return "", err
 	}
-	return filepath.ToSlash(filepath.Dir(filepath.Dir(p))), nil
+
+	x := strings.Index(filepath.ToSlash(p), `/.git/modules/`)
+	if x != -1 {
+		// removing the submodule from path and return git parent
+		p = p[:x]
+	}
+
+	return filepath.FromSlash(strings.TrimSuffix(filepath.ToSlash(p), `/.git/`)), err
 }
 
 // CommitLimiter struct filter commits by criteria
@@ -529,6 +536,8 @@ func ConfigSet(settings map[string]string, wd ...string) error {
 	} else {
 		repo, err = openRepository()
 	}
+	//FIXME: check err
+	//FIXME: defer repo.free()
 
 	cfg, err = repo.Config()
 	defer cfg.Free()
@@ -555,6 +564,8 @@ func ConfigRemove(settings map[string]string, wd ...string) error {
 	} else {
 		repo, err = openRepository()
 	}
+	//FIXME: check err
+	//FIXME: defer repo.free()
 
 	cfg, err = repo.Config()
 	defer cfg.Free()
