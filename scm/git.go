@@ -49,7 +49,7 @@ func RootPath(path ...string) (string, error) {
 		p = p[:x]
 	}
 
-	return filepath.FromSlash(strings.TrimSuffix(filepath.ToSlash(p), `/.git/`)), err
+	return strings.TrimSuffix(filepath.ToSlash(p), `/.git/`), err
 }
 
 // CommitLimiter struct filter commits by criteria
