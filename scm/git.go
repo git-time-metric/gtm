@@ -17,18 +17,39 @@ import (
 	"time"
 
 	"github.com/git-time-metric/gtm/util"
+	"github.com/git-time-metric/gtm/gtmdebug"
 	"github.com/libgit2/git2go"
 )
 
-// RootPath discovers the base directory for a git repo
-func RootPath(path ...string) (string, error) {
-	defer util.TimeTrack(time.Now(), "scm.RootPath")
+func Workdir(gitRepoPath string) (string, error) {
+	gtmdebug.Debugf("scm/git.go::Workdir", "gitRepoPath=%s", gitRepoPath)
+
+	var err error
+	var repo *git.Repository
+	repo, err = git.OpenRepository(gitRepoPath)
+	if err != nil {
+		return "", err
+	}
+
+	var workDir string
+	workDir = repo.Workdir()
+	gtmdebug.Debugf("[scm/git.go::Workdir] workDir=%s", workDir)
+	if !strings.HasSuffix(workDir, "/") {
+		fmt.Errorf("ASSERT failed: Expecting suffix of work tree to be '/'. workDir=%s", workDir)
+	}
+	workDir = filepath.Dir(workDir)
+
+	return workDir, nil
+}
+
+// GitRepoPath discovers the base directory for a git repo
+func GitRepoPath(path ...string) (string, error) {
+	defer util.TimeTrack(time.Now(), "scm.GitRootPath")
 	var (
 		wd  string
-		p   string
+		gitRepoPath   string
 		err error
 	)
-
 	if len(path) > 0 {
 		wd = path[0]
 	} else {
@@ -37,19 +58,15 @@ func RootPath(path ...string) (string, error) {
 			return "", err
 		}
 	}
-
-	p, err = git.Discover(wd, false, []string{})
+	//TODO: benchmark the call to git.Discover
+	//TODO: optionally print result with -debug flag
+	gitRepoPath, err = git.Discover(wd, false, []string{})
+	gtmdebug.Debugf("[scm/git.go::GitRepoPath] gitRepoPath=%s", gitRepoPath)
 	if err != nil {
 		return "", err
 	}
 
-	x := strings.Index(filepath.ToSlash(p), `/.git/modules/`)
-	if x != -1 {
-		// removing the submodule from path and return git parent
-		p = p[:x]
-	}
-
-	return strings.TrimSuffix(filepath.ToSlash(p), `/.git/`), err
+	return gitRepoPath, nil
 }
 
 // CommitLimiter struct filter commits by criteria
@@ -536,8 +553,6 @@ func ConfigSet(settings map[string]string, wd ...string) error {
 	} else {
 		repo, err = openRepository()
 	}
-	//FIXME: check err
-	//FIXME: defer repo.free()
 
 	cfg, err = repo.Config()
 	defer cfg.Free()
@@ -564,8 +579,6 @@ func ConfigRemove(settings map[string]string, wd ...string) error {
 	} else {
 		repo, err = openRepository()
 	}
-	//FIXME: check err
-	//FIXME: defer repo.free()
 
 	cfg, err = repo.Config()
 	defer cfg.Free()
@@ -625,13 +638,14 @@ func SetHooks(hooks map[string]GitHook, wd ...string) error {
 		if len(wd) > 0 {
 			p = wd[0]
 		} else {
+
 			p, err = os.Getwd()
 			if err != nil {
 				return err
 			}
 		}
-		fp := filepath.Join(p, ".git", "hooks", ghfile)
-		hooksDir := filepath.Join(p, ".git", "hooks")
+		fp := filepath.Join(p, "hooks", ghfile)
+		hooksDir := filepath.Join(p, "hooks")
 
 		var output string
 
@@ -682,12 +696,13 @@ func RemoveHooks(hooks map[string]GitHook, wd ...string) error {
 		if len(wd) > 0 {
 			p = wd[0]
 		} else {
+			return fmt.Errorf("RemoveHooks using getwd not supported")
 			p, err = os.Getwd()
 			if err != nil {
 				return err
 			}
 		}
-		fp := filepath.Join(p, ".git", "hooks", ghfile)
+		fp := filepath.Join(p, "hooks", ghfile)
 
 		if _, err := os.Stat(fp); os.IsNotExist(err) {
 			continue
@@ -803,9 +818,9 @@ func openRepository(wd ...string) (*git.Repository, error) {
 	)
 
 	if len(wd) > 0 {
-		p, err = RootPath(wd[0])
+		p, err = GitRepoPath(wd[0])
 	} else {
-		p, err = RootPath()
+		p, err = GitRepoPath()
 	}
 	if err != nil {
 		return nil, err

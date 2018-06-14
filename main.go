@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/git-time-metric/gtm/command"
+	"github.com/git-time-metric/gtm/gtmdebug"
 	"github.com/mitchellh/cli"
 )
 
@@ -15,6 +16,7 @@ import (
 var Version = "0.0.0"
 
 func main() {
+	gtmdebug.Debugf("main.go", "Starting main %s", Version)
 	ui := &cli.ColoredUi{ErrorColor: cli.UiColorRed, Ui: &cli.BasicUi{Writer: os.Stdout, Reader: os.Stdin}}
 	c := cli.NewCLI("gtm", Version)
 	c.Args = os.Args[1:]

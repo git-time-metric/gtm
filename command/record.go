@@ -78,11 +78,12 @@ func (c RecordCmd) Run(args []string) int {
 
 	fileToRecord := ""
 	if terminal {
-		projPath, err := scm.RootPath()
+		projPath, err := scm.GitRepoPath()
 		if err != nil {
 			// if not found, ignore error
 			return 0
 		}
+		projPath, _ = scm.Workdir(projPath)
 		fileToRecord = filepath.Join(projPath, ".gtm", "terminal.app")
 	} else {
 		fileToRecord = cmdFlags.Args()[0]

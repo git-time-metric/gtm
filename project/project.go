@@ -19,7 +19,8 @@ import (
 
 	"github.com/git-time-metric/gtm/scm"
 	"github.com/git-time-metric/gtm/util"
-	isatty "github.com/mattn/go-isatty"
+	"github.com/git-time-metric/gtm/gtmdebug"
+	"github.com/mattn/go-isatty"
 )
 
 var (
@@ -83,23 +84,31 @@ The following items have been removed.
 // Initialize initializes a git repo for time tracking
 func Initialize(terminal bool, tags []string, clearTags bool) (string, error) {
 	wd, err := os.Getwd()
+	gtmdebug.Debugf("[command/project.go] wd=%s", wd)
+
 	if err != nil {
 		return "", err
 	}
 
-	projRoot, err := scm.RootPath(wd)
+	gitRepoPath, err := scm.GitRepoPath(wd)
+	gtmdebug.Debugf("[command/project.go::Initialize] gitRepoPath=%s", gitRepoPath)
 	if err != nil {
 		return "", fmt.Errorf(
-			"Unable to intialize Git Time Metric, Git repository not found in %s", projRoot)
+			"Unable to intialize Git Time Metric, Git repository not found in '%s'", gitRepoPath)
 	}
-
-	gitPath := filepath.Join(projRoot, ".git")
-	if _, err := os.Stat(gitPath); os.IsNotExist(err) {
+	if _, err := os.Stat(gitRepoPath); os.IsNotExist(err) {
 		return "", fmt.Errorf(
-			"Unable to intialize Git Time Metric, Git repository not found in %s", gitPath)
+			"Unable to intialize Git Time Metric, Git repository not found in %s", gitRepoPath)
 	}
 
-	gtmPath := filepath.Join(projRoot, GTMDir)
+	workDirRoot, err := scm.Workdir(gitRepoPath)
+	gtmdebug.Debugf("[command/project.go::Initialize] workDirRoot=%s", workDirRoot)
+	if _, err := os.Stat(workDirRoot); os.IsNotExist(err) {
+		return "", fmt.Errorf(
+			"Unable to intialize Git Time Metric, Git working tree root not found in %s", workDirRoot)
+	}
+
+	gtmPath := filepath.Join(workDirRoot, GTMDir)
 	if _, err := os.Stat(gtmPath); os.IsNotExist(err) {
 		if err := os.MkdirAll(gtmPath, 0700); err != nil {
 			return "", err
@@ -130,15 +139,15 @@ func Initialize(terminal bool, tags []string, clearTags bool) (string, error) {
 		os.Remove(filepath.Join(gtmPath, "terminal.app"))
 	}
 
-	if err := scm.SetHooks(GitHooks, projRoot); err != nil {
+	if err := scm.SetHooks(GitHooks, gitRepoPath); err != nil {
 		return "", err
 	}
 
-	if err := scm.ConfigSet(GitConfig, projRoot); err != nil {
+	if err := scm.ConfigSet(GitConfig, gitRepoPath); err != nil {
 		return "", err
 	}
 
-	if err := scm.IgnoreSet(GitIgnore, projRoot); err != nil {
+	if err := scm.IgnoreSet(GitIgnore, workDirRoot); err != nil {
 		return "", err
 	}
 
@@ -161,7 +170,7 @@ func Initialize(terminal bool, tags []string, clearTags bool) (string, error) {
 		}{
 			strings.Join(tags, " "),
 			headerFormat,
-			projRoot,
+			workDirRoot,
 			GitHooks,
 			GitConfig,
 			GitIgnore,
@@ -177,7 +186,7 @@ func Initialize(terminal bool, tags []string, clearTags bool) (string, error) {
 		return "", err
 	}
 
-	index.add(projRoot)
+	index.add(workDirRoot)
 	err = index.save()
 	if err != nil {
 		return "", err
@@ -193,24 +202,25 @@ func Uninitialize() (string, error) {
 		return "", err
 	}
 
-	projRoot, err := scm.RootPath(wd)
+	gitRepoPath, err := scm.GitRepoPath(wd)
 	if err != nil {
 		return "", fmt.Errorf(
-			"Unable to unintialize Git Time Metric, Git repository not found in %s", projRoot)
+			"Unable to unintialize Git Time Metric, Git repository not found in %s", gitRepoPath)
 	}
 
-	gtmPath := filepath.Join(projRoot, GTMDir)
+	workDir, _ := scm.Workdir(gitRepoPath)
+	gtmPath := filepath.Join(workDir, GTMDir)
 	if _, err := os.Stat(gtmPath); os.IsNotExist(err) {
 		return "", fmt.Errorf(
 			"Unable to uninitialize Git Time Metric, %s directory not found", gtmPath)
 	}
-	if err := scm.RemoveHooks(GitHooks, projRoot); err != nil {
+	if err := scm.RemoveHooks(GitHooks, gitRepoPath); err != nil {
 		return "", err
 	}
-	if err := scm.ConfigRemove(GitConfig, projRoot); err != nil {
+	if err := scm.ConfigRemove(GitConfig, gitRepoPath); err != nil {
 		return "", err
 	}
-	if err := scm.IgnoreRemove(GitIgnore, projRoot); err != nil {
+	if err := scm.IgnoreRemove(GitIgnore, workDir); err != nil {
 		return "", err
 	}
 	if err := os.RemoveAll(gtmPath); err != nil {
@@ -232,7 +242,7 @@ func Uninitialize() (string, error) {
 			GitIgnore    string
 		}{
 			headerFormat,
-			projRoot,
+			workDir,
 			GitHooks,
 			GitConfig,
 			GitIgnore})
@@ -246,7 +256,7 @@ func Uninitialize() (string, error) {
 		return "", err
 	}
 
-	index.remove(projRoot)
+	index.remove(workDir)
 	err = index.save()
 	if err != nil {
 		return "", err
@@ -262,10 +272,12 @@ func Clean(dr util.DateRange, terminalOnly bool) error {
 		return err
 	}
 
-	projRoot, err := scm.RootPath(wd)
+	gitRepoPath, err := scm.GitRepoPath(wd)
 	if err != nil {
-		return fmt.Errorf("Unable to clean, Git repository not found in %s", projRoot)
+		return fmt.Errorf("Unable to clean, Git repository not found in %s", gitRepoPath)
 	}
+
+	projRoot, _ := scm.Workdir(gitRepoPath)
 
 	gtmPath := filepath.Join(projRoot, GTMDir)
 	if _, err := os.Stat(gtmPath); os.IsNotExist(err) {
@@ -310,17 +322,18 @@ func Paths(wd ...string) (string, string, error) {
 	util.TimeTrack(time.Now(), "project.Paths")
 
 	var (
-		repoPath string
+		gitRepoPath string
 		err      error
 	)
 	if len(wd) > 0 {
-		repoPath, err = scm.RootPath(wd[0])
+		gitRepoPath, err = scm.GitRepoPath(wd[0])
 	} else {
-		repoPath, err = scm.RootPath()
+		gitRepoPath, err = scm.GitRepoPath()
 	}
 	if err != nil {
 		return "", "", ErrNotInitialized
 	}
+	repoPath, _ := scm.Workdir(gitRepoPath)
 
 	gtmPath := filepath.Join(repoPath, GTMDir)
 	if _, err := os.Stat(gtmPath); os.IsNotExist(err) {
