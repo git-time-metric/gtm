@@ -638,6 +638,7 @@ func SetHooks(hooks map[string]GitHook, wd ...string) error {
 		if len(wd) > 0 {
 			p = wd[0]
 		} else {
+
 			p, err = os.Getwd()
 			if err != nil {
 				return err
@@ -694,16 +695,14 @@ func RemoveHooks(hooks map[string]GitHook, wd ...string) error {
 
 		if len(wd) > 0 {
 			p = wd[0]
-			if !strings.HasSuffix(p, ".git") {
-				return fmt.Errorf("'%s' is not a valid git repository (must have suffix .git)", p)
-			}
 		} else {
+			return fmt.Errorf("RemoveHooks using getwd not supported")
 			p, err = os.Getwd()
 			if err != nil {
 				return err
 			}
 		}
-		fp := filepath.Join(p, ".git", "hooks", ghfile)
+		fp := filepath.Join(p, "hooks", ghfile)
 
 		if _, err := os.Stat(fp); os.IsNotExist(err) {
 			continue

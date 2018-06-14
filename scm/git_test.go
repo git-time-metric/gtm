@@ -21,7 +21,8 @@ func TestRootPath(t *testing.T) {
 
 	repoPath := repo.PathIn("")
 	wantPath := repoPath
-	gotPath, err := RootPath(repoPath)
+	gitRepoPath, _ := GitRepoPath(repoPath)
+	gotPath, err := Workdir(gitRepoPath)
 	if err != nil {
 		t.Errorf("RootPath error, %s", err)
 	}
@@ -36,10 +37,11 @@ func TestRootPath(t *testing.T) {
 	err = os.Chdir(repoPath)
 	util.CheckFatal(t, err)
 
-	gotPath, err = RootPath()
+	gitRepoPath, err = GitRepoPath()
 	if err != nil {
 		t.Errorf("RootPath error, %s", err)
 	}
+	gotPath, err = Workdir(gitRepoPath)
 	if wantPath != gotPath {
 		t.Errorf("RootPath want %s, got %s", wantPath, gotPath)
 	}
@@ -340,7 +342,8 @@ func TestSetGitHooks(t *testing.T) {
 	repo := util.NewTestRepo(t, false)
 	defer repo.Remove()
 
-	repoPath := repo.PathIn("")
+	gitRepoPath := repo.GitRepoPath()
+
 	hooks := map[string]GitHook{
 		"post-commit": {
 			Exe:     "gtm",
@@ -349,16 +352,16 @@ func TestSetGitHooks(t *testing.T) {
 	}
 
 	// test when hook exists
-	err := ioutil.WriteFile(path.Join(repoPath, ".git", "hooks", "post-commit"), []byte{}, 0755)
+	err := ioutil.WriteFile(path.Join(gitRepoPath, "hooks", "post-commit"), []byte{}, 0755)
 	if err != nil {
 		t.Fatalf("SetHooks(hooks) expect error nil, got %s", err)
 	}
 
-	err = SetHooks(hooks, repoPath)
+	err = SetHooks(hooks, gitRepoPath)
 	if err != nil {
 		t.Fatalf("SetHooks(hooks) expect error nil, got %s", err)
 	}
-	b, err := ioutil.ReadFile(path.Join(repoPath, ".git", "hooks", "post-commit"))
+	b, err := ioutil.ReadFile(path.Join(gitRepoPath, "hooks", "post-commit"))
 	if err != nil {
 		t.Fatalf("SetHooks(hooks) expect error nil, got %s", err)
 	}
@@ -368,16 +371,16 @@ func TestSetGitHooks(t *testing.T) {
 	}
 
 	// test if hook doesn't exist
-	err = os.Remove(path.Join(repoPath, ".git", "hooks", "post-commit"))
+	err = os.Remove(path.Join(gitRepoPath, "hooks", "post-commit"))
 	if err != nil {
 		t.Fatalf("SetHooks(hooks) expect error nil, got %s", err)
 	}
 
-	err = SetHooks(hooks, repoPath)
+	err = SetHooks(hooks, gitRepoPath)
 	if err != nil {
 		t.Errorf("SetHooks(hooks) expect error nil, got %s", err)
 	}
-	b, err = ioutil.ReadFile(path.Join(repoPath, ".git", "hooks", "post-commit"))
+	b, err = ioutil.ReadFile(path.Join(gitRepoPath, "hooks", "post-commit"))
 	if err != nil {
 		t.Fatalf("SetHooks(hooks) expect error nil, got %s", err)
 	}
@@ -387,16 +390,16 @@ func TestSetGitHooks(t *testing.T) {
 	}
 
 	// test if hooks folder doesn't exist
-	err = os.RemoveAll(path.Join(repoPath, ".git", "hooks"))
+	err = os.RemoveAll(path.Join(gitRepoPath, "hooks"))
 	if err != nil {
 		t.Fatalf("SetHooks(hooks) expect error nil, got %s", err)
 	}
 
-	err = SetHooks(hooks, repoPath)
+	err = SetHooks(hooks, gitRepoPath)
 	if err != nil {
 		t.Errorf("SetHooks(hooks) expect error nil, got %s", err)
 	}
-	b, err = ioutil.ReadFile(path.Join(repoPath, ".git", "hooks", "post-commit"))
+	b, err = ioutil.ReadFile(path.Join(gitRepoPath, "hooks", "post-commit"))
 	if err != nil {
 		t.Fatalf("SetHooks(hooks) expect error nil, got %s", err)
 	}

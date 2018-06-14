@@ -5,7 +5,8 @@
 .LSOverride
 
 # Icon must end with two \r
-Icon
+Icon
+
 
 # Thumbnails
 ._*
@@ -74,4 +75,3 @@ tags
 .vimrc
 
 /.idea/
-/testrepo/
