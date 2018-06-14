@@ -72,3 +72,6 @@ Session.vim
 tags
 
 .vimrc
+
+/.idea/
+/testrepo/
