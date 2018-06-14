@@ -38,6 +38,10 @@ func (t TestRepo) GitRepoPath() (string) {
 	return t.repo.Path()
 }
 
+func (t TestRepo) Repo() (*git.Repository) {
+	return t.repo
+}
+
 // NewTestRepo creates a new instance of TestRepo
 func NewTestRepo(t *testing.T, bare bool) TestRepo {
 	path, err := ioutil.TempDir("", "gtm")

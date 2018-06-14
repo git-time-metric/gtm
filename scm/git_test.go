@@ -409,3 +409,29 @@ func TestSetGitHooks(t *testing.T) {
 	}
 
 }
+
+// WIP: pushing and fetching notes are the same in both repos.
+func TestPushFetch(t *testing.T) {
+	localRepo := util.NewTestRepo(t, false)
+	defer localRepo.Remove()
+
+	originRepo := util.NewTestRepo(t, true)
+	defer originRepo.Remove()
+
+	localRepo.Seed()
+
+	remote, err := localRepo.Repo().Remotes.Create("origin", originRepo.GitRepoPath())
+	if err != nil {
+		t.Fatalf("Error setting remote: %s", err)
+	}
+
+	err = remote.Push(nil, nil)
+	if err != nil {
+		t.Fatalf("Error pushing: %s", err)
+	}
+
+	//err = originRepo.Repo().CheckoutHead(nil)
+	//if err != nil {
+	//	t.Fatalf("Error checkout origin: %s", err)
+	//}
+}
