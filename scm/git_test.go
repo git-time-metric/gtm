@@ -21,7 +21,10 @@ func TestRootPath(t *testing.T) {
 
 	repoPath := repo.PathIn("")
 	wantPath := repoPath
-	gitRepoPath, _ := GitRepoPath(repoPath)
+	gitRepoPath, err := GitRepoPath(repoPath)
+	if err != nil {
+		t.Errorf("RepoPath error, %s", err)
+	}
 	gotPath, err := Workdir(gitRepoPath)
 	if err != nil {
 		t.Errorf("RootPath error, %s", err)

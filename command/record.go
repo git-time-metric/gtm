@@ -83,7 +83,11 @@ func (c RecordCmd) Run(args []string) int {
 			// if not found, ignore error
 			return 0
 		}
-		projPath, _ = scm.Workdir(projPath)
+		projPath, err = scm.Workdir(projPath)
+		if err != nil {
+			// if not found, ignore error
+			return 0
+		}
 		fileToRecord = filepath.Join(projPath, ".gtm", "terminal.app")
 	} else {
 		fileToRecord = cmdFlags.Args()[0]

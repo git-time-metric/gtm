@@ -17,9 +17,9 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/git-time-metric/gtm/gtmdebug"
 	"github.com/git-time-metric/gtm/scm"
 	"github.com/git-time-metric/gtm/util"
-	"github.com/git-time-metric/gtm/gtmdebug"
 	"github.com/mattn/go-isatty"
 )
 
@@ -102,6 +102,12 @@ func Initialize(terminal bool, tags []string, clearTags bool) (string, error) {
 	}
 
 	workDirRoot, err := scm.Workdir(gitRepoPath)
+	if err != nil {
+		return "", fmt.Errorf(
+			"Unable to intialize Git Time Metric, Git working tree root not found in %s", workDirRoot)
+
+	}
+
 	gtmdebug.Debugf("[command/project.go::Initialize] workDirRoot=%s", workDirRoot)
 	if _, err := os.Stat(workDirRoot); os.IsNotExist(err) {
 		return "", fmt.Errorf(
@@ -277,9 +283,12 @@ func Clean(dr util.DateRange, terminalOnly bool) error {
 		return fmt.Errorf("Unable to clean, Git repository not found in %s", gitRepoPath)
 	}
 
-	projRoot, _ := scm.Workdir(gitRepoPath)
+	workDir, err := scm.Workdir(gitRepoPath)
+	if err != nil {
+		return err
+	}
 
-	gtmPath := filepath.Join(projRoot, GTMDir)
+	gtmPath := filepath.Join(workDir, GTMDir)
 	if _, err := os.Stat(gtmPath); os.IsNotExist(err) {
 		return fmt.Errorf("Unable to clean GTM data, %s directory not found", gtmPath)
 	}
@@ -323,7 +332,7 @@ func Paths(wd ...string) (string, string, error) {
 
 	var (
 		gitRepoPath string
-		err      error
+		err         error
 	)
 	if len(wd) > 0 {
 		gitRepoPath, err = scm.GitRepoPath(wd[0])
@@ -333,13 +342,17 @@ func Paths(wd ...string) (string, string, error) {
 	if err != nil {
 		return "", "", ErrNotInitialized
 	}
-	repoPath, _ := scm.Workdir(gitRepoPath)
 
-	gtmPath := filepath.Join(repoPath, GTMDir)
+	workDir, err := scm.Workdir(gitRepoPath)
+	if err != nil {
+		return "", "", ErrNotInitialized
+	}
+
+	gtmPath := filepath.Join(workDir, GTMDir)
 	if _, err := os.Stat(gtmPath); os.IsNotExist(err) {
 		return "", "", ErrNotInitialized
 	}
-	return repoPath, gtmPath, nil
+	return workDir, gtmPath, nil
 }
 
 func removeTags(gtmPath string) error {

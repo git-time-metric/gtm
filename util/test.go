@@ -34,11 +34,11 @@ type TestRepo struct {
 	test *testing.T
 }
 
-func (t TestRepo) GitRepoPath() (string) {
+func (t TestRepo) GitRepoPath() string {
 	return t.repo.Path()
 }
 
-func (t TestRepo) Repo() (*git.Repository) {
+func (t TestRepo) Repo() *git.Repository {
 	return t.repo
 }
 
@@ -88,7 +88,7 @@ func (t TestRepo) Remove() {
 
 // PathIn returns full path of file within repo
 func (t TestRepo) PathIn(name string) string {
-	return filepath.ToSlash(filepath.Join(filepath.Dir(filepath.Dir(t.repo.Path())), name))
+	return filepath.Join(filepath.Dir(filepath.Dir(t.repo.Path())), name)
 }
 
 // Stage adds files to staging for git repo

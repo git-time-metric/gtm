@@ -16,8 +16,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/git-time-metric/gtm/util"
 	"github.com/git-time-metric/gtm/gtmdebug"
+	"github.com/git-time-metric/gtm/util"
 	"github.com/libgit2/git2go"
 )
 
@@ -30,12 +30,13 @@ func Workdir(gitRepoPath string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	defer repo.Free()
 
 	var workDir string
 	workDir = repo.Workdir()
 	gtmdebug.Debugf("[scm/git.go::Workdir] workDir=%s", workDir)
 	if !strings.HasSuffix(workDir, "/") {
-		fmt.Errorf("ASSERT failed: Expecting suffix of work tree to be '/'. workDir=%s", workDir)
+		return "", fmt.Errorf("ASSERT failed: Expecting suffix of work tree to be '/'. workDir=%s", workDir)
 	}
 	workDir = filepath.Dir(workDir)
 
@@ -46,9 +47,9 @@ func Workdir(gitRepoPath string) (string, error) {
 func GitRepoPath(path ...string) (string, error) {
 	defer util.TimeTrack(time.Now(), "scm.GitRootPath")
 	var (
-		wd  string
-		gitRepoPath   string
-		err error
+		wd          string
+		gitRepoPath string
+		err         error
 	)
 	if len(path) > 0 {
 		wd = path[0]
@@ -686,24 +687,10 @@ func SetHooks(hooks map[string]GitHook, wd ...string) error {
 }
 
 // RemoveHooks remove matching git hook commands
-func RemoveHooks(hooks map[string]GitHook, wd ...string) error {
+func RemoveHooks(hooks map[string]GitHook, p string) error {
+
 	for ghfile, hook := range hooks {
-		var (
-			p   string
-			err error
-		)
-
-		if len(wd) > 0 {
-			p = wd[0]
-		} else {
-			return fmt.Errorf("RemoveHooks using getwd not supported")
-			p, err = os.Getwd()
-			if err != nil {
-				return err
-			}
-		}
 		fp := filepath.Join(p, "hooks", ghfile)
-
 		if _, err := os.Stat(fp); os.IsNotExist(err) {
 			continue
 		}
@@ -724,7 +711,6 @@ func RemoveHooks(hooks map[string]GitHook, wd ...string) error {
 				return err
 			}
 		}
-
 	}
 
 	return nil

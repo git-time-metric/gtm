@@ -4,15 +4,19 @@ os: Visual Studio 2015
 
 clone_folder: c:\gopath\src\github.com\git-time-metric\gtm
 
+skip_branch_with_pr: true
+
 install:
-  - echo %PATH%
-  - echo %GOPATH%
-  - go version
   - go env
+  - go version
+
+environment:
+  GOPATH: /c/gopath
+  PROJ_DIR: /c/gopath/src/github.com/git-time-metric/gtm
 
 build_script:
-  - c:\msys64\usr\bin\bash -lc "GOPATH=/c/gopath GOROOT=/c/Go/ /c/gopath/src/github.com/git-time-metric/gtm/script/git2go-init.sh"
-  - c:\msys64\usr\bin\bash -lc "GOPATH=/c/gopath GOROOT=/c/Go/ /c/gopath/src/github.com/git-time-metric/gtm/script/appveyor-build.sh"
+  - c:\msys64\usr\bin\bash -lc "cd ${PROJ_DIR} && make git2go-install"
+  - c:\msys64\usr\bin\bash -lc "/c/gopath/src/github.com/git-time-metric/gtm/script/appveyor-build.sh"
 
 artifacts:
   - path: gtm.$(appveyor_repo_tag_name).windows.tar.gz
