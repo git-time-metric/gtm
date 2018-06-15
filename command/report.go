@@ -137,7 +137,11 @@ func (c ReportCmd) Run(args []string) int {
 			commits = append(commits, scanner.Text())
 		}
 		curProjPath, err := scm.GitRepoPath()
-		curProjPath, _ = scm.Workdir(curProjPath)
+		if err != nil {
+			c.Ui.Error(err.Error())
+			return 1
+		}
+		curProjPath, err = scm.Workdir(curProjPath)
 		if err != nil {
 			c.Ui.Error(err.Error())
 			return 1
@@ -154,7 +158,15 @@ func (c ReportCmd) Run(args []string) int {
 			commits = append(commits, a)
 		}
 		curProjPath, err := scm.GitRepoPath()
-		curProjPath, _ = scm.Workdir(curProjPath)
+		if err != nil {
+			c.Ui.Error(err.Error())
+			return 1
+		}
+		curProjPath, err = scm.Workdir(curProjPath)
+		if err != nil {
+			c.Ui.Error(err.Error())
+			return 1
+		}
 		if err != nil {
 			c.Ui.Error(err.Error())
 			return 1

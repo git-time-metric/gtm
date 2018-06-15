@@ -23,7 +23,7 @@ func TestFullCommit(t *testing.T) {
 	util.CheckFatal(t, err)
 	defer os.Chdir(curDir)
 
-	os.Chdir(repo.PathIn(""))
+	os.Chdir(repo.Workdir())
 
 	repo.SaveFile("event.go", "event", "")
 	repo.SaveFile("event_test.go", "event", "")
@@ -62,7 +62,7 @@ func TestPartialCommit(t *testing.T) {
 	util.CheckFatal(t, err)
 	defer os.Chdir(curDir)
 
-	os.Chdir(repo.PathIn(""))
+	os.Chdir(repo.Workdir())
 
 	repo.SaveFile("event.go", "event", "")
 	repo.SaveFile("event_test.go", "event", "")
@@ -104,7 +104,7 @@ func TestInterim(t *testing.T) {
 	util.CheckFatal(t, err)
 	defer os.Chdir(curDir)
 
-	os.Chdir(repo.PathIn(""))
+	os.Chdir(repo.Workdir())
 
 	repo.SaveFile("event.go", "event", "")
 	repo.SaveFile("event_test.go", "event", "")

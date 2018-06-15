@@ -169,12 +169,12 @@ func TestUninitialize(t *testing.T) {
 		t.Fatalf("Unable to initialize git repo, %s", string(b))
 	}
 
-	s, err := Initialize(false, []string{}, false)
+	_, err = Initialize(false, []string{}, false)
 	if err != nil {
 		t.Fatalf("Want error nil got error %s", err)
 	}
 
-	s, err = Uninitialize()
+	s, err := Uninitialize()
 	if err != nil {
 		t.Fatalf("Uninitialize(), want error nil got error %s", err)
 	}

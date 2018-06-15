@@ -23,10 +23,14 @@ type VerifyCmd struct {
 }
 
 func (c VerifyCmd) output(s string) {
+	var err error
 	if c.Out != nil {
-		fmt.Fprint(c.Out, s)
+		_, err = fmt.Fprint(c.Out, s)
 	} else {
-		fmt.Fprint(os.Stdout, s)
+		_, err = fmt.Fprint(os.Stdout, s)
+	}
+	if err != nil {
+		fmt.Printf("Error printing output, %s\n", err)
 	}
 }
 

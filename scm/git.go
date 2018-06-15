@@ -17,38 +17,33 @@ import (
 	"time"
 
 	"github.com/git-time-metric/gtm/util"
-	"github.com/git-time-metric/gtm/gtmdebug"
 	"github.com/libgit2/git2go"
 )
 
+// Workdir returns the working directory for a repo
 func Workdir(gitRepoPath string) (string, error) {
-	gtmdebug.Debugf("scm/git.go::Workdir", "gitRepoPath=%s", gitRepoPath)
+	defer util.Profile()()
+	util.Debug.Print("gitRepoPath:", gitRepoPath)
 
-	var err error
-	var repo *git.Repository
-	repo, err = git.OpenRepository(gitRepoPath)
+	repo, err := git.OpenRepository(gitRepoPath)
 	if err != nil {
 		return "", err
 	}
+	defer repo.Free()
 
-	var workDir string
-	workDir = repo.Workdir()
-	gtmdebug.Debugf("[scm/git.go::Workdir] workDir=%s", workDir)
-	if !strings.HasSuffix(workDir, "/") {
-		fmt.Errorf("ASSERT failed: Expecting suffix of work tree to be '/'. workDir=%s", workDir)
-	}
-	workDir = filepath.Dir(workDir)
+	workDir := filepath.Clean(repo.Workdir())
+	util.Debug.Print("workDir:", workDir)
 
 	return workDir, nil
 }
 
-// GitRepoPath discovers the base directory for a git repo
+// GitRepoPath discovers .git directory for a repo
 func GitRepoPath(path ...string) (string, error) {
-	defer util.TimeTrack(time.Now(), "scm.GitRootPath")
+	defer util.Profile()()
 	var (
-		wd  string
-		gitRepoPath   string
-		err error
+		wd          string
+		gitRepoPath string
+		err         error
 	)
 	if len(path) > 0 {
 		wd = path[0]
@@ -61,12 +56,11 @@ func GitRepoPath(path ...string) (string, error) {
 	//TODO: benchmark the call to git.Discover
 	//TODO: optionally print result with -debug flag
 	gitRepoPath, err = git.Discover(wd, false, []string{})
-	gtmdebug.Debugf("[scm/git.go::GitRepoPath] gitRepoPath=%s", gitRepoPath)
 	if err != nil {
 		return "", err
 	}
 
-	return gitRepoPath, nil
+	return filepath.Clean(gitRepoPath), nil
 }
 
 // CommitLimiter struct filter commits by criteria
@@ -288,7 +282,7 @@ func (c CommitStats) ChangeRatePerHour(seconds int) float64 {
 
 // DiffParentCommit compares commit to it's parent and returns their stats
 func DiffParentCommit(childCommit *git.Commit) (CommitStats, error) {
-	defer util.TimeTrack(time.Now(), "DiffParentCommit")
+	defer util.Profile()()
 
 	childTree, err := childCommit.Tree()
 	if err != nil {
@@ -343,7 +337,11 @@ func DiffParentCommit(childCommit *git.Commit) (CommitStats, error) {
 	if err != nil {
 		return CommitStats{}, err
 	}
-	defer diff.Free()
+	defer func() {
+		if err := diff.Free(); err != nil {
+			fmt.Printf("Unable to free diff, %s\n", err)
+		}
+	}()
 
 	files := []string{}
 	err = diff.ForEach(
@@ -367,7 +365,11 @@ func DiffParentCommit(childCommit *git.Commit) (CommitStats, error) {
 	if err != nil {
 		return CommitStats{}, err
 	}
-	defer stats.Free()
+	defer func() {
+		if err := stats.Free(); err != nil {
+			fmt.Printf("Unable to free stats, %s\n", err)
+		}
+	}()
 
 	return CommitStats{
 		Insertions:   stats.Insertions(),
@@ -423,7 +425,7 @@ func HeadCommit(wd ...string) (Commit, error) {
 
 // CreateNote creates a git note associated with the head commit
 func CreateNote(noteTxt string, nameSpace string, wd ...string) error {
-	util.TimeTrack(time.Now(), "scm.CreateNote")
+	defer util.Profile()()
 
 	var (
 		repo *git.Repository
@@ -452,11 +454,8 @@ func CreateNote(noteTxt string, nameSpace string, wd ...string) error {
 	}
 
 	_, err = repo.Notes.Create("refs/notes/"+nameSpace, sig, sig, headCommit.Id(), noteTxt, false)
-	if err != nil {
-		return err
-	}
 
-	return nil
+	return err
 }
 
 // CommitNote contains a git note's details
@@ -496,7 +495,9 @@ func ReadNote(commitID string, nameSpace string, calcStats bool, wd ...string) (
 			commit.Free()
 		}
 		if n != nil {
-			n.Free()
+			if err := n.Free(); err != nil {
+				fmt.Printf("Unable to free note, %s\n", err)
+			}
 		}
 		repo.Free()
 	}()
@@ -553,9 +554,15 @@ func ConfigSet(settings map[string]string, wd ...string) error {
 	} else {
 		repo, err = openRepository()
 	}
+	if err != nil {
+		return err
+	}
 
 	cfg, err = repo.Config()
 	defer cfg.Free()
+	if err != nil {
+		return err
+	}
 
 	for k, v := range settings {
 		err = cfg.SetString(k, v)
@@ -579,9 +586,15 @@ func ConfigRemove(settings map[string]string, wd ...string) error {
 	} else {
 		repo, err = openRepository()
 	}
+	if err != nil {
+		return err
+	}
 
 	cfg, err = repo.Config()
 	defer cfg.Free()
+	if err != nil {
+		return err
+	}
 
 	for k := range settings {
 		err = cfg.Delete(k)
@@ -605,8 +618,17 @@ func (g GitHook) getCommandPath() string {
 	// save current dir &  change to root
 	// to guarantee we get the full path
 	wd, err := os.Getwd()
-	defer os.Chdir(wd)
-	os.Chdir(string(filepath.Separator))
+	if err != nil {
+		fmt.Printf("Unable to get working directory, %s\n", err)
+	}
+	defer func() {
+		if err := os.Chdir(wd); err != nil {
+			fmt.Printf("Unable to change back to working dir, %s\n", err)
+		}
+	}()
+	if err := os.Chdir(string(filepath.Separator)); err != nil {
+		fmt.Printf("Unable to change to root directory, %s\n", err)
+	}
 
 	p, err := exec.LookPath(g.getExeForOS())
 	if err != nil {
@@ -668,7 +690,7 @@ func SetHooks(hooks map[string]GitHook, wd ...string) error {
 		}
 
 		if hook.RE.MatchString(output) {
-			output = hook.RE.ReplaceAllString(output, fmt.Sprintf("%s", hook.getCommandPath()))
+			output = hook.RE.ReplaceAllString(output, hook.getCommandPath())
 		} else {
 			output = fmt.Sprintf("%s\n%s", output, hook.getCommandPath())
 		}
@@ -686,24 +708,10 @@ func SetHooks(hooks map[string]GitHook, wd ...string) error {
 }
 
 // RemoveHooks remove matching git hook commands
-func RemoveHooks(hooks map[string]GitHook, wd ...string) error {
+func RemoveHooks(hooks map[string]GitHook, p string) error {
+
 	for ghfile, hook := range hooks {
-		var (
-			p   string
-			err error
-		)
-
-		if len(wd) > 0 {
-			p = wd[0]
-		} else {
-			return fmt.Errorf("RemoveHooks using getwd not supported")
-			p, err = os.Getwd()
-			if err != nil {
-				return err
-			}
-		}
 		fp := filepath.Join(p, "hooks", ghfile)
-
 		if _, err := os.Stat(fp); os.IsNotExist(err) {
 			continue
 		}
@@ -724,7 +732,6 @@ func RemoveHooks(hooks map[string]GitHook, wd ...string) error {
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -866,7 +873,7 @@ type Status struct {
 
 // NewStatus create a Status struct for a git repo
 func NewStatus(wd ...string) (Status, error) {
-	util.TimeTrack(time.Now(), "scm.NewStatus")
+	defer util.Profile()()
 
 	var (
 		repo *git.Repository

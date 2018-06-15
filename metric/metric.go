@@ -13,7 +13,6 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/git-time-metric/gtm/epoch"
 	"github.com/git-time-metric/gtm/note"
@@ -28,8 +27,6 @@ func getFileID(filePath string) string {
 
 // allocateTime calculates access time for each file within an epoch window
 func allocateTime(ep int64, metricMap map[string]FileMetric, eventMap map[string]int) error {
-	util.TimeTrack(time.Now(), "metric.allocateTime")
-
 	total := 0
 	for file := range eventMap {
 		total += eventMap[file]
@@ -173,8 +170,6 @@ func unMarshalFileMetric(b []byte, filePath string) (FileMetric, error) {
 
 // loadMetrics scans the gtmPath for metric files and loads them
 func loadMetrics(gtmPath string) (map[string]FileMetric, error) {
-	util.TimeTrack(time.Now(), "metric.loadMetrics")
-
 	files, err := ioutil.ReadDir(gtmPath)
 	if err != nil {
 		return nil, err
@@ -191,7 +186,8 @@ func loadMetrics(gtmPath string) (map[string]FileMetric, error) {
 
 		metricFile, err := readMetricFile(metricFilePath)
 		if err != nil {
-			os.Remove(metricFilePath)
+			// assume it's bad, remove it
+			_ = os.Remove(metricFilePath)
 			continue
 		}
 
@@ -207,8 +203,6 @@ func saveAndPurgeMetrics(
 	metricMap map[string]FileMetric,
 	commitMap map[string]FileMetric,
 	readonlyMap map[string]FileMetric) error {
-
-	util.TimeTrack(time.Now(), "metric.saveAndPurgeMetrics")
 
 	for fileID, fm := range metricMap {
 		_, inCommitMap := commitMap[fileID]
@@ -233,8 +227,6 @@ func saveAndPurgeMetrics(
 
 // readMetric reads and returns the unmarshalled metric file
 func readMetricFile(filePath string) (FileMetric, error) {
-	util.TimeTrack(time.Now(), "metric.readMetricFile")
-
 	b, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		return FileMetric{}, err
@@ -245,13 +237,9 @@ func readMetricFile(filePath string) (FileMetric, error) {
 
 // writeMetricFile persists metric file to disk
 func writeMetricFile(gtmPath string, fm FileMetric) error {
-	if err := ioutil.WriteFile(
+	return ioutil.WriteFile(
 		filepath.Join(gtmPath, fmt.Sprintf("%s.metric", getFileID(fm.SourceFile))),
-		marshalFileMetric(fm), 0644); err != nil {
-		return err
-	}
-
-	return nil
+		marshalFileMetric(fm), 0644)
 }
 
 // removeMetricFile deletes a metric file with fileID
@@ -271,8 +259,6 @@ func removeMetricFile(gtmPath, fileID string) error {
 // Files that are in the head commit are added to write commit map.
 // Files that are are not in the commit map and are readonly are added to the read-only commit map.
 func buildCommitMaps(metricMap map[string]FileMetric) (map[string]FileMetric, map[string]FileMetric, error) {
-	util.TimeTrack(time.Now(), "metric.buildCommitMaps")
-
 	commitMap := map[string]FileMetric{}
 	readonlyMap := map[string]FileMetric{}
 
@@ -312,7 +298,7 @@ func buildCommitNote(
 	commitMap map[string]FileMetric,
 	readonlyMap map[string]FileMetric) (note.CommitNote, error) {
 
-	util.TimeTrack(time.Now(), "metric.buildCommitNote")
+	defer util.Profile()()
 
 	flsModified := []note.FileDetail{}
 
@@ -347,7 +333,7 @@ func buildCommitNote(
 // buildInterimCommitMaps creates the write and read-only commit maps
 // Write and read-only files maps are built based on an algorithm and not a git commit
 func buildInterimCommitMaps(metricMap map[string]FileMetric, projPath ...string) (map[string]FileMetric, map[string]FileMetric, error) {
-	util.TimeTrack(time.Now(), "metric.buildInterimCommitMaps")
+	defer util.Profile()()
 
 	commitMap := map[string]FileMetric{}
 	readonlyMap := map[string]FileMetric{}

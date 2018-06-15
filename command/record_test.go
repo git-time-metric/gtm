@@ -1,3 +1,7 @@
+// Copyright 2016 Michael Schenk. All rights reserved.
+// Use of this source code is governed by a MIT-style
+// license that can be found in the LICENSE file.
+
 package command
 
 import (
@@ -16,7 +20,7 @@ func TestRecordInvalidFile(t *testing.T) {
 	repo := util.NewTestRepo(t, false)
 	defer repo.Remove()
 	repo.Seed()
-	os.Chdir(repo.PathIn(""))
+	os.Chdir(repo.Workdir())
 
 	(InitCmd{Ui: new(cli.MockUi)}).Run([]string{})
 
@@ -35,7 +39,7 @@ func TestRecordNoFile(t *testing.T) {
 	repo := util.NewTestRepo(t, false)
 	defer repo.Remove()
 	repo.Seed()
-	os.Chdir(repo.PathIn(""))
+	os.Chdir(repo.Workdir())
 
 	(InitCmd{Ui: new(cli.MockUi)}).Run([]string{})
 
@@ -54,22 +58,22 @@ func TestRecordFile(t *testing.T) {
 	repo := util.NewTestRepo(t, false)
 	defer repo.Remove()
 	repo.Seed()
-	repoPath := repo.PathIn("")
-	os.Chdir(repoPath)
+	workdir := repo.Workdir()
+	os.Chdir(workdir)
 
 	(InitCmd{Ui: new(cli.MockUi)}).Run([]string{})
 
 	ui := new(cli.MockUi)
 	c := RecordCmd{Ui: ui}
 
-	args := []string{filepath.Join(repoPath, "README")}
+	args := []string{filepath.Join(workdir, "README")}
 	rc := c.Run(args)
 
 	if rc != 0 {
 		t.Errorf("gtm record(%+v), want 0 got %d, %s", args, rc, ui.ErrorWriter)
 	}
 
-	files, err := ioutil.ReadDir(filepath.Join(repoPath, ".gtm"))
+	files, err := ioutil.ReadDir(filepath.Join(workdir, ".gtm"))
 	if err != nil {
 		t.Fatalf("gtm record(%+v), want error nil got  %s", args, err)
 	}
@@ -88,15 +92,15 @@ func TestRecordFileWithStatus(t *testing.T) {
 	repo := util.NewTestRepo(t, false)
 	defer repo.Remove()
 	repo.Seed()
-	repoPath := repo.PathIn("")
-	os.Chdir(repoPath)
+	workdir := repo.Workdir()
+	os.Chdir(workdir)
 
 	(InitCmd{Ui: new(cli.MockUi)}).Run([]string{})
 
 	ui := new(cli.MockUi)
 	c := RecordCmd{Ui: ui, Out: new(bytes.Buffer)}
 
-	args := []string{"-status", filepath.Join(repoPath, "README")}
+	args := []string{"-status", filepath.Join(workdir, "README")}
 	rc := c.Run(args)
 
 	if rc != 0 {
@@ -107,7 +111,7 @@ func TestRecordFileWithStatus(t *testing.T) {
 		t.Errorf("gtm record(%+v), want '1m0s' got %s", args, c.Out.String())
 	}
 
-	files, err := ioutil.ReadDir(filepath.Join(repoPath, ".gtm"))
+	files, err := ioutil.ReadDir(filepath.Join(workdir, ".gtm"))
 	if err != nil {
 		t.Fatalf("gtm record(%+v), want error nil got  %s", args, err)
 	}
@@ -126,15 +130,15 @@ func TestRecordFileWithStatusLongDuration(t *testing.T) {
 	repo := util.NewTestRepo(t, false)
 	defer repo.Remove()
 	repo.Seed()
-	repoPath := repo.PathIn("")
-	os.Chdir(repoPath)
+	workdir := repo.Workdir()
+	os.Chdir(workdir)
 
 	(InitCmd{Ui: new(cli.MockUi)}).Run([]string{})
 
 	ui := new(cli.MockUi)
 	c := RecordCmd{Ui: ui, Out: new(bytes.Buffer)}
 
-	args := []string{"-status", "-long-duration", filepath.Join(repoPath, "README")}
+	args := []string{"-status", "-long-duration", filepath.Join(workdir, "README")}
 	rc := c.Run(args)
 
 	if rc != 0 {
@@ -145,7 +149,7 @@ func TestRecordFileWithStatusLongDuration(t *testing.T) {
 		t.Errorf("gtm record(%+v), want '1 minutes' got %s", args, c.Out.String())
 	}
 
-	files, err := ioutil.ReadDir(filepath.Join(repoPath, ".gtm"))
+	files, err := ioutil.ReadDir(filepath.Join(workdir, ".gtm"))
 	if err != nil {
 		t.Fatalf("gtm record(%+v), want error nil got  %s", args, err)
 	}
@@ -164,8 +168,8 @@ func TestRecordTerminal(t *testing.T) {
 	repo := util.NewTestRepo(t, false)
 	defer repo.Remove()
 	repo.Seed()
-	repoPath := repo.PathIn("")
-	os.Chdir(repoPath)
+	workdir := repo.Workdir()
+	os.Chdir(workdir)
 
 	(InitCmd{Ui: new(cli.MockUi)}).Run([]string{})
 
@@ -179,7 +183,7 @@ func TestRecordTerminal(t *testing.T) {
 		t.Errorf("gtm record(%+v), want 0 got %d, %s", args, rc, ui.ErrorWriter)
 	}
 
-	files, err := ioutil.ReadDir(filepath.Join(repoPath, ".gtm"))
+	files, err := ioutil.ReadDir(filepath.Join(workdir, ".gtm"))
 	if err != nil {
 		t.Fatalf("gtm record(%+v), want error nil got  %s", args, err)
 	}
@@ -198,8 +202,8 @@ func TestRecordTerminalWithStatus(t *testing.T) {
 	repo := util.NewTestRepo(t, false)
 	defer repo.Remove()
 	repo.Seed()
-	repoPath := repo.PathIn("")
-	os.Chdir(repoPath)
+	workdir := repo.Workdir()
+	os.Chdir(workdir)
 
 	(InitCmd{Ui: new(cli.MockUi)}).Run([]string{})
 
@@ -217,7 +221,7 @@ func TestRecordTerminalWithStatus(t *testing.T) {
 		t.Errorf("gtm record(%+v), want '1m0s' got %s", args, c.Out.String())
 	}
 
-	files, err := ioutil.ReadDir(filepath.Join(repoPath, ".gtm"))
+	files, err := ioutil.ReadDir(filepath.Join(workdir, ".gtm"))
 	if err != nil {
 		t.Fatalf("gtm record(%+v), want error nil got  %s", args, err)
 	}

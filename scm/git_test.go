@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"testing"
@@ -15,35 +16,64 @@ import (
 	"github.com/git-time-metric/gtm/util"
 )
 
-func TestRootPath(t *testing.T) {
+func TestWorkdir(t *testing.T) {
 	repo := util.NewTestRepo(t, false)
 	defer repo.Remove()
 
-	repoPath := repo.PathIn("")
-	wantPath := repoPath
-	gitRepoPath, _ := GitRepoPath(repoPath)
-	gotPath, err := Workdir(gitRepoPath)
+	repo.AddSubmodule("http://example.org/submodule", "submodule")
+
+	gotPath, err := Workdir(repo.Path())
 	if err != nil {
-		t.Errorf("RootPath error, %s", err)
+		t.Errorf("Workdir error, %s", err)
 	}
-	if wantPath != gotPath {
-		t.Errorf("RootPath want %s, got %s", wantPath, gotPath)
+	if repo.Workdir() != gotPath {
+		t.Errorf("Workdir want %s, got %s", repo.Workdir(), gotPath)
+	}
+
+	sdir := filepath.Join(repo.Workdir(), "submodule")
+	gotPath, err = Workdir(sdir)
+	if err != nil {
+		t.Errorf("Workdir want error nil got %s", err)
+	}
+	if sdir != gotPath {
+		t.Errorf("Workdir want %s for submodule, got %s", sdir, gotPath)
+	}
+}
+
+func TestGitRepoPath(t *testing.T) {
+	repo := util.NewTestRepo(t, false)
+	defer repo.Remove()
+
+	repo.AddSubmodule("http://example.org/submodule", "submodule")
+
+	gotPath, err := GitRepoPath(repo.Path())
+	if err != nil {
+		t.Errorf("GitRepoPath error, %s", err)
+	}
+	if repo.Path() != gotPath {
+		t.Errorf("GitRepoPath want %s, got %s", repo.Path(), gotPath)
 	}
 
 	saveDir, err := os.Getwd()
 	util.CheckFatal(t, err)
 	defer os.Chdir(saveDir)
 
-	err = os.Chdir(repoPath)
-	util.CheckFatal(t, err)
-
-	gitRepoPath, err = GitRepoPath()
+	os.Chdir(repo.Path())
+	gotPath, err = GitRepoPath()
 	if err != nil {
-		t.Errorf("RootPath error, %s", err)
+		t.Errorf("GitRepoPath error, %s", err)
 	}
-	gotPath, err = Workdir(gitRepoPath)
-	if wantPath != gotPath {
-		t.Errorf("RootPath want %s, got %s", wantPath, gotPath)
+	if repo.Path() != gotPath {
+		t.Errorf("GitRepoPath want %s, got %s", repo.Path(), gotPath)
+	}
+
+	subGitdir := filepath.Join(repo.Workdir(), ".git", "modules", "submodule")
+	gotPath, err = GitRepoPath(filepath.Join(repo.Workdir(), "submodule"))
+	if err != nil {
+		t.Errorf("GitRepoPath want error nil got %s", err)
+	}
+	if subGitdir != gotPath {
+		t.Errorf("GitRepoPath want %s for submodule, got %s", subGitdir, gotPath)
 	}
 }
 
@@ -52,9 +82,9 @@ func TestCommitIDs(t *testing.T) {
 	defer repo.Remove()
 	repo.Seed()
 
-	repoPath := repo.PathIn("")
+	workdir := repo.Workdir()
 
-	commits, err := CommitIDs(CommitLimiter{Max: 2}, repoPath)
+	commits, err := CommitIDs(CommitLimiter{Max: 2}, workdir)
 	if err != nil {
 		t.Errorf("CommitIDs error, %s", err)
 	}
@@ -66,7 +96,7 @@ func TestCommitIDs(t *testing.T) {
 	util.CheckFatal(t, err)
 	defer os.Chdir(saveDir)
 
-	err = os.Chdir(repoPath)
+	err = os.Chdir(workdir)
 	util.CheckFatal(t, err)
 
 	commits, err = CommitIDs(CommitLimiter{Max: 2})
@@ -83,9 +113,9 @@ func TestHeadCommit(t *testing.T) {
 	defer repo.Remove()
 	repo.Seed()
 
-	repoPath := repo.PathIn("")
+	workdir := repo.Workdir()
 
-	commit, err := HeadCommit(repoPath)
+	commit, err := HeadCommit(workdir)
 	if err != nil {
 		t.Errorf("HeadCommit error, %s", err)
 	}
@@ -98,7 +128,7 @@ func TestHeadCommit(t *testing.T) {
 	util.CheckFatal(t, err)
 	defer os.Chdir(saveDir)
 
-	err = os.Chdir(repoPath)
+	err = os.Chdir(workdir)
 	util.CheckFatal(t, err)
 
 	commit, err = HeadCommit()
@@ -115,20 +145,20 @@ func TestNote(t *testing.T) {
 	defer repo.Remove()
 	repo.Seed()
 
-	repoPath := repo.PathIn("")
+	workdir := repo.Workdir()
 
 	noteTxt := "This is a note"
-	err := CreateNote(noteTxt, "gtm-data", repoPath)
+	err := CreateNote(noteTxt, "gtm-data", workdir)
 	if err != nil {
 		t.Errorf("CreateNote error, %s", err)
 	}
 
-	commit, err := HeadCommit(repoPath)
+	commit, err := HeadCommit(workdir)
 	if err != nil {
 		t.Errorf("HeadCommit error, %s", err)
 	}
 
-	note, err := ReadNote(commit.ID, "gtm-data", true, repoPath)
+	note, err := ReadNote(commit.ID, "gtm-data", true, workdir)
 	if err != nil {
 		t.Errorf("ReadNote error, %s", err)
 	}
@@ -141,7 +171,7 @@ func TestNote(t *testing.T) {
 	util.CheckFatal(t, err)
 	defer os.Chdir(saveDir)
 
-	err = os.Chdir(repoPath)
+	err = os.Chdir(workdir)
 	util.CheckFatal(t, err)
 
 	err = CreateNote(noteTxt, "gtm-data")
@@ -174,9 +204,9 @@ func TestStatus(t *testing.T) {
 	repo.SaveFile("README", "", "Updated readme file")
 	repo.Stage("README")
 
-	repoPath := repo.PathIn("")
+	workdir := repo.Workdir()
 
-	status, err := NewStatus(repoPath)
+	status, err := NewStatus(workdir)
 	if err != nil {
 		t.Errorf("NewStatus error, %s", err)
 	}
@@ -201,10 +231,10 @@ func TestIgnoreSet_GitignoreDoesNotExists(t *testing.T) {
 	repo := util.NewTestRepo(t, false)
 	defer repo.Remove()
 
-	repoPath := repo.PathIn("")
-	gitignorePath := repo.PathIn(".gitignore")
+	workdir := repo.Workdir()
+	gitignorePath := filepath.Join(workdir, ".gitignore")
 
-	err := IgnoreSet("/.gtm/", repoPath)
+	err := IgnoreSet("/.gtm/", workdir)
 	if err != nil {
 		t.Errorf("IgnoreSet error: %s", err)
 	}
@@ -226,15 +256,15 @@ func TestIgnoreSet_GitignoreIsEmpty(t *testing.T) {
 	repo := util.NewTestRepo(t, false)
 	defer repo.Remove()
 
-	repoPath := repo.PathIn("")
-	gitignorePath := repo.PathIn(".gitignore")
+	workdir := repo.Workdir()
+	gitignorePath := filepath.Join(workdir, ".gitignore")
 
 	_, err := os.Create(gitignorePath)
 	if err != nil {
 		t.Errorf("can't create .gitignore: %s", err)
 	}
 
-	err = IgnoreSet("/.gtm/", repoPath)
+	err = IgnoreSet("/.gtm/", workdir)
 	if err != nil {
 		t.Errorf("IgnoreSet error: %s", err)
 	}
@@ -256,15 +286,15 @@ func TestIgnoreSet_GitignoreContainsSomeData(t *testing.T) {
 	repo := util.NewTestRepo(t, false)
 	defer repo.Remove()
 
-	repoPath := repo.PathIn("")
-	gitignorePath := repo.PathIn(".gitignore")
+	workdir := repo.Workdir()
+	gitignorePath := filepath.Join(workdir, ".gitignore")
 
 	err := ioutil.WriteFile(gitignorePath, []byte("blah\n"), 0644)
 	if err != nil {
 		t.Errorf("can't create .gitignore: %s", err)
 	}
 
-	err = IgnoreSet("/.gtm/", repoPath)
+	err = IgnoreSet("/.gtm/", workdir)
 	if err != nil {
 		t.Errorf("IgnoreSet error: %s", err)
 	}
@@ -286,15 +316,15 @@ func TestIgnoreSet_GitignoreAlreadyContainsGivenData(t *testing.T) {
 	repo := util.NewTestRepo(t, false)
 	defer repo.Remove()
 
-	repoPath := repo.PathIn("")
-	gitignorePath := repo.PathIn(".gitignore")
+	workdir := repo.Workdir()
+	gitignorePath := filepath.Join(workdir, ".gitignore")
 
 	err := ioutil.WriteFile(gitignorePath, []byte("/.gtm/\n"), 0644)
 	if err != nil {
 		t.Errorf("can't create .gitignore: %s", err)
 	}
 
-	err = IgnoreSet("/.gtm/", repoPath)
+	err = IgnoreSet("/.gtm/", workdir)
 	if err != nil {
 		t.Errorf("IgnoreSet error: %s", err)
 	}
@@ -316,8 +346,8 @@ func TestIgnoreSet_GitignoreError(t *testing.T) {
 	repo := util.NewTestRepo(t, false)
 	defer repo.Remove()
 
-	repoPath := repo.PathIn("")
-	gitignorePath := repo.PathIn(".gitignore")
+	workdir := repo.Workdir()
+	gitignorePath := filepath.Join(workdir, ".gitignore")
 
 	// create directory with name .gitignore for io read error
 	err := os.Mkdir(gitignorePath, 0644)
@@ -325,7 +355,7 @@ func TestIgnoreSet_GitignoreError(t *testing.T) {
 		t.Errorf("can't create directory %s: %s", gitignorePath, err)
 	}
 
-	err = IgnoreSet("/.gtm/", repoPath)
+	err = IgnoreSet("/.gtm/", workdir)
 	if err == nil {
 		t.Errorf("IgnoreSet must return error, .gitignore is error")
 	}
@@ -410,28 +440,38 @@ func TestSetGitHooks(t *testing.T) {
 
 }
 
-// WIP: pushing and fetching notes are the same in both repos.
-func TestPushFetch(t *testing.T) {
-	localRepo := util.NewTestRepo(t, false)
+func TestPushFetchRemote(t *testing.T) {
+	remoteRepo := util.NewTestRepo(t, true)
+	defer remoteRepo.Remove()
+
+	localRepo := remoteRepo.Clone()
 	defer localRepo.Remove()
-
-	originRepo := util.NewTestRepo(t, true)
-	defer originRepo.Remove()
-
 	localRepo.Seed()
 
-	remote, err := localRepo.Repo().Remotes.Create("origin", originRepo.GitRepoPath())
+	noteTxt := "This is a note"
+	err := CreateNote(noteTxt, "gtm-data", localRepo.Workdir())
 	if err != nil {
-		t.Fatalf("Error setting remote: %s", err)
+		t.Errorf("CreateNote error, %s", err)
 	}
 
-	err = remote.Push(nil, nil)
+	localRepo.Push("origin", "refs/heads/master", "refs/notes/gtm-data")
+
+	// clone remote again in another directory
+	localRepo2 := remoteRepo.Clone()
+	defer localRepo2.Remove()
+	localRepo2.Fetch("origin", "refs/notes/gtm-data:refs/notes/gtm-data")
+
+	commit, err := HeadCommit(localRepo2.Workdir())
 	if err != nil {
-		t.Fatalf("Error pushing: %s", err)
+		t.Errorf("HeadCommit error, %s", err)
 	}
 
-	//err = originRepo.Repo().CheckoutHead(nil)
-	//if err != nil {
-	//	t.Fatalf("Error checkout origin: %s", err)
-	//}
+	note, err := ReadNote(commit.ID, "gtm-data", true, localRepo2.Workdir())
+	if err != nil {
+		t.Errorf("ReadNote error, %s", err)
+	}
+
+	if note.Note != noteTxt {
+		t.Errorf("ReadNote want message \"%s\", got \"%s\"", noteTxt, note.Note)
+	}
 }

@@ -108,7 +108,9 @@ func (i *Index) load() error {
 		return err
 	}
 
-	json.Unmarshal(raw, &i.Projects)
+	if err := json.Unmarshal(raw, &i.Projects); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -130,12 +132,7 @@ func (i *Index) save() error {
 		}
 	}
 
-	err = ioutil.WriteFile(p, bytes, 0644)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return ioutil.WriteFile(p, bytes, 0644)
 }
 
 func (i *Index) hasTags(projectPath string, tagsToFind []string) (bool, error) {

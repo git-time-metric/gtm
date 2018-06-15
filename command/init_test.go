@@ -1,3 +1,7 @@
+// Copyright 2016 Michael Schenk. All rights reserved.
+// Use of this source code is governed by a MIT-style
+// license that can be found in the LICENSE file.
+
 package command
 
 import (
@@ -11,7 +15,7 @@ import (
 
 func TestInitNoGitRepo(t *testing.T) {
 	repo := util.NewTestRepo(t, false)
-	os.Chdir(repo.PathIn(""))
+	os.Chdir(repo.Workdir())
 	repo.Remove()
 
 	ui := new(cli.MockUi)
@@ -29,7 +33,7 @@ func TestInitDefaultOptions(t *testing.T) {
 	repo := util.NewTestRepo(t, false)
 	defer repo.Remove()
 	repo.Seed()
-	os.Chdir(repo.PathIn(""))
+	os.Chdir(repo.Workdir())
 
 	ui := new(cli.MockUi)
 	c := InitCmd{Ui: ui}
@@ -58,7 +62,7 @@ func TestInitTerminalFalse(t *testing.T) {
 	repo := util.NewTestRepo(t, false)
 	defer repo.Remove()
 	repo.Seed()
-	os.Chdir(repo.PathIn(""))
+	os.Chdir(repo.Workdir())
 
 	ui := new(cli.MockUi)
 	c := InitCmd{Ui: ui}
@@ -80,7 +84,7 @@ func TestInitTags(t *testing.T) {
 	repo := util.NewTestRepo(t, false)
 	defer repo.Remove()
 	repo.Seed()
-	os.Chdir(repo.PathIn(""))
+	os.Chdir(repo.Workdir())
 
 	ui := new(cli.MockUi)
 	c := InitCmd{Ui: ui}
@@ -102,7 +106,7 @@ func TestClearTags(t *testing.T) {
 	repo := util.NewTestRepo(t, false)
 	defer repo.Remove()
 	repo.Seed()
-	os.Chdir(repo.PathIn(""))
+	os.Chdir(repo.Workdir())
 
 	ui := new(cli.MockUi)
 	c := InitCmd{Ui: ui}

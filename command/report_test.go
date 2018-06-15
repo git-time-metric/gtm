@@ -1,3 +1,7 @@
+// Copyright 2016 Michael Schenk. All rights reserved.
+// Use of this source code is governed by a MIT-style
+// license that can be found in the LICENSE file.
+
 package command
 
 import (
@@ -14,7 +18,7 @@ import (
 func TestReportDefaultOptions(t *testing.T) {
 	repo := util.NewTestRepo(t, false)
 	defer repo.Remove()
-	os.Chdir(repo.PathIn(""))
+	os.Chdir(repo.Workdir())
 
 	(InitCmd{Ui: new(cli.MockUi)}).Run([]string{})
 
@@ -49,7 +53,7 @@ func TestReportDefaultOptions(t *testing.T) {
 func TestReportSummary(t *testing.T) {
 	repo := util.NewTestRepo(t, false)
 	defer repo.Remove()
-	os.Chdir(repo.PathIn(""))
+	os.Chdir(repo.Workdir())
 
 	(InitCmd{Ui: new(cli.MockUi)}).Run([]string{})
 
@@ -84,7 +88,7 @@ func TestReportSummary(t *testing.T) {
 func TestProjectSummary(t *testing.T) {
 	repo := util.NewTestRepo(t, false)
 	defer repo.Remove()
-	os.Chdir(repo.PathIn(""))
+	os.Chdir(repo.Workdir())
 
 	(InitCmd{Ui: new(cli.MockUi)}).Run([]string{})
 
@@ -119,7 +123,7 @@ func TestProjectSummary(t *testing.T) {
 func TestReportAll(t *testing.T) {
 	repo := util.NewTestRepo(t, false)
 	defer repo.Remove()
-	os.Chdir(repo.PathIn(""))
+	os.Chdir(repo.Workdir())
 
 	(InitCmd{Ui: new(cli.MockUi)}).Run([]string{})
 
@@ -150,7 +154,7 @@ func TestReportAll(t *testing.T) {
 func TestReportTimelineHours(t *testing.T) {
 	repo := util.NewTestRepo(t, false)
 	defer repo.Remove()
-	os.Chdir(repo.PathIn(""))
+	os.Chdir(repo.Workdir())
 
 	(InitCmd{Ui: new(cli.MockUi)}).Run([]string{})
 
@@ -185,7 +189,7 @@ func TestReportTimelineHours(t *testing.T) {
 func TestReportTimelineCommits(t *testing.T) {
 	repo := util.NewTestRepo(t, false)
 	defer repo.Remove()
-	os.Chdir(repo.PathIn(""))
+	os.Chdir(repo.Workdir())
 
 	(InitCmd{Ui: new(cli.MockUi)}).Run([]string{})
 
@@ -220,7 +224,7 @@ func TestReportTimelineCommits(t *testing.T) {
 func TestReportFiles(t *testing.T) {
 	repo := util.NewTestRepo(t, false)
 	defer repo.Remove()
-	os.Chdir(repo.PathIn(""))
+	os.Chdir(repo.Workdir())
 
 	(InitCmd{Ui: new(cli.MockUi)}).Run([]string{})
 

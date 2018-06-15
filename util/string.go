@@ -54,17 +54,15 @@ func DurationStrLong(secs int) string {
 
 // RightPad2Len https://github.com/DaddyOh/golang-samples/blob/master/pad.go
 func RightPad2Len(s string, padStr string, overallLen int) string {
-	var padCountInt int
-	padCountInt = 1 + ((overallLen - len(padStr)) / len(padStr))
-	var retStr = s + strings.Repeat(padStr, padCountInt)
+	var padCountInt int = 1 + ((overallLen - len(padStr)) / len(padStr))
+	var retStr string = s + strings.Repeat(padStr, padCountInt)
 	return retStr[:overallLen]
 }
 
 // LeftPad2Len https://github.com/DaddyOh/golang-samples/blob/master/pad.go
 func LeftPad2Len(s string, padStr string, overallLen int) string {
-	var padCountInt int
-	padCountInt = 1 + ((overallLen - len(padStr)) / len(padStr))
-	var retStr = strings.Repeat(padStr, padCountInt) + s
+	var padCountInt int = 1 + ((overallLen - len(padStr)) / len(padStr))
+	var retStr string = strings.Repeat(padStr, padCountInt) + s
 	return retStr[(len(retStr) - overallLen):]
 }
 

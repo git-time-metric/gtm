@@ -10,7 +10,6 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/git-time-metric/gtm/epoch"
 	"github.com/git-time-metric/gtm/util"
@@ -33,9 +32,9 @@ func Record(file string) error {
 // Process scans the gtmPath for event files and processes them.
 // If interim is true, event files are not purged.
 func Process(gtmPath string, interim bool) (map[int64]map[string]int, error) {
-	util.TimeTrack(time.Now(), "event.Process")
+	defer util.Profile()()
 
-	events := make(map[int64]map[string]int, 0)
+	events := make(map[int64]map[string]int)
 
 	files, err := ioutil.ReadDir(gtmPath)
 	if err != nil {
@@ -67,12 +66,13 @@ func Process(gtmPath string, interim bool) (map[int64]map[string]int, error) {
 
 		sourcePath, err := readEventFile(eventFilePath)
 		if err != nil {
-			os.Remove(eventFilePath)
+			// assume it's bad, remove it
+			_ = os.Remove(eventFilePath)
 			continue
 		}
 
 		if _, ok := events[fileEpoch]; !ok {
-			events[fileEpoch] = make(map[string]int, 0)
+			events[fileEpoch] = make(map[string]int)
 		}
 		events[fileEpoch][sourcePath]++
 
@@ -80,7 +80,7 @@ func Process(gtmPath string, interim bool) (map[int64]map[string]int, error) {
 		if prevEpoch != 0 && prevFilePath != "" {
 			for e := prevEpoch + epoch.WindowSize; e < fileEpoch && e <= prevEpoch+epoch.IdleTimeout; e += epoch.WindowSize {
 				if _, ok := events[e]; !ok {
-					events[e] = make(map[string]int, 0)
+					events[e] = make(map[string]int)
 				}
 				events[e][prevFilePath]++
 			}

@@ -7,7 +7,6 @@ package util
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -18,27 +17,17 @@ import (
 	"github.com/libgit2/git2go"
 )
 
-var TimeTrackEnable = false
-
-//TimeTrack is used for profiling execution time
-func TimeTrack(start time.Time, name string) {
-	if TimeTrackEnable {
-		elapsed := time.Since(start)
-		log.Printf("%s took %s", name, elapsed)
-	}
-}
-
 // TestRepo represents a test git repo used in testing
 type TestRepo struct {
 	repo *git.Repository
 	test *testing.T
 }
 
-func (t TestRepo) GitRepoPath() (string) {
+func (t TestRepo) GitRepoPath() string {
 	return t.repo.Path()
 }
 
-func (t TestRepo) Repo() (*git.Repository) {
+func (t TestRepo) Repo() *git.Repository {
 	return t.repo
 }
 
@@ -47,7 +36,6 @@ func NewTestRepo(t *testing.T, bare bool) TestRepo {
 	path, err := ioutil.TempDir("", "gtm")
 	CheckFatal(t, err)
 	repo, err := git.InitRepository(path, bare)
-	//repo.Path()
 	CheckFatal(t, err)
 	return TestRepo{repo: repo, test: t}
 }
@@ -57,7 +45,6 @@ func (t TestRepo) Seed() {
 	t.SaveFile("README", "", "foo\n")
 	treeOid := t.Stage("README")
 	t.Commit(treeOid)
-	return
 }
 
 // Remove deletes temp directories, files and git repo
@@ -79,16 +66,17 @@ func (t TestRepo) Remove() {
 	err := os.RemoveAll(repoPath)
 	if err != nil {
 		// this could be just the issue with Windows os.RemoveAll() and privileges, ignore
-		fmt.Fprintln(os.Stderr, err)
+		_, _ = fmt.Fprintln(os.Stderr, err)
 	}
 	t.repo.Free()
-
-	return
 }
 
-// PathIn returns full path of file within repo
-func (t TestRepo) PathIn(name string) string {
-	return filepath.ToSlash(filepath.Join(filepath.Dir(filepath.Dir(t.repo.Path())), name))
+func (t TestRepo) Workdir() string {
+	return filepath.Clean(t.repo.Workdir())
+}
+
+func (t TestRepo) Path() string {
+	return filepath.Clean(t.repo.Path())
 }
 
 // Stage adds files to staging for git repo
@@ -145,10 +133,50 @@ func (t TestRepo) Commit(treeID *git.Oid) *git.Oid {
 
 // SaveFile creates a file within the git repo project
 func (t TestRepo) SaveFile(filename, subdir, content string) {
-	d := filepath.Join(t.PathIn(""), subdir)
+	d := filepath.Join(t.Workdir(), subdir)
 	err := os.MkdirAll(d, 0700)
 	CheckFatal(t.test, err)
 	err = ioutil.WriteFile(filepath.Join(d, filename), []byte(content), 0644)
+	CheckFatal(t.test, err)
+}
+
+// Clone creates a clone of this repo
+func (t TestRepo) Clone() TestRepo {
+	path, err := ioutil.TempDir("", "gtm")
+	CheckFatal(t.test, err)
+
+	r, err := git.Clone(t.repo.Path(), path, &git.CloneOptions{})
+	CheckFatal(t.test, err)
+
+	return TestRepo{repo: r, test: t.test}
+}
+
+func (t TestRepo) AddSubmodule(url, path string) {
+	_, err := t.repo.Submodules.Add(url, path, true)
+	CheckFatal(t.test, err)
+}
+
+func (t TestRepo) remote(name string) *git.Remote {
+	remote, err := t.repo.Remotes.Lookup(name)
+	CheckFatal(t.test, err)
+	return remote
+}
+
+// Push to remote refs to remote
+func (t TestRepo) Push(name string, refs ...string) {
+	if len(refs) == 0 {
+		refs = []string{"refs/heads/master"}
+	}
+	err := t.remote(name).Push(refs, nil)
+	CheckFatal(t.test, err)
+}
+
+// Fetch refs from remote
+func (t TestRepo) Fetch(name string, refs ...string) {
+	if len(refs) == 0 {
+		refs = []string{"refs/heads/master"}
+	}
+	err := t.remote(name).Fetch(refs, nil, "")
 	CheckFatal(t.test, err)
 }
 

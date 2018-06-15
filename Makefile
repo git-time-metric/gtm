@@ -1,28 +1,87 @@
-BINARY=gtm
-VERSION=gtm-dev-$(shell date +'%Y.%m.%d-%H:%M:%S')
-
-LDFLAGS=-ldflags "-X main.Version=${VERSION}"
+BINARY         = bin/gtm
+VERSION        = gtm-dev-$(shell date +'%Y.%m.%d-%H:%M:%S')
+COMMIT         = $(shell git show -s --format='%h' HEAD)
+LDFLAGS        = -ldflags "-X main.Version=$(VERSION)-$(COMMIT)"
+GIT2GO_VERSION = v27
+GIT2GO_PATH    = $(GOPATH)/src/github.com/libgit2/git2go
+PKGS           = $(shell go list ./... | grep -v vendor)
+BUILD_TAGS     = static
 
 build:
-	go build --tags static  ${LDFLAGS} -o ${BINARY}
+	go build --tags '$(BUILD_TAGS)' $(LDFLAGS) -o $(BINARY)
+
+debug: BUILD_TAGS += debug
+debug: build
+
+profile: BUILD_TAGS += profile
+profile: build
+
+debug-profile: BUILD_TAGS += debug profile
+debug-profile: build
 
 test:
-	go test --tags static  $$(go list ./... | grep -v vendor)
+	@go test $(TEST_OPTIONS) --tags '$(BUILD_TAGS)' $(PKGS) | grep --colour -E "FAIL|$$"
 
-vet:
-	go vet $$(go list ./... | grep -v vendor)
+test-verbose: TEST_OPTIONS += -v
+test-verbose: test
 
-fmt:
-	go fmt $$(go list ./... | grep -v vendor)
-
-install-git2go:
-	./script/git2go-init.sh
-	./script/build-libgit2-osx.sh
+lint:
+	-@$(call color_echo, 4, "\nGo Vet"); \
+		go vet --all --tags '$(BUILD_TAGS)' $(PKGS)
+	-@$(call color_echo, 4, "\nError Check"); \
+		errcheck -ignoretests -tags '$(BUILD_TAGS)' $(PKGS)
+	-@$(call color_echo, 4, "\nIneffectual Assign"); \
+		ineffassign ./
+	-@$(call color_echo, 4, "\nStatic Check"); \
+		staticcheck --tests=false --tags '$(BUILD_TAGS)' $(PKGS)
+	-@$(call color_echo, 4, "\nGo Simple"); \
+		gosimple --tests=false --tags '$(BUILD_TAGS)' $(PKGS)
+	-@$(call color_echo, 4, "\nUnused"); \
+		unused --tests=false --tags '$(BUILD_TAGS)' $(PKGS)
+	-@$(call color_echo, 4, "\nGo Format"); \
+		go fmt $(PKGS)
+	-@$(call color_echo, 4, "\nLicense Check"); \
+		ag --go -L license . |grep -v vendor/
 
 install:
-	go install --tags static ${LDFLAGS}
+	go install --tags '$(BUILD_TAGS)' $(LDFLAGS)
 
 clean:
 	go clean
+	rm bin/*
 
-.PHONY: test vet install clean fmt todo note
+git2go-install:
+	[[ -d $(GIT2GO_PATH) ]] || git clone https://github.com/libgit2/git2go.git $(GIT2GO_PATH) && \
+	cd ${GIT2GO_PATH} && \
+	git pull && \
+	git checkout -qf $(GIT2GO_VERSION) && \
+	git submodule update --init
+
+git2go: git2go-install
+	cd $(GIT2GO_PATH)/vendor/libgit2 && \
+	mkdir -p install/lib && \
+	mkdir -p build && \
+	cd build && \
+	cmake -DTHREADSAFE=ON \
+		  -DBUILD_CLAR=OFF \
+		  -DBUILD_SHARED_LIBS=OFF \
+		  -DCMAKE_C_FLAGS=-fPIC \
+		  -DUSE_SSH=OFF \
+		  -DCURL=OFF \
+		  -DUSE_HTTPS=OFF \
+		  -DUSE_BUNDLED_ZLIB=ON \
+		  -DCMAKE_BUILD_TYPE="RelWithDebInfo" \
+		  -DCMAKE_INSTALL_PREFIX=../install \
+		  .. && \
+	cmake --build .
+
+git2go-clean:
+	[[ -d $(GIT2GO_PATH) ]] && rm -rf $(GIT2GO_PATH)
+
+define color_echo
+      @tput setaf $1
+      @echo $2
+      @tput sgr0
+endef
+
+.PHONY: build test vet fmt install clean git2go-install git2go-build all-tags profile debug

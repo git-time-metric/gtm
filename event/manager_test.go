@@ -24,27 +24,27 @@ func TestRecord(t *testing.T) {
 	util.CheckFatal(t, err)
 	defer os.Chdir(curDir)
 
-	os.Chdir(repo.PathIn(""))
+	os.Chdir(repo.Workdir())
 
 	repo.SaveFile("event.go", "event", "")
-	sourceFile := filepath.Join(repo.PathIn(""), "event", "event.go")
+	sourceFile := filepath.Join(repo.Workdir(), "event", "event.go")
 	if err = Record(sourceFile); err != project.ErrNotInitialized {
 		t.Errorf("Record(%s), want error %s, got error %s", sourceFile, project.ErrNotInitialized, err)
 	}
 
 	project.Initialize(false, []string{}, false)
 
-	sourceFile = filepath.Join(repo.PathIn(""), "doesnotexist.go")
+	sourceFile = filepath.Join(repo.Workdir(), "doesnotexist.go")
 	if err = Record(sourceFile); err != project.ErrFileNotFound {
 		t.Errorf("Record(%s), want error %s, got %s", sourceFile, project.ErrFileNotFound, err)
 	}
 
-	sourceFile = filepath.Join(repo.PathIn(""), "event", "event.go")
+	sourceFile = filepath.Join(repo.Workdir(), "event", "event.go")
 	if err = Record(sourceFile); err != nil {
 		t.Errorf("Record(%s), want error nil, got %s", sourceFile, err)
 	}
 
-	gtmPath := filepath.Join(repo.PathIn(""), project.GTMDir)
+	gtmPath := filepath.Join(repo.Workdir(), project.GTMDir)
 
 	files, err := ioutil.ReadDir(gtmPath)
 	if err != nil {
@@ -72,7 +72,7 @@ func TestProcess(t *testing.T) {
 	util.CheckFatal(t, err)
 	defer os.Chdir(curDir)
 
-	os.Chdir(repo.PathIn(""))
+	os.Chdir(repo.Workdir())
 
 	repo.SaveFile("event.go", "event", "")
 	repo.SaveFile("event_test.go", "event", "")
@@ -87,29 +87,29 @@ func TestProcess(t *testing.T) {
 		int64(1458496920): {filepath.Join("event", "event.go"): 1},
 	}
 
-	rootPath := repo.PathIn("")
-	gtmPath := filepath.Join(rootPath, project.GTMDir)
+	workdir := repo.Workdir()
+	gtmPath := filepath.Join(workdir, project.GTMDir)
 
 	got, err := Process(gtmPath, true)
 	if err != nil {
-		t.Fatalf("Process(%s, %s, true), want error nil, got %s", rootPath, gtmPath, err)
+		t.Fatalf("Process(%s, %s, true), want error nil, got %s", workdir, gtmPath, err)
 	}
 	if !reflect.DeepEqual(expected, got) {
-		t.Errorf("Process(%s, %s, true)\nwant:\n%+v\ngot:\n%+v\n", rootPath, gtmPath, expected, got)
+		t.Errorf("Process(%s, %s, true)\nwant:\n%+v\ngot:\n%+v\n", workdir, gtmPath, expected, got)
 	}
 
 	got, err = Process(gtmPath, false)
 	if err != nil {
-		t.Fatalf("Process(%s, %s, true), want error nil, got %s", rootPath, gtmPath, err)
+		t.Fatalf("Process(%s, %s, true), want error nil, got %s", workdir, gtmPath, err)
 	}
 	if !reflect.DeepEqual(expected, got) {
-		t.Errorf("Process(%s, %s, true)\nwant:\n%+v\ngot:\n%+v", rootPath, gtmPath, expected, got)
+		t.Errorf("Process(%s, %s, true)\nwant:\n%+v\ngot:\n%+v", workdir, gtmPath, expected, got)
 	}
 	files, err := ioutil.ReadDir(gtmPath)
 	if err != nil {
-		t.Fatalf("Process(%s, %s, true), want error nil, got %s", rootPath, gtmPath, err)
+		t.Fatalf("Process(%s, %s, true), want error nil, got %s", workdir, gtmPath, err)
 	}
 	if len(files) != 0 {
-		t.Fatalf("Process(%s, %s, true), want file count 0, got %d", rootPath, gtmPath, len(files))
+		t.Fatalf("Process(%s, %s, true), want file count 0, got %d", workdir, gtmPath, len(files))
 	}
 }

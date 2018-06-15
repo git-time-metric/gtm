@@ -1,3 +1,7 @@
+// Copyright 2016 Michael Schenk. All rights reserved.
+// Use of this source code is governed by a MIT-style
+// license that can be found in the LICENSE file.
+
 package command
 
 import (
@@ -13,7 +17,7 @@ func TestUninitNotGTM(t *testing.T) {
 	repo := util.NewTestRepo(t, false)
 	defer repo.Remove()
 	repo.Seed()
-	os.Chdir(repo.PathIn(""))
+	os.Chdir(repo.Workdir())
 
 	ui := new(cli.MockUi)
 	c := UninitCmd{Ui: ui}
@@ -30,7 +34,7 @@ func TestUninitWithDefaults(t *testing.T) {
 	repo := util.NewTestRepo(t, false)
 	defer repo.Remove()
 	repo.Seed()
-	os.Chdir(repo.PathIn(""))
+	os.Chdir(repo.Workdir())
 
 	(InitCmd{Ui: new(cli.MockUi)}).Run([]string{})
 

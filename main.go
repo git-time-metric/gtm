@@ -5,10 +5,11 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/git-time-metric/gtm/command"
-	"github.com/git-time-metric/gtm/gtmdebug"
+	"github.com/git-time-metric/gtm/util"
 	"github.com/mitchellh/cli"
 )
 
@@ -16,7 +17,8 @@ import (
 var Version = "0.0.0"
 
 func main() {
-	gtmdebug.Debugf("main.go", "Starting main %s", Version)
+	profileFunc := util.Profile(fmt.Sprintf("%+v", os.Args))
+	util.Debug.Printf("%+v", os.Args)
 	ui := &cli.ColoredUi{ErrorColor: cli.UiColorRed, Ui: &cli.BasicUi{Writer: os.Stdout, Reader: os.Stdin}}
 	c := cli.NewCLI("gtm", Version)
 	c.Args = os.Args[1:]
@@ -64,10 +66,12 @@ func main() {
 		},
 	}
 
-	exitStatu, err := c.Run()
+	exitStatus, err := c.Run()
+	profileFunc()
 	if err != nil {
 		ui.Error(err.Error())
 	}
 
-	os.Exit(exitStatu)
+	util.Debug.Print("exitStatus:", exitStatus)
+	os.Exit(exitStatus)
 }

@@ -70,7 +70,7 @@ func UnMarshal(s string) (CommitNote, error) {
 		case strings.TrimSpace(lines[lineIdx]) == "":
 			version = ""
 		case reHeader.MatchString(lines[lineIdx]):
-			if matches := reHeaderVals.FindAllString(lines[lineIdx], 2); matches != nil && len(matches) == 2 {
+			if matches := reHeaderVals.FindAllString(lines[lineIdx], 2); len(matches) == 2 {
 				version = matches[0]
 			} else {
 				return CommitNote{}, fmt.Errorf("Unable to unmarshal time logged, header format invalid, %s", lines[lineIdx])

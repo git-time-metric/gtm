@@ -10,11 +10,9 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/git-time-metric/gtm/epoch"
 	"github.com/git-time-metric/gtm/project"
-	"github.com/git-time-metric/gtm/util"
 )
 
 func pathFromSource(f string) (string, string, error) {
@@ -36,20 +34,15 @@ func pathFromSource(f string) (string, string, error) {
 }
 
 func writeEventFile(sourcePath, gtmPath string) error {
-	if err := ioutil.WriteFile(
+	return ioutil.WriteFile(
 		filepath.Join(
 			gtmPath,
 			fmt.Sprintf("%d.event", epoch.Now())),
-		[]byte(fmt.Sprintf("%s", sourcePath)),
-		0644); err != nil {
-		return err
-	}
-
-	return nil
+		[]byte(sourcePath),
+		0644)
 }
 
 func readEventFile(filePath string) (string, error) {
-	util.TimeTrack(time.Now(), "event.readEventFile")
 	b, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		return "", err
@@ -58,8 +51,6 @@ func readEventFile(filePath string) (string, error) {
 }
 
 func removeFiles(files []string) error {
-	util.TimeTrack(time.Now(), "event.removeFiles")
-
 	for _, file := range files {
 		if err := os.Remove(file); err != nil {
 			return err

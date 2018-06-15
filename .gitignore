@@ -72,6 +72,6 @@ Session.vim
 # auto-generated tag files
 tags
 
-.vimrc
-
 /.idea/
+
+/bin/

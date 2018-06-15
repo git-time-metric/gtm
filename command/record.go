@@ -29,10 +29,14 @@ type RecordCmd struct {
 }
 
 func (c RecordCmd) output(s string) {
+	var err error
 	if c.Out != nil {
-		fmt.Fprint(c.Out, s)
+		_, err = fmt.Fprint(c.Out, s)
 	} else {
-		fmt.Fprint(os.Stdout, s)
+		_, err = fmt.Fprint(os.Stdout, s)
+	}
+	if err != nil {
+		fmt.Printf("Error printing output, %s\n", err)
 	}
 }
 
@@ -76,14 +80,18 @@ func (c RecordCmd) Run(args []string) int {
 		return 1
 	}
 
-	fileToRecord := ""
+	var fileToRecord string
 	if terminal {
 		projPath, err := scm.GitRepoPath()
 		if err != nil {
 			// if not found, ignore error
 			return 0
 		}
-		projPath, _ = scm.Workdir(projPath)
+		projPath, err = scm.Workdir(projPath)
+		if err != nil {
+			// if not found, ignore error
+			return 0
+		}
 		fileToRecord = filepath.Join(projPath, ".gtm", "terminal.app")
 	} else {
 		fileToRecord = cmdFlags.Args()[0]
@@ -104,9 +112,17 @@ func (c RecordCmd) Run(args []string) int {
 			c.Ui.Error(err.Error())
 			return 1
 		}
-		defer os.Chdir(wd)
+		defer func() {
+			if err := os.Chdir(wd); err != nil {
+				fmt.Printf("Unable to change back to working directory, %s\n", err)
+			}
+		}()
 
-		os.Chdir(filepath.Dir(fileToRecord))
+		err = os.Chdir(filepath.Dir(fileToRecord))
+		if err != nil {
+			c.Ui.Error(err.Error())
+			return 1
+		}
 
 		if commitNote, err = metric.Process(true); err != nil {
 			c.Ui.Error(err.Error())

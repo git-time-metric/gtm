@@ -8,7 +8,6 @@ import (
 	"flag"
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/git-time-metric/gtm/metric"
 	"github.com/git-time-metric/gtm/note"
@@ -68,8 +67,6 @@ func (c StatusCmd) Run(args []string) int {
 	if err := cmdFlags.Parse(args); err != nil {
 		return 1
 	}
-	util.TimeTrackEnable = profile
-	defer util.TimeTrack(time.Now(), "status.Run")
 
 	if totalOnly && (all || tags != "") {
 		c.Ui.Error("\n-tags and -all options not allowed with -total-only\n")
