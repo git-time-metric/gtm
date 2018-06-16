@@ -1,0 +1,4 @@
+[ver:1,total:420]
+appveyor.yml:330,1529186400:330,m
+.gtm/terminal.app:60,1529186400:60,r
+script/appveyor-build.sh:30,1529186400:30,r
