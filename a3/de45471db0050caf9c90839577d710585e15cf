@@ -1,0 +1,4 @@
+[ver:1,total:240]
+script/appveyor-build.sh:186,1529186400:186,m
+.gtm/terminal.app:42,1529186400:42,r
+Makefile:12,1529186400:12,r
