@@ -19,7 +19,7 @@ func TestInitNoGitRepo(t *testing.T) {
 	repo.Remove()
 
 	ui := new(cli.MockUi)
-	c := InitCmd{Ui: ui}
+	c := InitCmd{UI: ui}
 
 	args := []string{}
 	rc := c.Run(args)
@@ -36,7 +36,7 @@ func TestInitDefaultOptions(t *testing.T) {
 	os.Chdir(repo.Workdir())
 
 	ui := new(cli.MockUi)
-	c := InitCmd{Ui: ui}
+	c := InitCmd{UI: ui}
 
 	args := []string{}
 	rc := c.Run(args)
@@ -65,7 +65,7 @@ func TestInitTerminalFalse(t *testing.T) {
 	os.Chdir(repo.Workdir())
 
 	ui := new(cli.MockUi)
-	c := InitCmd{Ui: ui}
+	c := InitCmd{UI: ui}
 
 	args := []string{"-terminal=false"}
 	rc := c.Run(args)
@@ -87,7 +87,7 @@ func TestInitTags(t *testing.T) {
 	os.Chdir(repo.Workdir())
 
 	ui := new(cli.MockUi)
-	c := InitCmd{Ui: ui}
+	c := InitCmd{UI: ui}
 
 	args := []string{"-tags=t1,t2"}
 	rc := c.Run(args)
@@ -109,7 +109,7 @@ func TestClearTags(t *testing.T) {
 	os.Chdir(repo.Workdir())
 
 	ui := new(cli.MockUi)
-	c := InitCmd{Ui: ui}
+	c := InitCmd{UI: ui}
 
 	args := []string{"-clear-tags"}
 	rc := c.Run(args)
@@ -126,7 +126,7 @@ func TestClearTags(t *testing.T) {
 
 func TestInitInvalidOption(t *testing.T) {
 	ui := new(cli.MockUi)
-	c := InitCmd{Ui: ui}
+	c := InitCmd{UI: ui}
 
 	args := []string{"-invalid"}
 	rc := c.Run(args)

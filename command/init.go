@@ -16,7 +16,7 @@ import (
 
 // InitCmd contains methods for init command
 type InitCmd struct {
-	Ui cli.Ui
+	UI cli.Ui
 }
 
 // NewInit returns new InitCmd struct
@@ -29,7 +29,7 @@ func (c InitCmd) Help() string {
 	helpText := `
 Usage: gtm init [options]
 
-  Initialize a git repository for time tracking. 
+  Initialize a git repository for time tracking.
 
 Options:
 
@@ -50,16 +50,16 @@ func (c InitCmd) Run(args []string) int {
 	cmdFlags.BoolVar(&terminal, "terminal", true, "")
 	cmdFlags.BoolVar(&clearTags, "clear-tags", false, "")
 	cmdFlags.StringVar(&tags, "tags", "", "")
-	cmdFlags.Usage = func() { c.Ui.Output(c.Help()) }
+	cmdFlags.Usage = func() { c.UI.Output(c.Help()) }
 	if err := cmdFlags.Parse(args); err != nil {
 		return 1
 	}
 	m, err := project.Initialize(terminal, util.Map(strings.Split(tags, ","), strings.TrimSpace), clearTags)
 	if err != nil {
-		c.Ui.Error(err.Error())
+		c.UI.Error(err.Error())
 		return 1
 	}
-	c.Ui.Output(m + "\n")
+	c.UI.Output(m + "\n")
 	return 0
 }
 

@@ -21,8 +21,8 @@ type timelineCommitEntry struct {
 }
 
 func (t *timelineCommitEntry) inc(hour int) {
-	t.Total += 1
-	t.Commits[hour] += 1
+	t.Total++
+	t.Commits[hour]++
 }
 
 func (t timelineCommitEntries) HourMaxCommits() int {

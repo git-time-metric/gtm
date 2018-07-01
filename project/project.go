@@ -317,10 +317,6 @@ func Clean(dr util.DateRange, terminalOnly bool) error {
 	return nil
 }
 
-func Stash() error {
-	return nil
-}
-
 // Paths returns the root git repo and gtm paths
 func Paths(wd ...string) (string, string, error) {
 	defer util.Profile()()

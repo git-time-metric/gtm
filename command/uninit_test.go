@@ -20,7 +20,7 @@ func TestUninitNotGTM(t *testing.T) {
 	os.Chdir(repo.Workdir())
 
 	ui := new(cli.MockUi)
-	c := UninitCmd{Ui: ui}
+	c := UninitCmd{UI: ui}
 
 	args := []string{"-yes"}
 	rc := c.Run(args)
@@ -36,10 +36,10 @@ func TestUninitWithDefaults(t *testing.T) {
 	repo.Seed()
 	os.Chdir(repo.Workdir())
 
-	(InitCmd{Ui: new(cli.MockUi)}).Run([]string{})
+	(InitCmd{UI: new(cli.MockUi)}).Run([]string{})
 
 	ui := new(cli.MockUi)
-	c := UninitCmd{Ui: ui}
+	c := UninitCmd{UI: ui}
 
 	args := []string{"-yes"}
 	rc := c.Run(args)
@@ -51,7 +51,7 @@ func TestUninitWithDefaults(t *testing.T) {
 
 func TestUninitInvalidOption(t *testing.T) {
 	ui := new(cli.MockUi)
-	c := UninitCmd{Ui: ui}
+	c := UninitCmd{UI: ui}
 
 	args := []string{"-invalid"}
 	rc := c.Run(args)

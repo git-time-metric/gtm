@@ -17,7 +17,7 @@ import (
 
 // VerifyCmd contains CLI commands for verify
 type VerifyCmd struct {
-	Ui      cli.Ui
+	UI      cli.Ui
 	Version string
 	Out     *bytes.Buffer
 }
@@ -47,19 +47,19 @@ Usage: gtm verify <version-constraint>
 // Run executes verify commands with args
 func (c VerifyCmd) Run(args []string) int {
 	cmdFlags := flag.NewFlagSet("verify", flag.ContinueOnError)
-	cmdFlags.Usage = func() { c.Ui.Output(c.Help()) }
+	cmdFlags.Usage = func() { c.UI.Output(c.Help()) }
 	if err := cmdFlags.Parse(args); err != nil {
 		return 1
 	}
 
 	if len(args) == 0 {
-		c.Ui.Error("Unable to verify version, version constraint not provided")
+		c.UI.Error("Unable to verify version, version constraint not provided")
 		return 1
 	}
 
 	valid, err := c.check(args[0])
 	if err != nil {
-		c.Ui.Error(err.Error())
+		c.UI.Error(err.Error())
 		return 1
 	}
 

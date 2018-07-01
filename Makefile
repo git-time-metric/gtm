@@ -38,6 +38,8 @@ lint:
 		gosimple --tests=false --tags '$(BUILD_TAGS)' $(PKGS)
 	-@$(call color_echo, 4, "\nUnused"); \
 		unused --tests=false --tags '$(BUILD_TAGS)' $(PKGS)
+	-@$(call color_echo, 4, "\nGo Lint"); \
+		golint $(PKGS)
 	-@$(call color_echo, 4, "\nGo Format"); \
 		go fmt $(PKGS)
 	-@$(call color_echo, 4, "\nLicense Check"); \

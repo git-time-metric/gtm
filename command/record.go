@@ -24,7 +24,7 @@ import (
 
 // RecordCmd contains method for record command
 type RecordCmd struct {
-	Ui  cli.Ui
+	UI  cli.Ui
 	Out *bytes.Buffer
 }
 
@@ -70,13 +70,13 @@ func (c RecordCmd) Run(args []string) int {
 	cmdFlags.BoolVar(&status, "status", false, "")
 	cmdFlags.BoolVar(&terminal, "terminal", false, "")
 	cmdFlags.BoolVar(&longDuration, "long-duration", false, "")
-	cmdFlags.Usage = func() { c.Ui.Output(c.Help()) }
+	cmdFlags.Usage = func() { c.UI.Output(c.Help()) }
 	if err := cmdFlags.Parse(args); err != nil {
 		return 1
 	}
 
 	if !terminal && len(cmdFlags.Args()) == 0 {
-		c.Ui.Error("Unable to record, file not provided")
+		c.UI.Error("Unable to record, file not provided")
 		return 1
 	}
 
@@ -109,7 +109,7 @@ func (c RecordCmd) Run(args []string) int {
 
 		wd, err = os.Getwd()
 		if err != nil {
-			c.Ui.Error(err.Error())
+			c.UI.Error(err.Error())
 			return 1
 		}
 		defer func() {
@@ -120,17 +120,17 @@ func (c RecordCmd) Run(args []string) int {
 
 		err = os.Chdir(filepath.Dir(fileToRecord))
 		if err != nil {
-			c.Ui.Error(err.Error())
+			c.UI.Error(err.Error())
 			return 1
 		}
 
 		if commitNote, err = metric.Process(true); err != nil {
-			c.Ui.Error(err.Error())
+			c.UI.Error(err.Error())
 			return 1
 		}
 		out, err = report.Status(commitNote, report.OutputOptions{TotalOnly: true, LongDuration: longDuration})
 		if err != nil {
-			c.Ui.Error(err.Error())
+			c.UI.Error(err.Error())
 			return 1
 		}
 		c.output(out)

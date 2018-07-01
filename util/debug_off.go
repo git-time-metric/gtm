@@ -11,4 +11,5 @@ import (
 	"log"
 )
 
+// Debug is no-op implementation of the debug logger
 var Debug = log.New(ioutil.Discard, "", log.LstdFlags)

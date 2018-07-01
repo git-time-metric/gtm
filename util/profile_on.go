@@ -14,6 +14,7 @@ import (
 	"time"
 )
 
+// Profile is a profile logger
 var Profile func(s ...string) func()
 
 func init() {

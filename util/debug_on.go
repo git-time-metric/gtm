@@ -14,6 +14,7 @@ import (
 	"path/filepath"
 )
 
+// Debug is a debug logger
 var Debug = NewContextLogger(log.New(ioutil.Discard, "debug ", log.Lmicroseconds), 3)
 
 func init() {

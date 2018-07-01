@@ -23,10 +23,7 @@ type TestRepo struct {
 	test *testing.T
 }
 
-func (t TestRepo) GitRepoPath() string {
-	return t.repo.Path()
-}
-
+// Repo return a pointer to the git repository
 func (t TestRepo) Repo() *git.Repository {
 	return t.repo
 }
@@ -71,10 +68,12 @@ func (t TestRepo) Remove() {
 	t.repo.Free()
 }
 
+// Workdir return the working directory for the git repository
 func (t TestRepo) Workdir() string {
 	return filepath.Clean(t.repo.Workdir())
 }
 
+// Path return the git path for the git repository
 func (t TestRepo) Path() string {
 	return filepath.Clean(t.repo.Path())
 }
@@ -151,6 +150,7 @@ func (t TestRepo) Clone() TestRepo {
 	return TestRepo{repo: r, test: t.test}
 }
 
+// AddSubmodule adds a submodule to the test repository
 func (t TestRepo) AddSubmodule(url, path string) {
 	_, err := t.repo.Submodules.Add(url, path, true)
 	CheckFatal(t.test, err)

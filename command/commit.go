@@ -14,7 +14,7 @@ import (
 
 // CommitCmd struct contain methods for commit command
 type CommitCmd struct {
-	Ui cli.Ui
+	UI cli.Ui
 }
 
 // NewCommit returns new CommitCmd struct
@@ -42,14 +42,14 @@ func (c CommitCmd) Run(args []string) int {
 	var yes bool
 	cmdFlags := flag.NewFlagSet("commit", flag.ContinueOnError)
 	cmdFlags.BoolVar(&yes, "yes", false, "")
-	cmdFlags.Usage = func() { c.Ui.Output(c.Help()) }
+	cmdFlags.Usage = func() { c.UI.Output(c.Help()) }
 	if err := cmdFlags.Parse(args); err != nil {
 		return 1
 	}
 
 	confirm := yes
 	if !confirm {
-		response, err := c.Ui.Ask("Save time for last commit (y/n)?")
+		response, err := c.UI.Ask("Save time for last commit (y/n)?")
 		if err != nil {
 			return 0
 		}
@@ -58,7 +58,7 @@ func (c CommitCmd) Run(args []string) int {
 
 	if confirm {
 		if _, err := metric.Process(false); err != nil {
-			c.Ui.Error(err.Error())
+			c.UI.Error(err.Error())
 			return 1
 		}
 	}

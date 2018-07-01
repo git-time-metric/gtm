@@ -37,11 +37,12 @@ func FormatDuration(secs int) string {
 	}
 }
 
-//DurationStr returns seconds as a duration string, i.e. 9h10m30s
+// DurationStr returns seconds as a duration string, i.e. 9h10m30s
 func DurationStr(secs int) string {
 	return (time.Duration(secs) * time.Second).String()
 }
 
+// DurationStrLong returns a human readable format for the duration
 func DurationStrLong(secs int) string {
 	d, err := durafmt.ParseString(DurationStr(secs))
 	if err != nil {
@@ -54,15 +55,15 @@ func DurationStrLong(secs int) string {
 
 // RightPad2Len https://github.com/DaddyOh/golang-samples/blob/master/pad.go
 func RightPad2Len(s string, padStr string, overallLen int) string {
-	var padCountInt int = 1 + ((overallLen - len(padStr)) / len(padStr))
-	var retStr string = s + strings.Repeat(padStr, padCountInt)
+	var padCountInt = 1 + ((overallLen - len(padStr)) / len(padStr))
+	var retStr = s + strings.Repeat(padStr, padCountInt)
 	return retStr[:overallLen]
 }
 
 // LeftPad2Len https://github.com/DaddyOh/golang-samples/blob/master/pad.go
 func LeftPad2Len(s string, padStr string, overallLen int) string {
-	var padCountInt int = 1 + ((overallLen - len(padStr)) / len(padStr))
-	var retStr string = strings.Repeat(padStr, padCountInt) + s
+	var padCountInt = 1 + ((overallLen - len(padStr)) / len(padStr))
+	var retStr = strings.Repeat(padStr, padCountInt) + s
 	return retStr[(len(retStr) - overallLen):]
 }
 

@@ -162,6 +162,7 @@ type FileDetail struct {
 	Status     string
 }
 
+// ShortenSourceFile shortens source file to length n
 func (f *FileDetail) ShortenSourceFile(n int) string {
 	x := len(f.SourceFile) - n - 1
 	if x <= 0 {

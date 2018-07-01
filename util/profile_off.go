@@ -7,6 +7,7 @@
 package util
 
 var (
+	// Profile is a no-op implemention of the profile logger
 	Profile = func(s ...string) func() {
 		return func() {
 		}

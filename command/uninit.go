@@ -14,7 +14,7 @@ import (
 
 // UninitCmd contains methods for uninit command
 type UninitCmd struct {
-	Ui cli.Ui
+	UI cli.Ui
 }
 
 // NewUninit returns new UninitCmd struct
@@ -27,7 +27,7 @@ func (c UninitCmd) Help() string {
 	helpText := `
 Usage: gtm uninit [options]
 
-  Turn off time tracking for git repository (does not remove committed time data). 
+  Turn off time tracking for git repository (does not remove committed time data).
 
 Options:
 
@@ -41,7 +41,7 @@ func (c UninitCmd) Run(args []string) int {
 	var yes bool
 	cmdFlags := flag.NewFlagSet("uninit", flag.ContinueOnError)
 	cmdFlags.BoolVar(&yes, "yes", false, "")
-	cmdFlags.Usage = func() { c.Ui.Output(c.Help()) }
+	cmdFlags.Usage = func() { c.UI.Output(c.Help()) }
 	if err := cmdFlags.Parse(args); err != nil {
 		return 1
 	}
@@ -49,9 +49,9 @@ func (c UninitCmd) Run(args []string) int {
 	confirm := yes
 	if !confirm {
 		var response string
-		response, err := c.Ui.Ask("Remove GTM tracking for the current git repository (y/n)?")
+		response, err := c.UI.Ask("Remove GTM tracking for the current git repository (y/n)?")
 		if err != nil {
-			c.Ui.Error(err.Error())
+			c.UI.Error(err.Error())
 			return 1
 		}
 		confirm = strings.TrimSpace(strings.ToLower(response)) == "y"
@@ -63,10 +63,10 @@ func (c UninitCmd) Run(args []string) int {
 			err error
 		)
 		if m, err = project.Uninitialize(); err != nil {
-			c.Ui.Error(err.Error())
+			c.UI.Error(err.Error())
 			return 1
 		}
-		c.Ui.Output(m)
+		c.UI.Output(m)
 	}
 	return 0
 }

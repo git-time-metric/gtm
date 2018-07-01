@@ -25,43 +25,43 @@ func main() {
 	c.Commands = map[string]cli.CommandFactory{
 		"init": func() (cli.Command, error) {
 			return &command.InitCmd{
-				Ui: ui,
+				UI: ui,
 			}, nil
 		},
 		"record": func() (cli.Command, error) {
 			return &command.RecordCmd{
-				Ui: ui,
+				UI: ui,
 			}, nil
 		},
 		"commit": func() (cli.Command, error) {
 			return &command.CommitCmd{
-				Ui: ui,
+				UI: ui,
 			}, nil
 		},
 		"report": func() (cli.Command, error) {
 			return &command.ReportCmd{
-				Ui: ui,
+				UI: ui,
 			}, nil
 		},
 		"status": func() (cli.Command, error) {
 			return &command.StatusCmd{
-				Ui: ui,
+				UI: ui,
 			}, nil
 		},
 		"verify": func() (cli.Command, error) {
 			return &command.VerifyCmd{
-				Ui:      ui,
+				UI:      ui,
 				Version: Version,
 			}, nil
 		},
 		"uninit": func() (cli.Command, error) {
 			return &command.UninitCmd{
-				Ui: ui,
+				UI: ui,
 			}, nil
 		},
 		"clean": func() (cli.Command, error) {
 			return &command.CleanCmd{
-				Ui: ui,
+				UI: ui,
 			}, nil
 		},
 	}

@@ -19,10 +19,10 @@ func TestStatusDefaultOptions(t *testing.T) {
 	repo.Seed()
 	os.Chdir(repo.Workdir())
 
-	(InitCmd{Ui: new(cli.MockUi)}).Run([]string{})
+	(InitCmd{UI: new(cli.MockUi)}).Run([]string{})
 
 	ui := new(cli.MockUi)
-	c := StatusCmd{Ui: ui}
+	c := StatusCmd{UI: ui}
 
 	args := []string{""}
 	rc := c.Run(args)
@@ -38,10 +38,10 @@ func TestStatusTotalOnly(t *testing.T) {
 	repo.Seed()
 	os.Chdir(repo.Workdir())
 
-	(InitCmd{Ui: new(cli.MockUi)}).Run([]string{})
+	(InitCmd{UI: new(cli.MockUi)}).Run([]string{})
 
 	ui := new(cli.MockUi)
-	c := StatusCmd{Ui: ui}
+	c := StatusCmd{UI: ui}
 
 	args := []string{"-total-only", "-long-duration"}
 	rc := c.Run(args)
@@ -53,7 +53,7 @@ func TestStatusTotalOnly(t *testing.T) {
 
 func TestStatusInvalidOption(t *testing.T) {
 	ui := new(cli.MockUi)
-	c := StatusCmd{Ui: ui}
+	c := StatusCmd{UI: ui}
 
 	args := []string{"-invalid"}
 	rc := c.Run(args)

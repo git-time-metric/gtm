@@ -19,7 +19,7 @@ import (
 
 // StatusCmd containt methods for status command
 type StatusCmd struct {
-	Ui cli.Ui
+	UI cli.Ui
 }
 
 // NewStatus returns new StatusCmd struct
@@ -63,13 +63,13 @@ func (c StatusCmd) Run(args []string) int {
 	cmdFlags.StringVar(&tags, "tags", "", "Project tags to show status on")
 	cmdFlags.BoolVar(&all, "all", false, "Show status for all projects")
 	cmdFlags.BoolVar(&profile, "profile", false, "Enable profiling")
-	cmdFlags.Usage = func() { c.Ui.Output(c.Help()) }
+	cmdFlags.Usage = func() { c.UI.Output(c.Help()) }
 	if err := cmdFlags.Parse(args); err != nil {
 		return 1
 	}
 
 	if totalOnly && (all || tags != "") {
-		c.Ui.Error("\n-tags and -all options not allowed with -total-only\n")
+		c.UI.Error("\n-tags and -all options not allowed with -total-only\n")
 		return 1
 	}
 
@@ -81,7 +81,7 @@ func (c StatusCmd) Run(args []string) int {
 
 	index, err := project.NewIndex()
 	if err != nil {
-		c.Ui.Error(err.Error())
+		c.UI.Error(err.Error())
 		return 1
 	}
 
@@ -92,7 +92,7 @@ func (c StatusCmd) Run(args []string) int {
 
 	projects, err := index.Get(tagList, all)
 	if err != nil {
-		c.Ui.Error(err.Error())
+		c.UI.Error(err.Error())
 		return 1
 	}
 
@@ -104,12 +104,12 @@ func (c StatusCmd) Run(args []string) int {
 
 	for _, projPath := range projects {
 		if commitNote, err = metric.Process(true, projPath); err != nil {
-			c.Ui.Error(err.Error())
+			c.UI.Error(err.Error())
 			return 1
 		}
 		o, err := report.Status(commitNote, options, projPath)
 		if err != nil {
-			c.Ui.Error(err.Error())
+			c.UI.Error(err.Error())
 			return 1
 		}
 		out += o
@@ -119,7 +119,7 @@ func (c StatusCmd) Run(args []string) int {
 		// plain output, no ansi escape sequences
 		fmt.Print(out)
 	} else {
-		c.Ui.Output(out)
+		c.UI.Output(out)
 	}
 	return 0
 }

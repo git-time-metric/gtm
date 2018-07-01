@@ -372,7 +372,7 @@ func TestSetGitHooks(t *testing.T) {
 	repo := util.NewTestRepo(t, false)
 	defer repo.Remove()
 
-	gitRepoPath := repo.GitRepoPath()
+	gitRepoPath := repo.Path()
 
 	hooks := map[string]GitHook{
 		"post-commit": {

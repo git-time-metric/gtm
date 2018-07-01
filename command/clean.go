@@ -15,7 +15,7 @@ import (
 
 // CleanCmd contains method for clean method
 type CleanCmd struct {
-	Ui cli.Ui
+	UI cli.Ui
 }
 
 // NewClean returns a new CleanCmd struct
@@ -47,14 +47,14 @@ func (c CleanCmd) Run(args []string) int {
 	cmdFlags.BoolVar(&yes, "yes", false, "")
 	cmdFlags.BoolVar(&terminalOnly, "terminal-only", false, "")
 	cmdFlags.IntVar(&days, "days", 0, "")
-	cmdFlags.Usage = func() { c.Ui.Output(c.Help()) }
+	cmdFlags.Usage = func() { c.UI.Output(c.Help()) }
 	if err := cmdFlags.Parse(args); err != nil {
 		return 1
 	}
 
 	confirm := yes
 	if !confirm {
-		response, err := c.Ui.Ask("Delete pending time data (y/n)?")
+		response, err := c.UI.Ask("Delete pending time data (y/n)?")
 		if err != nil {
 			return 0
 		}
@@ -63,7 +63,7 @@ func (c CleanCmd) Run(args []string) int {
 
 	if confirm {
 		if err := project.Clean(util.AfterNow(days), terminalOnly); err != nil {
-			c.Ui.Error(err.Error())
+			c.UI.Error(err.Error())
 			return 1
 		}
 	}

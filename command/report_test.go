@@ -20,7 +20,7 @@ func TestReportDefaultOptions(t *testing.T) {
 	defer repo.Remove()
 	os.Chdir(repo.Workdir())
 
-	(InitCmd{Ui: new(cli.MockUi)}).Run([]string{})
+	(InitCmd{UI: new(cli.MockUi)}).Run([]string{})
 
 	repo.SaveFile("event.go", "event", "")
 	repo.SaveFile("event_test.go", "event", "")
@@ -32,10 +32,10 @@ func TestReportDefaultOptions(t *testing.T) {
 	repo.Commit(repo.Stage(filepath.Join("event", "event.go"), filepath.Join("event", "event_test.go")))
 
 	// save notes to git repository
-	(CommitCmd{Ui: new(cli.MockUi)}).Run([]string{"-yes"})
+	(CommitCmd{UI: new(cli.MockUi)}).Run([]string{"-yes"})
 
 	ui := new(cli.MockUi)
-	c := ReportCmd{Ui: ui}
+	c := ReportCmd{UI: ui}
 
 	args := []string{"-testing=true"}
 	rc := c.Run(args)
@@ -55,7 +55,7 @@ func TestReportSummary(t *testing.T) {
 	defer repo.Remove()
 	os.Chdir(repo.Workdir())
 
-	(InitCmd{Ui: new(cli.MockUi)}).Run([]string{})
+	(InitCmd{UI: new(cli.MockUi)}).Run([]string{})
 
 	repo.SaveFile("event.go", "event", "")
 	repo.SaveFile("event_test.go", "event", "")
@@ -67,10 +67,10 @@ func TestReportSummary(t *testing.T) {
 	repo.Commit(repo.Stage(filepath.Join("event", "event.go"), filepath.Join("event", "event_test.go")))
 
 	// save notes to git repository
-	(CommitCmd{Ui: new(cli.MockUi)}).Run([]string{"-yes"})
+	(CommitCmd{UI: new(cli.MockUi)}).Run([]string{"-yes"})
 
 	ui := new(cli.MockUi)
-	c := ReportCmd{Ui: ui}
+	c := ReportCmd{UI: ui}
 
 	args := []string{"-format", "summary", "-testing=true"}
 	rc := c.Run(args)
@@ -90,7 +90,7 @@ func TestProjectSummary(t *testing.T) {
 	defer repo.Remove()
 	os.Chdir(repo.Workdir())
 
-	(InitCmd{Ui: new(cli.MockUi)}).Run([]string{})
+	(InitCmd{UI: new(cli.MockUi)}).Run([]string{})
 
 	repo.SaveFile("event.go", "event", "")
 	repo.SaveFile("event_test.go", "event", "")
@@ -102,10 +102,10 @@ func TestProjectSummary(t *testing.T) {
 	repo.Commit(repo.Stage(filepath.Join("event", "event.go"), filepath.Join("event", "event_test.go")))
 
 	// save notes to git repository
-	(CommitCmd{Ui: new(cli.MockUi)}).Run([]string{"-yes"})
+	(CommitCmd{UI: new(cli.MockUi)}).Run([]string{"-yes"})
 
 	ui := new(cli.MockUi)
-	c := ReportCmd{Ui: ui}
+	c := ReportCmd{UI: ui}
 
 	args := []string{"-format", "project", "-testing=true"}
 	rc := c.Run(args)
@@ -125,7 +125,7 @@ func TestReportAll(t *testing.T) {
 	defer repo.Remove()
 	os.Chdir(repo.Workdir())
 
-	(InitCmd{Ui: new(cli.MockUi)}).Run([]string{})
+	(InitCmd{UI: new(cli.MockUi)}).Run([]string{})
 
 	repo.SaveFile("event.go", "event", "")
 	repo.SaveFile("event_test.go", "event", "")
@@ -137,10 +137,10 @@ func TestReportAll(t *testing.T) {
 	repo.Commit(repo.Stage(filepath.Join("event", "event.go"), filepath.Join("event", "event_test.go")))
 
 	// save notes to git repository
-	(CommitCmd{Ui: new(cli.MockUi)}).Run([]string{"-yes"})
+	(CommitCmd{UI: new(cli.MockUi)}).Run([]string{"-yes"})
 
 	ui := new(cli.MockUi)
-	c := ReportCmd{Ui: ui}
+	c := ReportCmd{UI: ui}
 
 	// TODO: in order to test output of multi-project reporting, we need the ability to mock the project index
 	args := []string{"-all"}
@@ -156,7 +156,7 @@ func TestReportTimelineHours(t *testing.T) {
 	defer repo.Remove()
 	os.Chdir(repo.Workdir())
 
-	(InitCmd{Ui: new(cli.MockUi)}).Run([]string{})
+	(InitCmd{UI: new(cli.MockUi)}).Run([]string{})
 
 	repo.SaveFile("event.go", "event", "")
 	repo.SaveFile("event_test.go", "event", "")
@@ -168,10 +168,10 @@ func TestReportTimelineHours(t *testing.T) {
 	repo.Commit(repo.Stage(filepath.Join("event", "event.go"), filepath.Join("event", "event_test.go")))
 
 	// save notes to git repository
-	(CommitCmd{Ui: new(cli.MockUi)}).Run([]string{"-yes"})
+	(CommitCmd{UI: new(cli.MockUi)}).Run([]string{"-yes"})
 
 	ui := new(cli.MockUi)
-	c := ReportCmd{Ui: ui}
+	c := ReportCmd{UI: ui}
 
 	args := []string{"-format", "timeline-hours", "-testing=true"}
 	rc := c.Run(args)
@@ -191,7 +191,7 @@ func TestReportTimelineCommits(t *testing.T) {
 	defer repo.Remove()
 	os.Chdir(repo.Workdir())
 
-	(InitCmd{Ui: new(cli.MockUi)}).Run([]string{})
+	(InitCmd{UI: new(cli.MockUi)}).Run([]string{})
 
 	repo.SaveFile("event.go", "event", "")
 	repo.SaveFile("event_test.go", "event", "")
@@ -203,10 +203,10 @@ func TestReportTimelineCommits(t *testing.T) {
 	repo.Commit(repo.Stage(filepath.Join("event", "event.go"), filepath.Join("event", "event_test.go")))
 
 	// save notes to git repository
-	(CommitCmd{Ui: new(cli.MockUi)}).Run([]string{"-yes"})
+	(CommitCmd{UI: new(cli.MockUi)}).Run([]string{"-yes"})
 
 	ui := new(cli.MockUi)
-	c := ReportCmd{Ui: ui}
+	c := ReportCmd{UI: ui}
 
 	args := []string{"-format", "timeline-commits", "-testing=true"}
 	rc := c.Run(args)
@@ -226,7 +226,7 @@ func TestReportFiles(t *testing.T) {
 	defer repo.Remove()
 	os.Chdir(repo.Workdir())
 
-	(InitCmd{Ui: new(cli.MockUi)}).Run([]string{})
+	(InitCmd{UI: new(cli.MockUi)}).Run([]string{})
 
 	repo.SaveFile("event.go", "event", "")
 	repo.SaveFile("event_test.go", "event", "")
@@ -238,10 +238,10 @@ func TestReportFiles(t *testing.T) {
 	repo.Commit(repo.Stage(filepath.Join("event", "event.go"), filepath.Join("event", "event_test.go")))
 
 	// save notes to git repository
-	(CommitCmd{Ui: new(cli.MockUi)}).Run([]string{"-yes"})
+	(CommitCmd{UI: new(cli.MockUi)}).Run([]string{"-yes"})
 
 	ui := new(cli.MockUi)
-	c := ReportCmd{Ui: ui}
+	c := ReportCmd{UI: ui}
 
 	args := []string{"-format", "files", "-testing=true"}
 	rc := c.Run(args)
@@ -258,7 +258,7 @@ func TestReportFiles(t *testing.T) {
 
 func TestReportInvalidOption(t *testing.T) {
 	ui := new(cli.MockUi)
-	c := ReportCmd{Ui: ui}
+	c := ReportCmd{UI: ui}
 
 	args := []string{"-invalid"}
 	rc := c.Run(args)

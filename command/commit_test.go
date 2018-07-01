@@ -19,10 +19,10 @@ func TestCommitDefaultOptions(t *testing.T) {
 	repo.Seed()
 	os.Chdir(repo.Workdir())
 
-	(InitCmd{Ui: new(cli.MockUi)}).Run([]string{})
+	(InitCmd{UI: new(cli.MockUi)}).Run([]string{})
 
 	ui := new(cli.MockUi)
-	c := CommitCmd{Ui: ui}
+	c := CommitCmd{UI: ui}
 
 	args := []string{"-yes"}
 	rc := c.Run(args)
@@ -34,7 +34,7 @@ func TestCommitDefaultOptions(t *testing.T) {
 
 func TestCommitInvalidOption(t *testing.T) {
 	ui := new(cli.MockUi)
-	c := CommitCmd{Ui: ui}
+	c := CommitCmd{UI: ui}
 
 	args := []string{"-invalid"}
 	rc := c.Run(args)

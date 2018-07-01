@@ -43,7 +43,7 @@ func TestCheck(t *testing.T) {
 
 func TestVerify(t *testing.T) {
 	ui := new(cli.MockUi)
-	c := VerifyCmd{Ui: ui, Version: "1.0.0", Out: new(bytes.Buffer)}
+	c := VerifyCmd{UI: ui, Version: "1.0.0", Out: new(bytes.Buffer)}
 
 	args := []string{">= 1.0.0"}
 	rc := c.Run(args)

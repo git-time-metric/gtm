@@ -22,10 +22,10 @@ func TestRecordInvalidFile(t *testing.T) {
 	repo.Seed()
 	os.Chdir(repo.Workdir())
 
-	(InitCmd{Ui: new(cli.MockUi)}).Run([]string{})
+	(InitCmd{UI: new(cli.MockUi)}).Run([]string{})
 
 	ui := new(cli.MockUi)
-	c := RecordCmd{Ui: ui}
+	c := RecordCmd{UI: ui}
 
 	args := []string{"nofile.txt"}
 	rc := c.Run(args)
@@ -41,10 +41,10 @@ func TestRecordNoFile(t *testing.T) {
 	repo.Seed()
 	os.Chdir(repo.Workdir())
 
-	(InitCmd{Ui: new(cli.MockUi)}).Run([]string{})
+	(InitCmd{UI: new(cli.MockUi)}).Run([]string{})
 
 	ui := new(cli.MockUi)
-	c := RecordCmd{Ui: ui}
+	c := RecordCmd{UI: ui}
 
 	args := []string{""}
 	rc := c.Run(args)
@@ -61,10 +61,10 @@ func TestRecordFile(t *testing.T) {
 	workdir := repo.Workdir()
 	os.Chdir(workdir)
 
-	(InitCmd{Ui: new(cli.MockUi)}).Run([]string{})
+	(InitCmd{UI: new(cli.MockUi)}).Run([]string{})
 
 	ui := new(cli.MockUi)
-	c := RecordCmd{Ui: ui}
+	c := RecordCmd{UI: ui}
 
 	args := []string{filepath.Join(workdir, "README")}
 	rc := c.Run(args)
@@ -95,10 +95,10 @@ func TestRecordFileWithStatus(t *testing.T) {
 	workdir := repo.Workdir()
 	os.Chdir(workdir)
 
-	(InitCmd{Ui: new(cli.MockUi)}).Run([]string{})
+	(InitCmd{UI: new(cli.MockUi)}).Run([]string{})
 
 	ui := new(cli.MockUi)
-	c := RecordCmd{Ui: ui, Out: new(bytes.Buffer)}
+	c := RecordCmd{UI: ui, Out: new(bytes.Buffer)}
 
 	args := []string{"-status", filepath.Join(workdir, "README")}
 	rc := c.Run(args)
@@ -133,10 +133,10 @@ func TestRecordFileWithStatusLongDuration(t *testing.T) {
 	workdir := repo.Workdir()
 	os.Chdir(workdir)
 
-	(InitCmd{Ui: new(cli.MockUi)}).Run([]string{})
+	(InitCmd{UI: new(cli.MockUi)}).Run([]string{})
 
 	ui := new(cli.MockUi)
-	c := RecordCmd{Ui: ui, Out: new(bytes.Buffer)}
+	c := RecordCmd{UI: ui, Out: new(bytes.Buffer)}
 
 	args := []string{"-status", "-long-duration", filepath.Join(workdir, "README")}
 	rc := c.Run(args)
@@ -171,10 +171,10 @@ func TestRecordTerminal(t *testing.T) {
 	workdir := repo.Workdir()
 	os.Chdir(workdir)
 
-	(InitCmd{Ui: new(cli.MockUi)}).Run([]string{})
+	(InitCmd{UI: new(cli.MockUi)}).Run([]string{})
 
 	ui := new(cli.MockUi)
-	c := RecordCmd{Ui: ui}
+	c := RecordCmd{UI: ui}
 
 	args := []string{"-terminal"}
 	rc := c.Run(args)
@@ -205,10 +205,10 @@ func TestRecordTerminalWithStatus(t *testing.T) {
 	workdir := repo.Workdir()
 	os.Chdir(workdir)
 
-	(InitCmd{Ui: new(cli.MockUi)}).Run([]string{})
+	(InitCmd{UI: new(cli.MockUi)}).Run([]string{})
 
 	ui := new(cli.MockUi)
-	c := RecordCmd{Ui: ui, Out: new(bytes.Buffer)}
+	c := RecordCmd{UI: ui, Out: new(bytes.Buffer)}
 
 	args := []string{"-terminal", "-status"}
 	rc := c.Run(args)
@@ -237,7 +237,7 @@ func TestRecordTerminalWithStatus(t *testing.T) {
 }
 func TestRecordInvalidOption(t *testing.T) {
 	ui := new(cli.MockUi)
-	c := RecordCmd{Ui: ui}
+	c := RecordCmd{UI: ui}
 
 	args := []string{"-invalid"}
 	rc := c.Run(args)
