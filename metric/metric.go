@@ -248,11 +248,7 @@ func removeMetricFile(gtmPath, fileID string) error {
 	if _, err := os.Stat(fp); os.IsNotExist(err) {
 		return nil
 	}
-	if err := os.Remove(fp); err != nil {
-		return err
-	}
-
-	return nil
+	return os.Remove(fp)
 }
 
 // buildCommitMaps creates the write and read-only commit maps.

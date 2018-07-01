@@ -22,11 +22,7 @@ func Record(file string) error {
 		return err
 	}
 
-	if err := writeEventFile(sourcePath, gtmPath); err != nil {
-		return err
-	}
-
-	return nil
+	return writeEventFile(sourcePath, gtmPath)
 }
 
 // Process scans the gtmPath for event files and processes them.

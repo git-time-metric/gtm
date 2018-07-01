@@ -108,11 +108,7 @@ func (i *Index) load() error {
 		return err
 	}
 
-	if err := json.Unmarshal(raw, &i.Projects); err != nil {
-		return err
-	}
-
-	return nil
+	return json.Unmarshal(raw, &i.Projects)
 }
 
 func (i *Index) save() error {
