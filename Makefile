@@ -1,9 +1,10 @@
 BINARY         = bin/gtm
-VERSION        = gtm-dev-$(shell date +'%Y.%m.%d-%H:%M:%S')
+VERSION        = 0.0.0-dev
 COMMIT         = $(shell git show -s --format='%h' HEAD)
 LDFLAGS        = -ldflags "-X main.Version=$(VERSION)-$(COMMIT)"
 GIT2GO_VERSION = v27
 GIT2GO_PATH    = $(GOPATH)/src/github.com/libgit2/git2go
+LIBGIT2_PATH   = $(GIT2GO_PATH)/vendor/libgit2
 PKGS           = $(shell go list ./... | grep -v vendor)
 BUILD_TAGS     = static
 
@@ -60,7 +61,7 @@ git2go-install:
 	git submodule update --init
 
 git2go: git2go-install
-	cd $(GIT2GO_PATH)/vendor/libgit2 && \
+	cd $(LIBGIT2_PATH) && \
 	mkdir -p install/lib && \
 	mkdir -p build && \
 	cd build && \

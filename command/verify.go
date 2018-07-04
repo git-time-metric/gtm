@@ -63,6 +63,10 @@ func (c VerifyCmd) Run(args []string) int {
 		return 1
 	}
 
+	// NOTE a newline is not sent when outputting to terminal.
+	// THis makes it easier to assign to a shell variable.
+	// For example, v=$(gtm verify "1.0.0") but because there is
+	// no newline running gtm verify will not display anything
 	c.output(fmt.Sprintf("%t", valid))
 	return 0
 }

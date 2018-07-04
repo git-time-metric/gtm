@@ -13,6 +13,7 @@ before_install:
 
 before_deploy:
   - go build -v --tags static -ldflags "-X main.Version=${TRAVIS_TAG}"
+  - v=$(${PWD}/gtm verify "${TRAVIS_TAG}"); echo "$v"; if [ ! "$v" == "true" ]; then exit 1; fi
   - tar -zcf gtm.${TRAVIS_TAG}.${TRAVIS_OS_NAME}.tar.gz gtm
   - shasum -a 256 gtm.${TRAVIS_TAG}.${TRAVIS_OS_NAME}.tar.gz > gtm.${TRAVIS_TAG}.${TRAVIS_OS_NAME}.checksum.txt
 

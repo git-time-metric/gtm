@@ -24,19 +24,31 @@ cmake -DTHREADSAFE=ON \
       -DCURL=OFF \
       -G "MSYS Makefiles" \
       .. &&
-
-cmake --build . --target install
-
-cd "${GIT2GO_PATH}" && go install --tags static
+cmake --build .
 
 cd "${GOPATH}/src/github.com/git-time-metric/gtm"
 go get -d ./...
 go test --tags static $(go list ./... | grep -v vendor)
 if [[ "${APPVEYOR_REPO_TAG}" = true ]]; then
-    go build --tags static -v -ldflags "-X main.Version=${APPVEYOR_REPO_TAG_NAME}"
+    version=${APPVEYOR_REPO_TAG_NAME}
+    go build -v --tags static -ldflags "-X main.Version=${version}"
+
+    # make sure version is set correctly
+    v="$(${GOPATH}/src/github.com/git-time-metric/gtm/gtm.exe verify ${version})"
+    if [ ! "$v" == "true" ]; then
+        exit 1
+    fi
+
     tar -zcf "gtm.${APPVEYOR_REPO_TAG_NAME}.windows.tar.gz" gtm.exe
 else
-    timestamp=$(date +%s)
-    go build --tags static -v -ldflags "-X main.Version=developer-build-${timestamp}"
-    tar -zcf "gtm.developer-build-${timestamp}.windows.tar.gz" gtm.exe
+    version='0.0.0-dev'
+    go build -v --tags static -ldflags "-X main.Version=${version}"
+
+    # make sure version is set correctly
+    v="$(${GOPATH}/src/github.com/git-time-metric/gtm/gtm.exe verify ${version})"
+    if [ ! "$v" == "true" ]; then
+        exit 1
+    fi
+
+    tar -zcf "gtm.developer-build-${version}.windows.tar.gz" gtm.exe
 fi
