@@ -59,9 +59,9 @@ func TestStatusAppOff(t *testing.T) {
 	repo.Seed()
 	os.Chdir(repo.Workdir())
 
-	repo.SaveFile("chrome.app", project.GTMDir, "")
+	repo.SaveFile("browser.app", project.GTMDir, "")
 	repo.SaveFile("1458496803.event", project.GTMDir, filepath.Join("event", "event.go"))
-	repo.SaveFile("1458497804.event", project.GTMDir, filepath.Join(project.GTMDir, "chrome.app"))
+	repo.SaveFile("1458497804.event", project.GTMDir, filepath.Join(project.GTMDir, "browser.app"))
 
 	(InitCmd{UI: new(cli.MockUi)}).Run([]string{})
 
@@ -74,8 +74,8 @@ func TestStatusAppOff(t *testing.T) {
 	if rc != 0 {
 		t.Errorf("gtm status(%+v), want 0 got %d, %s", args, rc, ui.ErrorWriter.String())
 	}
-	if !strings.Contains(ui.OutputWriter.String(), "event.go") || !strings.Contains(ui.OutputWriter.String(), "Chrome") {
-		t.Errorf("gtm status(%+v), want 'event.go' and 'Chrome' got %s", args, ui.OutputWriter.String())
+	if !strings.Contains(ui.OutputWriter.String(), "event.go") || !strings.Contains(ui.OutputWriter.String(), "Browser") {
+		t.Errorf("gtm status(%+v), want 'event.go' and 'Browser' got %s", args, ui.OutputWriter.String())
 	}
 	ui.OutputWriter.Reset()
 
@@ -85,8 +85,8 @@ func TestStatusAppOff(t *testing.T) {
 	if rc != 0 {
 		t.Errorf("gtm status(%+v), want 0 got %d, %s", args, rc, ui.ErrorWriter.String())
 	}
-	if !strings.Contains(ui.OutputWriter.String(), "event.go") || strings.Contains(ui.OutputWriter.String(), "Chrome") {
-		t.Errorf("gtm status(%+v), want 'event.go' and not 'Chrome' got %s", args, ui.OutputWriter.String())
+	if !strings.Contains(ui.OutputWriter.String(), "event.go") || strings.Contains(ui.OutputWriter.String(), "Browser") {
+		t.Errorf("gtm status(%+v), want 'event.go' and not 'Browser' got %s", args, ui.OutputWriter.String())
 	}
 }
 

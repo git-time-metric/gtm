@@ -248,14 +248,14 @@ func TestRecordApp(t *testing.T) {
 	ui := new(cli.MockUi)
 	c := RecordCmd{UI: ui}
 
-	args := []string{"-app", "chrome"}
+	args := []string{"-app", "browser"}
 	rc := c.Run(args)
 
 	if rc != 0 {
 		t.Errorf("gtm record(%+v), want 0 got %d, %s", args, rc, ui.ErrorWriter)
 	}
 
-	if _, err := os.Stat(filepath.Join(workdir, ".gtm/chrome.app")); os.IsNotExist(err) {
+	if _, err := os.Stat(filepath.Join(workdir, ".gtm/browser.app")); os.IsNotExist(err) {
 		t.Errorf("gtm record(%+v), want .app file to be created, it was not created", args)
 	}
 

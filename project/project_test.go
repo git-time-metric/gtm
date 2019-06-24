@@ -266,7 +266,7 @@ func TestClean(t *testing.T) {
 	}
 
 	// write an app event file
-	if err := ioutil.WriteFile(filepath.Join(gtmPath, "app.event"), []byte(".gtm/chrome.app"), 0644); err != nil {
+	if err := ioutil.WriteFile(filepath.Join(gtmPath, "app.event"), []byte(".gtm/browser.app"), 0644); err != nil {
 		t.Errorf("Want error nil got %s", err)
 	}
 
