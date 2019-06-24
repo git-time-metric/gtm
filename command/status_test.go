@@ -74,8 +74,8 @@ func TestStatusAppOff(t *testing.T) {
 	if rc != 0 {
 		t.Errorf("gtm status(%+v), want 0 got %d, %s", args, rc, ui.ErrorWriter.String())
 	}
-	if !strings.Contains(ui.OutputWriter.String(), "event.go") || !strings.Contains(ui.OutputWriter.String(), "chrome.app") {
-		t.Errorf("gtm status(%+v), want 'event.go' and 'chrome.app' got %s", args, ui.OutputWriter.String())
+	if !strings.Contains(ui.OutputWriter.String(), "event.go") || !strings.Contains(ui.OutputWriter.String(), "Chrome") {
+		t.Errorf("gtm status(%+v), want 'event.go' and 'Chrome' got %s", args, ui.OutputWriter.String())
 	}
 	ui.OutputWriter.Reset()
 
@@ -85,8 +85,8 @@ func TestStatusAppOff(t *testing.T) {
 	if rc != 0 {
 		t.Errorf("gtm status(%+v), want 0 got %d, %s", args, rc, ui.ErrorWriter.String())
 	}
-	if !strings.Contains(ui.OutputWriter.String(), "event.go") || strings.Contains(ui.OutputWriter.String(), "chrome.app") {
-		t.Errorf("gtm status(%+v), want 'event.go' and not 'chrome.app' got %s", args, ui.OutputWriter.String())
+	if !strings.Contains(ui.OutputWriter.String(), "event.go") || strings.Contains(ui.OutputWriter.String(), "Chrome") {
+		t.Errorf("gtm status(%+v), want 'event.go' and not 'Chrome' got %s", args, ui.OutputWriter.String())
 	}
 }
 

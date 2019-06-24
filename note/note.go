@@ -208,6 +208,13 @@ func (f *FileDetail) IsApp() bool {
 	return project.AppEventFileContentRegex.MatchString(f.SourceFile)
 }
 
+// GetAppName returns the name of the App
+func (f *FileDetail) GetAppName() string {
+	name := project.AppEventFileContentRegex.FindStringSubmatch(f.SourceFile)[1]
+	name = util.UcFirst(name)
+	return name
+}
+
 // FileByTime is list of FileDetails
 type FileByTime []FileDetail
 

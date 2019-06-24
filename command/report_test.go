@@ -282,8 +282,8 @@ func TestReportAppsOff(t *testing.T) {
 	if rc != 0 {
 		t.Errorf("gtm report(%+v), want 0 got %d, %s", args, rc, ui.ErrorWriter.String())
 	}
-	if !strings.Contains(ui.OutputWriter.String(), "chrome.app") {
-		t.Errorf("gtm report(%+v), want 'chrome.app' got %s, %s", args, ui.OutputWriter.String(), ui.ErrorWriter.String())
+	if !strings.Contains(ui.OutputWriter.String(), "Chrome") {
+		t.Errorf("gtm report(%+v), want 'Chrome' got %s, %s", args, ui.OutputWriter.String(), ui.ErrorWriter.String())
 	}
 
 	// Excluding apps
@@ -294,8 +294,8 @@ func TestReportAppsOff(t *testing.T) {
 	if rc != 0 {
 		t.Errorf("gtm report(%+v), want 0 got %d, %s", args, rc, ui.ErrorWriter.String())
 	}
-	if strings.Contains(ui.OutputWriter.String(), "chrome.app") {
-		t.Errorf("gtm report(%+v), want not 'chrome.app' got %s, %s", args, ui.OutputWriter.String(), ui.ErrorWriter.String())
+	if strings.Contains(ui.OutputWriter.String(), "Chrome") {
+		t.Errorf("gtm report(%+v), want not 'Chrome' got %s, %s", args, ui.OutputWriter.String(), ui.ErrorWriter.String())
 	}
 }
 

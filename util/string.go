@@ -9,6 +9,7 @@ import (
 	"regexp"
 	"strings"
 	"time"
+	"unicode"
 
 	"github.com/hako/durafmt"
 )
@@ -84,4 +85,12 @@ func Map(vs []string, f func(string) string) []string {
 		vsm[i] = f(v)
 	}
 	return vsm
+}
+
+// UcFirst Uppercase first letter
+func UcFirst(str string) string {
+	for i, v := range str {
+		return string(unicode.ToUpper(v)) + str[i+1:]
+	}
+	return ""
 }

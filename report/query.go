@@ -165,3 +165,14 @@ func (f *fileEntry) Duration() string {
 func (f *fileEntry) IsTerminal() bool {
 	return f.Filename == ".gtm/terminal.app"
 }
+
+func (f *fileEntry) IsApp() bool {
+	return project.AppEventFileContentRegex.MatchString(f.Filename)
+}
+
+// GetAppName returns the name of the App
+func (f *fileEntry) GetAppName() string {
+	name := project.AppEventFileContentRegex.FindStringSubmatch(f.Filename)[1]
+	name = util.UcFirst(name)
+	return name
+}
