@@ -34,7 +34,7 @@ Options:
 
   -yes                       Delete time data without asking for confirmation.
   -terminal-only             Only delete terminal time data
-  -app-only             		 Only delete apps time data
+  -app-only                  Only delete apps time data
   -days=0                    Delete starting from n days in the past
 `
 	return strings.TrimSpace(helpText)

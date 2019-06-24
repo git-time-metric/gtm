@@ -38,7 +38,7 @@ Options:
 
   -terminal-off=false        Exclude time spent in terminal (Terminal plug-in is required)
 
-	-app-off=false        		 Exclude time spent in apps
+  -app-off=false             Exclude time spent in apps
 
   -color=false               Always output color even if no terminal is detected, i.e 'gtm status -color | less -R'
 

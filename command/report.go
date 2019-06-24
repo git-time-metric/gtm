@@ -46,7 +46,7 @@ Options:
   -format=commits            Specify report format [summary|project|commits|files|timeline-hours|timeline-commits] (default commits)
   -full-message=false        Include full commit message
   -terminal-off=false        Exclude time spent in terminal (Terminal plug-in is required)
-	-app-off=false						 Exclude time spent in apps
+  -app-off=false             Exclude time spent in apps
   -force-color=false         Always output color even if no terminal is detected, i.e 'gtm report -color | less -R'
   -testing=false             This is used for automated testing to force default test path
 
