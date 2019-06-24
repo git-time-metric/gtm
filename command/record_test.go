@@ -255,7 +255,7 @@ func TestRecordApp(t *testing.T) {
 		t.Errorf("gtm record(%+v), want 0 got %d, %s", args, rc, ui.ErrorWriter)
 	}
 
-	if _, err := os.Stat(filepath.Join(workdir, ".gtm/browser.app")); os.IsNotExist(err) {
+	if _, err := os.Stat(filepath.Join(workdir, ".gtm", "browser.app")); os.IsNotExist(err) {
 		t.Errorf("gtm record(%+v), want .app file to be created, it was not created", args)
 	}
 
