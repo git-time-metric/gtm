@@ -39,6 +39,7 @@ type OutputOptions struct {
 	LongDuration bool
 	FullMessage  bool
 	TerminalOff  bool
+	AppOff       bool
 	Color        bool
 	Limit        int
 }
@@ -57,6 +58,9 @@ func Status(n note.CommitNote, options OutputOptions, projPath ...string) (strin
 
 	if options.TerminalOff {
 		n = n.FilterOutTerminal()
+	}
+	if options.AppOff {
+		n = n.FilterOutApp()
 	}
 
 	if options.TotalOnly {
@@ -105,7 +109,7 @@ func Status(n note.CommitNote, options OutputOptions, projPath ...string) (strin
 
 // CommitSummary returns the commit summary report
 func CommitSummary(projects []ProjectCommits, options OutputOptions) (string, error) {
-	notes := options.limitNotes(retrieveNotes(projects, options.TerminalOff, false, "Mon Jan 02"))
+	notes := options.limitNotes(retrieveNotes(projects, options.TerminalOff, options.AppOff, false, "Mon Jan 02"))
 	if len(notes) == 0 {
 		return "", nil
 	}
@@ -134,7 +138,7 @@ func CommitSummary(projects []ProjectCommits, options OutputOptions) (string, er
 
 // ProjectSummary returns the project summary report
 func ProjectSummary(projects []ProjectCommits, options OutputOptions) (string, error) {
-	notes := options.limitNotes(retrieveNotes(projects, options.TerminalOff, false, "Mon Jan 02"))
+	notes := options.limitNotes(retrieveNotes(projects, options.TerminalOff, options.AppOff, false, "Mon Jan 02"))
 	if len(notes) == 0 {
 		return "", nil
 	}
@@ -166,7 +170,7 @@ func ProjectSummary(projects []ProjectCommits, options OutputOptions) (string, e
 
 // Commits returns the commits report
 func Commits(projects []ProjectCommits, options OutputOptions) (string, error) {
-	notes := options.limitNotes(retrieveNotes(projects, options.TerminalOff, true, ""))
+	notes := options.limitNotes(retrieveNotes(projects, options.TerminalOff, options.AppOff, true, ""))
 	if len(notes) == 0 {
 		return "", nil
 	}
@@ -195,7 +199,7 @@ func Commits(projects []ProjectCommits, options OutputOptions) (string, error) {
 
 // Timeline returns the time spent by hour
 func Timeline(projects []ProjectCommits, options OutputOptions) (string, error) {
-	notes := options.limitNotes(retrieveNotes(projects, options.TerminalOff, false, ""))
+	notes := options.limitNotes(retrieveNotes(projects, options.TerminalOff, options.AppOff, false, ""))
 	if len(notes) == 0 {
 		return "", nil
 	}
@@ -228,7 +232,7 @@ func Timeline(projects []ProjectCommits, options OutputOptions) (string, error) 
 
 // TimelineCommits returns the number commits by hour
 func TimelineCommits(projects []ProjectCommits, options OutputOptions) (string, error) {
-	notes := options.limitNotes(retrieveNotes(projects, options.TerminalOff, false, ""))
+	notes := options.limitNotes(retrieveNotes(projects, options.TerminalOff, options.AppOff, false, ""))
 	if len(notes) == 0 {
 		return "", nil
 	}
@@ -261,7 +265,7 @@ func TimelineCommits(projects []ProjectCommits, options OutputOptions) (string, 
 
 // Files returns the files report
 func Files(projects []ProjectCommits, options OutputOptions) (string, error) {
-	notes := options.limitNotes(retrieveNotes(projects, options.TerminalOff, false, ""))
+	notes := options.limitNotes(retrieveNotes(projects, options.TerminalOff, options.AppOff, false, ""))
 	if len(notes) == 0 {
 		return "", nil
 	}
