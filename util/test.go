@@ -139,6 +139,12 @@ func (t TestRepo) SaveFile(filename, subdir, content string) {
 	CheckFatal(t.test, err)
 }
 
+// FileExists Checks if a file exists in the repo folder
+func (t TestRepo) FileExists(filename, subdir string) bool {
+	_, err := os.Stat(filepath.Join(subdir, filename))
+	return !os.IsNotExist(err)
+}
+
 // Clone creates a clone of this repo
 func (t TestRepo) Clone() TestRepo {
 	path, err := ioutil.TempDir("", "gtm")
