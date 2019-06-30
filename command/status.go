@@ -38,6 +38,8 @@ Options:
 
   -terminal-off=false        Exclude time spent in terminal (Terminal plug-in is required)
 
+  -app-off=false             Exclude time spent in apps
+
   -color=false               Always output color even if no terminal is detected, i.e 'gtm status -color | less -R'
 
   -total-only=false          Only display total pending time
@@ -53,11 +55,12 @@ Options:
 
 // Run executes status command with args
 func (c StatusCmd) Run(args []string) int {
-	var color, terminalOff, totalOnly, all, profile, longDuration bool
+	var color, terminalOff, appOff, totalOnly, all, profile, longDuration bool
 	var tags string
 	cmdFlags := flag.NewFlagSet("status", flag.ContinueOnError)
 	cmdFlags.BoolVar(&color, "color", false, "Always output color even if no terminal is detected. Use this with pagers i.e 'less -R' or 'more -R'")
 	cmdFlags.BoolVar(&terminalOff, "terminal-off", false, "Exclude time spent in terminal (Terminal plugin is required)")
+	cmdFlags.BoolVar(&appOff, "app-off", false, "Exclude time spent in apps")
 	cmdFlags.BoolVar(&totalOnly, "total-only", false, "Only display total time")
 	cmdFlags.BoolVar(&longDuration, "long-duration", false, "Display total time in long duration format")
 	cmdFlags.StringVar(&tags, "tags", "", "Project tags to show status on")
@@ -100,6 +103,7 @@ func (c StatusCmd) Run(args []string) int {
 		TotalOnly:    totalOnly,
 		LongDuration: longDuration,
 		TerminalOff:  terminalOff,
+		AppOff:       appOff,
 		Color:        color}
 
 	for _, projPath := range projects {

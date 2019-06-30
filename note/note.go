@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/git-time-metric/gtm/project"
 	"github.com/git-time-metric/gtm/util"
 )
 
@@ -25,6 +26,17 @@ func (n CommitNote) FilterOutTerminal() CommitNote {
 	fds := []FileDetail{}
 	for _, f := range n.Files {
 		if !f.IsTerminal() {
+			fds = append(fds, f)
+		}
+	}
+	return CommitNote{Files: fds}
+}
+
+// FilterOutApp filters out app time from commit note
+func (n CommitNote) FilterOutApp() CommitNote {
+	fds := []FileDetail{}
+	for _, f := range n.Files {
+		if !f.IsApp() {
 			fds = append(fds, f)
 		}
 	}
@@ -189,6 +201,18 @@ func (f *FileDetail) SortEpochs() []int64 {
 // IsTerminal returns true if file is terminal
 func (f *FileDetail) IsTerminal() bool {
 	return f.SourceFile == ".gtm/terminal.app"
+}
+
+// IsApp returns true if file is an app event
+func (f *FileDetail) IsApp() bool {
+	return project.AppEventFileContentRegex.MatchString(f.SourceFile)
+}
+
+// GetAppName returns the name of the App
+func (f *FileDetail) GetAppName() string {
+	name := project.AppEventFileContentRegex.FindStringSubmatch(f.SourceFile)[1]
+	name = util.UcFirst(name)
+	return name
 }
 
 // FileByTime is list of FileDetails

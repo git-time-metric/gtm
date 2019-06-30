@@ -256,6 +256,49 @@ func TestReportFiles(t *testing.T) {
 	}
 }
 
+func TestReportAppsOff(t *testing.T) {
+	repo := util.NewTestRepo(t, false)
+	defer repo.Remove()
+	os.Chdir(repo.Workdir())
+
+	(InitCmd{UI: new(cli.MockUi)}).Run([]string{})
+
+	repo.SaveFile("event.go", "event", "")
+	repo.SaveFile("browser.app", project.GTMDir, "")
+	repo.SaveFile("1458496803.event", project.GTMDir, filepath.Join("event", "event.go"))
+	repo.SaveFile("1458496818.event", project.GTMDir, filepath.Join(project.GTMDir, "browser.app"))
+
+	repo.Commit(repo.Stage(filepath.Join("event", "event.go")))
+
+	// save notes to git repository
+	(CommitCmd{UI: new(cli.MockUi)}).Run([]string{"-yes"})
+
+	ui := new(cli.MockUi)
+	c := ReportCmd{UI: ui}
+
+	// Including apps
+	args := []string{"-format", "files", "-testing=true"}
+	rc := c.Run(args)
+	if rc != 0 {
+		t.Errorf("gtm report(%+v), want 0 got %d, %s", args, rc, ui.ErrorWriter.String())
+	}
+	if !strings.Contains(ui.OutputWriter.String(), "Browser") {
+		t.Errorf("gtm report(%+v), want 'Browser' got %s, %s", args, ui.OutputWriter.String(), ui.ErrorWriter.String())
+	}
+
+	// Excluding apps
+	ui.OutputWriter.Reset()
+	ui.ErrorWriter.Reset()
+	args = []string{"-app-off", "-format", "files", "-testing=true"}
+	rc = c.Run(args)
+	if rc != 0 {
+		t.Errorf("gtm report(%+v), want 0 got %d, %s", args, rc, ui.ErrorWriter.String())
+	}
+	if strings.Contains(ui.OutputWriter.String(), "Browser") {
+		t.Errorf("gtm report(%+v), want not 'Browser' got %s, %s", args, ui.OutputWriter.String(), ui.ErrorWriter.String())
+	}
+}
+
 func TestReportInvalidOption(t *testing.T) {
 	ui := new(cli.MockUi)
 	c := ReportCmd{UI: ui}

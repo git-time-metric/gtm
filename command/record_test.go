@@ -235,6 +235,45 @@ func TestRecordTerminalWithStatus(t *testing.T) {
 		t.Errorf("gtm record(%+v), want 1 event file got %d, %s", args, cnt, ui.ErrorWriter.String())
 	}
 }
+
+func TestRecordApp(t *testing.T) {
+	repo := util.NewTestRepo(t, false)
+	defer repo.Remove()
+	repo.Seed()
+	workdir := repo.Workdir()
+	os.Chdir(workdir)
+
+	(InitCmd{UI: new(cli.MockUi)}).Run([]string{})
+
+	ui := new(cli.MockUi)
+	c := RecordCmd{UI: ui}
+
+	args := []string{"-app", "browser"}
+	rc := c.Run(args)
+
+	if rc != 0 {
+		t.Errorf("gtm record(%+v), want 0 got %d, %s", args, rc, ui.ErrorWriter)
+	}
+
+	if _, err := os.Stat(filepath.Join(workdir, ".gtm", "browser.app")); os.IsNotExist(err) {
+		t.Errorf("gtm record(%+v), want .app file to be created, it was not created", args)
+	}
+
+	files, err := ioutil.ReadDir(filepath.Join(workdir, ".gtm"))
+	if err != nil {
+		t.Fatalf("gtm record(%+v), want error nil got  %s", args, err)
+	}
+	cnt := 1
+	for _, f := range files {
+		if filepath.Base(f.Name()) == ".event" {
+			cnt++
+		}
+	}
+	if cnt != 1 {
+		t.Errorf("gtm record(%+v), want 1 event file got %d, %s", args, cnt, ui.ErrorWriter.String())
+	}
+}
+
 func TestRecordInvalidOption(t *testing.T) {
 	ui := new(cli.MockUi)
 	c := RecordCmd{UI: ui}

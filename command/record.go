@@ -8,6 +8,7 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -50,7 +51,7 @@ func (c RecordCmd) Help() string {
 	helpText := `
 Usage: gtm record [options] [/path/file]
 
-  Record file or terminal events.
+  Record file or app events.
 
 Options:
 
@@ -58,18 +59,21 @@ Options:
 
   -status=false              Return total time recorded for event.
 
-  -long-duration=false       Return total time recorded in long duration format
+  -long-duration=false       Return total time recorded in long duration format.
+
+  -app=false                 Record an app event.
 `
 	return strings.TrimSpace(helpText)
 }
 
 // Run executes record command with args
 func (c RecordCmd) Run(args []string) int {
-	var status, terminal, longDuration bool
+	var status, terminal, longDuration, app bool
 	cmdFlags := flag.NewFlagSet("record", flag.ContinueOnError)
 	cmdFlags.BoolVar(&status, "status", false, "")
 	cmdFlags.BoolVar(&terminal, "terminal", false, "")
 	cmdFlags.BoolVar(&longDuration, "long-duration", false, "")
+	cmdFlags.BoolVar(&app, "app", false, "")
 	cmdFlags.Usage = func() { c.UI.Output(c.Help()) }
 	if err := cmdFlags.Parse(args); err != nil {
 		return 1
@@ -82,19 +86,18 @@ func (c RecordCmd) Run(args []string) int {
 
 	var fileToRecord string
 	if terminal {
-		projPath, err := scm.GitRepoPath()
-		if err != nil {
-			// if not found, ignore error
-			return 0
-		}
-		projPath, err = scm.Workdir(projPath)
-		if err != nil {
-			// if not found, ignore error
-			return 0
-		}
-		fileToRecord = filepath.Join(projPath, ".gtm", "terminal.app")
+		fileToRecord = "terminal"
+		app = true
 	} else {
 		fileToRecord = cmdFlags.Args()[0]
+	}
+
+	if app {
+		fileToRecord = c.appToFile(fileToRecord)
+	}
+
+	if !(0 <= len(fileToRecord)) {
+		return 0
 	}
 
 	if err := event.Record(fileToRecord); err != nil && !(err == project.ErrNotInitialized || err == project.ErrFileNotFound) {
@@ -137,6 +140,33 @@ func (c RecordCmd) Run(args []string) int {
 	}
 
 	return 0
+}
+
+// Given an app name creates (if it not was already created) the file ".gtm/{name}.app"
+// that we use to track events, and returns the full path
+func (c RecordCmd) appToFile(appName string) string {
+	if !(len(appName) > 0) {
+		return ""
+	}
+	projPath, err := scm.GitRepoPath()
+	if err != nil {
+		return ""
+	}
+	projPath, err = scm.Workdir(projPath)
+	if err != nil {
+		return ""
+	}
+
+	var file = filepath.Join(projPath, ".gtm", appName+".app")
+
+	if _, err := os.Stat(file); os.IsNotExist(err) {
+		ioutil.WriteFile(
+			file,
+			[]byte{},
+			0644)
+	}
+
+	return file
 }
 
 // Synopsis returns help

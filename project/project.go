@@ -26,6 +26,8 @@ var (
 	ErrNotInitialized = errors.New("Git Time Metric is not initialized")
 	// ErrFileNotFound is raised when record an event for a file that does not exist
 	ErrFileNotFound = errors.New("File does not exist")
+	// AppEventFileContentRegex regex for app event files
+	AppEventFileContentRegex = regexp.MustCompile(`\.gtm[\\/](?P<appName>.*)\.app`)
 )
 
 var (
@@ -267,7 +269,7 @@ func Uninitialize() (string, error) {
 }
 
 //Clean removes any event or metrics files from project in the current working directory
-func Clean(dr util.DateRange, terminalOnly bool) error {
+func Clean(dr util.DateRange, terminalOnly bool, appOnly bool) error {
 	wd, err := os.Getwd()
 	if err != nil {
 		return err
@@ -300,16 +302,25 @@ func Clean(dr util.DateRange, terminalOnly bool) error {
 		if !dr.Within(f.ModTime()) {
 			continue
 		}
+
 		fp := filepath.Join(gtmPath, f.Name())
-		if terminalOnly && strings.HasSuffix(f.Name(), ".event") {
+		if (terminalOnly || appOnly) && strings.HasSuffix(f.Name(), ".event") {
 			b, err := ioutil.ReadFile(fp)
 			if err != nil {
 				return err
 			}
-			if !strings.Contains(string(b), "terminal.app") {
-				continue
+
+			if terminalOnly {
+				if !strings.Contains(string(b), "terminal.app") {
+					continue
+				}
+			} else if appOnly {
+				if !AppEventFileContentRegex.MatchString(string(b)) {
+					continue
+				}
 			}
 		}
+
 		if err := os.Remove(fp); err != nil {
 			return err
 		}

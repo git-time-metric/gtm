@@ -265,9 +265,26 @@ func TestClean(t *testing.T) {
 		t.Errorf("Want error nil got %s", err)
 	}
 
+	// write an app event file
+	if err := ioutil.WriteFile(filepath.Join(gtmPath, "app.event"), []byte(".gtm/browser.app"), 0644); err != nil {
+		t.Errorf("Want error nil got %s", err)
+	}
+
 	// lets only delete terminal events
-	err = Clean(util.AfterNow(0), true)
+	err = Clean(util.AfterNow(0), true, false)
 	files, err := ioutil.ReadDir(gtmPath)
+	if err != nil {
+		t.Fatalf("Want error nil got %s", err)
+	}
+	for _, f := range files {
+		if !(f.Name() == "a.txt" || f.Name() == "a.event" || f.Name() == "b.event" || f.Name() == "app.event") {
+			t.Errorf("Clean(), want only a.txt, a.event, b.event and app.event got %s", f.Name())
+		}
+	}
+
+	// lets only delete app events
+	err = Clean(util.AfterNow(0), false, true)
+	files, err = ioutil.ReadDir(gtmPath)
 	if err != nil {
 		t.Fatalf("Want error nil got %s", err)
 	}
@@ -278,7 +295,7 @@ func TestClean(t *testing.T) {
 	}
 
 	// lets clean all events
-	err = Clean(util.AfterNow(0), false)
+	err = Clean(util.AfterNow(0), false, false)
 	files, err = ioutil.ReadDir(gtmPath)
 	if err != nil {
 		t.Fatalf("Want error nil got %s", err)

@@ -36,8 +36,8 @@ const (
 	{{- $note.Date }} {{ printf $boldFormat $note.Project }} {{ $note.Author }}{{- printf "\n" }}
 	{{- if $fullMessage}}{{- if $note.Message }}{{- printf "\n"}}{{- $note.Message }}{{- printf "\n"}}{{end}}{{end}}
 	{{- range $i, $f := .Note.Files }}
-		{{- if $f.IsTerminal }}
-			{{- FormatDuration $f.TimeSpent | printf "\n%14s" }} {{ Percent $f.TimeSpent $total | printf "%3.0f"}}% [{{ $f.Status }}] Terminal
+		{{- if $f.IsApp }}
+			{{- FormatDuration $f.TimeSpent | printf "\n%14s" }} {{ Percent $f.TimeSpent $total | printf "%3.0f"}}% [{{ $f.Status }}] [app] {{$f.GetAppName }}
 		{{- else }}
 			{{- FormatDuration $f.TimeSpent | printf "\n%14s" }} {{ Percent $f.TimeSpent $total | printf "%3.0f"}}% [{{ $f.Status }}] {{$f.ShortenSourceFile 100}}
 		{{- end }}
@@ -54,8 +54,8 @@ const (
 {{- if .Note.Files }}{{ printf "\n"}}{{end}}
 {{- $total := .Note.Total }}
 {{- range $i, $f := .Note.Files }}
-	{{- if $f.IsTerminal }}
-		{{- FormatDuration $f.TimeSpent | printf "%14s" }} {{ Percent $f.TimeSpent $total | printf "%3.0f"}}% [{{ $f.Status }}] Terminal
+	{{- if $f.IsApp }}
+		{{- FormatDuration $f.TimeSpent | printf "%14s" }} {{ Percent $f.TimeSpent $total | printf "%3.0f"}}% [{{ $f.Status }}] [app] {{$f.GetAppName }}
 	{{- else }}
 		{{- FormatDuration $f.TimeSpent | printf "%14s" }} {{ Percent $f.TimeSpent $total | printf "%3.0f"}}% [{{ $f.Status }}] {{$f.ShortenSourceFile 100}}
 	{{- end }}
@@ -97,8 +97,8 @@ const (
 	filesTpl string = `
 {{- $total := .Files.Total }}
 {{ range $i, $f := .Files }}
-	{{- if $f.IsTerminal }}
-		{{- $f.Duration | printf "%14s" }} {{ Percent $f.Seconds $total | printf "%3.0f"}}%  Terminal
+	{{- if $f.IsApp }}
+		{{- $f.Duration | printf "%14s" }} {{ Percent $f.Seconds $total | printf "%3.0f"}}%  [app] {{ $f.GetAppName }}
 	{{- else }}
 		{{- $f.Duration | printf "%14s" }} {{ Percent $f.Seconds $total | printf "%3.0f"}}%  {{ $f.Filename }}
 	{{- end }}

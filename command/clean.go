@@ -34,6 +34,7 @@ Options:
 
   -yes                       Delete time data without asking for confirmation.
   -terminal-only             Only delete terminal time data
+  -app-only                  Only delete apps time data
   -days=0                    Delete starting from n days in the past
 `
 	return strings.TrimSpace(helpText)
@@ -41,11 +42,12 @@ Options:
 
 // Run executes clean command with args
 func (c CleanCmd) Run(args []string) int {
-	var yes, terminalOnly bool
+	var yes, terminalOnly, appOnly bool
 	var days int
 	cmdFlags := flag.NewFlagSet("clean", flag.ContinueOnError)
 	cmdFlags.BoolVar(&yes, "yes", false, "")
 	cmdFlags.BoolVar(&terminalOnly, "terminal-only", false, "")
+	cmdFlags.BoolVar(&appOnly, "app-only", false, "")
 	cmdFlags.IntVar(&days, "days", 0, "")
 	cmdFlags.Usage = func() { c.UI.Output(c.Help()) }
 	if err := cmdFlags.Parse(args); err != nil {
@@ -62,7 +64,7 @@ func (c CleanCmd) Run(args []string) int {
 	}
 
 	if confirm {
-		if err := project.Clean(util.AfterNow(days), terminalOnly); err != nil {
+		if err := project.Clean(util.AfterNow(days), terminalOnly, appOnly); err != nil {
 			c.UI.Error(err.Error())
 			return 1
 		}
