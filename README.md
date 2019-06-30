@@ -127,7 +127,7 @@ For help from the command line type `gtm --help` and `gtm <subcommand> --help`.
 For additional help please consult the [Wiki](https://github.com/git-time-metric/gtm/wiki).
 
 # Contributing
-[![Build Status](https://travis-ci.org/git-time-metric/gtm.svg?branch=develop)](https://travis-ci.org/git-time-metric/gtm) [![Build status](https://ci.appveyor.com/api/projects/status/gj6tvm8njgwj0hqi?svg=true)](https://ci.appveyor.com/project/mschenk42/gtm) [![Coverage Status](https://coveralls.io/repos/github/git-time-metric/gtm/badge.svg)](https://coveralls.io/github/git-time-metric/gtm) [![Go Report Card](https://goreportcard.com/badge/github.com/git-time-metric/gtm)](https://goreportcard.com/report/github.com/git-time-metric/gtm) [![Stories in Ready](https://badge.waffle.io/git-time-metric/gtm.png?label=ready&title=Ready)](https://waffle.io/git-time-metric/gtm)
+[![Build Status](https://travis-ci.org/git-time-metric/gtm.svg?branch=develop)](https://travis-ci.org/git-time-metric/gtm) [![Build status](https://ci.appveyor.com/api/projects/status/gj6tvm8njgwj0hqi?svg=true)](https://ci.appveyor.com/project/mschenk42/gtm) [![Coverage Status](https://coveralls.io/repos/github/git-time-metric/gtm/badge.svg)](https://coveralls.io/github/git-time-metric/gtm) [![Go Report Card](https://goreportcard.com/badge/github.com/git-time-metric/gtm)](https://goreportcard.com/report/github.com/git-time-metric/gtm)
 
 If you find a bug or have an idea for a new feature please feel free to file new issues and submits PRs.  In particular if there isn't a plugin for your favorite editor, go ahead and create one!
 
