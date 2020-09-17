@@ -49,7 +49,7 @@ func NewRecord() (cli.Command, error) {
 // Help returns help for record command
 func (c RecordCmd) Help() string {
 	helpText := `
-Usage: gtm record [options] [/path/file]
+Usage: gtm record [options] [/path/file or app event]
 
   Record file or app events.
 
@@ -57,13 +57,11 @@ Options:
 
   -terminal=false            Record a terminal event.
 
-  -run=false				 Record a run event.
-
   -status=false              Return total time recorded for event.
 
   -long-duration=false       Return total time recorded in long duration format.
 
-  -app=false                 Record an app event.
+  -app=false [event_name]    Record an app event.
 `
 	return strings.TrimSpace(helpText)
 }
@@ -82,7 +80,7 @@ func (c RecordCmd) Run(args []string) int {
 		return 1
 	}
 
-	if !terminal && !run && len(cmdFlags.Args()) == 0 {
+	if !terminal && len(cmdFlags.Args()) == 0 {
 		c.UI.Error("Unable to record, file not provided")
 		return 1
 	}
@@ -90,8 +88,8 @@ func (c RecordCmd) Run(args []string) int {
 	var fileToRecord string
 	if terminal {
 		fileToRecord = c.appToFile("terminal")
-	} else if run {
-		fileToRecord = c.appToFile("run")
+	} else if app {
+		fileToRecord = c.appToFile(strings.ToLower(cmdFlags.Args()[0])) // TODO: list of configurable allowed options
 	} else {
 		fileToRecord = cmdFlags.Args()[0]
 	}
@@ -171,5 +169,5 @@ func (c RecordCmd) appToFile(appName string) string {
 
 // Synopsis returns help
 func (c RecordCmd) Synopsis() string {
-	return "Record file and terminal events"
+	return "Record file, terminal and app events"
 }
