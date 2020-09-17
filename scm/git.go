@@ -16,7 +16,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/git-time-metric/gtm/util"
+	"github.com/kilpkonn/gtm/util"
 	"github.com/libgit2/git2go"
 )
 

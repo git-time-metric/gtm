@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/git-time-metric/gtm/command"
-	"github.com/git-time-metric/gtm/util"
+	"github.com/kilpkonn/gtm/command"
+	"github.com/kilpkonn/gtm/util"
 	"github.com/mitchellh/cli"
 )
 

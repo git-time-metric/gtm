@@ -13,12 +13,12 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/git-time-metric/gtm/event"
-	"github.com/git-time-metric/gtm/metric"
-	"github.com/git-time-metric/gtm/note"
-	"github.com/git-time-metric/gtm/project"
-	"github.com/git-time-metric/gtm/report"
-	"github.com/git-time-metric/gtm/scm"
+	"github.com/kilpkonn/gtm/event"
+	"github.com/kilpkonn/gtm/metric"
+	"github.com/kilpkonn/gtm/note"
+	"github.com/kilpkonn/gtm/project"
+	"github.com/kilpkonn/gtm/report"
+	"github.com/kilpkonn/gtm/scm"
 
 	"github.com/mitchellh/cli"
 )

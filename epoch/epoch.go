@@ -4,7 +4,7 @@
 
 package epoch
 
-import "github.com/git-time-metric/gtm/util"
+import "github.com/kilpkonn/gtm/util"
 
 // WindowSize is number seconds in an epoch window
 const WindowSize = 60

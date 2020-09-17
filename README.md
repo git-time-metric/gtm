@@ -140,3 +140,19 @@ For more detail on how to write plugins, check out the [Wiki](https://github.com
 To report a bug, please submit an issue on the [GitHub Page](https://github.com/git-time-metric/gtm/issues)
 
 Consult the [Wiki](https://github.com/git-time-metric/gtm/wiki) for more information.
+
+
+
+
+```bash
+sudo apt-get install libgit2-dev libssh2-1-dev libssl-dev cmake
+```
+
+```bash
+cd $GOPATH/src/github.com/libgit2/git2go
+git checkout next
+git submodule update --init # get libgit2
+make
+
+make install # not needed ??
+```

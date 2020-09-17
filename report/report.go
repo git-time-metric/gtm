@@ -13,9 +13,9 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/git-time-metric/gtm/note"
-	"github.com/git-time-metric/gtm/project"
-	"github.com/git-time-metric/gtm/util"
+	"github.com/kilpkonn/gtm/note"
+	"github.com/kilpkonn/gtm/project"
+	"github.com/kilpkonn/gtm/util"
 	isatty "github.com/mattn/go-isatty"
 )
 
