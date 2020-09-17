@@ -57,6 +57,8 @@ Options:
 
   -terminal=false            Record a terminal event.
 
+  -run=false				 Record a run event.
+
   -status=false              Return total time recorded for event.
 
   -long-duration=false       Return total time recorded in long duration format.
@@ -68,32 +70,30 @@ Options:
 
 // Run executes record command with args
 func (c RecordCmd) Run(args []string) int {
-	var status, terminal, longDuration, app bool
+	var status, terminal, run, longDuration, app bool
 	cmdFlags := flag.NewFlagSet("record", flag.ContinueOnError)
 	cmdFlags.BoolVar(&status, "status", false, "")
 	cmdFlags.BoolVar(&terminal, "terminal", false, "")
+	cmdFlags.BoolVar(&run, "run", false, "")
 	cmdFlags.BoolVar(&longDuration, "long-duration", false, "")
-	cmdFlags.BoolVar(&app, "app", false, "")
+	cmdFlags.BoolVar(&app, "app", false, "") // TODO: Rethink if needed
 	cmdFlags.Usage = func() { c.UI.Output(c.Help()) }
 	if err := cmdFlags.Parse(args); err != nil {
 		return 1
 	}
 
-	if !terminal && len(cmdFlags.Args()) == 0 {
+	if !terminal && !run && len(cmdFlags.Args()) == 0 {
 		c.UI.Error("Unable to record, file not provided")
 		return 1
 	}
 
 	var fileToRecord string
 	if terminal {
-		fileToRecord = "terminal"
-		app = true
+		fileToRecord = c.appToFile("terminal")
+	} else if run {
+		fileToRecord = c.appToFile("run")
 	} else {
 		fileToRecord = cmdFlags.Args()[0]
-	}
-
-	if app {
-		fileToRecord = c.appToFile(fileToRecord)
 	}
 
 	if !(0 <= len(fileToRecord)) {

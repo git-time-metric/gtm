@@ -75,3 +75,5 @@ tags
 /.idea/
 
 /bin/
+/build
+/go_build*
