@@ -88,7 +88,7 @@ func (c StatusCmd) Run(args []string) int {
 		return 1
 	}
 
-	tagList := []string{}
+	var tagList []string
 	if tags != "" {
 		tagList = util.Map(strings.Split(tags, ","), strings.TrimSpace)
 	}

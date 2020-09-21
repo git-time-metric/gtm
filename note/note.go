@@ -208,6 +208,13 @@ func (f *FileDetail) IsApp() bool {
 	return project.AppEventFileContentRegex.MatchString(f.SourceFile)
 }
 
+func (f *FileDetail) GetEventType() string {
+	if !f.IsApp() {
+		return ""
+	}
+	return project.AppEventFileContentRegex.FindStringSubmatch(f.SourceFile)[2]
+}
+
 // GetAppName returns the name of the App
 func (f *FileDetail) GetAppName() string {
 	name := project.AppEventFileContentRegex.FindStringSubmatch(f.SourceFile)[1]

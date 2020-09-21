@@ -55,7 +55,7 @@ const (
 {{- $total := .Note.Total }}
 {{- range $i, $f := .Note.Files }}
 	{{- if $f.IsApp }}
-		{{- FormatDuration $f.TimeSpent | printf "%14s" }} {{ Percent $f.TimeSpent $total | printf "%3.0f"}}% [{{ $f.Status }}] [app] {{$f.GetAppName }}
+		{{- FormatDuration $f.TimeSpent | printf "%14s" }} {{ Percent $f.TimeSpent $total | printf "%3.0f"}}% [{{ $f.Status }}] [{{$f.GetEventType}}] {{$f.GetAppName }}
 	{{- else }}
 		{{- FormatDuration $f.TimeSpent | printf "%14s" }} {{ Percent $f.TimeSpent $total | printf "%3.0f"}}% [{{ $f.Status }}] {{$f.ShortenSourceFile 100}}
 	{{- end }}

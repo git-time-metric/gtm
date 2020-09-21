@@ -27,7 +27,7 @@ var (
 	// ErrFileNotFound is raised when record an event for a file that does not exist
 	ErrFileNotFound = errors.New("File does not exist")
 	// AppEventFileContentRegex regex for app event files
-	AppEventFileContentRegex = regexp.MustCompile(`\.gtm[\\/](?P<appName>.*)\.app`)
+	AppEventFileContentRegex = regexp.MustCompile(`\.gtm[\\/](?P<appName>.*)\.(?P<eventType>app|run|build)`)
 )
 
 var (

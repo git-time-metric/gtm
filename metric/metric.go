@@ -296,7 +296,7 @@ func buildCommitNote(
 
 	defer util.Profile()()
 
-	flsModified := []note.FileDetail{}
+	var flsModified []note.FileDetail
 
 	for _, fm := range commitMap {
 		fm.Downsample()
@@ -309,7 +309,7 @@ func buildCommitNote(
 			note.FileDetail{SourceFile: fm.SourceFile, TimeSpent: fm.TimeSpent, Timeline: fm.Timeline, Status: status})
 	}
 
-	flsReadonly := []note.FileDetail{}
+	var flsReadonly []note.FileDetail
 	for _, fm := range readonlyMap {
 		fm.Downsample()
 		status := "r"
