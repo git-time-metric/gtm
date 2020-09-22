@@ -73,6 +73,7 @@ Options:
 // Run executes record command with args
 func (c RecordCmd) Run(args []string) int {
 	var status, terminal, run, build, longDuration, app bool
+	var cwd string
 	cmdFlags := flag.NewFlagSet("record", flag.ContinueOnError)
 	cmdFlags.BoolVar(&status, "status", false, "")
 	cmdFlags.BoolVar(&terminal, "terminal", false, "")
@@ -80,6 +81,7 @@ func (c RecordCmd) Run(args []string) int {
 	cmdFlags.BoolVar(&build, "build", false, "")
 	cmdFlags.BoolVar(&longDuration, "long-duration", false, "")
 	cmdFlags.BoolVar(&app, "app", false, "")
+	cmdFlags.StringVar(&cwd, "cwd", "", "")
 	cmdFlags.Usage = func() { c.UI.Output(c.Help()) }
 	if err := cmdFlags.Parse(args); err != nil {
 		return 1
@@ -92,13 +94,13 @@ func (c RecordCmd) Run(args []string) int {
 
 	var fileToRecord string
 	if terminal {
-		fileToRecord = c.appToFile("terminal")
+		fileToRecord = c.appToFile("terminal", cwd)
 	} else if run {
-		fileToRecord = c.runToFile(strings.ToLower(strings.Join(cmdFlags.Args(), "-")))
+		fileToRecord = c.runToFile(strings.ToLower(strings.Join(cmdFlags.Args(), "-")), cwd)
 	} else if build {
-		fileToRecord = c.buildToFile(strings.ToLower(strings.Join(cmdFlags.Args(), "-")))
+		fileToRecord = c.buildToFile(strings.ToLower(strings.Join(cmdFlags.Args(), "-")), cwd)
 	} else if app {
-		fileToRecord = c.appToFile(strings.ToLower(strings.Join(cmdFlags.Args(), "-"))) // TODO: list of configurable allowed options
+		fileToRecord = c.appToFile(strings.ToLower(strings.Join(cmdFlags.Args(), "-")), cwd) // TODO: list of configurable allowed options
 	} else {
 		fileToRecord = cmdFlags.Args()[0]
 	}
@@ -151,23 +153,32 @@ func (c RecordCmd) Run(args []string) int {
 
 // Given an app name creates (if it not was already created) the file ".gtm/{name}.app"
 // that we use to track events, and returns the full path
-func (c RecordCmd) appToFile(appName string) string {
-	return eventToFile(appName, "app")
+func (c RecordCmd) appToFile(appName string, cwd string) string {
+	if len(cwd) <= 0 {
+		return eventToFile(appName, "app")
+	}
+	return eventToFile(appName, "app", cwd)
 }
 
-func (c RecordCmd) runToFile(appName string) string {
-	return eventToFile(appName, "run")
+func (c RecordCmd) runToFile(appName string, cwd string) string {
+	if len(cwd) <= 0 {
+		return eventToFile(appName, "run")
+	}
+	return eventToFile(appName, "run", cwd)
 }
 
-func (c RecordCmd) buildToFile(appName string) string {
-	return eventToFile(appName, "build")
+func (c RecordCmd) buildToFile(appName string, cwd string) string {
+	if len(cwd) <= 0 {
+		return eventToFile(appName, "build")
+	}
+	return eventToFile(appName, "build", cwd)
 }
 
-func eventToFile(event string, eventType string) string {
+func eventToFile(event string, eventType string, cwd ...string) string {
 	if !(len(event) > 0) {
 		return ""
 	}
-	projPath, err := scm.GitRepoPath()
+	projPath, err := scm.GitRepoPath(cwd...)
 	if err != nil {
 		return ""
 	}
@@ -175,9 +186,7 @@ func eventToFile(event string, eventType string) string {
 	if err != nil {
 		return ""
 	}
-
 	var file = filepath.Join(projPath, ".gtm", event+"."+eventType)
-
 	if _, err := os.Stat(file); os.IsNotExist(err) {
 		ioutil.WriteFile(
 			file,
