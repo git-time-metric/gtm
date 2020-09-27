@@ -12,8 +12,11 @@ jobs:
       - name: Install dependecies
         run: |
           sudo apt-get install libgit2-dev libssh2-1-dev libssl-dev cmake
-          make git2go
-          go get github.com/mattn/goveralls
+          cd $GOPATH/src/github.com/libgit2/git2go
+          git checkout next
+          git submodule update --init # get libgit2
+          make
+          make install
       - name: Build
         run: |
           go get -d ./...
