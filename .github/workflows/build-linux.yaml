@@ -27,8 +27,8 @@ jobs:
           cd $GOPATH
       - name: Install git2go
         run: |
-          make || true
-          make install
+          make
+          make install || true
       - name: Get gtm
         run: |
           export GOPATH=$GITHUB_WORKSPACE/go
