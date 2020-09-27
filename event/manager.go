@@ -11,8 +11,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/kilpkonn/gtm/epoch"
-	"github.com/kilpkonn/gtm/util"
+	"github.com/kilpkonn/gtm-enhanced/epoch"
+	"github.com/kilpkonn/gtm-enhanced/util"
 )
 
 // Record creates an event for a source

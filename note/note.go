@@ -12,8 +12,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/kilpkonn/gtm/project"
-	"github.com/kilpkonn/gtm/util"
+	"github.com/kilpkonn/gtm-enhanced/project"
+	"github.com/kilpkonn/gtm-enhanced/util"
 )
 
 // CommitNote contains the time metrics for a commit

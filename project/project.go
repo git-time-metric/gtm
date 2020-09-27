@@ -16,8 +16,8 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/kilpkonn/gtm/scm"
-	"github.com/kilpkonn/gtm/util"
+	"github.com/kilpkonn/gtm-enhanced/scm"
+	"github.com/kilpkonn/gtm-enhanced/util"
 	"github.com/mattn/go-isatty"
 )
 

@@ -14,10 +14,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/kilpkonn/gtm/epoch"
-	"github.com/kilpkonn/gtm/note"
-	"github.com/kilpkonn/gtm/scm"
-	"github.com/kilpkonn/gtm/util"
+	"github.com/kilpkonn/gtm-enhanced/epoch"
+	"github.com/kilpkonn/gtm-enhanced/note"
+	"github.com/kilpkonn/gtm-enhanced/scm"
+	"github.com/kilpkonn/gtm-enhanced/util"
 )
 
 // getFileID returns the SHA1 checksum for filePath

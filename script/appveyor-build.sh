@@ -34,7 +34,7 @@ if [[ "${APPVEYOR_REPO_TAG}" = true ]]; then
     go build -v --tags static -ldflags "-X main.Version=${version}"
 
     # make sure version is set correctly
-    v="$(${GOPATH}/src/github.com/git-time-metric/gtm/gtm.exe verify ${version})"
+    v="$(${GOPATH}/src/github.com/kilpkonn/gtm-enhanced/gtm.exe verify ${version})"
     if [ ! "$v" == "true" ]; then
         exit 1
     fi
@@ -45,7 +45,7 @@ else
     go build -v --tags static -ldflags "-X main.Version=${version}"
 
     # make sure version is set correctly
-    v="$(${GOPATH}/src/github.com/git-time-metric/gtm/gtm.exe verify ${version})"
+    v="$(${GOPATH}/src/github.com/kilpkonn/gtm-enhanced/gtm.exe verify ${version})"
     if [ ! "$v" == "true" ]; then
         exit 1
     fi

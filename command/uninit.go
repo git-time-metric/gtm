@@ -8,7 +8,7 @@ import (
 	"flag"
 	"strings"
 
-	"github.com/kilpkonn/gtm/project"
+	"github.com/kilpkonn/gtm-enhanced/project"
 	"github.com/mitchellh/cli"
 )
 

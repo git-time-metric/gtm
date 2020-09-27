@@ -10,8 +10,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/git-time-metric/gtm/project"
-	"github.com/git-time-metric/gtm/util"
+	"github.com/kilpkonn/gtm-enhanced/project"
+	"github.com/kilpkonn/gtm-enhanced/util"
 	"github.com/mitchellh/cli"
 )
 

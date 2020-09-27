@@ -14,10 +14,10 @@ import (
 	"time"
 
 	"github.com/briandowns/spinner"
-	"github.com/kilpkonn/gtm/project"
-	"github.com/kilpkonn/gtm/report"
-	"github.com/kilpkonn/gtm/scm"
-	"github.com/kilpkonn/gtm/util"
+	"github.com/kilpkonn/gtm-enhanced/project"
+	"github.com/kilpkonn/gtm-enhanced/report"
+	"github.com/kilpkonn/gtm-enhanced/scm"
+	"github.com/kilpkonn/gtm-enhanced/util"
 	isatty "github.com/mattn/go-isatty"
 	"github.com/mitchellh/cli"
 )

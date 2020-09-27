@@ -12,7 +12,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/git-time-metric/gtm/util"
+	"github.com/kilpkonn/gtm-enhanced/util"
 	"github.com/mitchellh/cli"
 )
 

@@ -47,7 +47,7 @@ brew install gtm
 
 **Windows**
 
-- Download and run the Windows installer from [here](https://github.com/git-time-metric/gtm/releases/latest)
+- Download and run the Windows installer from [here](https://github.com/kilpkonn/gtm-enhanced/releases/latest)
 
 **Linux**
 
@@ -60,7 +60,7 @@ brew install gtm
 
 **Manually install for Linux, OSX or Windows**
 
-- Download and install the executable from [here](https://github.com/git-time-metric/gtm/releases/latest)
+- Download and install the executable from [here](https://github.com/kilpkonn/gtm-enhanced/releases/latest)
 
 
 ### Install a plugin for your editor
@@ -126,20 +126,20 @@ Time data can be retrieved from the remote repository by fetching.
 
 For help from the command line type `gtm --help` and `gtm <subcommand> --help`.
 
-For additional help please consult the [Wiki](https://github.com/git-time-metric/gtm/wiki).
+For additional help please consult the [Wiki](https://github.com/kilpkonn/gtm-enhanced/wiki).
 
 # Contributing
 [![Build Status](https://travis-ci.org/git-time-metric/gtm.svg?branch=develop)](https://travis-ci.org/git-time-metric/gtm) [![Build status](https://ci.appveyor.com/api/projects/status/gj6tvm8njgwj0hqi?svg=true)](https://ci.appveyor.com/project/mschenk42/gtm) [![Coverage Status](https://coveralls.io/repos/github/git-time-metric/gtm/badge.svg)](https://coveralls.io/github/git-time-metric/gtm) [![Go Report Card](https://goreportcard.com/badge/github.com/git-time-metric/gtm)](https://goreportcard.com/report/github.com/git-time-metric/gtm)
 
 If you find a bug or have an idea for a new feature please feel free to file new issues and submits PRs.  In particular if there isn't a plugin for your favorite editor, go ahead and create one!
 
-For more detail on how to write plugins, check out the [Wiki](https://github.com/git-time-metric/gtm/wiki/Editor-Plugins).
+For more detail on how to write plugins, check out the [Wiki](https://github.com/kilpkonn/gtm-enhanced/wiki/Editor-Plugins).
 
 # Support
 
-To report a bug, please submit an issue on the [GitHub Page](https://github.com/git-time-metric/gtm/issues)
+To report a bug, please submit an issue on the [GitHub Page](https://github.com/kilpkonn/gtm-enhanced/issues)
 
-Consult the [Wiki](https://github.com/git-time-metric/gtm/wiki) for more information.
+Consult the [Wiki](https://github.com/kilpkonn/gtm-enhanced/wiki) for more information.
 
 
 

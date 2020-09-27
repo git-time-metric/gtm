@@ -10,9 +10,9 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/kilpkonn/gtm/project"
-	"github.com/kilpkonn/gtm/scm"
-	"github.com/kilpkonn/gtm/util"
+	"github.com/kilpkonn/gtm-enhanced/project"
+	"github.com/kilpkonn/gtm-enhanced/scm"
+	"github.com/kilpkonn/gtm-enhanced/util"
 )
 
 func TestFullCommit(t *testing.T) {

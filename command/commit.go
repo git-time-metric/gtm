@@ -8,7 +8,7 @@ import (
 	"flag"
 	"strings"
 
-	"github.com/kilpkonn/gtm/metric"
+	"github.com/kilpkonn/gtm-enhanced/metric"
 	"github.com/mitchellh/cli"
 )
 

@@ -5,11 +5,11 @@
 package metric
 
 import (
-	"github.com/kilpkonn/gtm/event"
-	"github.com/kilpkonn/gtm/note"
-	"github.com/kilpkonn/gtm/project"
-	"github.com/kilpkonn/gtm/scm"
-	"github.com/kilpkonn/gtm/util"
+	"github.com/kilpkonn/gtm-enhanced/event"
+	"github.com/kilpkonn/gtm-enhanced/note"
+	"github.com/kilpkonn/gtm-enhanced/project"
+	"github.com/kilpkonn/gtm-enhanced/scm"
+	"github.com/kilpkonn/gtm-enhanced/util"
 )
 
 // Process events for last git commit and save time spent as a git note

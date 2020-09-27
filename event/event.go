@@ -11,8 +11,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/kilpkonn/gtm/epoch"
-	"github.com/kilpkonn/gtm/project"
+	"github.com/kilpkonn/gtm-enhanced/epoch"
+	"github.com/kilpkonn/gtm-enhanced/project"
 )
 
 func pathFromSource(f string) (string, string, error) {
