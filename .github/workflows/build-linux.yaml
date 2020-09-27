@@ -32,5 +32,5 @@ jobs:
       - name: Get gtm
         run: |
           export GOPATH=$GITHUB_WORKSPACE/go
-          go get github.com/kilpkon/gtm-enhanced
-          go build -o ./build/gtm git $GITHUB_WORKSPACE/go/src/github.com/kilpkonn/gtm
+          go get github.com/kilpkonn/gtm-enhanced
+          go build -o ./build/gtm $GITHUB_WORKSPACE/go/src/github.com/kilpkonn/gtm
