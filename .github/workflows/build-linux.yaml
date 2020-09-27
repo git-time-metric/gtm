@@ -27,7 +27,6 @@ jobs:
           cd $GOPATH
       - name: Install git2go
         run: |
-          make
           make install || true
       - name: Get gtm
         run: |
