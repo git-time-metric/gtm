@@ -11,6 +11,7 @@ jobs:
       - run: go version
       - name: Install dependecies
         run: |
+          apt-get install libgit2-dev libssh2-1-dev libssl-dev cmake
           make git2go
           go get github.com/mattn/goveralls
       - name: Build
