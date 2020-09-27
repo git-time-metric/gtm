@@ -6,7 +6,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          path: './go/src'
+          path: './go/src/github.com/kilpkonn/gtm'
       - uses: actions/setup-go@v2
         with:
           go-version: '^1.13.1' # The Go version to download (if necessary) and use.
@@ -24,5 +24,6 @@ jobs:
           make install || true
       - name: Build
         run: |
-          cd $GITHUB_WORKSPACE/go/src
+          cd $GITHUB_WORKSPACE/go/src/github.com/kilpkonn
           ls -alt
+          go build -o ./build/gtm git $GITHUB_WORKSPACE/go/src/github.com/kilpkonn/gtm
