@@ -32,10 +32,10 @@ jobs:
       - name: Get gtm
         run: |
           export GOPATH=$GITHUB_WORKSPACE/go
-          go get -d github.com/kilpkonn/gtm-enhanced
+          go get -d github.com/kilpkonn/gtm-enhanced || true
           cd $GOPATH/src/github.com/kilpkonn/gtm-enhanced
           ls -alt
-          go get -d ./...
+          go get -d ./... || true
       - name: Build gtm
         run: |
-          go build -o ./build/gtm $GITHUB_WORKSPACE/go/src/github.com/kilpkonn/gtm
+          go build -o $GITHUB_WORKSPACE/build/gtm $GITHUB_WORKSPACE/go/src/github.com/kilpkonn/gtm-enhanced
