@@ -4,9 +4,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-#      - uses: actions/checkout@v2
-#        with:
-#          path: './go/src/github.com/kilpkonn/gtm'
+      - uses: actions/checkout@v1
+      - uses: nelonoel/branch-name@v1
       - name: setup git
         run: |
           git config --global url."https://${{ secrets.USER }}:${{ secrets.GIT_TOKEN }}@github.com".insteadOf "https://github.com"
@@ -37,9 +36,10 @@ jobs:
       - name: Build gtm
         run: |
           export
-          git checkout ci
           export GOPATH=$GITHUB_WORKSPACE/go
           cd $GOPATH/src/github.com/kilpkonn/gtm-enhanced
+          echo AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA ${BRANCH_NAME}
+          git checkout ${BRANCH_NAME}
           go build -o $GITHUB_WORKSPACE/build/gtm .
       - name: Clean
         run: |
