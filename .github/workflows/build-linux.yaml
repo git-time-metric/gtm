@@ -14,16 +14,23 @@ jobs:
       - name: Install dependecies
         run: |
           sudo apt-get install libgit2-dev libssh2-1-dev libssl-dev cmake
+      - name: Export path
+        run: |
           export GOPATH=$GITHUB_WORKSPACE/go
           PATH="$GOPATH/bin:$PATH"
           export
+      - name: Get git2go
+        run: |
           go get -d github.com/libgit2/git2go
           cd $GOPATH/src/github.com/libgit2/git2go
           git checkout next
           git submodule update --init # get libgit2
+          cd $GITHUB_WORKSPACE/go
+      - name: Install git2go
+        run: |
           make || true
           make install || true
-      - name: Build
+      - name: Get gtm
         run: |
-          cd $GITHUB_WORKSPACE/go
+          go get github.com/kilpkon/gtm-enhanced
           go build -o ./build/gtm git $GITHUB_WORKSPACE/go/src/github.com/kilpkonn/gtm
