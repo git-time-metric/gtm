@@ -15,6 +15,7 @@ jobs:
         run: |
           sudo apt-get install libgit2-dev libssh2-1-dev libssl-dev cmake
           export GOPATH=$GITHUB_WORKSPACE/go
+          PATH="$GOPATH/bin:$PATH"
           export
           go get -d github.com/libgit2/git2go
           cd $GOPATH/src/github.com/libgit2/git2go
@@ -24,6 +25,5 @@ jobs:
           make install || true
       - name: Build
         run: |
-          cd $GITHUB_WORKSPACE/go/src/github.com/kilpkonn
-          ls -alt
+          cd $GITHUB_WORKSPACE/go
           go build -o ./build/gtm git $GITHUB_WORKSPACE/go/src/github.com/kilpkonn/gtm
