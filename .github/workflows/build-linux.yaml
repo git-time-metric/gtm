@@ -16,6 +16,7 @@ jobs:
       - run: go version
       - name: Install dependecies
         run: |
+          rm -rf $GITHUB_WORKSPACE/go
           sudo apt-get install libgit2-dev libssh2-1-dev libssl-dev cmake
       - name: Get git2go
         run: |
@@ -25,9 +26,9 @@ jobs:
           git checkout next
           git submodule update --init # get libgit2
           cd $GOPATH
-      - name: Install git2go
-        run: |
-          make install || true
+#      - name: Install git2go
+#        run: |
+#          make install || true
       - name: Get gtm
         run: |
           export GOPATH=$GITHUB_WORKSPACE/go
@@ -39,3 +40,6 @@ jobs:
           export GOPATH=$GITHUB_WORKSPACE/go
           cd $GOPATH/src/github.com/kilpkonn/gtm-enhanced
           go build -o $GITHUB_WORKSPACE/build/gtm .
+      - name: Clean
+        run: |
+          rm -rf $GITHUB_WORKSPACE/go
