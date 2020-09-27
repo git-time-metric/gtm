@@ -28,11 +28,11 @@ jobs:
       - name: Install git2go
         run: |
           make || true
-          make install || true
+          make install
       - name: Get gtm
         run: |
           export GOPATH=$GITHUB_WORKSPACE/go
-          go get -d github.com/kilpkonn/gtm-enhanced || true
+          go get -u github.com/kilpkonn/gtm-enhanced || true
           ls -alt
           cd $GOPATH/src/github.com/kilpkonn/gtm-enhanced
       - name: Build gtm
