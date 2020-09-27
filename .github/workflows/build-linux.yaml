@@ -14,7 +14,6 @@ jobs:
       - name: Install dependecies
         run: |
           sudo apt-get install libgit2-dev libssh2-1-dev libssl-dev cmake
-          mkdir $GITHUB_WORKSPACE/go
           export GOPATH=$GITHUB_WORKSPACE/go
           export
           go get -d github.com/libgit2/git2go
