@@ -38,7 +38,6 @@ jobs:
           export
           export GOPATH=$GITHUB_WORKSPACE/go
           cd $GOPATH/src/github.com/kilpkonn/gtm-enhanced
-          echo AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA ${BRANCH_NAME}
           git checkout ${BRANCH_NAME}
           go build -o $GITHUB_WORKSPACE/build/gtm .
       - name: Clean

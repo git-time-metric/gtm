@@ -1,0 +1,43 @@
+[submodule "github.com/armon/go-radix"]
+	path = vendor/github.com/armon/go-radix
+	url = git@github.com:armon/go-radix
+
+[submodule "github.com/bgentry/speakeasy"]
+	path = vendor/github.com/bgentry/speakeasy
+	url = git@github.com:bgentry/speakeasy
+
+[submodule "github.com/briandowns/spinner"]
+	path = vendor/github.com/briandowns/spinner
+	url = git@github.com:briandowns/spinner
+
+[submodule "github.com/fatih/color"]
+	path = vendor/github.com/fatih/color
+	url = git@github.com:fatih/color
+
+[submodule "github.com/hako/durafmt"]
+	path = vendor/github.com/hako/durafmt
+	url = git@github.com:hako/durafmt
+
+[submodule "github.com/hashicorp/go-version"]
+	path = vendor/github.com/hashicorp/go-version
+	url = git@github.com:hashicorp/go-version
+
+[submodule "github.com/jinzhu/now"]
+	path = vendor/github.com/jinzhu/now
+	url = git@github.com:jinzhu/now
+
+[submodule "github.com/mattn/go-isatty"]
+	path = vendor/github.com/mattn/go-isatty
+	url = git@github.com:mattn/go-isatty
+
+[submodule "github.com/mitchellh/cli"]
+	path = vendor/github.com/mitchellh/cli
+	url = git@github.com:mitchellh/cli
+
+[submodule "golang.org/x/crypto/ssh/terminal"]
+	path = vendor/golang.org/x/crypto/ssh/terminal
+	url = https://go.googlesource.com/crypto
+
+[submodule "golang.org/x/sys/unix"]
+	path = vendor/golang.org/x/sys/unix
+	url = git@go.googlesource.com/sys
