@@ -5,6 +5,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          path: './go/src'
       - uses: actions/setup-go@v2
         with:
           go-version: '^1.13.1' # The Go version to download (if necessary) and use.
@@ -12,6 +14,8 @@ jobs:
       - name: Install dependecies
         run: |
           sudo apt-get install libgit2-dev libssh2-1-dev libssl-dev cmake
+          mkdir $GITHUB_WORKSPACE/go
+          export GOPATH=$GITHUB_WORKSPACE/go
           export
           go get -d github.com/libgit2/git2go
           cd $GOPATH/src/github.com/libgit2/git2go
