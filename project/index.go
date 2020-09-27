@@ -36,7 +36,7 @@ func NewIndex() (Index, error) {
 }
 
 // Get finds projects by tags or all projects or the project in the current directory
-func (i *Index) Get(tags []string, all bool) ([]string, error) {
+func (i *Index) Get(tags []string, all bool, cwd ...string) ([]string, error) {
 	switch {
 	case all:
 		err := i.clean()
@@ -45,7 +45,7 @@ func (i *Index) Get(tags []string, all bool) ([]string, error) {
 		if err := i.clean(); err != nil {
 			return []string{}, err
 		}
-		projectsWithTags := []string{}
+		var projectsWithTags []string
 		for _, p := range i.projects() {
 			found, err := i.hasTags(p, tags)
 			if err != nil {
@@ -58,7 +58,7 @@ func (i *Index) Get(tags []string, all bool) ([]string, error) {
 		sort.Strings(projectsWithTags)
 		return projectsWithTags, nil
 	default:
-		curProjPath, _, err := Paths()
+		curProjPath, _, err := Paths(cwd...)
 		if err != nil {
 			return []string{}, err
 		}
