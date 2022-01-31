@@ -14,7 +14,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/libgit2/git2go"
+	"github.com/libgit2/git2go/v33"
 )
 
 // TestRepo represents a test git repo used in testing
