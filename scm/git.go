@@ -17,7 +17,7 @@ import (
 	"time"
 
 	"github.com/git-time-metric/gtm/util"
-	"github.com/libgit2/git2go"
+	"github.com/libgit2/git2go/v33"
 )
 
 // Workdir returns the working directory for a repo
@@ -298,7 +298,7 @@ func DiffParentCommit(childCommit *git.Commit) (CommitStats, error) {
 		files := []string{}
 
 		err := childTree.Walk(
-			func(s string, entry *git.TreeEntry) int {
+			func(s string, entry *git.TreeEntry) error {
 				switch entry.Filemode {
 				case git.FilemodeTree:
 					// directory where file entry is located
@@ -307,7 +307,7 @@ func DiffParentCommit(childCommit *git.Commit) (CommitStats, error) {
 					files = append(files, filepath.Join(path, entry.Name))
 					fileCnt++
 				}
-				return 0
+				return nil
 			})
 
 		if err != nil {
