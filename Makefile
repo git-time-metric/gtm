@@ -57,7 +57,7 @@ clean:
 git2go-install:
 	[[ -d $(GIT2GO_PATH)/.git ]] || (rm -rf $(GIT2GO_PATH) && git clone https://github.com/libgit2/git2go.git $(GIT2GO_PATH)) && \
 	cd ${GIT2GO_PATH} && \
-	git pull origin $(GIT2GO_VERSION) && \
+	git fetch origin $(GIT2GO_VERSION) && \
 	git checkout -qf $(GIT2GO_VERSION) && \
 	git submodule update --init
 
